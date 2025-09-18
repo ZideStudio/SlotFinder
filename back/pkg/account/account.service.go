@@ -101,6 +101,10 @@ func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err err
 }
 
 func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, err error) {
+	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
+		return account, err
+	}
+
 	if dto.UserName != nil {
 		account.UserName = *dto.UserName
 	}
@@ -118,8 +122,8 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	return s.GetMe(userId)
 }
 
-func (s *AccountService) Delete(id uuid.UUID, user *guard.Claims) (account model.Account, err error) {
-	if err = s.accountRepository.FindOneById(id, &account); err != nil {
+func (s *AccountService) Delete(userId uuid.UUID, user *guard.Claims) (account model.Account, err error) {
+	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
 		return account, err
 	}
 
