@@ -5,7 +5,7 @@
 ##
 
 # specify the base image to  be used for the application, alpine or ubuntu
-FROM golang:1.24-alpine AS build
+FROM golang:1.25.1-alpine AS build
 RUN apk --no-cache add --upgrade ca-certificates && update-ca-certificates
 RUN adduser -g "" -s /sbin/nologin -D -H -u 1001 appuser
 
