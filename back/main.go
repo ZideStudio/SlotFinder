@@ -27,7 +27,7 @@ func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if os.Getenv("ENV") != "local" {
+	if os.Getenv("ENV") == "local" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
