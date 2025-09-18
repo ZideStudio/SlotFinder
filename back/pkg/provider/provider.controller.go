@@ -64,7 +64,10 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	}
 
 	var state map[string]string
-	json.Unmarshal([]byte(decodedState), &state)
+	if err := json.Unmarshal([]byte(decodedState), &state); err != nil {
+		helpers.ResponseJSON(c, nil, errors.New("State parameter contains invalid JSON"))
+		return
+	}
 	redirectUrl := state["redirectUrl"]
 	if state == nil || redirectUrl == "" {
 		helpers.ResponseJSON(c, nil, errors.New("State parameter is invalid"))
