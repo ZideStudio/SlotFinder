@@ -89,7 +89,9 @@ func (ctl *AccountController) Update(c *gin.Context) {
 	}
 
 	var data AccountUpdateDto
-	helpers.ShouldBindJSON(c, &data)
+	if err := helpers.ShouldBindJSON(c, &data); err != nil {
+		return
+	}
 
 	account, err := ctl.accountService.Update(&data, user.Id)
 
