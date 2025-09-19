@@ -1,2 +1,3 @@
 import './reset.css';
-import './mainBody.css';
+
+import './global.css';
