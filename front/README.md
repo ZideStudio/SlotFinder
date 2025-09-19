@@ -35,9 +35,9 @@ You will also see lint errors in the console.
 
 ### `npm test`
 
-Runs all tests (unit and e2e).
+Runs all tests.
 
-> You can add the `--coverage` flag to generate a coverage report for both unit and e2e tests.  
+> You can add the `--coverage` flag to generate a coverage report  
 > Example: `npm run test -- --coverage`
 
 ### `npm run test:unit`
@@ -47,10 +47,6 @@ Runs unit tests using Vitest.
 ### `npm run test:unit:watch`
 
 Runs unit tests in watch mode using Vitest.
-
-### `npm run test:e2e`
-
-Runs end-to-end tests using Playwright.
 
 ### `npm run build`
 
