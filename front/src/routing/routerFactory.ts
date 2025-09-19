@@ -5,8 +5,7 @@ interface CreateRouterProps {
   basename?: string;
 }
 
-export const createRouter = ({ basename }: CreateRouterProps = {}) => {
-  return createBrowserRouter(routeObject, {
+export const createRouter = ({ basename }: CreateRouterProps = {}) =>
+  createBrowserRouter(routeObject, {
     basename,
   });
-};

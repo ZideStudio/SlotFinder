@@ -14,6 +14,7 @@ vi.mock('react-dom/client', () => ({
 }));
 
 describe('bootstrap', () => {
+  // oxlint-disable-next-line init-declarations
   let container: HTMLElement;
   const render = vi.fn();
   const unmount = vi.fn();
@@ -56,7 +57,7 @@ describe('bootstrap', () => {
     });
   });
 
-  it('should not unmount when element is removed and re-added to the DOM', async () => {
+  it('should not unmount when element is removed and re-added to the DOM', () => {
     document.body.appendChild(container);
     container.remove();
     document.body.appendChild(container);

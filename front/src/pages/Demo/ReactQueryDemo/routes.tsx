@@ -1,4 +1,4 @@
-import { RouteObject } from 'react-router';
+import { type RouteObject } from 'react-router';
 import { ReactQueryDemo } from './ReactQueryDemo';
 
 export const reactQueryDemoRoutes: RouteObject = {

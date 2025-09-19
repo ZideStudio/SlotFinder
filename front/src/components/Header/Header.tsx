@@ -5,13 +5,11 @@ import { Link } from 'react-router';
 
 import classes from './Header.module.css';
 
-export const Header = () => {
-  return (
-    <div className={classes.container}>
-      <Link to="/">
-        <Logo size="50px" src={logo} alt="logo" />
-      </Link>
-      <Navigation links={[{ label: 'Demo', url: '/' }]} />
-    </div>
-  );
-};
+export const Header = () => (
+  <div className={classes.container}>
+    <Link to="/">
+      <Logo size="50px" src={logo} alt="logo" />
+    </Link>
+    <Navigation links={[{ label: 'Demo', url: '/' }]} />
+  </div>
+);
