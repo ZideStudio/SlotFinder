@@ -1,7 +1,6 @@
 # Environment
-.env
-.env.stg
-.env.prd
+.env*
+!.env.model
 .DS_Store
 
 # Binaries for programs and plugins
