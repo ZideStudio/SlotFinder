@@ -12,5 +12,5 @@ export enum HEADERS {
 
 export enum MIME_TYPES {
   json = 'application/json',
-  text = 'plain/text',
+  text = 'text/plain',
 }

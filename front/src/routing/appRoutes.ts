@@ -1,3 +1,3 @@
-export const approutes = {
+export const appRoutes = {
   home: '/',
 };
