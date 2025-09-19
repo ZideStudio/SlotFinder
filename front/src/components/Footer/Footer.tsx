@@ -4,13 +4,11 @@ import { Link } from 'react-router';
 
 import classes from './Footer.module.css';
 
-export const Footer = () => {
-  return (
-    <div className={classes.container}>
-      <hr />
-      <Link to="/">
-        <Logo size="50px" src={logo} alt="logo" />
-      </Link>
-    </div>
-  );
-};
+export const Footer = () => (
+  <div className={classes.container}>
+    <hr />
+    <Link to="/">
+      <Logo size="50px" src={logo} alt="logo" />
+    </Link>
+  </div>
+);

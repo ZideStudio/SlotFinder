@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv } from '@rsbuild/core';
-import { pluginEslint } from '@rsbuild/plugin-eslint';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
 import StylelintPlugin from 'stylelint-webpack-plugin';
@@ -26,14 +25,7 @@ export default defineConfig(({ env }) => {
   const isProduction = env === 'production';
 
   return {
-    plugins: [
-      pluginReact(),
-      pluginSass(),
-      !isProduction &&
-        pluginEslint({
-          enable: (process.env.DISABLE_ESLINT_PLUGIN ?? 'false') === 'true' || !resolveModule('eslint'),
-        }),
-    ].filter(Boolean),
+    plugins: [pluginReact(), pluginSass()],
     source: {
       entry: {
         index: 'src/main.ts',

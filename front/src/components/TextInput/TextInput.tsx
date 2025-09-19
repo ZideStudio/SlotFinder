@@ -1,6 +1,6 @@
 import { Input } from '@Front/ui/atoms/Input';
-import { InputHTMLAttributes } from 'react';
-import { FieldError, useFormContext } from 'react-hook-form';
+import { type InputHTMLAttributes } from 'react';
+import { type FieldError, useFormContext } from 'react-hook-form';
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;

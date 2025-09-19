@@ -1,5 +1,5 @@
 import { ProfileForm } from '@Front/forms/ProfileForm';
-import { ProfileType } from '@Front/types/profileTypes';
+import { type ProfileType } from '@Front/types/profileTypes';
 import { useState } from 'react';
 
 import classes from './ReactHookFormDemo.module.css';

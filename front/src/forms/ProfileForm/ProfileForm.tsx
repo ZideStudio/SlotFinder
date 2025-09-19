@@ -1,7 +1,8 @@
 import { TextInput } from '@Front/components/TextInput';
-import { ProfileType } from '@Front/types/profileTypes';
+import { type ProfileType } from '@Front/types/profileTypes';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
+import { FormProvider, type SubmitHandler, useForm } from 'react-hook-form';
+// oxlint-disable-next-line no-namespace
 import * as yup from 'yup';
 import classes from './ProfileForm.module.scss';
 

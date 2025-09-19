@@ -1,0 +1,45 @@
+{
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "style": "warn",
+    "pedantic": "warn"
+  },
+  "plugins": ["react", "typescript", "import", "jsx-a11y"],
+  "rules": {
+    "react/jsx-key": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/no-unescaped-entities": "off",
+    "react/no-unknown-property": "warn",
+    "import/consistent-type-specifier-style": "off",
+    "import/exports-last": "off",
+    "import/group-exports": "off",
+    "import/max-dependencies": [
+      "warn",
+      {
+        "max": 15
+      }
+    ],
+    "import/no-unassigned-import": "off",
+    "import/no-unresolved": "warn",
+    "import/no-duplicates": "warn",
+    "import/order": "warn",
+    "import/prefer-default-export": "off",
+    "typescript/no-unused-vars": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/consistent-type-definitions": "off",
+    "typescript/consistent-type-imports": [
+      "warn",
+      {
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "eslint/max-lines-per-function": "off",
+    "eslint/no-ternary": "off",
+    "eslint/sort-imports": "off",
+    "eslint/sort-keys": "off",
+    "no-console": "warn",
+    "no-debugger": "error"
+  }
+}

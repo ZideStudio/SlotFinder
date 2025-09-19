@@ -13,12 +13,12 @@ type FetchApiProps = {
   headers?: HeadersInit;
 };
 
-export const fetchApi = async <T extends Json | string>({
+export const fetchApi = async <Response extends Json | string>({
   path,
   method = METHODS.get,
   data,
   headers = [],
-}: FetchApiProps): Promise<T> => {
+}: FetchApiProps): Promise<Response> => {
   const mergeHeaders = new Headers(headers);
 
   if (data) {
@@ -42,8 +42,8 @@ export const fetchApi = async <T extends Json | string>({
   }
 
   if ((response.headers.get(HEADERS.contentType) ?? '').includes('json')) {
-    return JSON.parse(content) as T;
+    return JSON.parse(content) as Response;
   }
 
-  return content as T;
+  return content as Response;
 };
