@@ -5,8 +5,6 @@ export default defineConfig({
   enablePrettier: 'on',
   enableVitest: true,
   unitTestFiles: ['src/**/*.{test,spec,steps}.{js,jsx,ts,tsx}'],
-  enablePlaywright: true,
-  unitE2eFiles: ['tests/**/*.{test,spec}.{js,jsx,ts,tsx}'],
   extendConfig: [
     {
       files: ['mocks/**/*'],
