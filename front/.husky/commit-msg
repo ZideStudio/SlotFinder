@@ -1,1 +1,7 @@
-npx --no -- commitlint --edit ${1}
+cd front/
+
+npx --no -- commitlint --edit ${1} ||
+(
+    echo '❌ The commit message does not follow the conventions';
+    false;
+)

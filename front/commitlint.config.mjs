@@ -1,3 +1,4 @@
+// oxlint-disable-next-line no-anonymous-default-export
 export default {
-  extends: ['@pplancq/commitlint-config'],
+  extends: ['@commitlint/config-conventional'],
 };
