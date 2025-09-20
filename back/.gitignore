@@ -1,6 +1,7 @@
 # Environment
 .env*
 !.env.model
+*.pem
 .DS_Store
 
 # Binaries for programs and plugins
