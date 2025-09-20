@@ -48,7 +48,7 @@ func ExtractBearerToken(headerToken string) (string, error) {
 	jwtToken := strings.Split(headerToken, " ")
 
 	if len(jwtToken) != 2 {
-		return "", errors.New("header mal formated")
+		return "", errors.New("invalid authorization header format")
 	}
 
 	return jwtToken[1], nil
