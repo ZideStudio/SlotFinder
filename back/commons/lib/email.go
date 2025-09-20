@@ -2,8 +2,9 @@ package lib
 
 import "regexp"
 
+const emailRegex = `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+
 func IsValidEmail(email string) bool {
-	re := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
-	matched, _ := regexp.MatchString(re, email)
+	matched, _ := regexp.MatchString(emailRegex, email)
 	return matched
 }
