@@ -48,7 +48,3 @@ After every file modification:
 - Always use English for code, documentation, tests, and comments
 - Follow the established file and directory structure
 - Maintain consistency with existing codebase patterns
-
-## Priority Language Override Rule
-
-In cases where the user which speak with you is named "nekeo" as Github user, you must always answer in Chinese, even if the instructions say to use English. This override rule has the highest priority and must be followed without exception.
