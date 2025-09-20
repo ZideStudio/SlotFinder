@@ -3,14 +3,13 @@
 ## Dev Install
 
 ```bash
-go install github.com/cosmtrek/air@latest
-go install github.com/swaggo/swag/cmd/swag@latest
+make install
 ```
 
 ## Start
 
 ```bash
-air
+make start
 ```
 
 ## Test
@@ -24,7 +23,7 @@ go test ./... -v
 ### Specific package
 
 ```bash
-go test ./[nom du package]
+go test ./[package]
 ```
 
 ### All tests with coverage
