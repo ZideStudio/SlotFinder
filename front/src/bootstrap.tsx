@@ -1,6 +1,6 @@
-import { App } from '@Front/components/App';
 import { StrictMode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { App } from './components/App/App';
 
 // eslint-disable-next-line import/no-default-export
 export default class Bootstrap extends HTMLElement {

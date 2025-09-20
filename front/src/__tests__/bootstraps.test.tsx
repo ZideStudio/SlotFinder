@@ -1,4 +1,4 @@
-import { App } from '@Front/components/App';
+import { App } from '@Front/components/App/App';
 import { waitFor } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
