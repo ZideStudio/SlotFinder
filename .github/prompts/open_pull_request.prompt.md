@@ -31,7 +31,8 @@ You MUST NOT proceed to step 2 before step 1 is confirmed complete. You MUST NOT
 
 ### 1.1 Determine and confirm main branch
 
-Check if a default branch is specified in `.github/copilot-instructions.md`. If specified, use that branch without user confirmation. Otherwise, propose `main` as default and request explicit confirmation from user. Do NOT run the diff command before confirmation.
+**Default branch for this repository is `main`. Always use `main` as the base branch for diffs and PRs unless explicitly instructed otherwise.**
+If a different branch is specified in `.github/copilot-instructions.md`, use that branch instead. Do NOT run the diff command before confirmation if a different branch is specified.
 
 ### 1.2 Generate fresh diff after confirmation
 
