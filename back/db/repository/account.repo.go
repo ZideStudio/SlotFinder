@@ -57,13 +57,12 @@ func (*AccountRepository) Updates(account model.Account) error {
 		account.Password = &hashedPasswordToString
 	}
 
-	err := db.GetDB().Model(&account).Updates(account).Error
-	if err != nil {
+	if err := db.GetDB().Model(&account).Updates(account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::UPDATE Failed to update account")
 		return err
 	}
 
-	return err
+	return nil
 }
 
 func (*AccountRepository) FindOneById(id uuid.UUID, account *model.Account) error {
