@@ -3,10 +3,8 @@ package repository
 import (
 	"app/db"
 	model "app/db/models"
-	"errors"
 
 	"github.com/rs/zerolog/log"
-	"gorm.io/gorm"
 )
 
 type AccountProvidersRepository struct{}
@@ -19,11 +17,12 @@ type AccountProviderCreateDto struct {
 }
 
 func (*AccountProvidersRepository) Create(accountProvider model.AccountProvider) error {
-	err := db.GetDB().Create(&accountProvider).Error
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.GetDB().Create(&accountProvider).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_PROVIDERS_REPOSITORY::CREATE Failed to create account provider")
+		return err
 	}
-	return err
+
+	return nil
 }
 
 func (*AccountProvidersRepository) FindOneById(id string, provider string, accountProvider *model.AccountProvider) error {
