@@ -14,7 +14,7 @@ type ApiError struct {
 }
 
 func ShouldBindJSON(c *gin.Context, obj any) error {
-	if err := c.ShouldBindJSON(&obj); err != nil {
+	if err := c.ShouldBindJSON(obj); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return err
 	}
