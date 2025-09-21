@@ -112,12 +112,14 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 	}
 
 	if authUserId != "" && authUserId != existingAccountProvider.AccountId.String() {
-		if existingAccountProvider.AccountId == uuid.Nil && existingAccountProvider.AccountId.String() != authUserId {
-			return providerAccountResponse, fmt.Errorf("ALREADY_EXISTS: provider already exists connected to another account")
-		}
+		if existingAccountProvider.AccountId != uuid.Nil {
+			if existingAccountProvider.AccountId.String() != authUserId {
+				return providerAccountResponse, fmt.Errorf("ALREADY_EXISTS: provider already exists connected to another account")
+			}
 
-		if err := s.accountProvidersRepository.Delete(providerUser.ProviderAccount.Id); err != nil {
-			return providerAccountResponse, fmt.Errorf("error finding provider: %w", err)
+			if err := s.accountProvidersRepository.Delete(providerUser.ProviderAccount.Id); err != nil {
+				return providerAccountResponse, fmt.Errorf("error finding provider: %w", err)
+			}
 		}
 
 		providerAccountResponse.AccountProvider = &model.AccountProvider{
