@@ -26,5 +26,7 @@ func TestDecryptWithInvalidBase64(t *testing.T) {
 	_ = os.Setenv("ENCRYPTION_KEY", testKey)
 
 	_, err := Decrypt("!!not_base64!!")
-	assert.Error(t, err, "Decryption of non-base64 string should fail")
+	if assert.Error(t, err, "Decryption of non-base64 string should fail") {
+		assert.Contains(t, err.Error(), "illegal base64", "Error message should mention base64 decoding")
+	}
 }
