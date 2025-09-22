@@ -13,9 +13,9 @@ type ApiError struct {
 	Message string `json:"message"`
 }
 
-func ShouldBindJSON(c *gin.Context, obj any) error {
-	if err := c.ShouldBindJSON(obj); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func SetHttpContextBody(httpContext *gin.Context, body any) error {
+	if err := httpContext.ShouldBindJSON(body); err != nil {
+		httpContext.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return err
 	}
 

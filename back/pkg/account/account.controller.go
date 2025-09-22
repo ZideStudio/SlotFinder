@@ -33,7 +33,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 // @Router /v1/account [post]
 func (ctl *AccountController) Create(c *gin.Context) {
 	var data AccountCreateDto
-	if err := helpers.ShouldBindJSON(c, &data); err != nil {
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
 		return
 	}
 
@@ -89,7 +89,7 @@ func (ctl *AccountController) Update(c *gin.Context) {
 	}
 
 	var data AccountUpdateDto
-	if err := helpers.ShouldBindJSON(c, &data); err != nil {
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
 		return
 	}
 

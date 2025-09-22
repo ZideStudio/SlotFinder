@@ -31,7 +31,7 @@ func NewSigninController(ctl *SigninController) *SigninController {
 // @Router /v1/auth/signin [post]
 func (ctl *SigninController) Signin(c *gin.Context) {
 	var data SigninDto
-	helpers.ShouldBindJSON(c, &data)
+	helpers.SetHttpContextBody(c, &data)
 
 	token, err := ctl.signinService.Signin(&data)
 
