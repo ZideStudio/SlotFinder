@@ -22,10 +22,10 @@ func SetHttpContextBody(httpContext *gin.Context, body any) error {
 	return nil
 }
 
-func ResponseJSON(c *gin.Context, obj any, err error) {
+func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
 	if err != nil {
 		code, message := parseError(err)
-		c.AbortWithStatusJSON(http.StatusBadRequest, ApiError{
+		httpContext.AbortWithStatusJSON(http.StatusBadRequest, ApiError{
 			Error:   true,
 			Code:    code,
 			Message: message,
@@ -33,7 +33,7 @@ func ResponseJSON(c *gin.Context, obj any, err error) {
 		return
 	}
 
-	c.AbortWithStatusJSON(http.StatusOK, obj)
+	httpContext.AbortWithStatusJSON(http.StatusOK, response)
 }
 
 func parseError(err error) (code, message string) {

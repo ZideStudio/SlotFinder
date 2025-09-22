@@ -39,7 +39,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 
 	account, err := ctl.accountService.Create(&data)
 
-	helpers.ResponseJSON(c, account, err)
+	helpers.HandleJSONResponse(c, account, err)
 }
 
 // @Summary Get My Account
@@ -54,17 +54,17 @@ func (ctl *AccountController) Create(c *gin.Context) {
 func (ctl *AccountController) GetMe(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
-		helpers.ResponseJSON(c, nil, err)
+		helpers.HandleJSONResponse(c, nil, err)
 		return
 	}
 	if user == nil {
-		helpers.ResponseJSON(c, nil, errors.New("user not found"))
+		helpers.HandleJSONResponse(c, nil, errors.New("user not found"))
 		return
 	}
 
 	account, err := ctl.accountService.GetMe(user.Id)
 
-	helpers.ResponseJSON(c, account, err)
+	helpers.HandleJSONResponse(c, account, err)
 }
 
 // @Summary Update my account
@@ -80,11 +80,11 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 func (ctl *AccountController) Update(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
-		helpers.ResponseJSON(c, nil, err)
+		helpers.HandleJSONResponse(c, nil, err)
 		return
 	}
 	if user == nil {
-		helpers.ResponseJSON(c, nil, errors.New("user not found"))
+		helpers.HandleJSONResponse(c, nil, errors.New("user not found"))
 		return
 	}
 
@@ -95,5 +95,5 @@ func (ctl *AccountController) Update(c *gin.Context) {
 
 	account, err := ctl.accountService.Update(&data, user.Id)
 
-	helpers.ResponseJSON(c, account, err)
+	helpers.HandleJSONResponse(c, account, err)
 }

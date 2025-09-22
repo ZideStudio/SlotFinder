@@ -35,5 +35,5 @@ func (ctl *SigninController) Signin(c *gin.Context) {
 
 	token, err := ctl.signinService.Signin(&data)
 
-	helpers.ResponseJSON(c, token, err)
+	helpers.HandleJSONResponse(c, token, err)
 }
