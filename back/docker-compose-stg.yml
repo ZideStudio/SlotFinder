@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  stg_server:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: slotfinder-backend-stg
+    image: $IMAGE_NAME
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=zide-traefik-n"
+      - "traefik.http.services.${PROJECT_NAME}.loadbalancer.server.port=3000"
+
+      - "traefik.http.routers.${PROJECT_NAME}-https.rule=Host(`${ENVIRONMENT_URL}`)"
+      - "traefik.http.routers.${PROJECT_NAME}-https.entrypoints=websecure"
+      - "traefik.http.routers.${PROJECT_NAME}-https.tls.certresolver=zideresolver"
+      - "traefik.http.routers.${PROJECT_NAME}-https.service=${PROJECT_NAME}"
+
+      - "traefik.http.routers.${PROJECT_NAME}-http.rule=Host(`${ENVIRONMENT_URL}`)"
+      - "traefik.http.routers.${PROJECT_NAME}-http.entrypoints=web"
+      - "traefik.http.routers.${PROJECT_NAME}-http.service=${PROJECT_NAME}"
+
+      - "io.portainer.accesscontrol.teams=slotfinder"
+    networks:
+      - zide-traefik-n
+
+networks:
+  zide-traefik-n:
+    external: true
