@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":timezone(Europe/Paris)", ":enableVulnerabilityAlertsWithLabel(security)"],
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "npm": {
+    "rangeStrategy": "bump",
+    "minimumReleaseAge": "3 days"
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["High"]
+    },
+    {
+      "matchDepTypes": ["action"],
+      "pinDigests": true
+    },
+    {
+      "matchPackageNames": ["node"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    {
+      "matchDatasources": ["npm"],
+      "matchDepTypes": "peerDependencies",
+      "enabled": false
+    },
+    {
+      "matchDatasources": ["npm"],
+      "groupName": "react-query mono repo",
+      "matchSourceUrls": ["https://github.com/TanStack/query"]
+    }
+  ]
+}
