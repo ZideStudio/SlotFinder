@@ -1,0 +1,356 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "SlotFinder API Doc",
+        "title": "SlotFinder API",
+        "contact": {
+            "email": "contact@zide.fr"
+        },
+        "version": "1.0b"
+    },
+    "paths": {
+        "/v1/account": {
+            "post": {
+                "description": "Create a new account with the provided parameters.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Create an account",
+                "parameters": [
+                    {
+                        "description": "Account parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/account.AccountCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/account.AccountCreateResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update own account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Update my account",
+                "parameters": [
+                    {
+                        "description": "Account parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/account.AccountUpdateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Account"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/account/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get the account information of the current user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get My Account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Account"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/signin": {
+            "post": {
+                "description": "Sign in with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Sign in",
+                "parameters": [
+                    {
+                        "description": "Sign in parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/signin.SigninDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/signin.TokenResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/{provider}/url": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get redirect URL for OAuth provider",
+                "parameters": [
+                    {
+                        "enum": [
+                            "google",
+                            "github",
+                            "discord"
+                        ],
+                        "type": "string",
+                        "description": "OAuth provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OAuth URL",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "account.AccountCreateDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "account.AccountCreateResponseDto": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AccountProvider"
+                    }
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "account.AccountUpdateDto": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "constants.Provider": {
+            "type": "string",
+            "enum": [
+                "google",
+                "discord",
+                "github"
+            ],
+            "x-enum-varnames": [
+                "PROVIDER_GOOGLE",
+                "PROVIDER_DISCORD",
+                "PROVIDER_GITHUB"
+            ]
+        },
+        "helpers.ApiError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Account": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AccountProvider"
+                    }
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AccountProvider": {
+            "type": "object",
+            "properties": {
+                "provider": {
+                    "$ref": "#/definitions/constants.Provider"
+                }
+            }
+        },
+        "signin.SigninDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "signin.TokenResponseDto": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Enter your bearer token in the format **Bearer \u0026lt;token\u0026gt;**",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
