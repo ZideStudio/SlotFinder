@@ -1,0 +1,232 @@
+definitions:
+  account.AccountCreateDto:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  account.AccountCreateResponseDto:
+    properties:
+      access_token:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      providers:
+        items:
+          $ref: '#/definitions/model.AccountProvider'
+        type: array
+      userName:
+        type: string
+    type: object
+  account.AccountUpdateDto:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  constants.Provider:
+    enum:
+    - google
+    - discord
+    - github
+    type: string
+    x-enum-varnames:
+    - PROVIDER_GOOGLE
+    - PROVIDER_DISCORD
+    - PROVIDER_GITHUB
+  helpers.ApiError:
+    properties:
+      code:
+        type: string
+      error:
+        type: boolean
+      message:
+        type: string
+    type: object
+  model.Account:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      providers:
+        items:
+          $ref: '#/definitions/model.AccountProvider'
+        type: array
+      userName:
+        type: string
+    type: object
+  model.AccountProvider:
+    properties:
+      provider:
+        $ref: '#/definitions/constants.Provider'
+    type: object
+  signin.SigninDto:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  signin.TokenResponseDto:
+    properties:
+      access_token:
+        type: string
+    type: object
+info:
+  contact:
+    email: contact@zide.fr
+  description: SlotFinder API Doc
+  title: SlotFinder API
+  version: 1.0b
+paths:
+  /v1/account:
+    patch:
+      consumes:
+      - application/json
+      description: Update own account
+      parameters:
+      - description: Account parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/account.AccountUpdateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Update my account
+      tags:
+      - Account
+    post:
+      consumes:
+      - application/json
+      description: Create a new account with the provided parameters.
+      parameters:
+      - description: Account parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/account.AccountCreateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/account.AccountCreateResponseDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Create an account
+      tags:
+      - Account
+  /v1/account/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the account information of the current user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Get My Account
+      tags:
+      - Account
+  /v1/auth/{provider}/url:
+    get:
+      parameters:
+      - description: OAuth provider
+        enum:
+        - google
+        - github
+        - discord
+        in: path
+        name: provider
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OAuth URL
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Get redirect URL for OAuth provider
+      tags:
+      - Authentication
+  /v1/auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: Sign in with email and password
+      parameters:
+      - description: Sign in parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/signin.SigninDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/signin.TokenResponseDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Sign in
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerAuth:
+    description: Enter your bearer token in the format **Bearer &lt;token&gt;**
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
