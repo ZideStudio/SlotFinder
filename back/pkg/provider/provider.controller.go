@@ -4,9 +4,11 @@ import (
 	"app/commons/encryption"
 	"app/commons/guard"
 	"app/commons/helpers"
+	"app/config"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +35,26 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Router /v1/auth/{provider}/url [get]
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
+
+	config := config.GetConfig()
+
 	redirectUrl := c.Query("redirectUrl")
+	if redirectUrl == "" {
+		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl query parameter is required"))
+		return
+	}
+
+	isUrlAllowed := false
+	for _, origin := range config.Origins {
+		if strings.HasPrefix(redirectUrl, origin) {
+			isUrlAllowed = true
+			break
+		}
+	}
+	if !isUrlAllowed {
+		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl is not allowed"))
+		return
+	}
 
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -67,10 +88,14 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	if err := json.Unmarshal([]byte(decodedState), &state); err != nil {
 		helpers.HandleJSONResponse(c, nil, errors.New("State parameter contains invalid JSON"))
 		return
-	}
-	redirectUrl := state["redirectUrl"]
-	if state == nil || redirectUrl == "" {
+	} else if state == nil {
 		helpers.HandleJSONResponse(c, nil, errors.New("State parameter is invalid"))
+		return
+	}
+
+	redirectUrl := state["redirectUrl"]
+	if redirectUrl == "" {
+		helpers.HandleJSONResponse(c, nil, errors.New("State parameter is missing redirectUrl"))
 		return
 	}
 
