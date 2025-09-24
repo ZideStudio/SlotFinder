@@ -30,6 +30,12 @@
       "matchDatasources": ["npm"],
       "groupName": "react-query mono repo",
       "matchSourceUrls": ["https://github.com/TanStack/query"]
+    },
+    {
+      "matchPackageNames": [
+        "github.com/swaggo/files"
+      ],
+      "enabled": false
     }
   ]
 }
