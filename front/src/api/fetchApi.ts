@@ -1,4 +1,4 @@
-import type { Json } from '@Front/types/api';
+import type { Json } from '@Front/types/api.types';
 import { HEADERS, METHODS, MIME_TYPES } from './constant';
 
 export type FetchApiError = Error & {
