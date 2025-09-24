@@ -88,7 +88,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	if err := json.Unmarshal([]byte(decodedState), &state); err != nil {
 		helpers.HandleJSONResponse(c, nil, errors.New("State parameter contains invalid JSON"))
 		return
-	} else if state == nil {
+	} else if len(state) == 0 {
 		helpers.HandleJSONResponse(c, nil, errors.New("State parameter is invalid"))
 		return
 	}
