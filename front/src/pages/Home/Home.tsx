@@ -6,9 +6,9 @@ export const Home = () => {
   const { t } = useTranslation('home');
 
   return (
-    <main>
+    <>
       <h1>{t('welcome')}</h1>
       <NavLink to={appRoutes.signUp}>Sign Up</NavLink>
-    </main>
+    </>
   );
 };
