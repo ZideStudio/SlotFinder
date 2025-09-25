@@ -20,11 +20,11 @@ type ServerUseType = {
 };
 
 /**
- * Méthodes permettant de mocker une route d'API en GET et POST depuis le fichier de test
- * @param base : BASE ROUTE avec comme valeur par défaut MOCK_API_URL.base
- * @param route : URI à renseigner
- * @param code : status code que l'API doit renvoyer
- * @param responseBody : corps de la réponse
+ * Methods to mock an API route for GET and POST from the test file
+ * @param base: BASE ROUTE, default value is FRONT_BACKEND_URL
+ * @param route: URI to specify
+ * @param code: status code that the API should return
+ * @param responseBody: response body
  */
 
 export const serverUseGet = ({
