@@ -19,12 +19,11 @@ describe('DebugGrid', () => {
   });
 
   it('should not render DebugGrid when the environment is not development', () => {
-    const originalEnv = import.meta.env.DEV;
-    import.meta.env.DEV = false;
+    vi.stubEnv('DEV', false);
     render(<DebugGrid />);
     const cardCheckbox = screen.queryByRole('checkbox');
     expect(cardCheckbox).not.toBeInTheDocument();
-    import.meta.env.DEV = originalEnv;
+    vi.unstubAllEnvs();
   });
 
   it('should render the correct number of columns when cols prop is set', () => {
