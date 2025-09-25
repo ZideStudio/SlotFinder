@@ -1,5 +1,6 @@
 import { signUpApi } from '@Front/api/signUpApi';
 import type { SignUpFormType, SignUpRequestBodyType, SignUpResponseType } from '@Front/types/Authentication/signUp.types';
+import { getFormattedErrorMessage } from '@Front/utils/getFormattedErrorMessage';
 import { useMutation } from '@tanstack/react-query';
 
 type UseSignUpApiReturn = {
@@ -16,6 +17,6 @@ export const useSignUp = (): UseSignUpApiReturn => {
   return {
     signUp: mutation.mutateAsync,
     isLoading: mutation.isPending,
-    error: mutation.error?.message,
+    error: getFormattedErrorMessage(mutation.error),
   };
 };
