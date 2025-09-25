@@ -4,7 +4,9 @@ export const getFormattedError = (error: Error): Error => {
     if (parsedError && typeof parsedError === 'object' && 'message' in parsedError) {
       return new Error(parsedError.message);
     }
-  } catch {}
+  } catch {
+    // If parsing fails, return the bottom error
+  }
 
   return new Error('An unexpected error occurred');
 };
