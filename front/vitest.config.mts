@@ -51,6 +51,8 @@ export default defineConfig(({ mode }) => {
           'src/**/*.types.[jt]s?(x)',
           'src/**/index.[jt]s?(x)',
           'src/**/*.stories.[jt]s?(x)',
+          'src/**/*.(spec|test|steps).[jt]s?(x)',
+          'src/**/__tests__/**/*.[jt]s?(x)',
         ],
       },
     },
