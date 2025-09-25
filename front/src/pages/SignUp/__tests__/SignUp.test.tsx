@@ -25,7 +25,7 @@ describe('SignUp', () => {
 
   it('shows validation errors for empty fields', async () => {
     renderWithProvider(<SignUp />);
-    userEvent.click(screen.getByRole('button', { name: /sign up/i }));
+    await userEvent.click(screen.getByRole('button', { name: /sign up/i }));
 
     expect(await screen.findByText('Username is required')).toBeInTheDocument();
     expect(screen.getByText('Email is required')).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('SignUp', () => {
     await userEvent.type(screen.getByLabelText('Username'), 'testuser');
     await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
     await userEvent.type(screen.getByLabelText('Password'), password);
-    userEvent.click(screen.getByRole('button', { name: 'Sign Up' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sign Up' }));
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
   });
@@ -74,7 +74,7 @@ describe('SignUp', () => {
     await userEvent.type(screen.getByLabelText('Username'), 'failuser');
     await userEvent.type(screen.getByLabelText('Email'), 'fail@example.com');
     await userEvent.type(screen.getByLabelText('Password'), 'Password1!');
-    userEvent.click(screen.getByRole('button', { name: /sign up/i }));
+    await userEvent.click(screen.getByRole('button', { name: /sign up/i }));
 
     expect(await screen.findByText('Username already exists')).toBeInTheDocument();
   });
