@@ -54,6 +54,11 @@ describe('SignUp', () => {
       description: 'must contain letters error',
     },
     {
+      password: 'password1!',
+      expectedError: 'passwordComplexity',
+      description: 'must contain numbers error',
+    },
+    {
       password: 'Password!',
       expectedError: 'passwordComplexity',
       description: 'must contain numbers error',
