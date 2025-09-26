@@ -15,50 +15,56 @@ afterAll(() => server.close());
 afterEach(() => server.resetHandlers());
 
 describe('SignUp', () => {
+  vi.mock('react-i18next', () => ({
+    useTranslation: vi.fn().mockReturnValue({
+      t: (messageId: string, args: Record<string, unknown>) => messageId + (args ? `::${JSON.stringify(args)}` : ''),
+    }),
+  }));
+
   it('renders all form fields and submit button', () => {
     renderWithProvider(<SignUp />);
-    expect(screen.getByLabelText('Username')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign up/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('username')).toBeInTheDocument();
+    expect(screen.getByLabelText('email')).toBeInTheDocument();
+    expect(screen.getByLabelText('password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'submit' })).toBeInTheDocument();
   });
 
   it('shows validation errors for empty fields', async () => {
     renderWithProvider(<SignUp />);
-    await userEvent.click(screen.getByRole('button', { name: /sign up/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
-    expect(await screen.findByText('Username is required')).toBeInTheDocument();
-    expect(screen.getByText('Email is required')).toBeInTheDocument();
-    expect(screen.getByText('Password is required')).toBeInTheDocument();
+    expect(await screen.findByText('requiredUsername')).toBeInTheDocument();
+    expect(screen.getByText('requiredEmail')).toBeInTheDocument();
+    expect(screen.getByText('requiredPassword')).toBeInTheDocument();
   });
 
   it.each([
     {
       password: '1234567',
-      expectedError: 'Password must be at least 8 characters',
+      expectedError: 'minLengthPassword::{"min":8}',
       description: 'minimum length error',
     },
     {
       password: '12345678!',
-      expectedError: 'Password must contain letters',
+      expectedError: 'passwordComplexity',
       description: 'must contain letters error',
     },
     {
       password: 'Password!',
-      expectedError: 'Password must contain numbers',
+      expectedError: 'passwordComplexity',
       description: 'must contain numbers error',
     },
     {
       password: 'Password1',
-      expectedError: 'Password must contain symbols',
+      expectedError: 'passwordComplexity',
       description: 'must contain symbols error',
     },
   ])('shows password $description', async ({ password, expectedError }) => {
     renderWithProvider(<SignUp />);
-    await userEvent.type(screen.getByLabelText('Username'), 'testuser');
-    await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), password);
-    await userEvent.click(screen.getByRole('button', { name: 'Sign Up' }));
+    await userEvent.type(screen.getByLabelText('username'), 'testuser');
+    await userEvent.type(screen.getByLabelText('email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('password'), password);
+    await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
   });
@@ -71,10 +77,10 @@ describe('SignUp', () => {
     });
 
     renderWithProvider(<SignUp />);
-    await userEvent.type(screen.getByLabelText('Username'), 'failuser');
-    await userEvent.type(screen.getByLabelText('Email'), 'fail@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), 'Password1!');
-    await userEvent.click(screen.getByRole('button', { name: /sign up/i }));
+    await userEvent.type(screen.getByLabelText('username'), 'failuser');
+    await userEvent.type(screen.getByLabelText('email'), 'fail@example.com');
+    await userEvent.type(screen.getByLabelText('password'), 'Password1!');
+    await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
     expect(await screen.findByText('Username already exists')).toBeInTheDocument();
   });
