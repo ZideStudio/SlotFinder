@@ -5,31 +5,26 @@ import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { signUpRoutes } from '../routes';
+import { authenticationRoutes } from '../../routes';
 
 const renderRouteOptions: RenderRouteOptions = {
-  routes: [signUpRoutes],
+  routes: [authenticationRoutes],
   routesOptions: { initialEntries: [appRoutes.signUp()] },
 };
 
 describe('SignUp', () => {
-  vi.mock('react-i18next', () => ({
-    useTranslation: vi.fn().mockReturnValue({
-      t: (messageId: string, args: Record<string, unknown>) => messageId + (args ? `::${JSON.stringify(args)}` : ''),
-    }),
-  }));
-
   beforeAll(() => {
     server.use(postAccount201);
   });
 
-  it('renders all form fields and submit button', () => {
+  it('renders all form fields, submit button and oauth', () => {
     renderRoute(renderRouteOptions);
 
     expect(screen.getByLabelText('username')).toBeInTheDocument();
     expect(screen.getByLabelText('email')).toBeInTheDocument();
     expect(screen.getByLabelText('password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'submit' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'signInWithProvider' })).toBeInTheDocument();
   });
 
   it('shows validation errors for empty fields', async () => {
