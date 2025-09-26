@@ -1,0 +1,14 @@
+{
+  "title": "Sign Up",
+  "username": "Username",
+  "requiredUsername": "Username is required",
+  "minLengthUsername": "Username must be at least {{min}} characters",
+  "email": "Email",
+  "requiredEmail": "Email is required",
+  "invalidEmail": "Invalid email address",
+  "password": "Password",
+  "requiredPassword": "Password is required",
+  "minLengthPassword": "Password must be at least {{min}} characters",
+  "passwordComplexity": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+  "submit": "Create Account"
+}
