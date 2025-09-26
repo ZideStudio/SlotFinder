@@ -1,6 +1,7 @@
 import { appRoutes } from '@Front/routing/appRoutes';
-import { serverUsePost } from '@Front/utils/testsUtils/msw';
 import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/renderRoute';
+import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers';
+import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -17,6 +18,10 @@ describe('SignUp', () => {
       t: (messageId: string, args: Record<string, unknown>) => messageId + (args ? `::${JSON.stringify(args)}` : ''),
     }),
   }));
+
+  beforeAll(() => {
+    server.use(postAccount201);
+  });
 
   it('renders all form fields and submit button', () => {
     renderRoute(renderRouteOptions);
@@ -70,11 +75,7 @@ describe('SignUp', () => {
   });
 
   it('shows error message on failed submission', async () => {
-    serverUsePost({
-      route: '/v1/account',
-      code: 400,
-      responseBody: { error: true, code: 'UNKNOWN_ERROR', message: 'Username already exists' },
-    });
+    server.use(postAccount400);
 
     renderRoute(renderRouteOptions);
 
@@ -83,6 +84,6 @@ describe('SignUp', () => {
     await userEvent.type(screen.getByLabelText('password'), 'Password1!');
     await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
-    expect(await screen.findByText('Username already exists')).toBeInTheDocument();
+    expect(await screen.findByText('This is a test error message on account creation.')).toBeInTheDocument();
   });
 });
