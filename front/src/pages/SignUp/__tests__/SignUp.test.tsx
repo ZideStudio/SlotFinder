@@ -78,7 +78,9 @@ describe('SignUp', () => {
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
   });
+});
 
+describe('SignUp error handling', () => {
   it('shows error message on failed submission', async () => {
     server.use(postAccount400);
 
