@@ -21,7 +21,6 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: 'jsdom',
-      env: loadEnv(mode, process.cwd(), ''),
       setupFiles: 'vitest.setup.ts',
       clearMocks: true,
       css: false,
