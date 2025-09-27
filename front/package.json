@@ -44,7 +44,7 @@
     "@pplancq/prettier-config": "*",
     "@pplancq/stylelint-config": "*",
     "@rsbuild/core": "^1.5.12",
-    "@rsbuild/plugin-react": "^1.4.0",
+    "@rsbuild/plugin-react": "^1.4.1",
     "@rsbuild/plugin-sass": "^1.4.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
