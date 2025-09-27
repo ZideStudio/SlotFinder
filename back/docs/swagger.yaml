@@ -31,6 +31,19 @@ definitions:
     - PROVIDER_GOOGLE
     - PROVIDER_DISCORD
     - PROVIDER_GITHUB
+  event.EventCreateDto:
+    properties:
+      ends_at:
+        type: string
+      name:
+        type: string
+      starts_at:
+        type: string
+    required:
+    - ends_at
+    - name
+    - starts_at
+    type: object
   helpers.ApiError:
     properties:
       code:
@@ -46,6 +59,10 @@ definitions:
         type: string
       email:
         type: string
+      events:
+        items:
+          $ref: '#/definitions/model.AccountEvent'
+        type: array
       id:
         type: string
       providers:
@@ -55,10 +72,44 @@ definitions:
       userName:
         type: string
     type: object
+  model.AccountEvent:
+    properties:
+      account:
+        allOf:
+        - $ref: '#/definitions/model.Account'
+        description: Relations
+      createdAt:
+        type: string
+      event:
+        $ref: '#/definitions/model.Event'
+      isOwner:
+        type: boolean
+    type: object
   model.AccountProvider:
     properties:
       provider:
         $ref: '#/definitions/constants.Provider'
+    type: object
+  model.Event:
+    properties:
+      accounts:
+        description: Relations
+        items:
+          $ref: '#/definitions/model.AccountEvent'
+        type: array
+      createdAt:
+        type: string
+      duration:
+        description: In minutes
+        type: integer
+      endsAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      startsAt:
+        type: string
     type: object
   signin.SigninDto:
     properties:
@@ -231,6 +282,33 @@ paths:
       summary: Sign in
       tags:
       - Authentication
+  /v1/event:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/event.EventCreateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Event'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Create an event
+      tags:
+      - Event
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**

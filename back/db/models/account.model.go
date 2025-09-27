@@ -14,6 +14,7 @@ type Account struct {
 	Password             *string           `gorm:"column:password;size:255" json:"-"`
 	ResetToken           *string           `gorm:"column:reset_token;size:255;default:null" json:"-"`
 	PasswordResetTokenAt *time.Time        `gorm:"column:password_reset_token_at;default:null" json:"-"`
+	Events               []AccountEvent    `gorm:"foreignKey:AccountId;references:Id" json:"events"`
 	Providers            []AccountProvider `gorm:"foreignKey:AccountId;references:Id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"providers"`
 	CreatedAt            time.Time         `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt"`
 	UpdatedAt            time.Time         `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"-"`

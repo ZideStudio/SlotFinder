@@ -247,6 +247,50 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/event": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Create an event",
+                "parameters": [
+                    {
+                        "description": "Event parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/event.EventCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -296,6 +340,25 @@ const docTemplate = `{
                 "PROVIDER_GITHUB"
             ]
         },
+        "event.EventCreateDto": {
+            "type": "object",
+            "required": [
+                "ends_at",
+                "name",
+                "starts_at"
+            ],
+            "properties": {
+                "ends_at": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "starts_at": {
+                    "type": "string"
+                }
+            }
+        },
         "helpers.ApiError": {
             "type": "object",
             "properties": {
@@ -319,6 +382,12 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AccountEvent"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },
@@ -333,11 +402,64 @@ const docTemplate = `{
                 }
             }
         },
+        "model.AccountEvent": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.Account"
+                        }
+                    ]
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "event": {
+                    "$ref": "#/definitions/model.Event"
+                },
+                "isOwner": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.AccountProvider": {
             "type": "object",
             "properties": {
                 "provider": {
                     "$ref": "#/definitions/constants.Provider"
+                }
+            }
+        },
+        "model.Event": {
+            "type": "object",
+            "properties": {
+                "accounts": {
+                    "description": "Relations",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.AccountEvent"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "duration": {
+                    "description": "In minutes",
+                    "type": "integer"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
                 }
             }
         },
