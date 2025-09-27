@@ -19,11 +19,11 @@ type UnsignedResponse struct {
 }
 
 type Claims struct {
-	Id                   uuid.UUID `json:"id"`
-	Username             string    `json:"username"`
-	Email                string    `json:"email"`
-	Jwt                  string    `json:"-"`
-	jwt.RegisteredClaims ``
+	Id       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	Email    string    `json:"email"`
+	Jwt      string    `json:"-"`
+	jwt.RegisteredClaims
 }
 
 func GetUserClaims(c *gin.Context, user **Claims) error {
