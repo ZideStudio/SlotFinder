@@ -75,7 +75,7 @@
     "vitest-sonar-reporter": "^2.0.4"
   },
   "volta": {
-    "node": "22.19.0",
+    "node": "22.20.0",
     "npm": "11.6.0"
   },
   "browserslist": {
