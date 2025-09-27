@@ -78,18 +78,6 @@
     "node": "22.20.0",
     "npm": "11.6.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "msw": {
     "workerDirectory": [
       "./public"
