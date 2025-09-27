@@ -3,7 +3,6 @@ package guard
 import (
 	"app/config"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -59,7 +58,6 @@ func ParseToken(jwtToken string) (*Claims, error) {
 		return claims, err
 	}
 
-	fmt.Println("claims.ExpiresAt:", claims.ExpiresAt)
 	if claims.ExpiresAt == nil || claims.ExpiresAt.Time.Before(time.Now()) {
 		err = errors.New("token expired")
 		return claims, err
