@@ -27,6 +27,20 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 	}
 }
 
+func isValidOrigin(redirectUrl string) bool {
+	config := config.GetConfig()
+
+	isUrlAllowed := false
+	for _, origin := range config.Origins {
+		if strings.HasPrefix(redirectUrl, origin) {
+			isUrlAllowed = true
+			break
+		}
+	}
+
+	return isUrlAllowed
+}
+
 // @Summary Get redirect URL for OAuth provider
 // @Tags Authentication
 // @Param provider path string true "OAuth provider" Enums(google, github, discord)
@@ -37,22 +51,13 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
 
-	config := config.GetConfig()
-
 	redirectUrl := c.Query("redirectUrl")
 	if redirectUrl == "" {
 		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl query parameter is required"))
 		return
 	}
 
-	isUrlAllowed := false
-	for _, origin := range config.Origins {
-		if strings.HasPrefix(redirectUrl, origin) {
-			isUrlAllowed = true
-			break
-		}
-	}
-	if !isUrlAllowed {
+	if !isValidOrigin(redirectUrl) {
 		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl is not allowed"))
 		return
 	}
@@ -75,22 +80,13 @@ func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/auth/providers/url [get]
 func (ctl *ProviderController) ProvidersUrl(c *gin.Context) {
-	config := config.GetConfig()
-
 	redirectUrl := c.Query("redirectUrl")
 	if redirectUrl == "" {
 		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl query parameter is required"))
 		return
 	}
 
-	isUrlAllowed := false
-	for _, origin := range config.Origins {
-		if strings.HasPrefix(redirectUrl, origin) {
-			isUrlAllowed = true
-			break
-		}
-	}
-	if !isUrlAllowed {
+	if !isValidOrigin(redirectUrl) {
 		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl is not allowed"))
 		return
 	}
