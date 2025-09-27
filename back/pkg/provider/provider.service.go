@@ -57,13 +57,12 @@ func (*ProviderService) parseProvider(provider string) (constants.Provider, erro
 }
 
 func (s *ProviderService) GetProviderUrls(redirectUrl string, user *guard.Claims) (providerUrls map[string]string, err error) {
+	providerUrls = make(map[string]string)
+
 	for _, provider := range constants.PROVIDERS {
 		url, err := s.GetProviderUrl(string(provider), redirectUrl, user)
 		if err != nil {
 			return providerUrls, err
-		}
-		if providerUrls == nil {
-			providerUrls = make(map[string]string)
 		}
 
 		providerUrls[string(provider)] = url
