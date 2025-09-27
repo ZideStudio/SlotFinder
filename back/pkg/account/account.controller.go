@@ -46,13 +46,13 @@ func (ctl *AccountController) Create(c *gin.Context) {
 	}
 
 	c.SetCookie(
-		"access_token",            // name
-		accessToken,               // value
-		int(168*time.Hour),        // max age in seconds
-		"/",                       // path
-		config.GetConfig().Domain, // domain
-		true,                      // secure
-		true,                      // httpOnly
+		"access_token",                   // name
+		accessToken,                      // value
+		int((168*time.Hour)/time.Second), // max age in seconds
+		"/",                              // path
+		config.GetConfig().Domain,        // domain
+		true,                             // secure
+		true,                             // httpOnly
 	)
 
 	helpers.HandleJSONResponse(c, nil, err)
