@@ -106,7 +106,7 @@ paths:
           schema:
             $ref: '#/definitions/helpers.ApiError'
       security:
-      - BearerAuth: []
+      - AccessTokenCookie: []
       summary: Update my account
       tags:
       - Account
@@ -150,7 +150,7 @@ paths:
           schema:
             $ref: '#/definitions/helpers.ApiError'
       security:
-      - BearerAuth: []
+      - AccessTokenCookie: []
       summary: Get My Account
       tags:
       - Account
@@ -232,9 +232,9 @@ paths:
       tags:
       - Authentication
 securityDefinitions:
-  BearerAuth:
+  AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**
-    in: header
-    name: Authorization
+    in: cookie
+    name: access_token
     type: apiKey
 swagger: "2.0"

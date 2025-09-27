@@ -66,7 +66,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 // @Success 200 {object} model.Account
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/account/me [get]
-// @Security BearerAuth
+// @security AccessTokenCookie
 func (ctl *AccountController) GetMe(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -92,7 +92,7 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 // @Success 200 {object} model.Account
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/account [patch]
-// @Security BearerAuth
+// @security AccessTokenCookie
 func (ctl *AccountController) Update(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {

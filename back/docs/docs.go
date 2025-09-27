@@ -56,7 +56,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AccessTokenCookie": []
                     }
                 ],
                 "description": "Update own account",
@@ -101,7 +101,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AccessTokenCookie": []
                     }
                 ],
                 "description": "Get the account information of the current user.",
@@ -366,11 +366,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "BearerAuth": {
+        "AccessTokenCookie": {
             "description": "Enter your bearer token in the format **Bearer \u0026lt;token\u0026gt;**",
             "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+            "name": "access_token",
+            "in": "cookie"
         }
     }
 }`

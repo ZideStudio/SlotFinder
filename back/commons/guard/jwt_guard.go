@@ -3,7 +3,9 @@ package guard
 import (
 	"app/config"
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
 	"os"
 
@@ -21,7 +23,7 @@ type Claims struct {
 	Username             string    `json:"username"`
 	Email                string    `json:"email"`
 	Jwt                  string    `json:"-"`
-	jwt.RegisteredClaims `json:"-"`
+	jwt.RegisteredClaims ``
 }
 
 func GetUserClaims(c *gin.Context, user **Claims) error {
@@ -45,7 +47,6 @@ func ParseToken(jwtToken string) (*Claims, error) {
 	config := config.GetConfig()
 
 	f, err := os.ReadFile(config.Auth.PublicPemPath)
-
 	if err != nil {
 		return claims, err
 	}
@@ -53,9 +54,14 @@ func ParseToken(jwtToken string) (*Claims, error) {
 	_, err = jwt.ParseWithClaims(jwtToken, claims, func(token *jwt.Token) (any, error) {
 		return jwt.ParseRSAPublicKeyFromPEM([]byte(f))
 	})
-
 	if err != nil {
 		err = errors.New("token invalid")
+		return claims, err
+	}
+
+	fmt.Println("claims.ExpiresAt:", claims.ExpiresAt)
+	if claims.ExpiresAt == nil || claims.ExpiresAt.Time.Before(time.Now()) {
+		err = errors.New("token expired")
 		return claims, err
 	}
 
@@ -79,6 +85,17 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 
 		claims, err := ParseToken(jwt)
 		if err != nil {
+			if err.Error() == "token expired" {
+				c.SetCookie(
+					"access_token",            // name
+					"",                        // value
+					-1,                        // max age in seconds
+					"/",                       // path
+					config.GetConfig().Domain, // domain
+					true,                      // secure
+					true,                      // httpOnly
+				)
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, UnsignedResponse{
 				Message: err.Error(),
 			})
