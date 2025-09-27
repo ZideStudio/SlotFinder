@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -145,7 +146,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	c.SetCookie(
 		"access_token",            // name
 		jwt.AccessToken,           // value
-		3600,                      // max age in seconds
+		int(168*time.Hour),        // max age in seconds
 		"/",                       // path
 		config.GetConfig().Domain, // domain
 		true,                      // secure

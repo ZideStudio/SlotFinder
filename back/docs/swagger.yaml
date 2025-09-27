@@ -12,23 +12,6 @@ definitions:
     - password
     - username
     type: object
-  account.AccountCreateResponseDto:
-    properties:
-      access_token:
-        type: string
-      createdAt:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      providers:
-        items:
-          $ref: '#/definitions/model.AccountProvider'
-        type: array
-      userName:
-        type: string
-    type: object
   account.AccountUpdateDto:
     properties:
       email:
@@ -143,8 +126,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/account.AccountCreateResponseDto'
         "400":
           description: Bad Request
           schema:

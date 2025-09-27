@@ -4,7 +4,6 @@ import (
 	"app/config"
 	"errors"
 	"net/http"
-	"strings"
 
 	"os"
 
@@ -40,20 +39,6 @@ func GetUserClaims(c *gin.Context, user **Claims) error {
 	return nil
 }
 
-func ExtractBearerToken(headerToken string) (string, error) {
-	if headerToken == "" {
-		return "", errors.New("no authorization header found")
-	}
-
-	jwtToken := strings.Split(headerToken, " ")
-
-	if len(jwtToken) != 2 {
-		return "", errors.New("invalid authorization header format")
-	}
-
-	return jwtToken[1], nil
-}
-
 func ParseToken(jwtToken string) (*Claims, error) {
 	claims := &Claims{}
 
@@ -79,7 +64,7 @@ func ParseToken(jwtToken string) (*Claims, error) {
 
 func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwt, err := ExtractBearerToken(c.GetHeader("Authorization"))
+		jwt, err := c.Cookie("access_token")
 		if err != nil {
 			if !requireAuthentication { // validate auth
 				c.Next()

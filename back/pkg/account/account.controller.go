@@ -3,7 +3,9 @@ package account
 import (
 	"app/commons/guard"
 	"app/commons/helpers"
+	"app/config"
 	"errors"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,7 +30,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 // @Accept json
 // @Produce json
 // @Param data body AccountCreateDto true "Account parameters"
-// @Success 200 {object} AccountCreateResponseDto
+// @Success 200
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/account [post]
 func (ctl *AccountController) Create(c *gin.Context) {
@@ -37,9 +39,23 @@ func (ctl *AccountController) Create(c *gin.Context) {
 		return
 	}
 
-	account, err := ctl.accountService.Create(&data)
+	accessToken, err := ctl.accountService.Create(&data)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
 
-	helpers.HandleJSONResponse(c, account, err)
+	c.SetCookie(
+		"access_token",            // name
+		accessToken,               // value
+		int(168*time.Hour),        // max age in seconds
+		"/",                       // path
+		config.GetConfig().Domain, // domain
+		true,                      // secure
+		true,                      // httpOnly
+	)
+
+	helpers.HandleJSONResponse(c, nil, err)
 }
 
 // @Summary Get My Account
