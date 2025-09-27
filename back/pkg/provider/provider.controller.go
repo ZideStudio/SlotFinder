@@ -138,7 +138,6 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
-		// TODO #52
 		c.Redirect(302, redirectUrl+"?error=OAuthFailed&code=UNKNOWN_ERROR&message="+url.QueryEscape(err.Error()))
 		return
 	}
@@ -150,7 +149,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 		"/",                       // path
 		config.GetConfig().Domain, // domain
 		true,                      // secure
-		false,                     // httpOnly
+		true,                      // httpOnly
 	)
 
 	c.Redirect(302, redirectUrl)
