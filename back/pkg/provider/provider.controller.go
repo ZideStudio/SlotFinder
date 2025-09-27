@@ -30,6 +30,7 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Summary Get redirect URL for OAuth provider
 // @Tags Authentication
 // @Param provider path string true "OAuth provider" Enums(google, github, discord)
+// @Param redirectUrl query string true "URL to redirect after OAuth authentication"
 // @Success 200 {string} string "OAuth URL"
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/auth/{provider}/url [get]
@@ -63,6 +64,44 @@ func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	}
 
 	url, err := ctl.signinService.GetProviderUrl(provider, redirectUrl, user)
+
+	helpers.HandleJSONResponse(c, url, err)
+}
+
+// @Summary Get all redirect URLs for each OAuth provider
+// @Tags Authentication
+// @Param redirectUrl query string true "URL to redirect after OAuth authentication"
+// @Success 200 {string} map[string]string "OAuth URL"
+// @Failure 400 {object} helpers.ApiError
+// @Router /v1/auth/providers/url [get]
+func (ctl *ProviderController) ProvidersUrl(c *gin.Context) {
+	config := config.GetConfig()
+
+	redirectUrl := c.Query("redirectUrl")
+	if redirectUrl == "" {
+		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl query parameter is required"))
+		return
+	}
+
+	isUrlAllowed := false
+	for _, origin := range config.Origins {
+		if strings.HasPrefix(redirectUrl, origin) {
+			isUrlAllowed = true
+			break
+		}
+	}
+	if !isUrlAllowed {
+		helpers.HandleJSONResponse(c, nil, errors.New("redirectUrl is not allowed"))
+		return
+	}
+
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	url, err := ctl.signinService.GetProviderUrls(redirectUrl, user)
 
 	helpers.HandleJSONResponse(c, url, err)
 }

@@ -56,6 +56,23 @@ func (*ProviderService) parseProvider(provider string) (constants.Provider, erro
 	}
 }
 
+func (s *ProviderService) GetProviderUrls(redirectUrl string, user *guard.Claims) (providerUrls map[string]string, err error) {
+	for _, provider := range constants.PROVIDERS {
+		fmt.Println("current", string(provider), provider)
+		url, err := s.GetProviderUrl(string(provider), redirectUrl, user)
+		if err != nil {
+			return providerUrls, err
+		}
+		if providerUrls == nil {
+			providerUrls = make(map[string]string)
+		}
+
+		providerUrls[string(provider)] = url
+	}
+
+	return providerUrls, nil
+}
+
 func (s *ProviderService) GetProviderUrl(providerEntry string, redirectUrl string, user *guard.Claims) (string, error) {
 	provider, err := s.parseProvider(providerEntry)
 	if err != nil {

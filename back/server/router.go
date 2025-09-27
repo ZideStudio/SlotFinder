@@ -45,6 +45,7 @@ func NewRouter() *gin.Engine {
 
 			signinGroup.POST("signin", signinRouter.Signin)
 
+			signinGroup.Use(guard.AuthCheck(false)).GET("/providers/url", providerRouter.ProvidersUrl)
 			signinGroup.Use(guard.AuthCheck(false)).GET("/:provider/url", providerRouter.ProviderUrl)
 			signinGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
 		}

@@ -134,6 +134,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/auth/providers/url": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get all redirect URLs for each OAuth provider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "URL to redirect after OAuth authentication",
+                        "name": "redirectUrl",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OAuth URL",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/signin": {
             "post": {
                 "description": "Sign in with email and password",
@@ -191,6 +222,13 @@ const docTemplate = `{
                         "description": "OAuth provider",
                         "name": "provider",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "URL to redirect after OAuth authentication",
+                        "name": "redirectUrl",
+                        "in": "query",
                         "required": true
                     }
                 ],
