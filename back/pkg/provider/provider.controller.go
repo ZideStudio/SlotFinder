@@ -71,7 +71,7 @@ func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 // @Summary Get all redirect URLs for each OAuth provider
 // @Tags Authentication
 // @Param redirectUrl query string true "URL to redirect after OAuth authentication"
-// @Success 200 {string} map[string]string "OAuth URL"
+// @Success 200 {object} map[string]string "OAuth URL"
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/auth/providers/url [get]
 func (ctl *ProviderController) ProvidersUrl(c *gin.Context) {

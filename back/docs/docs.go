@@ -153,7 +153,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OAuth URL",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "400": {
