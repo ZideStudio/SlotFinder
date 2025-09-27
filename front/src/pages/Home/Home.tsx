@@ -8,7 +8,7 @@ export const Home = () => {
   return (
     <>
       <h1>{t('welcome')}</h1>
-      <NavLink to={appRoutes.signUp}>Sign Up</NavLink>
+      <NavLink to={appRoutes.signUp()}>Sign Up</NavLink>
     </>
   );
 };

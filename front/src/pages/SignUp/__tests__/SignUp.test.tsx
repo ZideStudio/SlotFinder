@@ -1,18 +1,16 @@
-import { serverUsePost } from '@Front/utils/testsUtils/msw';
+import { appRoutes } from '@Front/routing/appRoutes';
+import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/renderRoute';
+import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers';
 import { server } from '@Mocks/server';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { SignUp } from '../SignUp';
+import { describe, expect, it } from 'vitest';
+import { signUpRoutes } from '../routes';
 
-const queryClient = new QueryClient();
-const renderWithProvider = (ui: React.ReactElement) =>
-  render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
-
-beforeAll(() => server.listen());
-afterAll(() => server.close());
-afterEach(() => server.resetHandlers());
+const renderRouteOptions: RenderRouteOptions = {
+  routes: [signUpRoutes],
+  routesOptions: { initialEntries: [appRoutes.signUp()] },
+};
 
 describe('SignUp', () => {
   vi.mock('react-i18next', () => ({
@@ -21,8 +19,13 @@ describe('SignUp', () => {
     }),
   }));
 
+  beforeAll(() => {
+    server.use(postAccount201);
+  });
+
   it('renders all form fields and submit button', () => {
-    renderWithProvider(<SignUp />);
+    renderRoute(renderRouteOptions);
+
     expect(screen.getByLabelText('username')).toBeInTheDocument();
     expect(screen.getByLabelText('email')).toBeInTheDocument();
     expect(screen.getByLabelText('password')).toBeInTheDocument();
@@ -30,7 +33,8 @@ describe('SignUp', () => {
   });
 
   it('shows validation errors for empty fields', async () => {
-    renderWithProvider(<SignUp />);
+    renderRoute(renderRouteOptions);
+
     await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
     expect(await screen.findByText('requiredUsername')).toBeInTheDocument();
@@ -50,6 +54,11 @@ describe('SignUp', () => {
       description: 'must contain letters error',
     },
     {
+      password: 'password1!',
+      expectedError: 'passwordComplexity',
+      description: 'must contain numbers error',
+    },
+    {
       password: 'Password!',
       expectedError: 'passwordComplexity',
       description: 'must contain numbers error',
@@ -60,7 +69,8 @@ describe('SignUp', () => {
       description: 'must contain symbols error',
     },
   ])('shows password $description', async ({ password, expectedError }) => {
-    renderWithProvider(<SignUp />);
+    renderRoute(renderRouteOptions);
+
     await userEvent.type(screen.getByLabelText('username'), 'testuser');
     await userEvent.type(screen.getByLabelText('email'), 'test@example.com');
     await userEvent.type(screen.getByLabelText('password'), password);
@@ -68,20 +78,19 @@ describe('SignUp', () => {
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
   });
+});
 
+describe('SignUp error handling', () => {
   it('shows error message on failed submission', async () => {
-    serverUsePost({
-      route: '/v1/account',
-      code: 400,
-      responseBody: { error: true, code: 'UNKNOWN_ERROR', message: 'Username already exists' },
-    });
+    server.use(postAccount400);
 
-    renderWithProvider(<SignUp />);
+    renderRoute(renderRouteOptions);
+
     await userEvent.type(screen.getByLabelText('username'), 'failuser');
     await userEvent.type(screen.getByLabelText('email'), 'fail@example.com');
     await userEvent.type(screen.getByLabelText('password'), 'Password1!');
     await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
-    expect(await screen.findByText('Username already exists')).toBeInTheDocument();
+    expect(await screen.findByText('This is a test error message on account creation.')).toBeInTheDocument();
   });
 });
