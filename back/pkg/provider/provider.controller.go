@@ -7,6 +7,7 @@ import (
 	"app/config"
 	"encoding/json"
 	"errors"
+	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -138,7 +139,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
 		// TODO #52
-		c.Redirect(302, redirectUrl+"?error=OAuthFailed&code=UNKNOWN_ERROR&message="+err.Error())
+		c.Redirect(302, redirectUrl+"?error=OAuthFailed&code=UNKNOWN_ERROR&message="+url.QueryEscape(err.Error()))
 		return
 	}
 
