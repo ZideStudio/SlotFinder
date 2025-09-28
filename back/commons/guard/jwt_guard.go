@@ -1,6 +1,8 @@
 package guard
 
 import (
+	"app/commons/constants"
+	"app/commons/helpers"
 	"app/config"
 	"errors"
 	"net/http"
@@ -12,10 +14,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
-
-type UnsignedResponse struct {
-	Message any `json:"message"`
-}
 
 type Claims struct {
 	Id       uuid.UUID `json:"id"`
@@ -54,13 +52,11 @@ func ParseToken(jwtToken string) (*Claims, error) {
 		return jwt.ParseRSAPublicKeyFromPEM([]byte(f))
 	})
 	if err != nil {
-		err = errors.New("token invalid")
-		return claims, err
+		return claims, constants.ERR_TOKEN_INVALID.Error
 	}
 
 	if claims.ExpiresAt == nil || claims.ExpiresAt.Time.Before(time.Now()) {
-		err = errors.New("token expired")
-		return claims, err
+		return claims, constants.ERR_TOKEN_EXPIRED.Error
 	}
 
 	return claims, err
@@ -74,10 +70,11 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 				c.Next()
 				return
 			}
+			if errors.Is(err, http.ErrNoCookie) {
+				err = constants.ERR_NO_COOKIE.Error
+			}
 
-			c.AbortWithStatusJSON(http.StatusUnauthorized, UnsignedResponse{
-				Message: err.Error(),
-			})
+			helpers.HandleJSONResponse(c, nil, err)
 			return
 		}
 
@@ -94,9 +91,8 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 					true,                      // httpOnly
 				)
 			}
-			c.AbortWithStatusJSON(http.StatusUnauthorized, UnsignedResponse{
-				Message: err.Error(),
-			})
+
+			helpers.HandleJSONResponse(c, nil, err)
 			return
 		}
 

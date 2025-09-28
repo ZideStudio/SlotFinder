@@ -32,13 +32,13 @@ func NewEventService(service *EventService) *EventService {
 func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventResponse, error) {
 	// Prevent creating events with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
-		return EventResponse{}, constants.ERR_EVENT_START_AFTER_END
+		return EventResponse{}, constants.ERR_EVENT_START_AFTER_END.Error
 	}
 
 	// Prevent creating events in the past
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	if data.StartsAt.Before(now) {
-		return EventResponse{}, constants.ERR_EVENT_START_NOT_TODAY
+		return EventResponse{}, constants.ERR_EVENT_START_NOT_TODAY.Error
 	}
 
 	// Create event
