@@ -7,6 +7,7 @@ import (
 	"app/db/repository"
 	"errors"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -54,9 +55,7 @@ func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err err
 	return s.GenerateToken(claims)
 }
 
-func (s *SigninService) GenerateToken(claims *guard.Claims) (TokenResponseDto, error) {
-	var tokenResponse TokenResponseDto
-
+func (s *SigninService) GenerateToken(claims *guard.Claims) (tokenResponse TokenResponseDto, err error) {
 	privateKeyFile, err := os.ReadFile(s.config.Auth.PrivatePemPath)
 	if err != nil {
 		return tokenResponse, err
@@ -66,6 +65,8 @@ func (s *SigninService) GenerateToken(claims *guard.Claims) (TokenResponseDto, e
 	if err != nil {
 		return tokenResponse, err
 	}
+
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(168 * time.Hour))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 

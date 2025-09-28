@@ -1,8 +1,10 @@
 package account
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/helpers"
+	"app/config"
 	"errors"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +30,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 // @Accept json
 // @Produce json
 // @Param data body AccountCreateDto true "Account parameters"
-// @Success 200 {object} AccountCreateResponseDto
+// @Success 200
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/account [post]
 func (ctl *AccountController) Create(c *gin.Context) {
@@ -37,9 +39,23 @@ func (ctl *AccountController) Create(c *gin.Context) {
 		return
 	}
 
-	account, err := ctl.accountService.Create(&data)
+	accessToken, err := ctl.accountService.Create(&data)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
 
-	helpers.HandleJSONResponse(c, account, err)
+	c.SetCookie(
+		"access_token",             // name
+		accessToken,                // value
+		constants.TOKEN_EXPIRATION, // max age in seconds
+		"/",                        // path
+		config.GetConfig().Domain,  // domain
+		true,                       // secure
+		true,                       // httpOnly
+	)
+
+	helpers.HandleJSONResponse(c, nil, err)
 }
 
 // @Summary Get My Account
@@ -50,7 +66,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 // @Success 200 {object} model.Account
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/account/me [get]
-// @Security BearerAuth
+// @security AccessTokenCookie
 func (ctl *AccountController) GetMe(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -76,7 +92,7 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 // @Success 200 {object} model.Account
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/account [patch]
-// @Security BearerAuth
+// @security AccessTokenCookie
 func (ctl *AccountController) Update(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {

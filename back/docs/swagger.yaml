@@ -12,23 +12,6 @@ definitions:
     - password
     - username
     type: object
-  account.AccountCreateResponseDto:
-    properties:
-      access_token:
-        type: string
-      createdAt:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      providers:
-        items:
-          $ref: '#/definitions/model.AccountProvider'
-        type: array
-      userName:
-        type: string
-    type: object
   account.AccountUpdateDto:
     properties:
       email:
@@ -123,7 +106,7 @@ paths:
           schema:
             $ref: '#/definitions/helpers.ApiError'
       security:
-      - BearerAuth: []
+      - AccessTokenCookie: []
       summary: Update my account
       tags:
       - Account
@@ -143,8 +126,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/account.AccountCreateResponseDto'
         "400":
           description: Bad Request
           schema:
@@ -169,7 +150,7 @@ paths:
           schema:
             $ref: '#/definitions/helpers.ApiError'
       security:
-      - BearerAuth: []
+      - AccessTokenCookie: []
       summary: Get My Account
       tags:
       - Account
@@ -251,9 +232,9 @@ paths:
       tags:
       - Authentication
 securityDefinitions:
-  BearerAuth:
+  AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**
-    in: header
-    name: Authorization
+    in: cookie
+    name: access_token
     type: apiKey
 swagger: "2.0"

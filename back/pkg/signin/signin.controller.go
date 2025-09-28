@@ -1,7 +1,9 @@
 package signin
 
 import (
+	"app/commons/constants"
 	"app/commons/helpers"
+	"app/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,6 +36,20 @@ func (ctl *SigninController) Signin(c *gin.Context) {
 	helpers.SetHttpContextBody(c, &data)
 
 	token, err := ctl.signinService.Signin(&data)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
 
-	helpers.HandleJSONResponse(c, token, err)
+	c.SetCookie(
+		"access_token",             // name
+		token.AccessToken,          // value
+		constants.TOKEN_EXPIRATION, // max age in seconds
+		"/",                        // path
+		config.GetConfig().Domain,  // domain
+		true,                       // secure
+		true,                       // httpOnly
+	)
+
+	helpers.HandleJSONResponse(c, nil, nil)
 }

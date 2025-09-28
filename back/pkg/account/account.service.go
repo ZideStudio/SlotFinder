@@ -42,25 +42,25 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 	return false, nil
 }
 
-func (s *AccountService) Create(data *AccountCreateDto) (AccountCreateResponseDto, error) {
+func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	if !lib.IsValidEmail(data.Email) {
-		return AccountCreateResponseDto{}, errors.New("Invalid email format")
+		return "", errors.New("Invalid email format")
 	}
 
 	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
 	if err != nil {
-		return AccountCreateResponseDto{}, err
+		return "", err
 	}
 	if !isUserNameAvailable {
-		return AccountCreateResponseDto{}, errors.New("Username already exists")
+		return "", errors.New("Username already exists")
 	}
 
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return AccountCreateResponseDto{}, err
+		return "", err
 	}
 	if existingAccount.Id != uuid.Nil {
-		return AccountCreateResponseDto{}, errors.New("Email already exists")
+		return "", errors.New("Email already exists")
 	}
 
 	var account model.Account
@@ -69,7 +69,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountCreateResponseDt
 		Email:    data.Email,
 		Password: data.Password,
 	}, &account); err != nil {
-		return AccountCreateResponseDto{}, err
+		return "", err
 	}
 
 	claims := &guard.Claims{
@@ -81,15 +81,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountCreateResponseDt
 	token, err := s.signinService.GenerateToken(claims)
 	if err != nil {
 		s.accountRepository.Delete(account.Id)
-		return AccountCreateResponseDto{}, err
+		return "", err
 	}
 
-	return AccountCreateResponseDto{
-		Account: account,
-		TokenResponseDto: signin.TokenResponseDto{
-			AccessToken: token.AccessToken,
-		},
-	}, nil
+	return token.AccessToken, nil
 }
 
 func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err error) {

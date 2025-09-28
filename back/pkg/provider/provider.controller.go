@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"app/commons/constants"
 	"app/commons/encryption"
 	"app/commons/guard"
 	"app/commons/helpers"
@@ -143,13 +144,13 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	}
 
 	c.SetCookie(
-		"access_token",            // name
-		jwt.AccessToken,           // value
-		3600,                      // max age in seconds
-		"/",                       // path
-		config.GetConfig().Domain, // domain
-		true,                      // secure
-		true,                      // httpOnly
+		"access_token",             // name
+		jwt.AccessToken,            // value
+		constants.TOKEN_EXPIRATION, // max age in seconds
+		"/",                        // path
+		config.GetConfig().Domain,  // domain
+		true,                       // secure
+		true,                       // httpOnly
 	)
 
 	c.Redirect(302, redirectUrl)

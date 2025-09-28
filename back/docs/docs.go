@@ -43,10 +43,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/account.AccountCreateResponseDto"
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -59,7 +56,7 @@ const docTemplate = `{
             "patch": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AccessTokenCookie": []
                     }
                 ],
                 "description": "Update own account",
@@ -104,7 +101,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "BearerAuth": []
+                        "AccessTokenCookie": []
                     }
                 ],
                 "description": "Get the account information of the current user.",
@@ -272,32 +269,6 @@ const docTemplate = `{
                 }
             }
         },
-        "account.AccountCreateResponseDto": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "providers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.AccountProvider"
-                    }
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
         "account.AccountUpdateDto": {
             "type": "object",
             "properties": {
@@ -395,11 +366,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "BearerAuth": {
+        "AccessTokenCookie": {
             "description": "Enter your bearer token in the format **Bearer \u0026lt;token\u0026gt;**",
             "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+            "name": "access_token",
+            "in": "cookie"
         }
     }
 }`

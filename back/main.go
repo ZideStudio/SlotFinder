@@ -19,9 +19,9 @@ import (
 //
 // @contact.email  contact@zide.fr
 //
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
+// @securityDefinitions.apikey AccessTokenCookie
+// @in cookie
+// @name access_token
 // @description Enter your bearer token in the format **Bearer &lt;token&gt;**
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
