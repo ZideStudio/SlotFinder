@@ -21,7 +21,7 @@ func NewAuthController(ctl *AuthController) *AuthController {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 401 {object} helpers.ApiError
 // @Router /v1/auth/status [get]
 func (ctl *AuthController) Status(c *gin.Context) {
 	helpers.HandleJSONResponse(c, nil, nil)
