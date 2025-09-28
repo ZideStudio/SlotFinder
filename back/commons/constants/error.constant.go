@@ -1,0 +1,27 @@
+package constants
+
+import "errors"
+
+func err(code string) error {
+	return errors.New(code)
+}
+
+var (
+	// Generic
+	ERR_SERVER_ERROR = err("SERVER_ERROR")
+	// Auth
+	// Account
+	ERR_INVALID_EMAIL_FORMAT   = err("INVALID_EMAIL_FORMAT")
+	ERR_USERNAME_ALREADY_TAKEN = err("USERNAME_ALREADY_TAKEN")
+	ERR_EMAIL_ALREADY_EXISTS   = err("EMAIL_ALREADY_EXISTS")
+)
+
+var CUSTOM_ERRORS = []error{
+	// Generic
+	ERR_SERVER_ERROR,
+	// Auth
+	// Account
+	ERR_INVALID_EMAIL_FORMAT,
+	ERR_USERNAME_ALREADY_TAKEN,
+	ERR_EMAIL_ALREADY_EXISTS,
+}

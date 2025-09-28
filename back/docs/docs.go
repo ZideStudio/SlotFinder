@@ -371,9 +371,6 @@ const docTemplate = `{
                 "code": {
                     "type": "string"
                 },
-                "error": {
-                    "type": "boolean"
-                },
                 "message": {
                     "type": "string"
                 }
