@@ -6,7 +6,6 @@ import (
 	"app/db/repository"
 	"app/pkg/signin"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -68,18 +67,11 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		s.eventRepository.Delete(event.Id)
 		return EventResponse{}, err
 	}
-	fmt.Println("AE:", accountEvent)
-	event.AccountEvents = []model.AccountEvent{accountEvent}
-
-	accounts := []model.Account{}
-	for _, ae := range event.AccountEvents {
-		accounts = append(accounts, model.Account{
-			UserName: ae.Account.UserName,
-		})
-	}
 
 	return EventResponse{
-		Event:    event,
-		Accounts: accounts,
+		Event: event,
+		Accounts: []model.Account{{
+			UserName: accountEvent.Account.UserName,
+		}},
 	}, nil
 }
