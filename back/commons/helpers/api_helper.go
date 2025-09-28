@@ -36,7 +36,7 @@ func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
 }
 
 func parseError(err error) (code string, message string, status int) {
-	if _, ok := constants.CUSTOM_ERRORS[err]; ok {
+	if lib.InArray(err, constants.CUSTOM_ERRORS) != -1 {
 		code = err.Error()
 		status = http.StatusBadRequest
 		return
