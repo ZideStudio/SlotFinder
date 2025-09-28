@@ -40,19 +40,19 @@ func NewRouter() *gin.Engine {
 			accountGroup.Use(guard.AuthCheck(true)).PATCH("", accountRouter.Update)
 		}
 
-		signinGroup := v1.Group("auth")
+		authGroup := v1.Group("auth")
 		{
 			signinRouter := signin.NewSigninController(nil)
 			providerRouter := provider.NewProviderController(nil)
 			authRouter := auth.NewAuthController(nil)
 
-			signinGroup.POST("signin", signinRouter.Signin)
+			authGroup.POST("signin", signinRouter.Signin)
 
-			signinGroup.Use(guard.AuthCheck(false)).GET("/providers/url", providerRouter.ProvidersUrl)
-			signinGroup.Use(guard.AuthCheck(false)).GET("/:provider/url", providerRouter.ProviderUrl)
-			signinGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
+			authGroup.Use(guard.AuthCheck(false)).GET("/providers/url", providerRouter.ProvidersUrl)
+			authGroup.Use(guard.AuthCheck(false)).GET("/:provider/url", providerRouter.ProviderUrl)
+			authGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
 
-			signinGroup.Use(guard.AuthCheck(true)).GET("/status", authRouter.Status)
+			authGroup.Use(guard.AuthCheck(true)).GET("/status", authRouter.Status)
 
 		}
 
