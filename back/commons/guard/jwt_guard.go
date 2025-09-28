@@ -3,7 +3,6 @@ package guard
 import (
 	"app/config"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -70,26 +69,21 @@ func ParseToken(jwtToken string) (*Claims, error) {
 func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwt, err := c.Cookie("access_token")
-		fmt.Print("OK1")
 		if err != nil {
 			if !requireAuthentication { // validate auth
 				c.Next()
-				fmt.Print("KO1")
 				return
 			}
 
-			fmt.Print("KO2")
 			c.AbortWithStatusJSON(http.StatusUnauthorized, UnsignedResponse{
 				Message: err.Error(),
 			})
 			return
 		}
-		fmt.Print("OK2")
 
 		claims, err := ParseToken(jwt)
 		if err != nil {
 			if err.Error() == "token expired" {
-				fmt.Print("KO3")
 				c.SetCookie(
 					"access_token",            // name
 					"",                        // value
@@ -103,10 +97,8 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, UnsignedResponse{
 				Message: err.Error(),
 			})
-			fmt.Print("KO4")
 			return
 		}
-		fmt.Print("OK3")
 
 		claims.Jwt = jwt
 
