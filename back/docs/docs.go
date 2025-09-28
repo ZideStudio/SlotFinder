@@ -343,11 +343,17 @@ const docTemplate = `{
         "event.EventCreateDto": {
             "type": "object",
             "required": [
+                "duration",
                 "ends_at",
                 "name",
                 "starts_at"
             ],
             "properties": {
+                "duration": {
+                    "type": "integer",
+                    "maximum": 30240,
+                    "minimum": 15
+                },
                 "ends_at": {
                     "type": "string"
                 },

@@ -45,6 +45,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 	event := model.Event{
 		Id:       uuid.New(),
 		Name:     data.Name,
+		Duration: data.Duration,
 		StartsAt: data.StartsAt,
 		EndsAt:   data.EndsAt,
 	}

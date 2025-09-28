@@ -33,6 +33,10 @@ definitions:
     - PROVIDER_GITHUB
   event.EventCreateDto:
     properties:
+      duration:
+        maximum: 30240
+        minimum: 15
+        type: integer
       ends_at:
         type: string
       name:
@@ -40,6 +44,7 @@ definitions:
       starts_at:
         type: string
     required:
+    - duration
     - ends_at
     - name
     - starts_at
