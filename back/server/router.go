@@ -44,7 +44,7 @@ func NewRouter() *gin.Engine {
 		{
 			signinRouter := signin.NewSigninController(nil)
 			providerRouter := provider.NewProviderController(nil)
-			authRouter := auth.NewAuthController(nil)
+			authRouter := auth.NewAuthController()
 
 			authGroup.POST("signin", signinRouter.Signin)
 

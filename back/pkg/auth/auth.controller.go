@@ -8,11 +8,7 @@ import (
 
 type AuthController struct{}
 
-func NewAuthController(ctl *AuthController) *AuthController {
-	if ctl != nil {
-		return ctl
-	}
-
+func NewAuthController() *AuthController {
 	return &AuthController{}
 }
 
