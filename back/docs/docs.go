@@ -424,9 +424,6 @@ const docTemplate = `{
                 },
                 "event": {
                     "$ref": "#/definitions/model.Event"
-                },
-                "isOwner": {
-                    "type": "boolean"
                 }
             }
         },
@@ -456,6 +453,14 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "owner": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.Account"
+                        }
+                    ]
                 },
                 "startsAt": {
                     "type": "string"

@@ -87,8 +87,6 @@ definitions:
         type: string
       event:
         $ref: '#/definitions/model.Event'
-      isOwner:
-        type: boolean
     type: object
   model.AccountProvider:
     properties:
@@ -108,6 +106,10 @@ definitions:
         type: string
       name:
         type: string
+      owner:
+        allOf:
+        - $ref: '#/definitions/model.Account'
+        description: Relations
       startsAt:
         type: string
     type: object

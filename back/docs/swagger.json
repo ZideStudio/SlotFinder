@@ -416,9 +416,6 @@
                 },
                 "event": {
                     "$ref": "#/definitions/model.Event"
-                },
-                "isOwner": {
-                    "type": "boolean"
                 }
             }
         },
@@ -448,6 +445,14 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "owner": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.Account"
+                        }
+                    ]
                 },
                 "startsAt": {
                     "type": "string"

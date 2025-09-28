@@ -48,6 +48,10 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		Duration: data.Duration,
 		StartsAt: data.StartsAt,
 		EndsAt:   data.EndsAt,
+		Owner: model.Account{
+			Id:       user.Id,
+			UserName: user.Username,
+		},
 	}
 	if err := s.eventRepository.Create(&event); err != nil {
 		return EventResponse{}, err
@@ -57,7 +61,6 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	accountEvent := model.AccountEvent{
 		AccountId: user.Id,
 		EventId:   event.Id,
-		IsOwner:   true,
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
 		s.eventRepository.Delete(event.Id)
@@ -71,6 +74,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	return EventResponse{
 		Event: event,
 		Accounts: []model.Account{{
+			Id:       accountEvent.Account.Id,
 			UserName: accountEvent.Account.UserName,
 		}},
 	}, nil
