@@ -5,9 +5,9 @@ import (
 	"app/commons/guard"
 	"app/commons/helpers"
 	"app/config"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -137,11 +137,20 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	userId := state["userId"]
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
-
 	if err != nil {
-		c.Redirect(302, redirectUrl+"?error="+base64.StdEncoding.EncodeToString([]byte(err.Error())))
+		c.Redirect(302, redirectUrl+"?error=OAuthFailed&code=UNKNOWN_ERROR&message="+url.QueryEscape(err.Error()))
 		return
 	}
 
-	c.Redirect(302, redirectUrl+"?access_token="+base64.StdEncoding.EncodeToString([]byte(jwt.AccessToken)))
+	c.SetCookie(
+		"access_token",            // name
+		jwt.AccessToken,           // value
+		3600,                      // max age in seconds
+		"/",                       // path
+		config.GetConfig().Domain, // domain
+		true,                      // secure
+		true,                      // httpOnly
+	)
+
+	c.Redirect(302, redirectUrl)
 }

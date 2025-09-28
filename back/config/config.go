@@ -9,6 +9,7 @@ type Config struct {
 	Env      string `env:"ENV"`
 	Host     string `env:"APP_HOST"`
 	Port     string `env:"APP_PORT"`
+	Domain   string `env:"DOMAIN"`
 	Origins  []string
 	Db       DbConfiguration
 	Auth     AuthConfiguration
@@ -23,6 +24,7 @@ func Init() *Config {
 		Db:       GetPostgresConfig(),
 		Host:     os.Getenv("APP_HOST"),
 		Port:     os.Getenv("APP_PORT"),
+		Domain:   os.Getenv("DOMAIN"),
 		Origins:  GetOrigin(),
 		Auth:     GetAuthConfig(),
 		Provider: GetProviderConfig(),
