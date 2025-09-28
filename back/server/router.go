@@ -3,6 +3,7 @@ package server
 import (
 	"app/commons/guard"
 	"app/pkg/account"
+	"app/pkg/auth"
 	"app/pkg/event"
 	"app/pkg/health"
 	"app/pkg/provider"
@@ -43,12 +44,16 @@ func NewRouter() *gin.Engine {
 		{
 			signinRouter := signin.NewSigninController(nil)
 			providerRouter := provider.NewProviderController(nil)
+			authRouter := auth.NewAuthController(nil)
 
 			signinGroup.POST("signin", signinRouter.Signin)
 
 			signinGroup.Use(guard.AuthCheck(false)).GET("/providers/url", providerRouter.ProvidersUrl)
 			signinGroup.Use(guard.AuthCheck(false)).GET("/:provider/url", providerRouter.ProviderUrl)
 			signinGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
+
+			signinGroup.Use(guard.AuthCheck(true)).GET("/status", authRouter.Status)
+
 		}
 
 		eventGroup := v1.Group("event")
