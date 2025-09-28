@@ -1,11 +1,11 @@
 package event
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/signin"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,13 +32,13 @@ func NewEventService(service *EventService) *EventService {
 func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventResponse, error) {
 	// Prevent creating events with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
-		return EventResponse{}, errors.New("event start date must be before end date")
+		return EventResponse{}, constants.ERR_EVENT_START_AFTER_END
 	}
 
 	// Prevent creating events in the past
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	if data.StartsAt.Before(now) {
-		return EventResponse{}, errors.New("event start date must be from today")
+		return EventResponse{}, constants.ERR_EVENT_START_NOT_TODAY
 	}
 
 	// Create event
