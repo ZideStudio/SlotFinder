@@ -38,8 +38,8 @@
     "yup": "^1.7.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "^20.0.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@pplancq/postcss-config": "*",
     "@pplancq/prettier-config": "*",
     "@pplancq/stylelint-config": "*",
