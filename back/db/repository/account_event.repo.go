@@ -12,7 +12,7 @@ type AccountEventRepository struct{}
 
 func (*AccountEventRepository) Create(event *model.AccountEvent) error {
 	if err := db.GetDB().Preload("Account").Create(&event).Error; err != nil {
-		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::CREATE Failed to create account")
+		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::CREATE Failed to create account_event")
 		return err
 	}
 

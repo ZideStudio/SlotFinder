@@ -19,9 +19,9 @@ func (*EventRepository) Create(event *model.Event) error {
 	return nil
 }
 
-func (*EventRepository) FindOneById(id uuid.UUID, event *model.Account) error {
-	if err := db.GetDB().Where("id = ?", id.String()).Preload("AccountEvent").Preload("AccountEvent.Account").First(&event).Error; err != nil {
-		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_ID Failed to find event by id")
+func (*EventRepository) FindOneById(id uuid.UUID, event *model.Event) error {
+	if err := db.GetDB().Where("id = ?", id.String()).Preload("AccountEvent").Preload("AccountEvent.Event").First(&event).Error; err != nil {
+		log.Error().Err(err).Msg("EVENT_REPOSITORY::FIND_ONE_BY_ID Failed to find event by id")
 		return err
 	}
 
