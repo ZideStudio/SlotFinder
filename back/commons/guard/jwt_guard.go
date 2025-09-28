@@ -52,11 +52,11 @@ func ParseToken(jwtToken string) (*Claims, error) {
 		return jwt.ParseRSAPublicKeyFromPEM([]byte(f))
 	})
 	if err != nil {
-		return claims, constants.ERR_TOKEN_INVALID.Error
+		return claims, constants.ERR_TOKEN_INVALID.Err
 	}
 
 	if claims.ExpiresAt == nil || claims.ExpiresAt.Time.Before(time.Now()) {
-		return claims, constants.ERR_TOKEN_EXPIRED.Error
+		return claims, constants.ERR_TOKEN_EXPIRED.Err
 	}
 
 	return claims, err
@@ -71,7 +71,7 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 				return
 			}
 			if errors.Is(err, http.ErrNoCookie) {
-				err = constants.ERR_NO_COOKIE.Error
+				err = constants.ERR_NO_COOKIE.Err
 			}
 
 			helpers.HandleJSONResponse(c, nil, err)

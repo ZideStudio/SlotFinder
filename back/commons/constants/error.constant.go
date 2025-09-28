@@ -6,7 +6,7 @@ import (
 )
 
 type CustomError struct {
-	Error      error // Custom error code
+	Err        error // Custom error code
 	StatusCode *int  // Http Status Code, keep nil for default status code 400
 }
 
@@ -37,16 +37,16 @@ var (
 
 var CUSTOM_ERRORS = []error{
 	// Generic
-	ERR_SERVER_ERROR.Error,
+	ERR_SERVER_ERROR.Err,
 	// Auth
-	ERR_NO_COOKIE.Error,
-	ERR_TOKEN_INVALID.Error,
-	ERR_TOKEN_EXPIRED.Error,
+	ERR_NO_COOKIE.Err,
+	ERR_TOKEN_INVALID.Err,
+	ERR_TOKEN_EXPIRED.Err,
 	// Account
-	ERR_INVALID_EMAIL_FORMAT.Error,
-	ERR_USERNAME_ALREADY_TAKEN.Error,
-	ERR_EMAIL_ALREADY_EXISTS.Error,
+	ERR_INVALID_EMAIL_FORMAT.Err,
+	ERR_USERNAME_ALREADY_TAKEN.Err,
+	ERR_EMAIL_ALREADY_EXISTS.Err,
 	// Event
-	ERR_EVENT_START_AFTER_END.Error,
-	ERR_EVENT_START_NOT_TODAY.Error,
+	ERR_EVENT_START_AFTER_END.Err,
+	ERR_EVENT_START_NOT_TODAY.Err,
 }

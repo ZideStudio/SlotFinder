@@ -42,7 +42,7 @@ func parseError(err error) (code string, message string, status int) {
 		return
 	}
 
-	code = constants.ERR_SERVER_ERROR.Error.Error()
+	code = constants.ERR_SERVER_ERROR.Err.Error()
 	message = err.Error()
 	status = http.StatusInternalServerError
 

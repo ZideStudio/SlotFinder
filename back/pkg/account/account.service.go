@@ -45,7 +45,7 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 
 func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	if !lib.IsValidEmail(data.Email) {
-		return "", constants.ERR_INVALID_EMAIL_FORMAT.Error
+		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
 	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
@@ -53,7 +53,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", err
 	}
 	if !isUserNameAvailable {
-		return "", constants.ERR_USERNAME_ALREADY_TAKEN.Error
+		return "", constants.ERR_USERNAME_ALREADY_TAKEN.Err
 	}
 
 	var existingAccount model.Account
@@ -61,7 +61,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", err
 	}
 	if existingAccount.Id != uuid.Nil {
-		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Error
+		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
 	var account model.Account
