@@ -14,7 +14,7 @@ type Event struct {
 	EndsAt    time.Time `gorm:"column:ends_at" json:"endsAt"`
 	CreatedAt time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt"`
 	// Relations
-	Accounts []AccountEvent `gorm:"foreignKey:EventId;references:Id" json:"accounts"`
+	AccountEvents []AccountEvent `gorm:"foreignKey:EventId;references:Id" json:"-"`
 }
 
 func (Event) TableName() string {

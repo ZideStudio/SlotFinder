@@ -6,6 +6,7 @@ import (
 	"app/db/repository"
 	"app/pkg/signin"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -29,16 +30,16 @@ func NewEventService(service *EventService) *EventService {
 	}
 }
 
-func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.Event, error) {
+func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventResponse, error) {
 	// Prevent creating events with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
-		return model.Event{}, errors.New("event start date must be before end date")
+		return EventResponse{}, errors.New("event start date must be before end date")
 	}
 
 	// Prevent creating events in the past
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local)
 	if data.StartsAt.Before(now) {
-		return model.Event{}, errors.New("event start date must be from today")
+		return EventResponse{}, errors.New("event start date must be from today")
 	}
 
 	// Create event
@@ -50,7 +51,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 		EndsAt:   data.EndsAt,
 	}
 	if err := s.eventRepository.Create(&event); err != nil {
-		return event, err
+		return EventResponse{}, err
 	}
 
 	// Create account_event relation
@@ -61,10 +62,24 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
 		s.eventRepository.Delete(event.Id)
-		return event, err
+		return EventResponse{}, err
+	}
+	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
+		s.eventRepository.Delete(event.Id)
+		return EventResponse{}, err
+	}
+	fmt.Println("AE:", accountEvent)
+	event.AccountEvents = []model.AccountEvent{accountEvent}
+
+	accounts := []model.Account{}
+	for _, ae := range event.AccountEvents {
+		accounts = append(accounts, model.Account{
+			UserName: ae.Account.UserName,
+		})
 	}
 
-	event.Accounts = []model.AccountEvent{accountEvent}
-
-	return event, nil
+	return EventResponse{
+		Event:    event,
+		Accounts: accounts,
+	}, nil
 }

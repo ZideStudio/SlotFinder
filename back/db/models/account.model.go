@@ -8,15 +8,15 @@ import (
 )
 
 type Account struct {
-	Id                   uuid.UUID         `gorm:"column:id;type:uuid;unique;primary_key" json:"id"`
+	Id                   uuid.UUID         `gorm:"column:id;type:uuid;unique;primary_key" json:"id,omitzero"`
 	UserName             string            `gorm:"column:username;size:255" json:"userName"`
-	Email                string            `gorm:"column:email;default:null;size:255" json:"email"`
+	Email                string            `gorm:"column:email;default:null;size:255" json:"email,omitempty"`
 	Password             *string           `gorm:"column:password;size:255" json:"-"`
 	ResetToken           *string           `gorm:"column:reset_token;size:255;default:null" json:"-"`
 	PasswordResetTokenAt *time.Time        `gorm:"column:password_reset_token_at;default:null" json:"-"`
-	Events               []AccountEvent    `gorm:"foreignKey:AccountId;references:Id" json:"events"`
-	Providers            []AccountProvider `gorm:"foreignKey:AccountId;references:Id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"providers"`
-	CreatedAt            time.Time         `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt"`
+	Events               []AccountEvent    `gorm:"foreignKey:AccountId;references:Id" json:"events,omitempty"`
+	Providers            []AccountProvider `gorm:"foreignKey:AccountId;references:Id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"providers,omitempty"`
+	CreatedAt            time.Time         `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt,omitzero"`
 	UpdatedAt            time.Time         `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"-"`
 	DeletedAt            *time.Time        `gorm:"column:deleted_at;default:null" json:"-"`
 }

@@ -97,11 +97,6 @@ definitions:
     type: object
   model.Event:
     properties:
-      accounts:
-        description: Relations
-        items:
-          $ref: '#/definitions/model.AccountEvent'
-        type: array
       createdAt:
         type: string
       duration:

@@ -441,13 +441,6 @@ const docTemplate = `{
         "model.Event": {
             "type": "object",
             "properties": {
-                "accounts": {
-                    "description": "Relations",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.AccountEvent"
-                    }
-                },
                 "createdAt": {
                     "type": "string"
                 },
