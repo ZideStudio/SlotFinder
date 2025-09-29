@@ -1,16 +1,15 @@
 package helpers
 
 import (
+	"app/commons/constants"
+	"app/commons/lib"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ApiError struct {
-	Error   bool   `json:"error"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	Code string `json:"code"`
 }
 
 func SetHttpContextBody(httpContext *gin.Context, body any) error {
@@ -23,31 +22,26 @@ func SetHttpContextBody(httpContext *gin.Context, body any) error {
 }
 
 func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
-	if err != nil {
-		code, message := parseError(err)
-		httpContext.AbortWithStatusJSON(http.StatusBadRequest, ApiError{
-			Error:   true,
-			Code:    code,
-			Message: message,
-		})
+	if err == nil {
+		httpContext.AbortWithStatusJSON(http.StatusOK, response)
 		return
 	}
 
-	httpContext.AbortWithStatusJSON(http.StatusOK, response)
+	code, status := parseError(err)
+	httpContext.AbortWithStatusJSON(status, ApiError{
+		Code: code,
+	})
 }
 
-func parseError(err error) (code, message string) {
-	errorMessage := err.Error()
-	errorParts := strings.Split(errorMessage, ": ")
-
-	if len(errorParts) < 2 {
-		code = "UNKNOWN_ERROR"
-		message = errorMessage
+func parseError(err error) (code string, status int) {
+	if lib.InArray(err, constants.CUSTOM_ERRORS) != -1 {
+		code = err.Error()
+		status = http.StatusBadRequest
 		return
 	}
 
-	code = errorParts[0]
-	message = errorParts[1]
+	code = constants.ERR_SERVER_ERROR.Err.Error()
+	status = http.StatusInternalServerError
 
 	return
 }

@@ -395,12 +395,6 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
-                },
-                "error": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
                 }
             }
         },

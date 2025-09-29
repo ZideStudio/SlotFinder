@@ -1,6 +1,7 @@
 package account
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/lib"
 	"app/db"
@@ -44,7 +45,7 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 
 func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	if !lib.IsValidEmail(data.Email) {
-		return "", errors.New("Invalid email format")
+		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
 	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
@@ -52,7 +53,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", err
 	}
 	if !isUserNameAvailable {
-		return "", errors.New("Username already exists")
+		return "", constants.ERR_USERNAME_ALREADY_TAKEN.Err
 	}
 
 	var existingAccount model.Account
@@ -60,7 +61,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", err
 	}
 	if existingAccount.Id != uuid.Nil {
-		return "", errors.New("Email already exists")
+		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
 	var account model.Account
