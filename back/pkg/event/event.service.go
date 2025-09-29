@@ -38,7 +38,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	// Prevent creating events in the past
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	if data.StartsAt.Before(now) {
-		return EventResponse{}, constants.ERR_EVENT_START_NOT_TODAY.Err
+		return EventResponse{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
 	}
 
 	// Create event
