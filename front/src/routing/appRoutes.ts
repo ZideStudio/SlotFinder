@@ -1,4 +1,4 @@
-import { signUpRoutes } from '@Front/pages/SignUp';
+import { signUpRoutes } from '@Front/pages/Authentication/SignUp';
 
 export const appRoutes: Record<string, () => string> = {
   home: () => '/',

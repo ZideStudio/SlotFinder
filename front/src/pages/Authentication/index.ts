@@ -1,0 +1,1 @@
+export { authenticationRoutes } from './routes';

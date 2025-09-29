@@ -1,0 +1,6 @@
+{
+  "signInWithProvider": "Sign in with a provider",
+  "signInWithGoogle": "Sign in with Google",
+  "signInWithGitHub": "Sign in with GitHub",
+  "signInWithDiscord": "Sign in with Discord"
+}

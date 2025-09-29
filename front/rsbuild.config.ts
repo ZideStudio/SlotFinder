@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
+import { pluginSvgr } from '@rsbuild/plugin-svgr';
 import StylelintPlugin from 'stylelint-webpack-plugin';
 import packageJson from './package.json';
 
@@ -25,7 +26,7 @@ export default defineConfig(({ env }) => {
   const isProduction = env === 'production';
 
   return {
-    plugins: [pluginReact(), pluginSass()],
+    plugins: [pluginReact(), pluginSvgr(), pluginSass()],
     source: {
       entry: {
         index: 'src/main.ts',

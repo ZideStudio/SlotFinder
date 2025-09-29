@@ -1,0 +1,9 @@
+main .subgrid.oauth-nav {
+  display: block;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+
+  --cols: 2;
+  --start: 6;
+}
