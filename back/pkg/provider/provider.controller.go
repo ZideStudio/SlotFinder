@@ -8,6 +8,7 @@ import (
 	"app/config"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 
@@ -139,7 +140,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
-		c.Redirect(302, redirectUrl+"?error=OAuthFailed&code=UNKNOWN_ERROR&message="+url.QueryEscape(err.Error()))
+		c.Redirect(302, fmt.Sprintf("%s?error=OAuthFailed&code=%s&message=%s", redirectUrl, constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error(), url.QueryEscape(err.Error())))
 		return
 	}
 
