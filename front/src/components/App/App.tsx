@@ -1,7 +1,7 @@
 import { queryClient } from '@Front/config';
 import { withProvider } from '@Front/providers';
 import { createRouter } from '@Front/routing/routerFactory';
-import { RouterProvider } from 'react-router';
+import { RouterProvider } from 'react-router-dom';
 
 import '@Front/assets/css';
 
