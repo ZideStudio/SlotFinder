@@ -9,8 +9,7 @@ import (
 )
 
 type ApiError struct {
-	Code    string `json:"code"`
-	Message string `json:"message,omitempty"`
+	Code string `json:"code"`
 }
 
 func SetHttpContextBody(httpContext *gin.Context, body any) error {
@@ -28,14 +27,13 @@ func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
 		return
 	}
 
-	code, message, status := parseError(err)
+	code, status := parseError(err)
 	httpContext.AbortWithStatusJSON(status, ApiError{
-		Code:    code,
-		Message: message,
+		Code: code,
 	})
 }
 
-func parseError(err error) (code string, message string, status int) {
+func parseError(err error) (code string, status int) {
 	if lib.InArray(err, constants.CUSTOM_ERRORS) != -1 {
 		code = err.Error()
 		status = http.StatusBadRequest
@@ -43,7 +41,6 @@ func parseError(err error) (code string, message string, status int) {
 	}
 
 	code = constants.ERR_SERVER_ERROR.Err.Error()
-	message = err.Error()
 	status = http.StatusInternalServerError
 
 	return

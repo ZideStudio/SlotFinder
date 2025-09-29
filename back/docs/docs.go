@@ -370,9 +370,6 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
-                },
-                "message": {
-                    "type": "string"
                 }
             }
         },
