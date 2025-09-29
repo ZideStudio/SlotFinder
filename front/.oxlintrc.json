@@ -24,6 +24,7 @@
     "import/no-unassigned-import": "off",
     "import/no-unresolved": "warn",
     "import/no-duplicates": "warn",
+    "import/no-named-export": "off",
     "import/order": "warn",
     "import/prefer-default-export": "off",
     "typescript/no-unused-vars": "warn",
