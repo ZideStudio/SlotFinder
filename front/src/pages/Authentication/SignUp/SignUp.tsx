@@ -1,4 +1,4 @@
-import { useSignUp } from '@Front/hooks/api/useSignUp';
+import { useSignUp } from '@Front/pages/Authentication/SignUp/useSignUp';
 import type { SignUpFormType } from '@Front/types/Authentication/signUp/signUp.types';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { FormProvider, useForm } from 'react-hook-form';
