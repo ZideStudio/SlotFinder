@@ -1,35 +1,27 @@
 import DiscordIcon from '@Front/assets/svg/discord_icon.svg?react';
 import GithubIcon from '@Front/assets/svg/github_icon.svg?react';
 import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
-import type { ReactNode } from 'react';
+import type { OAuthProvider } from './types';
 
-type oauthProvider = {
-  id: string;
-  label: string;
-  href: string;
-  ariaLabel: 'signInWithGoogle' | 'signInWithGitHub' | 'signInWithDiscord';
-  icon: ReactNode;
-};
+// oxlint-disable-next-line no-magic-numbers
+export const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000; // 1 day in milliseconds
 
-export const oauthProviders: oauthProvider[] = [
+export const oauthProvidersData: Omit<OAuthProvider, 'href'>[] = [
   {
     id: 'google',
     label: 'Google',
-    href: '#google-oauth',
     ariaLabel: 'signInWithGoogle',
     icon: <GoogleIcon width={24} height={24} aria-hidden />,
   },
   {
     id: 'github',
     label: 'GitHub',
-    href: '#github-oauth',
-    ariaLabel: 'signInWithGitHub',
+    ariaLabel: 'signInWithGithub',
     icon: <GithubIcon width={24} height={24} aria-hidden />,
   },
   {
     id: 'discord',
     label: 'Discord',
-    href: '#discord-oauth',
     ariaLabel: 'signInWithDiscord',
     icon: <DiscordIcon width={24} height={24} aria-hidden />,
   },

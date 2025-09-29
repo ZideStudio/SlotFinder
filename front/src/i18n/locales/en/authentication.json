@@ -1,6 +1,10 @@
 {
   "signInWithProvider": "Sign in with a provider",
   "signInWithGoogle": "Sign in with Google",
-  "signInWithGitHub": "Sign in with GitHub",
-  "signInWithDiscord": "Sign in with Discord"
+  "signInWithGithub": "Sign in with GitHub",
+  "signInWithDiscord": "Sign in with Discord",
+  "error": {
+    "PROVIDER_CONNECTION_FAILED": "Failed to connect with the authentication provider. Please try again.",
+    "SERVER_ERROR": "An unexpected error occurred during authentication. Please try again later or contact support if the issue persists."
+  }
 }

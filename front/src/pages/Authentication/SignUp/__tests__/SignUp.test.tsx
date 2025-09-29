@@ -1,6 +1,8 @@
 import { appRoutes } from '@Front/routing/appRoutes';
-import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/renderRoute';
+import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender';
+import { accountErrorFixture } from '@Mocks/fixtures/accountFixtures';
 import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers';
+import { getOAuthProviders200 } from '@Mocks/handlers/oAuthProvidersHandlers';
 import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -12,8 +14,16 @@ const renderRouteOptions: RenderRouteOptions = {
   routesOptions: { initialEntries: [appRoutes.signUp()] },
 };
 
+beforeEach(() => {
+  server.use(getOAuthProviders200);
+});
+
+afterEach(() => {
+  server.resetHandlers();
+});
+
 describe('SignUp', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     server.use(postAccount201);
   });
 
@@ -76,9 +86,11 @@ describe('SignUp', () => {
 });
 
 describe('SignUp error handling', () => {
-  it('shows error message on failed submission', async () => {
+  beforeEach(() => {
     server.use(postAccount400);
+  });
 
+  it('shows error message on failed submission', async () => {
     renderRoute(renderRouteOptions);
 
     await userEvent.type(screen.getByLabelText('username'), 'failuser');
@@ -86,6 +98,6 @@ describe('SignUp error handling', () => {
     await userEvent.type(screen.getByLabelText('password'), 'Password1!');
     await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
-    expect(await screen.findByText('error.USERNAME_ALREADY_TAKEN')).toBeInTheDocument();
+    expect(await screen.findByText(`error.${accountErrorFixture.code}`)).toBeInTheDocument();
   });
 });

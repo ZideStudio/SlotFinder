@@ -1,7 +1,7 @@
 import { errorRoutes } from '@Front/pages/Error';
 import { homeRoutes } from '@Front/pages/Home';
 import { appRoutes } from '@Front/routing/appRoutes';
-import { renderRoute } from '@Front/utils/testsUtils/renderRoute';
+import { renderRoute } from '@Front/utils/testsUtils/customRender';
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { oauthCallbackRoutes } from '../routes';
