@@ -71,7 +71,7 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 				return
 			}
 			if errors.Is(err, http.ErrNoCookie) {
-				err = constants.ERR_NO_COOKIE.Err
+				err = constants.ERR_NOT_AUTHENTICATED.Err
 			}
 
 			helpers.HandleJSONResponse(c, nil, err)

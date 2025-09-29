@@ -23,9 +23,9 @@ var (
 	// Generic
 	ERR_SERVER_ERROR = err("SERVER_ERROR", 0)
 	// Auth
-	ERR_NO_COOKIE     = err("NO_COOKIE", http.StatusUnauthorized)
-	ERR_TOKEN_INVALID = err("TOKEN_INVALID", http.StatusUnauthorized)
-	ERR_TOKEN_EXPIRED = err("TOKEN_EXPIRED", http.StatusUnauthorized)
+	ERR_NOT_AUTHENTICATED = err("NOT_AUTHENTICATED", http.StatusUnauthorized)
+	ERR_TOKEN_INVALID     = err("TOKEN_INVALID", http.StatusUnauthorized)
+	ERR_TOKEN_EXPIRED     = err("TOKEN_EXPIRED", http.StatusUnauthorized)
 	// Account
 	ERR_INVALID_EMAIL_FORMAT   = err("INVALID_EMAIL_FORMAT", 0)
 	ERR_USERNAME_ALREADY_TAKEN = err("USERNAME_ALREADY_TAKEN", 0)
@@ -39,7 +39,7 @@ var CUSTOM_ERRORS = []error{
 	// Generic
 	ERR_SERVER_ERROR.Err,
 	// Auth
-	ERR_NO_COOKIE.Err,
+	ERR_NOT_AUTHENTICATED.Err,
 	ERR_TOKEN_INVALID.Err,
 	ERR_TOKEN_EXPIRED.Err,
 	// Account
