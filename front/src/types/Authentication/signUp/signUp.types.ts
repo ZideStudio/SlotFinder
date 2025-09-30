@@ -1,3 +1,5 @@
+import type { ErrorResponseCodeType } from '@Front/types/api.types';
+
 export type SignUpRequestBodyType = {
   username: string;
   email: string;
@@ -21,8 +23,6 @@ export type SignUpResponseType = {
   userName: string;
 };
 
-export type SignUpErrorType = {
-  code: string;
-  error: true;
-  message: string;
-};
+export type SignUpErrorCodeType = ErrorResponseCodeType<
+  'USERNAME_ALREADY_TAKEN' | 'INVALID_EMAIL_FORMAT' | 'EMAIL_ALREADY_EXISTS'
+>;

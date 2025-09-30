@@ -1,12 +1,12 @@
 import { useSignUp } from '@Front/hooks/api/useSignUp';
-import type { SignUpFormType } from '@Front/types/Authentication/signUp.types';
+import type { SignUpFormType } from '@Front/types/Authentication/signUp/signUp.types';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { getSchema } from './validation';
 
 export const SignUp = () => {
-  const { signUp, isLoading, error } = useSignUp();
+  const { signUp, isLoading, errorCode } = useSignUp();
   const { t } = useTranslation('signUp');
   const methods = useForm<SignUpFormType>({
     resolver: yupResolver(getSchema(t)),
@@ -72,9 +72,9 @@ export const SignUp = () => {
             )}
           </div>
         </fieldset>
-        {error && (
+        {errorCode && (
           <span role="alert" style={{ color: 'red' }}>
-            {error}
+            {t(`error.${errorCode}`)}
           </span>
         )}
         <button type="submit" style={{ marginTop: '1rem' }} disabled={isLoading}>

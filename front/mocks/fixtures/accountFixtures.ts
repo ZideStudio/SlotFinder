@@ -1,4 +1,5 @@
-import type { SignUpErrorType, SignUpResponseType } from "@Front/types/Authentication/signUp.types";
+import type { ErrorResponseType } from '@Front/types/api.types';
+import { type SignUpErrorCodeType, type SignUpResponseType } from '@Front/types/Authentication/signUp/signUp.types';
 
 export const account: SignUpResponseType = {
   access_token: '1234567890abcdef',
@@ -9,8 +10,6 @@ export const account: SignUpResponseType = {
   userName: 'test_user',
 };
 
-export const accountError: SignUpErrorType = {
-  code: 'TEST_ERROR',
-  error: true,
-  message: 'This is a test error message on account creation.',
+export const accountError: ErrorResponseType<SignUpErrorCodeType> = {
+  code: 'USERNAME_ALREADY_TAKEN',
 };
