@@ -10,5 +10,11 @@
   "requiredPassword": "Password is required",
   "minLengthPassword": "Password must be at least {{min}} characters",
   "passwordComplexity": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
-  "submit": "Create Account"
+  "submit": "Create Account",
+  "error": {
+    "USERNAME_ALREADY_TAKEN": "This username is already taken. Please choose another one.",
+    "INVALID_EMAIL_FORMAT": "Invalid email format. Please enter a valid email address.",
+    "EMAIL_ALREADY_EXISTS": "An account with this email address already exists.",
+    "SERVER_ERROR": "An unexpected error occurred during sign up. Please try again later or contact support if the issue persists."
+  }
 }

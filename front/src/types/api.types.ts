@@ -5,3 +5,8 @@ export type JsonObject = {
   [key: string]: JsonValue;
 };
 export type Json = JsonObject | JsonArray;
+
+export type ErrorResponseCodeType<OtherError extends string = never> = 'SERVER_ERROR' | OtherError;
+export type ErrorResponseType<ErrorCodeType extends string = never> = {
+  code: ErrorCodeType;
+};

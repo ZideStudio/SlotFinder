@@ -86,6 +86,6 @@ describe('SignUp error handling', () => {
     await userEvent.type(screen.getByLabelText('password'), 'Password1!');
     await userEvent.click(screen.getByRole('button', { name: 'submit' }));
 
-    expect(await screen.findByText('This is a test error message on account creation.')).toBeInTheDocument();
+    expect(await screen.findByText('error.USERNAME_ALREADY_TAKEN')).toBeInTheDocument();
   });
 });
