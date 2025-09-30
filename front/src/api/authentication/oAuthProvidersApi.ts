@@ -7,8 +7,8 @@ import { OAuthProvidersErrorResponse } from '@Front/types/Authentication/oAuthPr
 import { METHODS } from '../constant';
 import { fetchApi } from '../fetchApi';
 
-export const oAuthProvidersApi = async () =>
-  await fetchApi<OAuthProvidersResponseType, OAuthProvidersErrorCodeType>({
+export const oAuthProvidersApi = () =>
+  fetchApi<OAuthProvidersResponseType, OAuthProvidersErrorCodeType>({
     path: `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/providers/url?redirectUrl=${encodeURIComponent(import.meta.env.FRONT_DOMAIN + appRoutes.oAuthCallback())}`,
     method: METHODS.get,
     CustomErrorResponse: OAuthProvidersErrorResponse,
