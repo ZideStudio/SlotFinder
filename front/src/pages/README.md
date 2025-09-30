@@ -49,7 +49,7 @@ Suppose we have a "UserProfile" page with a complex structure:
 export { userProfileRoutes } from './routes';
 
 // routes.tsx (react-router v7)
-import { RouteObject } from 'react-router';
+import { RouteObject } from 'react-router-dom';
 import { UserProfile } from './UserProfile';
 
 export const userProfileRoutes: RouteObject = {
