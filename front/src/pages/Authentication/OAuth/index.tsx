@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { oauthProviders } from './constants';
+import { useOAuth } from './useOAuth';
 
 import './index.css';
 
 export const OAuth = () => {
   const { t } = useTranslation('authentication');
+  const { oAuthProviders, errorCode } = useOAuth();
 
   return (
     <nav className="oauth-nav subgrid" aria-labelledby="oauth-provider-heading">
@@ -12,7 +13,7 @@ export const OAuth = () => {
         {t('signInWithProvider')}
       </h2>
       <ul>
-        {oauthProviders.map(provider => (
+        {oAuthProviders.map(provider => (
           <li key={provider.label}>
             <a href={provider.href} aria-label={t(provider.ariaLabel)} rel="noopener noreferrer">
               {provider.icon}
@@ -20,6 +21,11 @@ export const OAuth = () => {
             </a>
           </li>
         ))}
+        {errorCode && (
+          <span role="alert" style={{ color: 'red' }}>
+            {t(`error.${errorCode}`)}
+          </span>
+        )}
       </ul>
     </nav>
   );
