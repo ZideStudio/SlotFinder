@@ -41,6 +41,12 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		return EventResponse{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
 	}
 
+	// Prevent creating events with duration less than 1 day
+	oneDayAfterStart := data.StartsAt.Add(24 * time.Hour)
+	if data.EndsAt.Before(oneDayAfterStart) {
+		return EventResponse{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
+	}
+
 	// Create event
 	event := model.Event{
 		Id:          uuid.New(),
