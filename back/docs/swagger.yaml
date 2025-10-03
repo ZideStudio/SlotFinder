@@ -232,28 +232,6 @@ paths:
       summary: Get redirect URL for OAuth provider
       tags:
       - Authentication
-  /v1/auth/providers/url:
-    get:
-      parameters:
-      - description: URL to redirect after OAuth authentication
-        in: query
-        name: redirectUrl
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OAuth URL
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
-      summary: Get all redirect URLs for each OAuth provider
-      tags:
-      - Authentication
   /v1/auth/signin:
     post:
       consumes:

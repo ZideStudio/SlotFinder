@@ -56,22 +56,7 @@ func (*ProviderService) parseProvider(provider string) (constants.Provider, erro
 	}
 }
 
-func (s *ProviderService) GetProviderUrls(redirectUrl string, user *guard.Claims) (providerUrls map[string]string, err error) {
-	providerUrls = make(map[string]string)
-
-	for _, provider := range constants.PROVIDERS {
-		url, err := s.GetProviderUrl(string(provider), redirectUrl, user)
-		if err != nil {
-			return providerUrls, err
-		}
-
-		providerUrls[string(provider)] = url
-	}
-
-	return providerUrls, nil
-}
-
-func (s *ProviderService) GetProviderUrl(providerEntry string, redirectUrl string, user *guard.Claims) (string, error) {
+func (s *ProviderService) GetProviderUrl(providerEntry string, user *guard.Claims) (string, error) {
 	provider, err := s.parseProvider(providerEntry)
 	if err != nil {
 		return "", err
@@ -82,8 +67,7 @@ func (s *ProviderService) GetProviderUrl(providerEntry string, redirectUrl strin
 		userId = user.Id.String()
 	}
 	jsonState, _ := json.Marshal(map[string]string{
-		"redirectUrl": redirectUrl,
-		"userId":      userId,
+		"userId": userId,
 	})
 	jsonStateEncrypted, err := encryption.Encrypt(string(jsonState))
 	if err != nil {

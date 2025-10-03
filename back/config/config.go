@@ -47,5 +47,9 @@ func GetOrigin() (origins []string) {
 		origins[i] = strings.TrimSpace(origin)
 	}
 
+	if len(origins) == 0 {
+		panic("ORIGINS environment variable is not set")
+	}
+
 	return origins
 }
