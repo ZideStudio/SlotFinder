@@ -7,7 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setCookie(c *gin.Context, token string, expiration int) {
+func SetAccessTokenCookie(c *gin.Context, token string, expiration int) {
+	if expiration == 0 {
+		expiration = constants.TOKEN_EXPIRATION
+	}
+
 	c.SetCookie(
 		"access_token",            // name
 		token,                     // value
@@ -17,12 +21,4 @@ func setCookie(c *gin.Context, token string, expiration int) {
 		true,                      // secure
 		true,                      // httpOnly
 	)
-}
-
-func SetAccessTokenCookie(c *gin.Context, token string) {
-	setCookie(c, token, constants.TOKEN_EXPIRATION)
-}
-
-func RemoveAccessTokenCookie(c *gin.Context) {
-	setCookie(c, "", -1)
 }
