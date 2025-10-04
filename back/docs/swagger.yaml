@@ -232,6 +232,24 @@ paths:
       summary: Get redirect URL for OAuth provider
       tags:
       - Authentication
+  /v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - AccessTokenCookie: []
+      summary: Logout
+      tags:
+      - Authentication
   /v1/auth/signin:
     post:
       consumes:

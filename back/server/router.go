@@ -52,6 +52,7 @@ func NewRouter() *gin.Engine {
 			authGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
 
 			authGroup.Use(guard.AuthCheck(true)).GET("/status", authRouter.Status)
+			authGroup.Use(guard.AuthCheck(true)).POST("/logout", authRouter.Logout)
 
 		}
 
