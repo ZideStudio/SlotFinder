@@ -47,7 +47,7 @@
     "@rsbuild/plugin-react": "^1.4.1",
     "@rsbuild/plugin-sass": "^1.4.0",
     "@rsbuild/plugin-svgr": "^1.2.2",
-    "@testing-library/jest-dom": "^6.9.0",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.16",
