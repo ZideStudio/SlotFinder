@@ -19,10 +19,10 @@ func setCookie(c *gin.Context, token string, expiration int) {
 	)
 }
 
-func AddCookie(c *gin.Context, token string) {
+func SetAccessTokenCookie(c *gin.Context, token string) {
 	setCookie(c, token, constants.TOKEN_EXPIRATION)
 }
 
-func RemoveCookie(c *gin.Context) {
+func RemoveAccessTokenCookie(c *gin.Context) {
 	setCookie(c, "", -1)
 }

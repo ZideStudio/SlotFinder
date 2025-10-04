@@ -88,7 +88,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 		return
 	}
 
-	lib.AddCookie(c, jwt.AccessToken)
+	lib.SetAccessTokenCookie(c, jwt.AccessToken)
 
 	c.Redirect(302, redirectUrl)
 }

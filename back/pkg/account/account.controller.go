@@ -44,7 +44,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 		return
 	}
 
-	lib.AddCookie(c, accessToken)
+	lib.SetAccessTokenCookie(c, accessToken)
 
 	helpers.HandleJSONResponse(c, nil, err)
 }

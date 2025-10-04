@@ -40,7 +40,7 @@ func (ctl *SigninController) Signin(c *gin.Context) {
 		return
 	}
 
-	lib.AddCookie(c, token.AccessToken)
+	lib.SetAccessTokenCookie(c, token.AccessToken)
 
 	helpers.HandleJSONResponse(c, nil, nil)
 }

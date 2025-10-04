@@ -33,6 +33,6 @@ func (ctl *AuthController) Status(c *gin.Context) {
 // @Router /v1/auth/logout [post]
 // @security AccessTokenCookie
 func (ctl *AuthController) Logout(c *gin.Context) {
-	lib.RemoveCookie(c)
+	lib.RemoveAccessTokenCookie(c)
 	helpers.HandleJSONResponse(c, nil, nil)
 }
