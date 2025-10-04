@@ -82,7 +82,7 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 		claims, err := ParseToken(jwt)
 		if err != nil {
 			if err.Error() == "token expired" {
-				lib.RemoveCookie(c)
+				lib.SetAccessTokenCookie(c, "", -1)
 			}
 
 			helpers.HandleJSONResponse(c, nil, err)

@@ -1,9 +1,8 @@
 package signin
 
 import (
-	"app/commons/constants"
 	"app/commons/helpers"
-	"app/config"
+	"app/commons/lib"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,15 +40,7 @@ func (ctl *SigninController) Signin(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(
-		"access_token",             // name
-		token.AccessToken,          // value
-		constants.TOKEN_EXPIRATION, // max age in seconds
-		"/",                        // path
-		config.GetConfig().Domain,  // domain
-		true,                       // secure
-		true,                       // httpOnly
-	)
+	lib.SetAccessTokenCookie(c, token.AccessToken, 0)
 
 	helpers.HandleJSONResponse(c, nil, nil)
 }

@@ -5,6 +5,7 @@ import (
 	"app/commons/encryption"
 	"app/commons/guard"
 	"app/commons/helpers"
+	"app/commons/lib"
 	"app/config"
 	"encoding/json"
 	"errors"
@@ -87,15 +88,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(
-		"access_token",             // name
-		jwt.AccessToken,            // value
-		constants.TOKEN_EXPIRATION, // max age in seconds
-		"/",                        // path
-		config.GetConfig().Domain,  // domain
-		true,                       // secure
-		true,                       // httpOnly
-	)
+	lib.SetAccessTokenCookie(c, jwt.AccessToken, 0)
 
 	c.Redirect(302, redirectUrl)
 }

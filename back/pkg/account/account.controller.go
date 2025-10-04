@@ -1,10 +1,9 @@
 package account
 
 import (
-	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/helpers"
-	"app/config"
+	"app/commons/lib"
 	"errors"
 
 	"github.com/gin-gonic/gin"
@@ -45,15 +44,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(
-		"access_token",             // name
-		accessToken,                // value
-		constants.TOKEN_EXPIRATION, // max age in seconds
-		"/",                        // path
-		config.GetConfig().Domain,  // domain
-		true,                       // secure
-		true,                       // httpOnly
-	)
+	lib.SetAccessTokenCookie(c, accessToken, 0)
 
 	helpers.HandleJSONResponse(c, nil, err)
 }
