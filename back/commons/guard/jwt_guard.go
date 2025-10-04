@@ -3,6 +3,7 @@ package guard
 import (
 	"app/commons/constants"
 	"app/commons/helpers"
+	"app/commons/lib"
 	"app/config"
 	"errors"
 	"net/http"
@@ -81,15 +82,7 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 		claims, err := ParseToken(jwt)
 		if err != nil {
 			if err.Error() == "token expired" {
-				c.SetCookie(
-					"access_token",            // name
-					"",                        // value
-					-1,                        // max age in seconds
-					"/",                       // path
-					config.GetConfig().Domain, // domain
-					true,                      // secure
-					true,                      // httpOnly
-				)
+				lib.RemoveCookie(c)
 			}
 
 			helpers.HandleJSONResponse(c, nil, err)
