@@ -370,6 +370,9 @@ const docTemplate = `{
                 "starts_at"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "duration": {
                     "type": "integer",
                     "maximum": 30240,
@@ -454,6 +457,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "createdAt": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "duration": {
