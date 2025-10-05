@@ -43,11 +43,12 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 
 	// Create event
 	event := model.Event{
-		Id:       uuid.New(),
-		Name:     data.Name,
-		Duration: data.Duration,
-		StartsAt: data.StartsAt,
-		EndsAt:   data.EndsAt,
+		Id:          uuid.New(),
+		Name:        data.Name,
+		Description: data.Description,
+		Duration:    data.Duration,
+		StartsAt:    data.StartsAt,
+		EndsAt:      data.EndsAt,
 		Owner: model.Account{
 			Id:       user.Id,
 			UserName: user.Username,

@@ -33,6 +33,8 @@ definitions:
     - PROVIDER_GITHUB
   event.EventCreateDto:
     properties:
+      description:
+        type: string
       duration:
         maximum: 30240
         minimum: 15
@@ -92,6 +94,8 @@ definitions:
   model.Event:
     properties:
       createdAt:
+        type: string
+      description:
         type: string
       duration:
         description: In minutes
