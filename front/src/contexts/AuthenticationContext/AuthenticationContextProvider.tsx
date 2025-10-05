@@ -7,7 +7,7 @@ type AuthenticationContextProviderProps = {
 };
 
 export const AuthenticationContextProvider = ({ children }: AuthenticationContextProviderProps) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>();
   const { checkAuthentication } = useCheckAuthentication({
     onSuccess: () => setIsAuthenticated(true),
     onError: () => setIsAuthenticated(false),

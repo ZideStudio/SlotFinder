@@ -6,6 +6,10 @@ import { screen, waitFor } from '@testing-library/react';
 import { oauthProvidersData } from '../constants';
 import { OAuth } from '../index';
 
+beforeAll(() => {
+  server.resetHandlers();
+});
+
 afterEach(() => {
   server.resetHandlers();
 });

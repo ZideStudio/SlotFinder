@@ -1,6 +1,6 @@
 import type { UseCheckAuthenticationReturn } from './useCheckAuthentication';
 
 export type AuthenticationContextType = {
-  isAuthenticated: boolean;
+  isAuthenticated: boolean | undefined;
   checkAuthentication: UseCheckAuthenticationReturn['checkAuthentication'];
 };

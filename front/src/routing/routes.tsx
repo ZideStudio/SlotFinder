@@ -1,3 +1,4 @@
+import { AuthenticationProtection } from '@Front/components/AuthenticationProtection';
 import { Layout } from '@Front/components/Layout';
 import { authenticationRoutes } from '@Front/pages/Authentication';
 import { dashboardRoutes } from '@Front/pages/Dashboard';
@@ -9,7 +10,11 @@ import type { RouteObject } from 'react-router-dom';
 export const routeObject: RouteObject[] = [
   {
     path: '/',
-    element: <Layout />,
+    element: (
+      <AuthenticationProtection>
+        <Layout />
+      </AuthenticationProtection>
+    ),
     children: [homeRoutes, dashboardRoutes, authenticationRoutes, oauthCallbackRoutes, errorRoutes],
   },
 ];
