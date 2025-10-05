@@ -10,9 +10,9 @@ const renderRouteOptions: RenderRouteOptions = {
 };
 
 describe('Dashboard', () => {
-  it('shows error message on failed submission', () => {
+  it('renders the dashboard heading', () => {
     renderRoute(renderRouteOptions);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Dashboard' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'dashboard.title' })).toBeInTheDocument();
   });
 });

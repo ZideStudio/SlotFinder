@@ -30,56 +30,56 @@ describe('SignUp', () => {
   it('renders all form fields, submit button and oauth', () => {
     renderRoute(renderRouteOptions);
 
-    expect(screen.getByLabelText('username')).toBeInTheDocument();
-    expect(screen.getByLabelText('email')).toBeInTheDocument();
-    expect(screen.getByLabelText('password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'submit' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'signInWithProvider' })).toBeInTheDocument();
+    expect(screen.getByLabelText('signUp.username')).toBeInTheDocument();
+    expect(screen.getByLabelText('signUp.email')).toBeInTheDocument();
+    expect(screen.getByLabelText('signUp.password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'signUp.submit' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'authentication.signInWithProvider' })).toBeInTheDocument();
   });
 
   it('shows validation errors for empty fields', async () => {
     renderRoute(renderRouteOptions);
 
-    await userEvent.click(screen.getByRole('button', { name: 'submit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
-    expect(await screen.findByText('requiredUsername')).toBeInTheDocument();
-    expect(screen.getByText('requiredEmail')).toBeInTheDocument();
-    expect(screen.getByText('requiredPassword')).toBeInTheDocument();
+    expect(await screen.findByText('signUp.requiredUsername')).toBeInTheDocument();
+    expect(screen.getByText('signUp.requiredEmail')).toBeInTheDocument();
+    expect(screen.getByText('signUp.requiredPassword')).toBeInTheDocument();
   });
 
   it.each([
     {
       password: '1234567',
-      expectedError: 'minLengthPassword::{"min":8}',
+      expectedError: 'signUp.minLengthPassword::{"min":8}',
       description: 'minimum length error',
     },
     {
       password: '12345678!',
-      expectedError: 'passwordComplexity',
+      expectedError: 'signUp.passwordComplexity',
       description: 'must contain letters error',
     },
     {
       password: 'password1!',
-      expectedError: 'passwordComplexity',
+      expectedError: 'signUp.passwordComplexity',
       description: 'must contain numbers error',
     },
     {
       password: 'Password!',
-      expectedError: 'passwordComplexity',
+      expectedError: 'signUp.passwordComplexity',
       description: 'must contain numbers error',
     },
     {
       password: 'Password1',
-      expectedError: 'passwordComplexity',
+      expectedError: 'signUp.passwordComplexity',
       description: 'must contain symbols error',
     },
   ])('shows password $description', async ({ password, expectedError }) => {
     renderRoute(renderRouteOptions);
 
-    await userEvent.type(screen.getByLabelText('username'), 'testuser');
-    await userEvent.type(screen.getByLabelText('email'), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('password'), password);
-    await userEvent.click(screen.getByRole('button', { name: 'submit' }));
+    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
+    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('signUp.password'), password);
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
   });
@@ -93,11 +93,11 @@ describe('SignUp error handling', () => {
   it('shows error message on failed submission', async () => {
     renderRoute(renderRouteOptions);
 
-    await userEvent.type(screen.getByLabelText('username'), 'failuser');
-    await userEvent.type(screen.getByLabelText('email'), 'fail@example.com');
-    await userEvent.type(screen.getByLabelText('password'), 'Password1!');
-    await userEvent.click(screen.getByRole('button', { name: 'submit' }));
+    await userEvent.type(screen.getByLabelText('signUp.username'), 'failuser');
+    await userEvent.type(screen.getByLabelText('signUp.email'), 'fail@example.com');
+    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
-    expect(await screen.findByText(`error.${accountErrorFixture.code}`)).toBeInTheDocument();
+    expect(await screen.findByText(`signUp.error.${accountErrorFixture.code}`)).toBeInTheDocument();
   });
 });
