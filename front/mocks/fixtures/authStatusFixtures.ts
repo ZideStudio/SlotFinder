@@ -1,5 +1,8 @@
-import type { ErrorResponseType } from "@Front/types/api.types";
-import type { AuthStatusErrorCodeType, AuthStatusResponseType } from "@Front/types/Authentication/authStatus/authStatus.types";
+import type { ErrorResponseType } from '@Front/types/api.types';
+import type {
+  AuthStatusErrorCodeType,
+  AuthStatusResponseType,
+} from '@Front/types/Authentication/authStatus/authStatus.types';
 
 export const authStatusFixture: AuthStatusResponseType = null;
 

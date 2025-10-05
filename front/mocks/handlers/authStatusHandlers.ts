@@ -1,5 +1,5 @@
-import { authStatusErrorFixture, authStatusFixture } from "@Mocks/fixtures/authStatusFixtures";
-import { delay, http, HttpResponse } from "msw";
+import { authStatusErrorFixture, authStatusFixture } from '@Mocks/fixtures/authStatusFixtures';
+import { delay, http, HttpResponse } from 'msw';
 
 export const getAuthStatus200 = http.get(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`, async () => {
   await delay();
