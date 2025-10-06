@@ -6,6 +6,10 @@ import { screen, waitFor } from '@testing-library/react';
 import { oauthProvidersData } from '../constants';
 import { OAuth } from '../index';
 
+beforeAll(() => {
+  server.resetHandlers();
+});
+
 afterEach(() => {
   server.resetHandlers();
 });
@@ -19,14 +23,14 @@ describe('OAuth', () => {
 
   it('renders heading with correct text and aria-labelledby', () => {
     renderOAuth();
-    expect(screen.getByRole('heading', { level: 2, name: 'signInWithProvider' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'authentication.signInWithProvider' })).toBeInTheDocument();
   });
 
   it('renders all OAuth providers as links with correct aria-labels', async () => {
     renderOAuth();
 
     for (const provider of oauthProvidersData) {
-      const link = screen.getByRole('link', { name: provider.ariaLabel });
+      const link = screen.getByRole('link', { name: `authentication.${provider.ariaLabel}` });
       expect(link).toBeInTheDocument();
       await waitFor(() => expect(link).toHaveAttribute('href', oAuthProvidersFixture[provider.id]));
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -38,7 +42,7 @@ describe('OAuth', () => {
     renderOAuth();
 
     oauthProvidersData.forEach(provider => {
-      const link = screen.getByRole('link', { name: provider.ariaLabel });
+      const link = screen.getByRole('link', { name: `authentication.${provider.ariaLabel}` });
       const icon = link.querySelector('svg');
       expect(icon).toHaveAttribute('aria-hidden');
     });
@@ -54,11 +58,11 @@ describe('OAuth error handling', () => {
     renderOAuth();
 
     oauthProvidersData.forEach(provider => {
-      const link = screen.getByRole('link', { name: provider.ariaLabel });
+      const link = screen.getByRole('link', { name: `authentication.${provider.ariaLabel}` });
       expect(link).toHaveAttribute('href', '#');
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
-    expect(await screen.findByText(`error.${oAuthProvidersErrorFixture.code}`)).toBeInTheDocument();
+    expect(await screen.findByText(`authentication.error.${oAuthProvidersErrorFixture.code}`)).toBeInTheDocument();
   });
 });

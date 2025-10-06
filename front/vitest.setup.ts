@@ -10,9 +10,10 @@ beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
 
   vi.mock('react-i18next', () => ({
-    useTranslation: vi.fn().mockReturnValue({
-      t: (messageId: string, args: Record<string, unknown>) => messageId + (args ? `::${JSON.stringify(args)}` : ''),
-    }),
+    useTranslation: vi.fn((resource: string) => ({
+      t: (messageId: string, args: Record<string, unknown>) =>
+        `${resource}.${messageId}${args ? `::${JSON.stringify(args)}` : ''}`,
+    })),
     initReactI18next: {
       type: '3rdParty',
       init: () => {},

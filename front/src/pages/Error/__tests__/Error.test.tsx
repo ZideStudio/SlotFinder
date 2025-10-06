@@ -23,11 +23,13 @@ const renderErrorPage = (message?: string) => {
 describe('ErrorPage', () => {
   it('should display the error message when provided in state', async () => {
     renderErrorPage('TestError');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('error.title');
     expect(await screen.findByRole('alert')).toHaveTextContent('TestError');
   });
 
   it('should display the default unexpected message when no message is provided', async () => {
     renderErrorPage();
-    expect(await screen.findByRole('alert')).toHaveTextContent('unexpected');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('error.title');
+    expect(await screen.findByRole('alert')).toHaveTextContent('error.unexpected');
   });
 });
