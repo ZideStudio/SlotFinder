@@ -6,7 +6,6 @@ import (
 	"app/commons/lib"
 	"app/config"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -99,7 +98,6 @@ func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println("username", params)
 		if params.RequireUsername && claims.Username == nil {
 			helpers.HandleJSONResponse(c, nil, constants.ERR_USERNAME_MISSING.Err)
 			return
