@@ -9,7 +9,7 @@ import (
 
 type Account struct {
 	Id                   uuid.UUID         `gorm:"column:id;type:uuid;unique;primary_key" json:"id,omitzero"`
-	UserName             string            `gorm:"column:username;size:255" json:"userName"`
+	UserName             *string           `gorm:"column:username;default:null;size:255" json:"userName"`
 	Email                string            `gorm:"column:email;default:null;size:255" json:"email,omitempty"`
 	Password             *string           `gorm:"column:password;size:255" json:"-"`
 	ResetToken           *string           `gorm:"column:reset_token;size:255;default:null" json:"-"`

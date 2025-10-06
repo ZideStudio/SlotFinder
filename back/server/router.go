@@ -36,8 +36,8 @@ func NewRouter() *gin.Engine {
 			accountRouter := account.NewAccountController(nil)
 
 			accountGroup.POST("", accountRouter.Create)
-			accountGroup.Use(guard.AuthCheck(true)).GET("/me", accountRouter.GetMe)
-			accountGroup.Use(guard.AuthCheck(true)).PATCH("", accountRouter.Update)
+			accountGroup.GET("/me", guard.AuthCheck(nil), accountRouter.GetMe)
+			accountGroup.PATCH("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireUsername: false}), accountRouter.Update)
 		}
 
 		authGroup := v1.Group("/auth")
@@ -48,11 +48,11 @@ func NewRouter() *gin.Engine {
 
 			authGroup.POST("/signin", signinRouter.Signin)
 
-			authGroup.Use(guard.AuthCheck(false)).GET("/:provider/url", providerRouter.ProviderUrl)
+			authGroup.Use(guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true})).GET("/:provider/url", providerRouter.ProviderUrl)
 			authGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
 
-			authGroup.Use(guard.AuthCheck(true)).GET("/status", authRouter.Status)
-			authGroup.Use(guard.AuthCheck(true)).POST("/logout", authRouter.Logout)
+			authGroup.Use(guard.AuthCheck(nil)).GET("/status", authRouter.Status)
+			authGroup.Use(guard.AuthCheck(nil)).POST("/logout", authRouter.Logout)
 
 		}
 
@@ -60,7 +60,7 @@ func NewRouter() *gin.Engine {
 		{
 			eventRouter := event.NewEventController(nil)
 
-			eventGroup.Use(guard.AuthCheck(true)).POST("", eventRouter.Create)
+			eventGroup.Use(guard.AuthCheck(nil)).POST("", eventRouter.Create)
 		}
 	}
 

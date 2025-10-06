@@ -14,7 +14,7 @@ import (
 type AccountRepository struct{}
 
 type AccountCreateDto struct {
-	UserName  string
+	UserName  *string
 	Email     string
 	Password  string
 	Providers []model.AccountProvider

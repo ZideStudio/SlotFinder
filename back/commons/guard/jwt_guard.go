@@ -6,6 +6,7 @@ import (
 	"app/commons/lib"
 	"app/config"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -18,9 +19,8 @@ import (
 
 type Claims struct {
 	Id       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
+	Username *string   `json:"username"`
 	Email    string    `json:"email"`
-	Jwt      string    `json:"-"`
 	jwt.RegisteredClaims
 }
 
@@ -63,11 +63,21 @@ func ParseToken(jwtToken string) (*Claims, error) {
 	return claims, err
 }
 
-func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
+type AuthCheckParams struct {
+	RequireAuthentication bool
+	RequireUsername       bool
+}
+
+// Set params to nil to enable all checks
+func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
+	if params == nil {
+		params = &AuthCheckParams{true, true}
+	}
+
 	return func(c *gin.Context) {
 		jwt, err := c.Cookie("access_token")
 		if err != nil {
-			if !requireAuthentication { // validate auth
+			if !params.RequireAuthentication { // validate auth
 				c.Next()
 				return
 			}
@@ -89,7 +99,11 @@ func AuthCheck(requireAuthentication bool) gin.HandlerFunc {
 			return
 		}
 
-		claims.Jwt = jwt
+		fmt.Println("username", params)
+		if params.RequireUsername && claims.Username == nil {
+			helpers.HandleJSONResponse(c, nil, constants.ERR_USERNAME_MISSING.Err)
+			return
+		}
 
 		c.Set("user", claims)
 
