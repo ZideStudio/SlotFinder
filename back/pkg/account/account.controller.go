@@ -100,7 +100,10 @@ func (ctl *AccountController) Update(c *gin.Context) {
 		return
 	}
 
-	account, err := ctl.accountService.Update(&data, user.Id)
+	account, accessToken, err := ctl.accountService.Update(&data, user.Id)
+	if accessToken != nil {
+		lib.SetAccessTokenCookie(c, *accessToken, 0)
+	}
 
 	helpers.HandleJSONResponse(c, account, err)
 }

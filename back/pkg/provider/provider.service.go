@@ -7,6 +7,7 @@ import (
 	"app/config"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/account"
 	"app/pkg/signin"
 	"encoding/json"
 	"errors"
@@ -21,6 +22,7 @@ type ProviderService struct {
 	accountProvidersRepository *repository.AccountProvidersRepository
 	accountRepository          *repository.AccountRepository
 	signinService              *signin.SigninService
+	accountService             *account.AccountService
 	config                     *config.Config
 }
 
@@ -33,6 +35,7 @@ func NewProviderService(service *ProviderService) *ProviderService {
 		accountProvidersRepository: &repository.AccountProvidersRepository{},
 		accountRepository:          &repository.AccountRepository{},
 		signinService:              signin.NewSigninService(nil),
+		accountService:             account.NewAccountService(nil),
 		config:                     config.GetConfig(),
 	}
 }
@@ -132,7 +135,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 	} else if existingAccountProvider.AccountId != uuid.Nil {
 		jwt, err := s.signinService.GenerateToken(&guard.Claims{
 			Id:       existingAccountProvider.AccountId,
-			Username: existingAccountProvider.Username,
+			Username: &existingAccountProvider.Username,
 			Email:    existingAccountProvider.Email,
 		})
 		if err != nil {
@@ -145,7 +148,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 	}
 
 	providerAccountResponse.Account = &repository.AccountCreateDto{
-		UserName: providerUser.ProviderAccount.Username,
+		UserName: &providerUser.ProviderAccount.Username,
 		Providers: []model.AccountProvider{
 			{
 				Provider: providerUser.Provider,
@@ -199,6 +202,17 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 	}
 
 	if providerAccountResponse.Account != nil { // New account
+		if providerAccountResponse.Account.UserName == nil || *providerAccountResponse.Account.UserName == "" {
+			return tokenResponse, errors.New("username should be provided by provider")
+		}
+		isUsernameAvailable, err := s.accountService.CheckUserNameAvailability(*providerAccountResponse.Account.UserName)
+		if err != nil {
+			return tokenResponse, err
+		}
+		if !isUsernameAvailable {
+			providerAccountResponse.Account.UserName = nil
+		}
+
 		var account model.Account
 		if err := s.accountRepository.Create(*providerAccountResponse.Account, &account); err != nil {
 			return tokenResponse, fmt.Errorf("error creating account: %w", err)

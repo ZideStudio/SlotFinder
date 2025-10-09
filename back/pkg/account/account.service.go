@@ -66,7 +66,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
-		UserName: data.UserName,
+		UserName: &data.UserName,
 		Email:    data.Email,
 		Password: data.Password,
 	}, &account); err != nil {
@@ -96,13 +96,23 @@ func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err err
 	return account, nil
 }
 
-func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, err error) {
+func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, accessToken *string, err error) {
 	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
-		return account, err
+		return account, nil, err
 	}
 
 	if dto.UserName != nil {
-		account.UserName = *dto.UserName
+		if account.UserName != nil && *dto.UserName == *account.UserName {
+			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
+		}
+		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.UserName)
+		if err != nil {
+			return account, nil, err
+		}
+		if !isUserNameAvailable {
+			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
+		}
+		account.UserName = dto.UserName
 	}
 	if dto.Email != nil {
 		account.Email = *dto.Email
@@ -112,10 +122,30 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 
 	if err := s.accountRepository.Updates(account); err != nil {
-		return account, err
+		return account, nil, err
 	}
 
-	return s.GetMe(userId)
+	if dto.UserName != nil {
+		claims := &guard.Claims{
+			Id:       account.Id,
+			Username: account.UserName,
+			Email:    account.Email,
+		}
+
+		token, err := s.signinService.GenerateToken(claims)
+		if err != nil {
+			s.accountRepository.Delete(account.Id)
+			return account, nil, err
+		}
+		accessToken = &token.AccessToken
+	}
+
+	me, err := s.GetMe(userId)
+	if err != nil {
+		return account, nil, err
+	}
+
+	return me, accessToken, nil
 }
 
 func (s *AccountService) Delete(userId uuid.UUID, user *guard.Claims) (account model.Account, err error) {
