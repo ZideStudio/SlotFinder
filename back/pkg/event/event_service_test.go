@@ -11,9 +11,11 @@ import (
 )
 
 var service = NewEventService(nil)
+
+var username = "testuser"
 var user = &guard.Claims{
 	Id:       uuid.New(),
-	Username: "testuser",
+	Username: &username,
 }
 
 func TestCreate_EventDurationTooShort(t *testing.T) {
