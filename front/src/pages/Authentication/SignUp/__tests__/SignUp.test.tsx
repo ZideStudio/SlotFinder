@@ -33,6 +33,7 @@ describe('SignUp', () => {
     expect(screen.getByLabelText('signUp.username')).toBeInTheDocument();
     expect(screen.getByLabelText('signUp.email')).toBeInTheDocument();
     expect(screen.getByLabelText('signUp.password')).toBeInTheDocument();
+    expect(screen.getByLabelText('signUp.confirmPassword')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'signUp.submit' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'authentication.signInWithProvider' })).toBeInTheDocument();
   });
@@ -45,6 +46,7 @@ describe('SignUp', () => {
     expect(await screen.findByText('signUp.requiredUsername')).toBeInTheDocument();
     expect(screen.getByText('signUp.requiredEmail')).toBeInTheDocument();
     expect(screen.getByText('signUp.requiredPassword')).toBeInTheDocument();
+    expect(screen.getByText('signUp.requiredConfirmPassword')).toBeInTheDocument();
   });
 
   it.each([
@@ -79,6 +81,7 @@ describe('SignUp', () => {
     await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
     await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
     await userEvent.type(screen.getByLabelText('signUp.password'), password);
+    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), password);
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
@@ -96,8 +99,53 @@ describe('SignUp error handling', () => {
     await userEvent.type(screen.getByLabelText('signUp.username'), 'failuser');
     await userEvent.type(screen.getByLabelText('signUp.email'), 'fail@example.com');
     await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
+    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'Password1!');
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
     expect(await screen.findByText(`signUp.error.${accountErrorFixture.code}`)).toBeInTheDocument();
+  });
+});
+
+describe('SignUp confirmPassword validation', () => {
+  beforeEach(() => {
+    server.use(postAccount201);
+  });
+
+  it('shows error when passwords do not match', async () => {
+    renderRoute(renderRouteOptions);
+
+    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
+    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
+    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'Password2!');
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
+
+    expect(await screen.findByText('signUp.passwordsDoNotMatch')).toBeInTheDocument();
+  });
+
+  it('has accessible error message when passwords do not match', async () => {
+    renderRoute(renderRouteOptions);
+
+    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
+    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
+    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'DifferentPassword1!');
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
+
+    const errorMessage = await screen.findByText('signUp.passwordsDoNotMatch');
+    expect(errorMessage).toHaveAttribute('role', 'alert');
+    expect(errorMessage).toHaveAttribute('id', 'confirmPassword-error');
+
+    const confirmPasswordInput = screen.getByLabelText('signUp.confirmPassword');
+    expect(confirmPasswordInput).toHaveAttribute('aria-describedby', 'confirmPassword-error');
+  });
+
+  it('has accessible label and input association', () => {
+    renderRoute(renderRouteOptions);
+
+    const confirmPasswordInput = screen.getByLabelText('signUp.confirmPassword');
+    expect(confirmPasswordInput).toHaveAttribute('id', 'confirmPassword');
+    expect(confirmPasswordInput).toHaveAttribute('type', 'password');
+    expect(confirmPasswordInput).toHaveAttribute('autocomplete', 'new-password');
   });
 });
