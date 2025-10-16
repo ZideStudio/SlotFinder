@@ -71,6 +71,22 @@ export const SignUp = () => {
               </span>
             )}
           </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <label htmlFor="confirmPassword">{t('confirmPassword')}</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              aria-describedby={methods.formState.errors.confirmPassword ? 'confirmPassword-error' : undefined}
+              {...methods.register('confirmPassword', { required: true })}
+            />
+            {methods.formState.errors.confirmPassword && (
+              <span id="confirmPassword-error" role="alert" style={{ color: 'red', marginTop: 2 }}>
+                {methods.formState.errors.confirmPassword.message}
+              </span>
+            )}
+          </div>
         </fieldset>
         {errorCode && (
           <span role="alert" style={{ color: 'red' }}>
