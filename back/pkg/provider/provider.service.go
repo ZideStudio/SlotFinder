@@ -59,7 +59,7 @@ func (*ProviderService) parseProvider(provider string) (constants.Provider, erro
 	}
 }
 
-func (s *ProviderService) GetProviderUrl(providerEntry string, user *guard.Claims) (string, error) {
+func (s *ProviderService) GetProviderUrl(providerEntry, returnUrl string, user *guard.Claims) (string, error) {
 	provider, err := s.parseProvider(providerEntry)
 	if err != nil {
 		return "", err
@@ -70,7 +70,8 @@ func (s *ProviderService) GetProviderUrl(providerEntry string, user *guard.Claim
 		userId = user.Id.String()
 	}
 	jsonState, _ := json.Marshal(map[string]string{
-		"userId": userId,
+		"userId":    userId,
+		"returnUrl": returnUrl,
 	})
 	jsonStateEncrypted, err := encryption.Encrypt(string(jsonState))
 	if err != nil {

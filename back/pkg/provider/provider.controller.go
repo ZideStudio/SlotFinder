@@ -37,6 +37,7 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Router /v1/auth/{provider}/url [get]
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
+	returnUrl := c.Param("returnUrl")
 
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -44,7 +45,7 @@ func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 		return
 	}
 
-	url, err := ctl.signinService.GetProviderUrl(provider, user)
+	url, err := ctl.signinService.GetProviderUrl(provider, returnUrl, user)
 	if err != nil {
 		helpers.HandleJSONResponse(c, url, err)
 		return
@@ -81,14 +82,15 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 
 	redirectUrl := config.GetConfig().Origins[0] + "/oauth/callback"
 	userId := state["userId"]
+	returnUrl := state["returnUrl"]
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
-		c.Redirect(302, fmt.Sprintf("%s?error=%s", redirectUrl, constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error()))
+		c.Redirect(302, fmt.Sprintf("%s?error=%s&returnUrl=%s", redirectUrl, constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error(), returnUrl))
 		return
 	}
 
 	lib.SetAccessTokenCookie(c, jwt.AccessToken, 0)
 
-	c.Redirect(302, redirectUrl)
+	c.Redirect(302, fmt.Sprintf("%s?returnUrl=%s", redirectUrl, returnUrl))
 }
