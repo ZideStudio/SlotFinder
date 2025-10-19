@@ -37,7 +37,7 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Router /v1/auth/{provider}/url [get]
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
-	returnUrl := c.Param("returnUrl")
+	returnUrl := c.Query("returnUrl")
 
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
