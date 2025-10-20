@@ -9,7 +9,8 @@ import (
 	"app/config"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 )
@@ -83,14 +84,19 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	redirectUrl := config.GetConfig().Origins[0] + "/oauth/callback"
 	userId := state["userId"]
 	returnUrl := state["returnUrl"]
+	q := url.Values{}
+	q.Set("returnUrl", returnUrl)
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
-		c.Redirect(302, fmt.Sprintf("%s?error=%s&returnUrl=%s", redirectUrl, constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error(), returnUrl))
+		q.Set("error", constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error())
+		redirectWithQuery := redirectUrl + "?" + q.Encode()
+		c.Redirect(http.StatusFound, redirectWithQuery)
 		return
 	}
 
 	lib.SetAccessTokenCookie(c, jwt.AccessToken, 0)
 
-	c.Redirect(302, fmt.Sprintf("%s?returnUrl=%s", redirectUrl, returnUrl))
+	redirectWithQuery := redirectUrl + "?" + q.Encode()
+	c.Redirect(http.StatusFound, redirectWithQuery)
 }
