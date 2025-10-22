@@ -39,6 +39,10 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
 	returnUrl := c.Query("returnUrl")
+	if returnUrl != "" && returnUrl[0] != '/' {
+		helpers.HandleJSONResponse(c, nil, errors.New("returnUrl must be a relative path starting with /"))
+		return
+	}
 
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
