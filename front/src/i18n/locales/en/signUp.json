@@ -10,6 +10,9 @@
   "requiredPassword": "Password is required",
   "minLengthPassword": "Password must be at least {{min}} characters",
   "passwordComplexity": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+  "confirmPassword": "Confirm password",
+  "requiredConfirmPassword": "Confirm password is required",
+  "passwordsDoNotMatch": "Passwords do not match",
   "submit": "Create Account",
   "error": {
     "USERNAME_ALREADY_TAKEN": "This username is already taken. Please choose another one.",

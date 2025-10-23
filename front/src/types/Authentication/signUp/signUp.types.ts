@@ -6,7 +6,9 @@ export type SignUpRequestBodyType = {
   password: string;
 };
 
-export type SignUpFormType = SignUpRequestBodyType;
+export type SignUpFormType = SignUpRequestBodyType & {
+  confirmPassword: string;
+};
 
 export type SignUpResponseType = {
   access_token: string;
