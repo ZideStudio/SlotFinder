@@ -3,9 +3,6 @@ import GithubIcon from '@Front/assets/svg/github_icon.svg?react';
 import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
 import type { OAuthProvider } from './types';
 
-// oxlint-disable-next-line no-magic-numbers
-export const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000; // 1 day in milliseconds
-
 export const oauthProvidersData: Omit<OAuthProvider, 'href'>[] = [
   {
     id: 'google',
