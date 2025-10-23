@@ -9,7 +9,8 @@ import (
 	"app/config"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,12 +32,17 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Summary Get redirect URL for OAuth provider
 // @Tags Authentication
 // @Param provider path string true "OAuth provider" Enums(google, github, discord)
-// @Param redirectUrl query string true "URL to redirect after OAuth authentication"
+// @Param returnUrl query string false \"URL to return to after OAuth\""
 // @Success 200 {string} string "OAuth URL"
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/auth/{provider}/url [get]
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
+	returnUrl := c.Query("returnUrl")
+	if returnUrl != "" && returnUrl[0] != '/' {
+		helpers.HandleJSONResponse(c, nil, errors.New("returnUrl must be a relative path starting with /"))
+		return
+	}
 
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -44,7 +50,7 @@ func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 		return
 	}
 
-	url, err := ctl.signinService.GetProviderUrl(provider, user)
+	url, err := ctl.signinService.GetProviderUrl(provider, returnUrl, user)
 	if err != nil {
 		helpers.HandleJSONResponse(c, url, err)
 		return
@@ -81,14 +87,20 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 
 	redirectUrl := config.GetConfig().Origins[0] + "/oauth/callback"
 	userId := state["userId"]
+	returnUrl := state["returnUrl"]
+	q := url.Values{}
+	q.Set("returnUrl", returnUrl)
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
-		c.Redirect(302, fmt.Sprintf("%s?error=%s", redirectUrl, constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error()))
+		q.Set("error", constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error())
+		redirectWithQuery := redirectUrl + "?" + q.Encode()
+		c.Redirect(http.StatusFound, redirectWithQuery)
 		return
 	}
 
 	lib.SetAccessTokenCookie(c, jwt.AccessToken, 0)
 
-	c.Redirect(302, redirectUrl)
+	redirectWithQuery := redirectUrl + "?" + q.Encode()
+	c.Redirect(http.StatusFound, redirectWithQuery)
 }
