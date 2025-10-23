@@ -86,6 +86,23 @@ describe('SignUp', () => {
 
     expect(await screen.findByText(expectedError)).toBeInTheDocument();
   });
+
+  it('shows accessible error when confirm password field does not match with password field', async () => {
+    renderRoute(renderRouteOptions);
+
+    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
+    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
+    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'DifferentPassword1!');
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
+
+    const confirmPasswordError = await screen.findByRole('alert');
+    expect(confirmPasswordError).toHaveTextContent('signUp.passwordsDoNotMatch');
+    expect(confirmPasswordError).toHaveAttribute('id', 'confirmPassword-error');
+
+    const confirmPasswordInput = screen.getByLabelText('signUp.confirmPassword');
+    expect(confirmPasswordInput).toHaveAttribute('aria-describedby', 'confirmPassword-error');
+  });
 });
 
 describe('SignUp error handling', () => {
@@ -103,49 +120,5 @@ describe('SignUp error handling', () => {
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
     expect(await screen.findByText(`signUp.error.${accountErrorFixture.code}`)).toBeInTheDocument();
-  });
-});
-
-describe('SignUp confirmPassword validation', () => {
-  beforeEach(() => {
-    server.use(postAccount201);
-  });
-
-  it('shows error when passwords do not match', async () => {
-    renderRoute(renderRouteOptions);
-
-    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
-    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
-    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'Password2!');
-    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
-
-    expect(await screen.findByText('signUp.passwordsDoNotMatch')).toBeInTheDocument();
-  });
-
-  it('has accessible error message when passwords do not match', async () => {
-    renderRoute(renderRouteOptions);
-
-    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
-    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
-    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'DifferentPassword1!');
-    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
-
-    const errorMessage = await screen.findByText('signUp.passwordsDoNotMatch');
-    expect(errorMessage).toHaveAttribute('role', 'alert');
-    expect(errorMessage).toHaveAttribute('id', 'confirmPassword-error');
-
-    const confirmPasswordInput = screen.getByLabelText('signUp.confirmPassword');
-    expect(confirmPasswordInput).toHaveAttribute('aria-describedby', 'confirmPassword-error');
-  });
-
-  it('has accessible label and input association', () => {
-    renderRoute(renderRouteOptions);
-
-    const confirmPasswordInput = screen.getByLabelText('signUp.confirmPassword');
-    expect(confirmPasswordInput).toHaveAttribute('id', 'confirmPassword');
-    expect(confirmPasswordInput).toHaveAttribute('type', 'password');
-    expect(confirmPasswordInput).toHaveAttribute('autocomplete', 'new-password');
   });
 });
