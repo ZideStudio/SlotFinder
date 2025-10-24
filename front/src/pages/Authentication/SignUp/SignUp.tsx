@@ -93,7 +93,7 @@ export const SignUp = () => {
             {t(`error.${errorCode}`)}
           </span>
         )}
-        <button type="submit" style={{ marginTop: '1rem' }} disabled={isLoading}>
+        <button type="submit" disabled={isLoading}>
           {t('submit')}
         </button>
       </form>
