@@ -1,0 +1,45 @@
+@function _get-spacing($type, $value, $limit) {
+  @if $value > $limit {
+    @error "#{$type} cannot exceed #{$limit * 8}px.";
+  }
+
+  @return var(--#{$type}-#{$value});
+}
+
+@function get-margin-horizontal($value) {
+  @return _get-spacing('margin', $value, 6);
+}
+
+@function get-margin-vertical($value) {
+  @return _get-spacing('margin', $value, 15);
+}
+
+@function get-padding-horizontal($value) {
+  @return _get-spacing('padding', $value, 4);
+}
+
+@function get-gap($value) {
+  @return _get-spacing('gap', $value, 4);
+}
+
+@mixin init-spacing($token-value, $property, $component-token) {
+  --#{$component-token}: #{$token-value};
+
+  #{$property}: var(--#{$component-token});
+}
+
+@mixin init-margin-horizontal($component-token, $value) {
+  @include init-spacing(_get-spacing('margin', $value, 6), 'margin-inline', $component-token);
+}
+
+@mixin init-margin-vertical($component-token, $value) {
+  @include init-spacing(_get-spacing('margin', $value, 15), 'margin-block', $component-token);
+}
+
+@mixin init-padding-horizontal($component-token, $value) {
+  @include init-spacing(_get-spacing('padding', $value, 4), 'padding-inline', $component-token);
+}
+
+@mixin init-gap($component-token, $value) {
+  @include init-spacing(_get-spacing('gap', $value, 4), 'gap', $component-token);
+}

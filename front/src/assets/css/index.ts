@@ -1,7 +1,4 @@
-import './reset.css';
-
+import './_dimension.scss';
 import './global.css';
-
-import './grid.scss';
-
+import './reset.css';
 import './tokens.css';
