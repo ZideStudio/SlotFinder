@@ -27,9 +27,10 @@ If any required data is missing or ambiguous, you MUST ask a follow-up question 
 1. Branch & diff acquisition (generate fresh gitDiff.md)
 2. GitHub issue retrieval & objective derivation
 3. PR description generation (single atomic output)
-4. PR creation on GitHub (assign current user, add Copilot as reviewer, suggest labels)
+4. Label suggestion and user confirmation (before PR creation)
+5. PR creation on GitHub (assign current user as assignee, add Copilot as reviewer, apply confirmed labels)
 
-Proceed to each step only after the previous step is complete. Do not halt the workflow unless a required user input or confirmation is missing. After generating the PR description, continue automatically to PR creation and label suggestion.
+Proceed to each step only after the previous step is complete. Do not halt the workflow unless a required user input or confirmation is missing. After generating the PR description, suggest the most relevant labels and request user confirmation or additions before creating the PR. Only after label confirmation, proceed to PR creation with the correct assignee, reviewer, and labels.
 
 ---
 
@@ -86,7 +87,7 @@ Auto-derive a concise objective sentence from issue title/body. Only ask user fo
 
 ### 2.4 Associate issue number
 
-If available, add a line in the PR description referencing the associated issue (e.g., 'Closes #123'). If no issue (after explicit confirmation of absence), mark Associated Issue as N/A.
+If available, add a line in the PR description referencing the associated issue (e.g., `Closes #123`). If no issue (after explicit confirmation of absence), mark Associated Issue as N/A.
 
 ### 2.5 Validation
 
@@ -133,7 +134,7 @@ Use: (a) objective derived/confirmed, (b) issue context (if present), (c) analys
 -   [ ] Other (specify):
 
 **Associated Issue:**
-Reference the associated issue (e.g., 'Closes #123') or write 'N/A' if there is no issue.
+Reference the associated issue (e.g., `Closes #123`) or write `N/A` if there is no issue.
 
 **Context:**
 <Why the change is needed; reference issue intent; summarize problem / motivation>
@@ -158,14 +159,23 @@ If genuinely nothing for Additional Information, write `None` (never leave blank
 
 ## 4. PR Creation on GitHub (Final Step)
 
-After generating the PR description, automatically create the Pull Request on GitHub with the following requirements:
 
--   Assign the current user as the assignee.
--   Add the GitHub Copilot bot (`github-actions[bot]` or `github-copilot[bot]`, use the correct username for Copilot bot) as a reviewer.
--   Auto-suggest the most relevant labels from the repository for the PR, based on the diff, issue, and context. List the suggested labels to the user and allow them to request additional labels if needed.
+After generating the PR description, but before creating the Pull Request on GitHub:
+
+-   Suggest the most relevant labels for the PR based on the diff, issue, and context.
+-   Prompt the user to confirm, add, or remove labels. Wait for user confirmation before proceeding.
+
+Once labels are confirmed:
+
+-   Ensure the current branch is pushed to the remote repository before attempting PR creation. If not, push it and confirm success before proceeding.
+-   Assign the current user as the assignee (using their GitHub username, not display name). The user must always be the assignee, not just a reviewer.
+-   Add the GitHub Copilot bot as a reviewer only (not as an assignee). Use the correct username for Copilot bot (typically `github-copilot[bot]`).
+-   Apply the confirmed labels to the PR at creation time.
 -   The PR should be created as "ready for review" by default (not a draft).
 
-After PR creation, display the PR URL and the suggested labels. If the user wants to add or remove labels, allow them to specify and update accordingly.
+After PR creation, display the PR URL and the applied labels. If assignment or reviewer addition fails due to permissions or API limitations, clearly notify the user and suggest manual assignment if needed.
+
+If the branch is not found on the remote, provide a clear error and instructions to push the branch first.
 
 ---
 
