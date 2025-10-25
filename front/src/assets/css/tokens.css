@@ -1,0 +1,26 @@
+/* stylelint-disable custom-property-empty-line-before */
+
+:root {
+  /* Main colors (HSL) */
+  --color-primary: 274, 36%, 43%; /* Royal Twilight */
+  --color-primary-light: 274, 36%, 70%; /* Pale Lightened Violet */
+  --color-primary-dark: 274, 42%, 23%; /* Dark Violet */
+  --color-primary-soft: 274, 36%, 95%; /* Soft Violet Background */
+
+  --color-accent: 330, 80%, 52%; /* Electric Raspberry */
+  --color-accent-light: 330, 80%, 75%; /* Light Pink */
+  --color-accent-dark: 330, 80%, 30%; /* Dark Raspberry */
+  --color-accent-soft: 330, 80%, 96%; /* Soft Pink Background */
+
+  --color-grey-100: 280, 25%, 98%; /* Very Light Grey */
+  --color-grey-200: 270, 20%, 92%; /* Light Grey */
+  --color-grey-300: 270, 15%, 85%; /* Medium Grey */
+  --color-grey-400: 270, 10%, 70%; /* Strong Grey */
+  --color-grey-900: 270, 10%, 15%; /* Almost Black Grey */
+
+  /* State colors (HSL) */
+  --color-focus: var(--color-primary);
+  --color-error: var(--color-accent);
+  --color-success: 150, 60%, 45%; /* Harmonious Success Green */
+  --color-warning: 45, 100%, 50%; /* Soft Yellow */
+}
