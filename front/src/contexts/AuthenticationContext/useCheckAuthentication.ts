@@ -1,7 +1,7 @@
 import { authStatusApi } from '@Front/api/authentication/authStatusApi';
 import type { AuthStatusResponseType } from '@Front/types/Authentication/authStatus/authStatus.types';
 import type { AuthStatusErrorResponse } from '@Front/types/Authentication/authStatus/AuthStatusErrorResponse';
-import { useMutation, type UseMutateAsyncFunction } from '@tanstack/react-query';
+import { useMutation, type UseMutateFunction } from '@tanstack/react-query';
 import { useLayoutEffect } from 'react';
 
 type UseCheckAuthenticationProps = {
@@ -10,7 +10,7 @@ type UseCheckAuthenticationProps = {
 };
 
 export type UseCheckAuthenticationReturn = {
-  checkAuthentication: UseMutateAsyncFunction<null, AuthStatusErrorResponse, void, unknown>;
+  checkAuthentication: UseMutateFunction<null, AuthStatusErrorResponse, void, unknown>;
 };
 
 export const useCheckAuthentication = ({
@@ -26,9 +26,9 @@ export const useCheckAuthentication = ({
   });
 
   useLayoutEffect(() => {
-    mutation.mutateAsync();
+    mutation.mutate();
     // oxlint-disable-next-line exhaustive-deps
   }, []);
 
-  return { checkAuthentication: mutation.mutateAsync };
+  return { checkAuthentication: mutation.mutate };
 };

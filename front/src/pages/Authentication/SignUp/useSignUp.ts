@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 type UseSignUpApiReturn = {
-  signUp: (userData: SignUpFormType) => Promise<SignUpResponseType>;
+  signUp: (userData: SignUpFormType) => void;
   isLoading: boolean;
   errorCode?: SignUpErrorCodeType;
 };
@@ -19,7 +19,7 @@ export const useSignUp = (): UseSignUpApiReturn => {
   const errorCode = useMemo(() => mutation.error?.getErrorCode(), [mutation.error]);
 
   return {
-    signUp: mutation.mutateAsync,
+    signUp: mutation.mutate,
     isLoading: mutation.isPending,
     errorCode,
   };
