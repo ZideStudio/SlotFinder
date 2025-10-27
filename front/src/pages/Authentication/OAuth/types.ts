@@ -1,10 +1,11 @@
-import type { OAuthProvidersResponseType } from '@Front/types/Authentication/oAuthProviders/oAuthProviders.types';
 import type { ReactNode } from 'react';
 
+export type OAuthProviderName = 'discord' | 'google' | 'github';
+
 export type OAuthProvider = {
-  id: keyof OAuthProvidersResponseType;
+  id: OAuthProviderName;
   label: string;
   href: string;
-  ariaLabel: `signInWith${Capitalize<keyof OAuthProvidersResponseType>}`;
+  ariaLabel: `signInWith${Capitalize<OAuthProviderName>}`;
   icon: ReactNode;
 };

@@ -5,7 +5,7 @@ import './index.css';
 
 export const OAuth = () => {
   const { t } = useTranslation('authentication');
-  const { oAuthProviders, errorCode } = useOAuth();
+  const { oAuthProviders } = useOAuth();
 
   return (
     <nav className="oauth-nav subgrid" aria-labelledby="oauth-provider-heading">
@@ -21,11 +21,6 @@ export const OAuth = () => {
             </a>
           </li>
         ))}
-        {errorCode && (
-          <span role="alert" style={{ color: 'red' }}>
-            {t(`error.${errorCode}`)}
-          </span>
-        )}
       </ul>
     </nav>
   );

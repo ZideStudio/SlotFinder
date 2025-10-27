@@ -2,7 +2,6 @@ import { appRoutes } from '@Front/routing/appRoutes';
 import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender';
 import { accountErrorFixture } from '@Mocks/fixtures/accountFixtures';
 import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers';
-import { getOAuthProviders200 } from '@Mocks/handlers/oAuthProvidersHandlers';
 import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
@@ -13,10 +12,6 @@ const renderRouteOptions: RenderRouteOptions = {
   routes: [authenticationRoutes],
   routesOptions: { initialEntries: [appRoutes.signUp()] },
 };
-
-beforeEach(() => {
-  server.use(getOAuthProviders200);
-});
 
 afterEach(() => {
   server.resetHandlers();
