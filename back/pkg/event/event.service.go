@@ -86,3 +86,48 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		}},
 	}, nil
 }
+
+func (s *EventService) GetMyEvents(user *guard.Claims) (events []EventResponse, err error) {
+	// Find all account_events for this user
+	var accountEvents []model.AccountEvent
+	if err := s.accountEventRepository.FindByAccountId(user.Id, &accountEvents); err != nil {
+		return []EventResponse{}, err
+	}
+
+	eventIds := make([]uuid.UUID, 0, len(accountEvents))
+	for _, accountEvent := range accountEvents {
+		eventIds = append(eventIds, accountEvent.EventId)
+	}
+
+	// Find all account_events for these events to get all accounts
+	accountEvents = []model.AccountEvent{}
+	if err := s.accountEventRepository.FindByAccountId(user.Id, &accountEvents); err != nil {
+		return []EventResponse{}, err
+	}
+
+	// Group accounts by event
+	for _, accountEvent := range accountEvents {
+		accounts := []model.Account{}
+		// Find all accounts for this event
+		for _, ae := range accountEvents {
+			if ae.EventId == accountEvent.EventId {
+				accounts = append(accounts, model.Account{
+					Id:       ae.Account.Id,
+					UserName: ae.Account.UserName,
+				})
+			}
+		}
+
+		accountEvent.Event.Owner = model.Account{
+			Id:       accountEvent.Event.Owner.Id,
+			UserName: accountEvent.Event.Owner.UserName,
+		}
+
+		events = append(events, EventResponse{
+			Event:    accountEvent.Event,
+			Accounts: accounts,
+		})
+	}
+
+	return events, nil
+}

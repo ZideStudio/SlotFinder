@@ -36,3 +36,12 @@ func (*EventRepository) Delete(id uuid.UUID) error {
 
 	return nil
 }
+
+func (*EventRepository) FindByOwnerId(ownerId uuid.UUID, events *[]model.Event) error {
+	if err := db.GetDB().Where("owner_id = ?", ownerId.String()).Preload("Owner").Find(&events).Error; err != nil {
+		log.Error().Err(err).Msg("EVENT_REPOSITORY::FIND_BY_OWNER_ID Failed to find events by owner id")
+		return err
+	}
+
+	return nil
+}
