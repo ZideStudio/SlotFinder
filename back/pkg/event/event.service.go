@@ -91,43 +91,58 @@ func (s *EventService) GetMyEvents(user *guard.Claims) ([]EventResponse, error) 
 	events := []EventResponse{}
 
 	// Find all account_events for this user
-	var accountEvents []model.AccountEvent
-	if err := s.accountEventRepository.FindByAccountId(user.Id, &accountEvents); err != nil {
-		return []EventResponse{}, err
+	var myAccountEvents []model.AccountEvent
+	if err := s.accountEventRepository.FindByAccountId(user.Id, &myAccountEvents); err != nil {
+		return events, err
 	}
 
-	eventIds := make([]uuid.UUID, 0, len(accountEvents))
-	for _, accountEvent := range accountEvents {
+	// Collect event IDs the user is associated with
+	eventIds := make([]uuid.UUID, 0, len(myAccountEvents))
+	for _, accountEvent := range myAccountEvents {
 		eventIds = append(eventIds, accountEvent.EventId)
 	}
-
-	// Find all account_events related to these events
-	accountEvents = []model.AccountEvent{}
-	if err := s.accountEventRepository.FindByIds(eventIds, &accountEvents); err != nil {
-		return []EventResponse{}, err
+	if len(eventIds) == 0 {
+		return events, nil
 	}
 
-	// Group accounts by event
-	for _, accountEvent := range accountEvents {
-		accounts := []model.Account{}
-		// Find all accounts for this event
-		for _, ae := range accountEvents {
-			if ae.EventId == accountEvent.EventId {
-				accounts = append(accounts, model.Account{
-					Id:       ae.Account.Id,
-					UserName: ae.Account.UserName,
-				})
+	// Find all account_events for these events to get all accounts
+	var allAccountEvents []model.AccountEvent
+	if err := s.accountEventRepository.FindByIds(eventIds, &allAccountEvents); err != nil {
+		return events, err
+	}
+
+	// Group accounts by event ID
+	type eventGroup struct {
+		event    model.Event
+		accounts []model.Account
+	}
+	eventMap := make(map[uuid.UUID]*eventGroup)
+	for _, ae := range allAccountEvents {
+		eg, ok := eventMap[ae.EventId]
+		if !ok {
+			eg = &eventGroup{
+				event: ae.Event,
 			}
+			eventMap[ae.EventId] = eg
 		}
 
-		accountEvent.Event.Owner = model.Account{
-			Id:       accountEvent.Event.Owner.Id,
-			UserName: accountEvent.Event.Owner.UserName,
+		eg.accounts = append(eg.accounts, model.Account{
+			Id:       ae.Account.Id,
+			UserName: ae.Account.UserName,
+		})
+	}
+
+	// Build final event response
+	events = make([]EventResponse, 0, len(eventMap))
+	for _, eg := range eventMap {
+		eg.event.Owner = model.Account{
+			Id:       eg.event.Owner.Id,
+			UserName: eg.event.Owner.UserName,
 		}
 
 		events = append(events, EventResponse{
-			Event:    accountEvent.Event,
-			Accounts: accounts,
+			Event:    eg.event,
+			Accounts: eg.accounts,
 		})
 	}
 
