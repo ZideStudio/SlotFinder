@@ -87,7 +87,9 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	}, nil
 }
 
-func (s *EventService) GetMyEvents(user *guard.Claims) (events []EventResponse, err error) {
+func (s *EventService) GetMyEvents(user *guard.Claims) ([]EventResponse, error) {
+	events := []EventResponse{}
+
 	// Find all account_events for this user
 	var accountEvents []model.AccountEvent
 	if err := s.accountEventRepository.FindByAccountId(user.Id, &accountEvents); err != nil {
@@ -99,9 +101,9 @@ func (s *EventService) GetMyEvents(user *guard.Claims) (events []EventResponse, 
 		eventIds = append(eventIds, accountEvent.EventId)
 	}
 
-	// Find all account_events for these events to get all accounts
+	// Find all account_events related to these events
 	accountEvents = []model.AccountEvent{}
-	if err := s.accountEventRepository.FindByAccountId(user.Id, &accountEvents); err != nil {
+	if err := s.accountEventRepository.FindByIds(eventIds, &accountEvents); err != nil {
 		return []EventResponse{}, err
 	}
 

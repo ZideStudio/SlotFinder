@@ -37,8 +37,8 @@ func (*AccountEventRepository) FindByAccountId(accountId uuid.UUID, accountEvent
 	return nil
 }
 
-func (*AccountEventRepository) FindByIds(ids []uuid.UUID, accountEvents *[]model.AccountEvent) error {
-	if err := db.GetDB().Where("id IN ?", ids).Preload("Account").Preload("Event").Preload("Event.Owner").Find(&accountEvents).Error; err != nil {
+func (*AccountEventRepository) FindByIds(eventIds []uuid.UUID, accountEvents *[]model.AccountEvent) error {
+	if err := db.GetDB().Preload("Account").Preload("Event").Preload("Event.Owner").Where("event_id IN ?", eventIds).Find(&accountEvents).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_IDS Failed to find account_events")
 		return err
 	}
