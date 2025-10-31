@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { DebugGrid } from '../DebugGrid/DebugGrid';
 
 export const Layout = () => (

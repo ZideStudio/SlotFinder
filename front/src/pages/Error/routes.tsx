@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom';
+import type { RouteObject } from 'react-router';
 import { ErrorPage } from './Error';
 
 export const errorRoutes: RouteObject = {

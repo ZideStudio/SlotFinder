@@ -2,7 +2,7 @@ import { errorRoutes } from '@Front/pages/Error';
 import { appRoutes } from '@Front/routing/appRoutes';
 import { renderRoute } from '@Front/utils/testsUtils/customRender';
 import { screen } from '@testing-library/react';
-import type { InitialEntry } from 'react-router-dom';
+import type { InitialEntry } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 const renderErrorPage = (message?: string) => {

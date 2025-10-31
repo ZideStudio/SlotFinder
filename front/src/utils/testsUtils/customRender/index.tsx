@@ -3,7 +3,7 @@ import { routeObject } from '@Front/routing/routes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, type RenderOptions } from '@testing-library/react';
 import type { ComponentProps, ReactNode } from 'react';
-import { createMemoryRouter, RouterProvider, type MemoryRouterOpts, type RouteObject } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider, type MemoryRouterOpts, type RouteObject } from 'react-router';
 
 export type RenderWithQueryClientOptions = {
   renderOptions?: Omit<RenderOptions, 'queries'>;
