@@ -1,7 +1,7 @@
 import { useAuthenticationContext } from '@Front/hooks/useAuthenticationContext';
 import { appRoutes } from '@Front/routing/appRoutes';
 import { useMemo, type ReactNode } from 'react';
-import { Navigate, useLocation, useMatches, type UIMatch } from 'react-router-dom';
+import { Navigate, useLocation, useMatches, type UIMatch } from 'react-router';
 
 type AuthenticationProtectionProps = {
   children: ReactNode;

@@ -5,7 +5,7 @@ import { dashboardRoutes } from '@Front/pages/Dashboard';
 import { errorRoutes } from '@Front/pages/Error';
 import { homeRoutes } from '@Front/pages/Home';
 import { oauthCallbackRoutes } from '@Front/pages/OAuthCallback';
-import type { RouteObject } from 'react-router-dom';
+import type { RouteObject } from 'react-router';
 
 export const routeObject: RouteObject[] = [
   {

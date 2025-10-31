@@ -1,6 +1,6 @@
 import { appRoutes } from '@Front/routing/appRoutes';
 import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 
 export const Home = () => {
   const { t } = useTranslation('home');

@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom';
+import type { RouteObject } from 'react-router';
 import { SignUp } from './SignUp';
 
 export const signUpRoutes: RouteObject = {

@@ -1,5 +1,5 @@
 import { appRoutes } from '@Front/routing/appRoutes';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router';
 
 export const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
