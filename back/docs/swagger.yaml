@@ -219,10 +219,9 @@ paths:
         name: provider
         required: true
         type: string
-      - description: URL to redirect after OAuth authentication
+      - description: URL to return to after OAuth
         in: query
-        name: redirectUrl
-        required: true
+        name: returnUrl
         type: string
       responses:
         "200":
