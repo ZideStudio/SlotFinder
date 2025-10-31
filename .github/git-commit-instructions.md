@@ -36,7 +36,7 @@ messages to ensure a readable history, automate changelog generation, and facili
    - **scope** (optional): the part of the code concerned (e.g., `appointment`, `unit`, `e2e`, `summary`)
    - **description**: short imperative description, no initial capital letter, no period at the end
    - **first line must not exceed 72 characters**
-   - **body** (optional): detailed description of the change, wrapped at 100 characters.
+   - **body** (optional): detailed description of the change, wrapped at maximum 100 characters.
      **You can provide multiple bodies if needed, each separated by a blank line.**
    - **footer(s)** (optional): for breaking changes or issues, use `BREAKING CHANGE:` or `REF #<issue number>`
 
