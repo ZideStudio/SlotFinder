@@ -87,7 +87,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	}, nil
 }
 
-func (s *EventService) GetMyEvents(user *guard.Claims) ([]EventResponse, error) {
+func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error) {
 	events := []EventResponse{}
 
 	// Find all account_events for this user

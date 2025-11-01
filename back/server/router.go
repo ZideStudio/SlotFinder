@@ -60,7 +60,7 @@ func NewRouter() *gin.Engine {
 		{
 			eventRouter := event.NewEventController(nil)
 
-			eventGroup.Use(guard.AuthCheck(nil)).GET("", eventRouter.GetMyEvents)
+			eventGroup.Use(guard.AuthCheck(nil)).GET("", eventRouter.GetUserEvents)
 			eventGroup.Use(guard.AuthCheck(nil)).POST("", eventRouter.Create)
 		}
 	}

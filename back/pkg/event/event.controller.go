@@ -47,7 +47,7 @@ func (ctl *EventController) Create(c *gin.Context) {
 	helpers.HandleJSONResponse(c, event, err)
 }
 
-// @Summary Get my events
+// @Summary Get user events
 // @Tags Event
 // @Accept json
 // @Produce json
@@ -55,13 +55,13 @@ func (ctl *EventController) Create(c *gin.Context) {
 // @Success 200 {array} EventResponse
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/event [get]
-func (ctl *EventController) GetMyEvents(c *gin.Context) {
+func (ctl *EventController) GetUserEvents(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
 		helpers.HandleJSONResponse(c, nil, err)
 		return
 	}
 
-	events, err := ctl.eventService.GetMyEvents(user)
+	events, err := ctl.eventService.GetUserEvents(user)
 	helpers.HandleJSONResponse(c, events, err)
 }
