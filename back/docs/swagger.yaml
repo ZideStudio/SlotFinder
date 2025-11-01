@@ -340,7 +340,7 @@ paths:
             $ref: '#/definitions/helpers.ApiError'
       security:
       - BearerAuth: []
-      summary: Get my events
+      summary: Get user events
       tags:
       - Event
     post:

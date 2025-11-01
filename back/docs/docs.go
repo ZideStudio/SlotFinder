@@ -284,7 +284,7 @@ const docTemplate = `{
                 "tags": [
                     "Event"
                 ],
-                "summary": "Get my events",
+                "summary": "Get user events",
                 "responses": {
                     "200": {
                         "description": "OK",
