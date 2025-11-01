@@ -27,29 +27,9 @@ jobs:
         working-directory: ${{ env.BACK_FOLDER }}
         run: go mod download
 
-  commitlint:
-    if: github.event_name == 'pull_request'
-    name: CommitLint
-    needs:
-      - install
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: ./.github/actions/setup-node
-
-      - name: Validate PR commits with commitlint
-        working-directory: ${{ env.BACK_FOLDER }}
-        run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose --color
-
   lint:
     name: Lint code
-    needs:
-      - install
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -67,8 +47,7 @@ jobs:
 
   test:
     name: Test
-    needs:
-      - install
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -89,8 +68,7 @@ jobs:
 
   build:
     name: Build
-    needs:
-      - install
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
