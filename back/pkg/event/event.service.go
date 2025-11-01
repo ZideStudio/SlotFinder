@@ -126,19 +126,13 @@ func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error
 			eventMap[ae.EventId] = eg
 		}
 
-		eg.accounts = append(eg.accounts, model.Account{
-			Id:       ae.Account.Id,
-			UserName: ae.Account.UserName,
-		})
+		eg.accounts = append(eg.accounts, ae.Account.Sanitized())
 	}
 
 	// Build final event response
 	events = make([]EventResponse, 0, len(eventMap))
 	for _, eg := range eventMap {
-		eg.event.Owner = model.Account{
-			Id:       eg.event.Owner.Id,
-			UserName: eg.event.Owner.UserName,
-		}
+		eg.event.Owner = eg.event.Owner.Sanitized()
 
 		events = append(events, EventResponse{
 			Event:    eg.event,
