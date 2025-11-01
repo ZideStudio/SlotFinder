@@ -1,0 +1,71 @@
+@use '../../utils/sass/mixins/helpers';
+@use '../../utils/sass/mixins/spacing';
+@use '../../utils/sass/mixins/responsive';
+
+$responsive-grid: (
+  tablet: (
+    cols: 8,
+    margin-h: spacing.get-margin-horizontal(4),
+    gap: spacing.get-gap(4),
+  ),
+  desktop-small: (
+    cols: 12,
+    margin-h: var(--margin-8),
+    gap: spacing.get-gap(4),
+  ),
+  desktop-medium: (
+    cols: 12,
+    margin-h: var(--margin-10),
+    gap: spacing.get-gap(4),
+  ),
+  desktop-large: (
+    cols: 12,
+    margin-h: auto,
+    gap: spacing.get-gap(4),
+  ),
+);
+
+@mixin generate-responsive-grid($responsive-grid) {
+  @each $breakpoint, $settings in $responsive-grid {
+    @include responsive.media-exceeds-width($breakpoint) {
+      @each $property, $value in $settings {
+        --#{$property}: #{$value};
+      }
+    }
+  }
+}
+
+@mixin generate-grid-item-classes() {
+  @each $breakpoint, $value in responsive.$breakpoints {
+    @include responsive.media-exceeds-width($breakpoint) {
+      [class*='grid-item'] {
+        grid-column: var(--start-#{$breakpoint}, var(--start)) / span var(--col-#{$breakpoint}, var(--col, var(--cols)));
+      }
+    }
+  }
+}
+
+.grid {
+  --cols: 4;
+  --start: auto;
+
+  @include spacing.init-margin-horizontal('margin-h', 2);
+  @include spacing.init-gap('gap', 2);
+
+  display: grid;
+  max-width: helpers.px-to-rem(1440);
+  grid-template-columns: repeat(var(--cols), 1fr);
+
+  @include generate-responsive-grid($responsive-grid);
+
+  & > * {
+    --start: auto;
+    --cols: 1;
+    --margin-h: spacing.get-margin-horizontal(0);
+
+    grid-template-columns: subgrid;
+    grid-column: var(--start) / span var(--cols);
+  }
+
+  @include generate-grid-item-classes();
+}

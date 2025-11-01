@@ -1,11 +1,8 @@
 import { Outlet } from 'react-router';
-import { DebugGrid } from '../DebugGrid/DebugGrid';
+import { Grid } from '../Grid/Grid';
 
 export const Layout = () => (
-  <>
-    <main className="grid">
-      <Outlet />
-    </main>
-    <DebugGrid />
-  </>
+  <Grid component="main" container>
+    <Outlet />
+  </Grid>
 );

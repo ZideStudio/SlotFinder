@@ -1,0 +1,24 @@
+@use '../../utils/sass/mixins/helpers';
+
+$primitive-dimensions: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15;
+$primitive-additional-value: 0, 2, 3;
+
+$margins: $primitive-dimensions;
+$paddings: helpers.split-list($primitive-dimensions, 5);
+$gaps: $paddings;
+
+@mixin generate-dimension-variables($name, $primitives, $additional-primitives: ()) {
+  @each $value in $additional-primitives {
+    --#{$name}-#{$value}-5: #{helpers.px-to-rem(($value + 0.5) * 8)};
+  }
+
+  @each $value in $primitives {
+    --#{$name}-#{$value}: #{helpers.px-to-rem($value * 8)};
+  }
+}
+
+:root {
+  @include generate-dimension-variables('margin', $margins, $primitive-additional-value);
+  @include generate-dimension-variables('padding', $paddings, $primitive-additional-value);
+  @include generate-dimension-variables('gap', $gaps, $primitive-additional-value);
+}

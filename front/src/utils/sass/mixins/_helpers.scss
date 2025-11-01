@@ -1,0 +1,33 @@
+@use 'sass:meta';
+@use 'sass:math';
+@use 'sass:list';
+
+$root-font-size: 16px;
+
+@function px-to-rem($value) {
+  @if meta.type-of($value) != 'number' and meta.type-of($value) != 'dimension' {
+    @error "The value #{$value} is not a valid number or dimension.";
+  }
+
+  $number: if(math.unit($value) == 'px', math.div($value, 1px), $value);
+
+  @return #{math.div($number, math.div($root-font-size, 1px))}rem;
+}
+
+@function split-list($list, $limit) {
+  @if meta.type-of($list) != 'list' {
+    @error "The value #{$list} is not a valid list.";
+  }
+
+  @if $limit > list.length($list) {
+    @error "The limit #{$limit} is greater than the length of the list.";
+  }
+
+  $result: ();
+
+  @for $i from 1 through $limit {
+    $result: list.append($result, list.nth($list, $i));
+  }
+
+  @return $result;
+}
