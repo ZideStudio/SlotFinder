@@ -247,10 +247,9 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "URL to redirect after OAuth authentication",
-                        "name": "redirectUrl",
-                        "in": "query",
-                        "required": true
+                        "description": "URL to return to after OAuth",
+                        "name": "returnUrl",
+                        "in": "query"
                     }
                 ],
                 "responses": {

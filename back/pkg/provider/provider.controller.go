@@ -32,7 +32,7 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Summary Get redirect URL for OAuth provider
 // @Tags Authentication
 // @Param provider path string true "OAuth provider" Enums(google, github, discord)
-// @Param returnUrl query string false \"URL to return to after OAuth\""
+// @Param returnUrl query string false "URL to return to after OAuth"
 // @Success 200 {string} string "OAuth URL"
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/auth/{provider}/url [get]
