@@ -55,7 +55,7 @@ func ParseToken(jwtToken string) (*Claims, error) {
 		return claims, constants.ERR_TOKEN_INVALID.Err
 	}
 
-	if claims.ExpiresAt == nil || claims.ExpiresAt.Time.Before(time.Now()) {
+	if claims.ExpiresAt == nil || claims.ExpiresAt.Before(time.Now()) {
 		return claims, constants.ERR_TOKEN_EXPIRED.Err
 	}
 

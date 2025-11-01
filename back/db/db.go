@@ -24,7 +24,11 @@ func Init() *gorm.DB {
 		panic(err)
 	}
 
-	startMigration()
+	err = startMigration()
+	if err != nil {
+		log.Error().Err(err).Msg("failed to migrate database")
+		panic(err)
+	}
 
 	return conn
 }
@@ -39,11 +43,16 @@ func TestConnection() bool {
 		log.Error().Err(err).Msg("failed to connect to database")
 		return false
 	}
-	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to ping database")
+		return false
+	}
+
+	err = db.Close()
+	if err != nil {
+		log.Error().Err(err).Msg("failed to close database connection")
 		return false
 	}
 

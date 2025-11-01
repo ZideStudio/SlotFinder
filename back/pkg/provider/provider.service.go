@@ -225,7 +225,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			Email:    account.Email,
 		})
 		if err != nil {
-			s.accountRepository.Delete(account.Id)
+			_ = s.accountRepository.Delete(account.Id)
 			return tokenResponse, err
 		}
 

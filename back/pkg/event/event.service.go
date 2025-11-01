@@ -70,11 +70,11 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		EventId:   event.Id,
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
-		s.eventRepository.Delete(event.Id)
+		_ = s.eventRepository.Delete(event.Id)
 		return EventResponse{}, err
 	}
 	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
-		s.eventRepository.Delete(event.Id)
+		_ = s.eventRepository.Delete(event.Id)
 		return EventResponse{}, err
 	}
 
