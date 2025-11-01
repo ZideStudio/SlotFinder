@@ -6,8 +6,9 @@ runs:
   steps:
     - name: Extract Go version from go.mod
       shell: bash
+      working-directory: ${{ env.BACK_FOLDER }}
       run: |
-        GO_VERSION=$(grep -E "^go [0-9]+\.[0-9]+(\.[0-9]+)?" back/go.mod | awk '{print $2}')
+        GO_VERSION=$(grep -E "^go [0-9]+\.[0-9]+(\.[0-9]+)?" go.mod | awk '{print $2}')
         echo "GO_VERSION=${GO_VERSION}" >> $GITHUB_ENV
 
     - name: Setup Go
@@ -15,4 +16,4 @@ runs:
       with:
         go-version: ${{ env.GO_VERSION }}
         cache: true
-        cache-dependency-path: back/go.sum
+        cache-dependency-path: ${{ env.BACK_FOLDER }}/go.sum
