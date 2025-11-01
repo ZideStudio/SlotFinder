@@ -81,7 +81,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 
 	token, err := s.signinService.GenerateToken(claims)
 	if err != nil {
-		s.accountRepository.Delete(account.Id)
+		_ = s.accountRepository.Delete(account.Id)
 		return "", err
 	}
 
@@ -134,7 +134,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 
 		token, err := s.signinService.GenerateToken(claims)
 		if err != nil {
-			s.accountRepository.Delete(account.Id)
+			_ = s.accountRepository.Delete(account.Id)
 			return account, nil, err
 		}
 		accessToken = &token.AccessToken

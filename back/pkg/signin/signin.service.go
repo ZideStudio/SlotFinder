@@ -30,7 +30,7 @@ func NewSigninService(service *SigninService) *SigninService {
 	}
 }
 
-var errorSignin = errors.New("Invalid email or password")
+var errorSignin = errors.New("invalid email or password")
 
 func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err error) {
 	var account model.Account
