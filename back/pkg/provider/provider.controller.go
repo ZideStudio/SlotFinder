@@ -66,22 +66,22 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	// get state
 	stateStrEncrypted := c.Query("state")
 	if stateStrEncrypted == "" {
-		helpers.HandleJSONResponse(c, nil, errors.New("State parameter is missing"))
+		helpers.HandleJSONResponse(c, nil, errors.New("state parameter is missing"))
 		return
 	}
 	// decrypt state
 	decodedState, err := encryption.Decrypt(stateStrEncrypted)
 	if err != nil {
-		helpers.HandleJSONResponse(c, nil, errors.New("State parameter has invalid encryption"))
+		helpers.HandleJSONResponse(c, nil, errors.New("state parameter has invalid encryption"))
 		return
 	}
 
 	var state map[string]string
 	if err := json.Unmarshal([]byte(decodedState), &state); err != nil {
-		helpers.HandleJSONResponse(c, nil, errors.New("State parameter contains invalid JSON"))
+		helpers.HandleJSONResponse(c, nil, errors.New("state parameter contains invalid JSON"))
 		return
 	} else if len(state) == 0 {
-		helpers.HandleJSONResponse(c, nil, errors.New("State parameter is invalid"))
+		helpers.HandleJSONResponse(c, nil, errors.New("state parameter is invalid"))
 		return
 	}
 

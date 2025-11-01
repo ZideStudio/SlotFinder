@@ -30,7 +30,7 @@ func GetUserClaims(c *gin.Context, user **Claims) error {
 	}
 	userParsed, ok := userClaims.(*Claims)
 	if !ok {
-		return errors.New("User claims type assertion failed")
+		return errors.New("user claims type assertion failed")
 	}
 
 	*user = userParsed
