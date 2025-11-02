@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"app/commons/constants"
-	"app/commons/lib"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,9 +33,15 @@ func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
 }
 
 func parseError(err error) (code string, status int) {
-	if lib.InArray(err, constants.CUSTOM_ERRORS) != -1 {
+	if customError, exists := constants.CUSTOM_ERRORS_MAP[err.Error()]; exists {
 		code = err.Error()
-		status = http.StatusBadRequest
+
+		if customError.StatusCode != nil {
+			status = *customError.StatusCode
+		} else {
+			status = http.StatusBadRequest
+		}
+
 		return
 	}
 
