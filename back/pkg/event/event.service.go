@@ -168,7 +168,7 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 
 	// Check if user already joined the event
 	var accountEvent model.AccountEvent
-	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &model.AccountEvent{})
+	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
 	notJoined := errors.Is(err, gorm.ErrRecordNotFound)
 	if err != nil && !notJoined {
 		return EventResponse{}, err
