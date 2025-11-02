@@ -6,9 +6,11 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/signin"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type EventService struct {
@@ -79,36 +81,16 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	}
 
 	return EventResponse{
-		Event: event,
-		Accounts: []model.Account{{
-			Id:       accountEvent.Account.Id,
-			UserName: accountEvent.Account.UserName,
-		}},
+		Event:    event,
+		Accounts: []model.Account{accountEvent.Account.Sanitized()},
 	}, nil
 }
 
-func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error) {
-	events := []EventResponse{}
-
-	// Find all account_events for this user
-	var myAccountEvents []model.AccountEvent
-	if err := s.accountEventRepository.FindByAccountId(user.Id, &myAccountEvents); err != nil {
-		return events, err
-	}
-
-	// Collect event IDs the user is associated with
-	eventIds := make([]uuid.UUID, 0, len(myAccountEvents))
-	for _, accountEvent := range myAccountEvents {
-		eventIds = append(eventIds, accountEvent.EventId)
-	}
-	if len(eventIds) == 0 {
-		return events, nil
-	}
-
+func (s *EventService) getEventResponseFromEvents(eventIds []uuid.UUID) ([]EventResponse, error) {
 	// Find all account_events for these events to get all accounts
 	var allAccountEvents []model.AccountEvent
 	if err := s.accountEventRepository.FindByIds(eventIds, &allAccountEvents); err != nil {
-		return events, err
+		return nil, err
 	}
 
 	// Group accounts by event ID
@@ -130,7 +112,7 @@ func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error
 	}
 
 	// Build final event response
-	events = make([]EventResponse, 0, len(eventMap))
+	events := make([]EventResponse, 0, len(eventMap))
 	for _, eg := range eventMap {
 		eg.event.Owner = eg.event.Owner.Sanitized()
 
@@ -141,4 +123,91 @@ func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error
 	}
 
 	return events, nil
+}
+
+func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error) {
+	events := []EventResponse{}
+
+	// Find all account_events for this user
+	var myAccountEvents []model.AccountEvent
+	if err := s.accountEventRepository.FindByAccountId(user.Id, &myAccountEvents); err != nil {
+		return events, err
+	}
+
+	// Collect event IDs the user is associated with
+	eventIds := make([]uuid.UUID, 0, len(myAccountEvents))
+	for _, accountEvent := range myAccountEvents {
+		eventIds = append(eventIds, accountEvent.EventId)
+	}
+	if len(eventIds) == 0 {
+		return events, nil
+	}
+
+	return s.getEventResponseFromEvents(eventIds)
+}
+
+func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventResponse, error) {
+	// Get event
+	var event model.Event
+	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return EventResponse{}, constants.ERR_EVENT_NOT_FOUND.Err
+		}
+
+		return EventResponse{}, err
+	}
+	event.Owner = event.Owner.Sanitized()
+
+	// If no user, return event basic info
+	if user == nil {
+		return EventResponse{
+			Event:    event,
+			Accounts: []model.Account{},
+		}, nil
+	}
+
+	// Check if user already joined the event
+	var accountEvent model.AccountEvent
+	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &model.AccountEvent{})
+	notJoined := errors.Is(err, gorm.ErrRecordNotFound)
+	if err != nil && !notJoined {
+		return EventResponse{}, err
+	}
+
+	// If already joined, return event info
+	if !notJoined {
+		eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
+		if err != nil {
+			return EventResponse{}, err
+		}
+		if len(eventResponse) == 0 {
+			return EventResponse{}, errors.New("failed to get event response")
+		}
+
+		return eventResponse[0], nil
+	}
+
+	// Create account_event relation
+	accountEvent = model.AccountEvent{
+		AccountId: user.Id,
+		EventId:   event.Id,
+	}
+	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
+		s.eventRepository.Delete(event.Id)
+		return EventResponse{}, err
+	}
+	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
+		s.eventRepository.Delete(event.Id)
+		return EventResponse{}, err
+	}
+
+	eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
+	if err != nil {
+		return EventResponse{}, err
+	}
+	if len(eventResponse) == 0 {
+		return EventResponse{}, errors.New("failed to get event response")
+	}
+
+	return eventResponse[0], nil
 }

@@ -345,6 +345,51 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/event/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Get event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/event.EventResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -398,9 +443,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "duration",
-                "ends_at",
+                "endsAt",
                 "name",
-                "starts_at"
+                "startsAt"
             ],
             "properties": {
                 "description": {
@@ -411,13 +456,13 @@ const docTemplate = `{
                     "maximum": 30240,
                     "minimum": 15
                 },
-                "ends_at": {
+                "endsAt": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
-                "starts_at": {
+                "startsAt": {
                     "type": "string"
                 }
             }

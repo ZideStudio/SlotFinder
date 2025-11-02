@@ -9,8 +9,8 @@ type EventCreateDto struct {
 	Name        string    `json:"name" binding:"required"`
 	Description *string   `json:"description"`
 	Duration    int       `json:"duration" binding:"required,min=15,max=30240"`
-	StartsAt    time.Time `json:"starts_at" binding:"required"`
-	EndsAt      time.Time `json:"ends_at" binding:"required"`
+	StartsAt    time.Time `json:"startsAt" binding:"required"`
+	EndsAt      time.Time `json:"endsAt" binding:"required"`
 }
 
 type EventResponse struct {
