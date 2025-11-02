@@ -74,7 +74,7 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} EventResponse
+// @Success 200 {object} EventResponse
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/event/{id} [get]
 func (ctl *EventController) GetEvent(c *gin.Context) {
