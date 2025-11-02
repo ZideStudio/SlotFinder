@@ -86,3 +86,59 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		}},
 	}, nil
 }
+
+func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error) {
+	events := []EventResponse{}
+
+	// Find all account_events for this user
+	var myAccountEvents []model.AccountEvent
+	if err := s.accountEventRepository.FindByAccountId(user.Id, &myAccountEvents); err != nil {
+		return events, err
+	}
+
+	// Collect event IDs the user is associated with
+	eventIds := make([]uuid.UUID, 0, len(myAccountEvents))
+	for _, accountEvent := range myAccountEvents {
+		eventIds = append(eventIds, accountEvent.EventId)
+	}
+	if len(eventIds) == 0 {
+		return events, nil
+	}
+
+	// Find all account_events for these events to get all accounts
+	var allAccountEvents []model.AccountEvent
+	if err := s.accountEventRepository.FindByIds(eventIds, &allAccountEvents); err != nil {
+		return events, err
+	}
+
+	// Group accounts by event ID
+	type eventGroup struct {
+		event    model.Event
+		accounts []model.Account
+	}
+	eventMap := make(map[uuid.UUID]*eventGroup)
+	for _, ae := range allAccountEvents {
+		eg, ok := eventMap[ae.EventId]
+		if !ok {
+			eg = &eventGroup{
+				event: ae.Event,
+			}
+			eventMap[ae.EventId] = eg
+		}
+
+		eg.accounts = append(eg.accounts, ae.Account.Sanitized())
+	}
+
+	// Build final event response
+	events = make([]EventResponse, 0, len(eventMap))
+	for _, eg := range eventMap {
+		eg.event.Owner = eg.event.Owner.Sanitized()
+
+		events = append(events, EventResponse{
+			Event:    eg.event,
+			Accounts: eg.accounts,
+		})
+	}
+
+	return events, nil
+}

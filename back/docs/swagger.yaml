@@ -51,6 +51,32 @@ definitions:
     - name
     - starts_at
     type: object
+  event.EventResponse:
+    properties:
+      accounts:
+        items:
+          $ref: '#/definitions/model.Account'
+        type: array
+      createdAt:
+        type: string
+      description:
+        type: string
+      duration:
+        description: In minutes
+        type: integer
+      endsAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner:
+        allOf:
+        - $ref: '#/definitions/model.Account'
+        description: Relations
+      startsAt:
+        type: string
+    type: object
   helpers.ApiError:
     properties:
       code:
@@ -296,6 +322,27 @@ paths:
       tags:
       - Authentication
   /v1/event:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/event.EventResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Get user events
+      tags:
+      - Event
     post:
       consumes:
       - application/json

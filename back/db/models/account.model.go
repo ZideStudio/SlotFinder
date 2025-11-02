@@ -33,3 +33,9 @@ func (a *Account) ComparePassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(*a.Password), []byte(password))
 	return err == nil
 }
+
+func (a *Account) Sanitized() Account {
+	return Account{
+		UserName: a.UserName,
+	}
+}
