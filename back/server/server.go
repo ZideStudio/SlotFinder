@@ -9,6 +9,8 @@ func Init() {
 	c := config.GetConfig()
 
 	r := NewRouter()
-	r.Run(c.Host + ":" + c.Port)
-
+	err := r.Run(c.Host + ":" + c.Port)
+	if err != nil {
+		panic(err)
+	}
 }

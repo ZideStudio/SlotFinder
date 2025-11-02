@@ -55,7 +55,7 @@ func (*ProviderService) parseProvider(provider string) (constants.Provider, erro
 	case string(constants.PROVIDER_GITHUB):
 		return constants.PROVIDER_GITHUB, nil
 	default:
-		return "", errors.New("Invalid provider")
+		return "", errors.New("invalid provider")
 	}
 }
 
@@ -87,7 +87,7 @@ func (s *ProviderService) GetProviderUrl(providerEntry, returnUrl string, user *
 	case constants.PROVIDER_GITHUB:
 		return fmt.Sprintf(PROVIDER_GITHUB_URL, providerConfig.GithubClientId, url.QueryEscape(providerConfig.GithubRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
 	default:
-		return "", errors.New("Unsupported provider")
+		return "", errors.New("unsupported provider")
 	}
 }
 
@@ -188,7 +188,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			return tokenResponse, fmt.Errorf("OAUTH: failed to get Github user info: %w", err)
 		}
 	default:
-		return tokenResponse, errors.New("Unsupported provider")
+		return tokenResponse, errors.New("unsupported provider")
 	}
 
 	providerAccountResponse, err := s.createProviderAccount(CreateProviderAccountDto{
@@ -225,7 +225,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			Email:    account.Email,
 		})
 		if err != nil {
-			s.accountRepository.Delete(account.Id)
+			_ = s.accountRepository.Delete(account.Id)
 			return tokenResponse, err
 		}
 

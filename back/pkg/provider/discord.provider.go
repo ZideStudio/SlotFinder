@@ -56,9 +56,5 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Discord user with status %v info: %s", res.StatusCode(), res)
 	}
 
-	return ProviderAccount{
-		Id:       userInfo.Id,
-		Username: userInfo.Username,
-		Email:    userInfo.Email,
-	}, nil
+	return ProviderAccount(userInfo), nil
 }
