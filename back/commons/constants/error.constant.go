@@ -60,7 +60,6 @@ var CUSTOM_ERRORS_MAP = func() map[string]CustomError {
 	m := make(map[string]CustomError)
 	for _, ce := range CUSTOM_ERRORS {
 		m[ce.Err.Error()] = ce
-
 	}
 	return m
 }()
