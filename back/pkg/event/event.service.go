@@ -193,11 +193,9 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 		EventId:   event.Id,
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
-		s.eventRepository.Delete(event.Id)
 		return EventResponse{}, err
 	}
 	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
-		s.eventRepository.Delete(event.Id)
 		return EventResponse{}, err
 	}
 
