@@ -57,7 +57,7 @@
     "concurrently": "^9.2.1",
     "husky": "^9.1.7",
     "i18next-resources-for-ts": "^1.7.4",
-    "jsdom": "^27.0.1",
+    "jsdom": "^27.1.0",
     "lint-staged": "^16.2.6",
     "monocart-coverage-reports": "^2.12.9",
     "msw": "^2.11.6",
