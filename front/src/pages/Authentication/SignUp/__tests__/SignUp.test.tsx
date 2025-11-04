@@ -1,9 +1,10 @@
+import * as authenticationContextHook from '@Front/hooks/useAuthenticationContext';
 import { appRoutes } from '@Front/routing/appRoutes';
 import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender';
 import { accountErrorFixture } from '@Mocks/fixtures/accountFixtures';
 import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers';
 import { server } from '@Mocks/server';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { authenticationRoutes } from '../../routes';
@@ -97,6 +98,26 @@ describe('SignUp', () => {
 
     const confirmPasswordInput = screen.getByLabelText('signUp.confirmPassword');
     expect(confirmPasswordInput).toHaveAttribute('aria-describedby', 'confirmPassword-error');
+  });
+
+  it('checks authentication from authentication context on successful submission', async () => {
+    const checkAuthentication = vi.fn();
+    vi.spyOn(authenticationContextHook, 'useAuthenticationContext').mockReturnValue({
+      checkAuthentication,
+      isAuthenticated: undefined,
+    });
+
+    renderRoute(renderRouteOptions);
+
+    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
+    await userEvent.type(screen.getByLabelText('signUp.email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
+    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'Password1!');
+    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
+
+    await waitFor(() => {
+      expect(checkAuthentication).toHaveBeenCalled();
+    });
   });
 });
 

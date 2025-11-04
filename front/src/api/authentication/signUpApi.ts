@@ -10,6 +10,7 @@ export const signUpApi = ({ username, email, password }: SignUpRequestBodyType):
     path: `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
     method: METHODS.post,
     data: body,
+    sendCredentials: true,
     CustomErrorResponse: SignUpErrorResponse,
   });
 };
