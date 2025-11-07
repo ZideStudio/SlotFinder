@@ -33,4 +33,26 @@ describe('OAuthCallback', () => {
     renderOAuthCallback({ returnUrl: 'invalid-url' });
     expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
   });
+
+  describe('Security: Open Redirect Prevention', () => {
+    it('should redirect to dashboard when returnUrl is a protocol-relative URL', async () => {
+      renderOAuthCallback({ returnUrl: '//evil.com' });
+      expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
+    });
+
+    it('should redirect to dashboard when returnUrl is an absolute http URL', async () => {
+      renderOAuthCallback({ returnUrl: 'http://evil.com' });
+      expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
+    });
+
+    it('should redirect to dashboard when returnUrl is an absolute https URL', async () => {
+      renderOAuthCallback({ returnUrl: 'https://evil.com' });
+      expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
+    });
+
+    it('should redirect to dashboard when returnUrl uses javascript protocol', async () => {
+      renderOAuthCallback({ returnUrl: 'javascript:alert(1)' });
+      expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
+    });
+  });
 });

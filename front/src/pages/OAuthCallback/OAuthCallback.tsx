@@ -1,4 +1,5 @@
 import { appRoutes } from '@Front/routing/appRoutes';
+import { isInternalUrl } from '@Front/utils/isInternalUrl';
 import { Navigate, useSearchParams } from 'react-router';
 
 export const OAuthCallback = () => {
@@ -10,7 +11,7 @@ export const OAuthCallback = () => {
     return <Navigate to={appRoutes.error()} state={{ message }} replace />;
   }
 
-  const destinationPath = returnUrl?.startsWith('/') ? returnUrl : appRoutes.dashboard();
+  const destinationPath = returnUrl && isInternalUrl(returnUrl) ? returnUrl : appRoutes.dashboard();
 
   return <Navigate to={destinationPath} replace />;
 };
