@@ -7,7 +7,7 @@ type AppRoute = {
   home: () => string;
   dashboard: () => string;
   signUp: () => string;
-  oAuthCallback: (message?: string) => string;
+  oAuthCallback: (params?: { message?: string; returnUrl?: string }) => string;
   error: () => string;
 };
 
@@ -15,10 +15,19 @@ export const appRoutes: AppRoute = {
   home: () => '/',
   dashboard: () => `/${dashboardRoutes.path}`,
   signUp: () => `/${signUpRoutes.path}`,
-  oAuthCallback: message => {
+  oAuthCallback: ({ message, returnUrl } = {}) => {
     let route = `/${oauthCallbackRoutes.path}`;
+
+    const queryParams = new URLSearchParams();
+
     if (message) {
-      route += `?message=${encodeURIComponent(message)}`;
+      queryParams.append('message', message);
+    }
+    if (returnUrl) {
+      queryParams.append('returnUrl', returnUrl);
+    }
+    if (queryParams.toString()) {
+      route += `?${queryParams.toString()}`;
     }
     return route;
   },

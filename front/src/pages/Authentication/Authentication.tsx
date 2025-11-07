@@ -1,6 +1,6 @@
 import { Grid } from '@Front/components/Grid/Grid';
 import { Outlet } from 'react-router';
-import { OAuth } from './OAuth';
+import { OAuth } from './OAuth/OAuth';
 
 export const Authentication = () => (
   <Grid

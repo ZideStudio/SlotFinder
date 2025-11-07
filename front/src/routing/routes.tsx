@@ -1,4 +1,4 @@
-import { AuthenticationProtection } from '@Front/components/AuthenticationProtection';
+import { AuthenticationProtection } from '@Front/components/AuthenticationProtection/AuthenticationProtection';
 import { Layout } from '@Front/components/Layout';
 import { authenticationRoutes } from '@Front/pages/Authentication';
 import { dashboardRoutes } from '@Front/pages/Dashboard';
