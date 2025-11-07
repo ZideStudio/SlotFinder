@@ -20,7 +20,7 @@
 
   /* State colors (HSL) */
   --color-focus: var(--color-primary);
-  --color-error: var(--color-accent);
+  --color-error: 0, 100%, 45.1%;
   --color-success: 150, 60%, 45%; /* Harmonious Success Green */
   --color-warning: 45, 100%, 50%; /* Soft Yellow */
 }

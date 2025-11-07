@@ -23,7 +23,7 @@
   }
 
   &[aria-invalid='true'] {
-    --input-shadow-color: hsla(var(--color-error), 0.7);
+    --input-shadow-color: hsl(var(--color-error));
     --input-shadow-size: 2px;
 
     &:hover,
