@@ -14,6 +14,10 @@ const renderOAuth = () =>
   );
 
 describe('OAuth', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should render heading with correct text and aria-labelledby', () => {
     renderOAuth();
     expect(screen.getByRole('heading', { level: 2, name: 'authentication.signInWithProvider' })).toBeInTheDocument();
