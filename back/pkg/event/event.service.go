@@ -162,7 +162,7 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 	if user == nil {
 		return EventResponse{
 			Event:    event,
-			Accounts: []model.Account{},
+			Accounts: nil,
 		}, nil
 	}
 
@@ -185,6 +185,39 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 		}
 
 		return eventResponse[0], nil
+	}
+
+	eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
+	if err != nil {
+		return EventResponse{}, err
+	}
+	if len(eventResponse) == 0 {
+		return EventResponse{}, errors.New("failed to get event response")
+	}
+
+	return eventResponse[0], nil
+}
+
+func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventResponse, error) {
+	// Get event
+	var event model.Event
+	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return EventResponse{}, constants.ERR_EVENT_NOT_FOUND.Err
+		}
+
+		return EventResponse{}, err
+	}
+
+	// Check if user already joined the event
+	var accountEvent model.AccountEvent
+	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
+	alreadyJoin := !errors.Is(err, gorm.ErrRecordNotFound)
+	if err != nil && alreadyJoin {
+		return EventResponse{}, err
+	}
+	if alreadyJoin {
+		return EventResponse{}, constants.ERR_EVENT_ALREADY_JOINED.Err
 	}
 
 	// Create account_event relation

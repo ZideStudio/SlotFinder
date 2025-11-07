@@ -385,9 +385,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/event.EventResponse'
-            type: array
+            $ref: '#/definitions/event.EventResponse'
         "400":
           description: Bad Request
           schema:
@@ -395,6 +393,30 @@ paths:
       security:
       - BearerAuth: []
       summary: Get event
+      tags:
+      - Event
+  /v1/event/{id}/join:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Join event
       tags:
       - Event
 securityDefinitions:
