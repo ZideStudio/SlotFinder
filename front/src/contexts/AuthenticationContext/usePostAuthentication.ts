@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useCallback, useState, type Dispatch, type SetStateAction } from 'react';
 
 export type UsePostAuthenticationReturn = {
   postAuthRedirectPath: string | undefined;
@@ -9,9 +9,9 @@ export type UsePostAuthenticationReturn = {
 export const usePostAuthentication = (): UsePostAuthenticationReturn => {
   const [postAuthRedirectPath, setPostAuthRedirectPath] = useState<string>();
 
-  const resetPostAuthRedirectPath = () => {
+  const resetPostAuthRedirectPath = useCallback(() => {
     setPostAuthRedirectPath(undefined);
-  };
+  }, []);
 
   return {
     postAuthRedirectPath,
