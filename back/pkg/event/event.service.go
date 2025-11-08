@@ -180,7 +180,7 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 		return EventResponse{}, err
 	}
 	if len(eventResponse) == 0 {
-		return EventResponse{}, errors.New("failed to get event response")
+		return EventResponse{}, errors.New("empty event response")
 	}
 
 	return eventResponse[0], nil
@@ -225,7 +225,7 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventRe
 		return EventResponse{}, err
 	}
 	if len(eventResponse) == 0 {
-		return EventResponse{}, errors.New("failed to get event response")
+		return EventResponse{}, errors.New("empty event response")
 	}
 
 	return eventResponse[0], nil
