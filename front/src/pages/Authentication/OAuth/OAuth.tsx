@@ -1,6 +1,6 @@
 import { Grid } from '@Front/components/Grid/Grid';
 import { useTranslation } from 'react-i18next';
-import './index.css';
+import './OAuth.css';
 import { useOAuth } from './useOAuth';
 
 export const OAuth = () => {

@@ -12,10 +12,18 @@ export type RenderWithQueryClientOptions = {
 
 export type RenderRouteOptions = {
   routes?: RouteObject[];
-  routesOptions?: MemoryRouterOpts;
   renderOptions?: Omit<RenderOptions, 'queries'>;
   queryClientProviderOptions?: Partial<ComponentProps<typeof QueryClientProvider>>;
-};
+} & (
+  | {
+      initialEntry: string;
+      routesOptions?: MemoryRouterOpts;
+    }
+  | {
+      initialEntry?: string;
+      routesOptions: MemoryRouterOpts;
+    }
+);
 
 export const renderWithQueryClient = (
   ui: ReactNode,
@@ -40,12 +48,17 @@ export const renderWithQueryClient = (
 };
 
 export const renderRoute = ({
+  initialEntry,
   routes = routeObject,
-  routesOptions,
+  routesOptions = {},
   renderOptions,
   queryClientProviderOptions,
 }: RenderRouteOptions) => {
-  const router = createMemoryRouter(routes, routesOptions);
+  const routesOptionsWithEntry = {
+    initialEntries: initialEntry ? [initialEntry] : undefined,
+    ...routesOptions,
+  };
+  const router = createMemoryRouter(routes, routesOptionsWithEntry);
 
   return renderWithQueryClient(
     <AuthenticationContextProvider>

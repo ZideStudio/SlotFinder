@@ -8,14 +8,24 @@ type AuthenticationProtectionProps = {
 };
 
 export const AuthenticationProtection = ({ children }: AuthenticationProtectionProps) => {
-  const { isAuthenticated } = useAuthenticationContext();
+  const { isAuthenticated, postAuthRedirectPath, setPostAuthRedirectPath, resetPostAuthRedirectPath } =
+    useAuthenticationContext();
   const { pathname } = useLocation();
   const matches = useMatches() as UIMatch<unknown, { mustBeAuthenticate?: boolean }>[];
 
   const mustBeAuthenticate = useMemo(() => {
     const currentMatch = matches.find(match => match.pathname === pathname);
+
+    if (currentMatch?.handle?.mustBeAuthenticate === true && !isAuthenticated) {
+      setPostAuthRedirectPath(pathname);
+    }
+
+    if (isAuthenticated && postAuthRedirectPath) {
+      resetPostAuthRedirectPath();
+    }
+
     return currentMatch?.handle?.mustBeAuthenticate;
-  }, [matches, pathname]);
+  }, [pathname, matches, isAuthenticated, postAuthRedirectPath, setPostAuthRedirectPath, resetPostAuthRedirectPath]);
 
   if (isAuthenticated === undefined) {
     return null;
@@ -26,7 +36,7 @@ export const AuthenticationProtection = ({ children }: AuthenticationProtectionP
   }
 
   if (mustBeAuthenticate === false && isAuthenticated) {
-    return <Navigate to={appRoutes.dashboard()} replace />;
+    return <Navigate to={postAuthRedirectPath ?? appRoutes.dashboard()} replace />;
   }
 
   return children;

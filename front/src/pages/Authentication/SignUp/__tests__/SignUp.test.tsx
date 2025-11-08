@@ -1,6 +1,6 @@
 import * as authenticationContextHook from '@Front/hooks/useAuthenticationContext';
 import { appRoutes } from '@Front/routing/appRoutes';
-import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender';
+import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender/customRender';
 import { accountErrorFixture } from '@Mocks/fixtures/accountFixtures';
 import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers';
 import { server } from '@Mocks/server';
@@ -105,6 +105,9 @@ describe('SignUp', () => {
     vi.spyOn(authenticationContextHook, 'useAuthenticationContext').mockReturnValue({
       checkAuthentication,
       isAuthenticated: undefined,
+      postAuthRedirectPath: undefined,
+      setPostAuthRedirectPath: vi.fn(),
+      resetPostAuthRedirectPath: vi.fn(),
     });
 
     renderRoute(renderRouteOptions);
