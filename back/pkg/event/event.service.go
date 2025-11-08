@@ -174,19 +174,7 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 		return EventResponse{}, err
 	}
 
-	// If already joined, return event info
-	if !notJoined {
-		eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
-		if err != nil {
-			return EventResponse{}, err
-		}
-		if len(eventResponse) == 0 {
-			return EventResponse{}, errors.New("failed to get event response")
-		}
-
-		return eventResponse[0], nil
-	}
-
+	// Return event info
 	eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
 	if err != nil {
 		return EventResponse{}, err
