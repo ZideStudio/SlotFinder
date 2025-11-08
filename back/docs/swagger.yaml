@@ -53,10 +53,6 @@ definitions:
     type: object
   event.EventResponse:
     properties:
-      accounts:
-        items:
-          $ref: '#/definitions/model.Account'
-        type: array
       createdAt:
         type: string
       description:
@@ -74,6 +70,10 @@ definitions:
         allOf:
         - $ref: '#/definitions/model.Account'
         description: Relations
+      participants:
+        items:
+          $ref: '#/definitions/model.Account'
+        type: array
       startsAt:
         type: string
     type: object

@@ -506,12 +506,6 @@ const docTemplate = `{
         "event.EventResponse": {
             "type": "object",
             "properties": {
-                "accounts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Account"
-                    }
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -538,6 +532,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.Account"
                         }
                     ]
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Account"
+                    }
                 },
                 "startsAt": {
                     "type": "string"

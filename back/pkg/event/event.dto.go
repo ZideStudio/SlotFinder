@@ -15,5 +15,5 @@ type EventCreateDto struct {
 
 type EventResponse struct {
 	model.Event
-	Accounts []model.Account `json:"accounts"`
+	Accounts []model.Account `json:"participants"`
 }
