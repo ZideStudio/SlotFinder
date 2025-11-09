@@ -390,8 +390,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helpers.ApiError'
-      security:
-      - BearerAuth: []
       summary: Get event
       tags:
       - Event

@@ -348,11 +348,6 @@ const docTemplate = `{
         },
         "/v1/event/{id}": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
