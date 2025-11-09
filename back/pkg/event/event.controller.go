@@ -73,7 +73,6 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 // @Param id path string true "Event Id"
 // @Accept json
 // @Produce json
-// @Security BearerAuth
 // @Success 200 {object} EventResponse
 // @Failure 400 {object} helpers.ApiError
 // @Router /v1/event/{id} [get]
