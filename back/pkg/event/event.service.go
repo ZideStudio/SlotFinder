@@ -216,9 +216,6 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventRe
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
 		return EventResponse{}, err
 	}
-	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
-		return EventResponse{}, err
-	}
 
 	eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
 	if err != nil {
