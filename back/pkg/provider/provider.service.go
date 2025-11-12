@@ -206,6 +206,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 	}
 
 	if providerAccountResponse.Account != nil { // New account
+		// Ensure username is provided
 		if providerAccountResponse.Account.UserName == nil || *providerAccountResponse.Account.UserName == "" {
 			return tokenResponse, errors.New("username should be provided by provider")
 		}
@@ -227,28 +228,23 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 
 		// Update account avatar
 		avatarUrl := ""
-		if providerAccountResponse.Account.UserName != nil {
-			gotAvatarUrl := false
-			if providerAccount.AvatarUrl != nil {
-				uploadedAvatarUrl, err := s.avatarService.UploadAvatar(*providerAccount.AvatarUrl, account.Id.String())
-				if err == nil {
-					avatarUrl = uploadedAvatarUrl
-					gotAvatarUrl = true
-				}
-			}
-			if !gotAvatarUrl {
-				avatarUrl = s.avatarService.GetGravatarURL(account.Id.String())
+		if providerAccount.AvatarUrl != nil {
+			uploadedAvatarUrl, err := s.avatarService.UploadAvatar(*providerAccount.AvatarUrl, account.Id.String())
+			if err == nil {
+				avatarUrl = uploadedAvatarUrl
 			}
 		}
-		if avatarUrl != "" {
-			if err := s.accountRepository.Updates(model.Account{
-				Id:        account.Id,
-				AvatarUrl: avatarUrl,
-			}); err != nil {
-				return tokenResponse, fmt.Errorf("error updating account avatar: %w", err)
-			}
+		if avatarUrl == "" {
+			avatarUrl = s.avatarService.GetGravatarURL(account.Id.String())
+		}
+		if err := s.accountRepository.Updates(model.Account{
+			Id:        account.Id,
+			AvatarUrl: avatarUrl,
+		}); err != nil {
+			return tokenResponse, fmt.Errorf("error creating account: %w", err)
 		}
 
+		// Generate token
 		token, err := s.signinService.GenerateToken(&guard.Claims{
 			Id:       account.Id,
 			Username: account.UserName,
