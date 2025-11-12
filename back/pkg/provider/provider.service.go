@@ -23,6 +23,7 @@ type ProviderService struct {
 	accountRepository          *repository.AccountRepository
 	signinService              *signin.SigninService
 	accountService             *account.AccountService
+	avatarService              *account.AvatarService
 	config                     *config.Config
 }
 
@@ -36,6 +37,7 @@ func NewProviderService(service *ProviderService) *ProviderService {
 		accountRepository:          &repository.AccountRepository{},
 		signinService:              signin.NewSigninService(nil),
 		accountService:             account.NewAccountService(nil),
+		avatarService:              account.NewAvatarService(),
 		config:                     config.GetConfig(),
 	}
 }
@@ -92,9 +94,10 @@ func (s *ProviderService) GetProviderUrl(providerEntry, returnUrl string, user *
 }
 
 type ProviderAccount struct {
-	Id       string
-	Username string
-	Email    string
+	Id        string
+	Username  string
+	Email     *string
+	AvatarUrl *string
 }
 
 type CreateProviderAccountDto struct {
@@ -202,10 +205,12 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		return *providerAccountResponse.Jwt, nil
 	}
 
-	if providerAccountResponse.Account != nil { // New account
+	if providerAccountResponse.Account.UserName != nil { // New account
 		if providerAccountResponse.Account.UserName == nil || *providerAccountResponse.Account.UserName == "" {
 			return tokenResponse, errors.New("username should be provided by provider")
 		}
+
+		// Check if username is available
 		isUsernameAvailable, err := s.accountService.CheckUserNameAvailability(*providerAccountResponse.Account.UserName)
 		if err != nil {
 			return tokenResponse, err
@@ -214,9 +219,34 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			providerAccountResponse.Account.UserName = nil
 		}
 
+		// Create account
 		var account model.Account
 		if err := s.accountRepository.Create(*providerAccountResponse.Account, &account); err != nil {
 			return tokenResponse, fmt.Errorf("error creating account: %w", err)
+		}
+
+		// Update account avatar
+		avatarUrl := ""
+		if providerAccountResponse.Account.UserName != nil {
+			gotAvatarUrl := false
+			if providerAccount.AvatarUrl != nil {
+				uploadedAvatarUrl, err := s.avatarService.UploadAvatar(*providerAccount.AvatarUrl, account.Id.String())
+				if err == nil {
+					avatarUrl = uploadedAvatarUrl
+					gotAvatarUrl = true
+				}
+			}
+			if !gotAvatarUrl {
+				avatarUrl = s.avatarService.GetGravatarURL(account.Id.String())
+			}
+		}
+		if avatarUrl != "" {
+			if err := s.accountRepository.Updates(model.Account{
+				Id:        account.Id,
+				AvatarUrl: avatarUrl,
+			}); err != nil {
+				return tokenResponse, fmt.Errorf("error creating account: %w", err)
+			}
 		}
 
 		token, err := s.signinService.GenerateToken(&guard.Claims{

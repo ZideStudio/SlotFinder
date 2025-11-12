@@ -550,6 +550,9 @@ const docTemplate = `{
         "model.Account": {
             "type": "object",
             "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
