@@ -72,10 +72,9 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
-		UserName:  &data.UserName,
-		Email:     &data.Email,
-		Password:  data.Password,
-		AvatarUrl: s.avatarService.GetGravatarURL(account.Id.String()),
+		UserName: &data.UserName,
+		Email:    &data.Email,
+		Password: data.Password,
 	}, &account); err != nil {
 		return "", err
 	}
