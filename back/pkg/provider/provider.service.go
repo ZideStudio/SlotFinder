@@ -205,7 +205,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		return *providerAccountResponse.Jwt, nil
 	}
 
-	if providerAccountResponse.Account.UserName != nil { // New account
+	if providerAccountResponse.Account != nil { // New account
 		if providerAccountResponse.Account.UserName == nil || *providerAccountResponse.Account.UserName == "" {
 			return tokenResponse, errors.New("username should be provided by provider")
 		}
