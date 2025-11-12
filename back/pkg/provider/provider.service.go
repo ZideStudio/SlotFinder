@@ -245,7 +245,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 				Id:        account.Id,
 				AvatarUrl: avatarUrl,
 			}); err != nil {
-				return tokenResponse, fmt.Errorf("error creating account: %w", err)
+				return tokenResponse, fmt.Errorf("error updating account avatar: %w", err)
 			}
 		}
 
