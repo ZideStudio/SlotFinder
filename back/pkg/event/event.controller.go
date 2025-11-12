@@ -1,10 +1,12 @@
 package event
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/helpers"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type EventController struct {
@@ -63,5 +65,56 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 	}
 
 	events, err := ctl.eventService.GetUserEvents(user)
+	helpers.HandleJSONResponse(c, events, err)
+}
+
+// @Summary Get event
+// @Tags Event
+// @Param id path string true "Event Id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} EventResponse
+// @Failure 400 {object} helpers.ApiError
+// @Router /v1/event/{id} [get]
+func (ctl *EventController) GetEvent(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	idUuid, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	events, err := ctl.eventService.GetEvent(idUuid, user)
+	helpers.HandleJSONResponse(c, events, err)
+}
+
+// @Summary Join event
+// @Tags Event
+// @Param id path string true "Event Id"
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /v1/event/{id}/join [post]
+func (ctl *EventController) JoinEvent(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	idUuid, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	events, err := ctl.eventService.JoinEvent(idUuid, user)
 	helpers.HandleJSONResponse(c, events, err)
 }

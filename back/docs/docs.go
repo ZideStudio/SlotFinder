@@ -345,6 +345,82 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/event/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Get event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/event.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/event/{id}/join": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Join event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -398,9 +474,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "duration",
-                "ends_at",
+                "endsAt",
                 "name",
-                "starts_at"
+                "startsAt"
             ],
             "properties": {
                 "description": {
@@ -411,13 +487,13 @@ const docTemplate = `{
                     "maximum": 30240,
                     "minimum": 15
                 },
-                "ends_at": {
+                "endsAt": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
-                "starts_at": {
+                "startsAt": {
                     "type": "string"
                 }
             }
@@ -425,12 +501,6 @@ const docTemplate = `{
         "event.EventResponse": {
             "type": "object",
             "properties": {
-                "accounts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Account"
-                    }
-                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -457,6 +527,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.Account"
                         }
                     ]
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Account"
+                    }
                 },
                 "startsAt": {
                     "type": "string"
