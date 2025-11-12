@@ -3,17 +3,16 @@ package account
 import (
 	"app/config"
 	"bytes"
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"image"
 	"image/jpeg"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"path/filepath"
-	"strings"
+
+	"github.com/go-resty/resty/v2"
 
 	"github.com/rs/zerolog/log"
 )
@@ -43,55 +42,26 @@ func compressToJPEG(img image.Image) (*bytes.Buffer, error) {
 }
 
 func uploadToImgbb(file io.Reader, fileName string) (string, error) {
-	var body bytes.Buffer
-	writer := multipart.NewWriter(&body)
-
-	part, err := writer.CreateFormFile("image", filepath.Base(fileName))
-	if err != nil {
-		return "", err
-	}
-
-	_, err = io.Copy(part, file)
-	if err != nil {
-		return "", err
-	}
-
-	if err := writer.Close(); err != nil {
-		log.Error().Err(err).Msg("Failed to close multipart writer")
-		return "", err
-	}
-
 	config := config.GetConfig()
 
-	url := fmt.Sprintf("https://api.imgbb.com/1/upload?key=%s&name=%s", config.ImgBBApiKey, fileName)
-	req, err := http.NewRequest("POST", url, &body)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to create HTTP request for imgbb")
-		return "", err
-	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	client := resty.New()
 
-	resp, err := http.DefaultClient.Do(req)
+	var imgbbResp ImgbbResponse
+	resp, err := client.R().
+		SetFileReader("image", filepath.Base(fileName), file).
+		SetQueryParam("key", config.ImgBBApiKey).
+		SetQueryParam("name", fileName).
+		SetResult(&imgbbResp).
+		Post("https://api.imgbb.com/1/upload")
+
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to upload image to imgbb")
 		return "", err
 	}
-	defer resp.Body.Close()
 
-	// Log the response body for debugging
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to read response body")
-		return "", err
-	}
-
-	// Reset the response body for JSON decoding
-	resp.Body = io.NopCloser(bytes.NewReader(respBody))
-
-	var imgbbResp ImgbbResponse
-	if err := json.NewDecoder(resp.Body).Decode(&imgbbResp); err != nil {
-		log.Error().Err(err).Msg("Failed to decode imgbb response")
-		return "", err
+	if resp.StatusCode() != http.StatusOK {
+		log.Error().Int("status", resp.StatusCode()).Msg("ImgBB upload failed with non-200 status")
+		return "", fmt.Errorf("failed to upload image to imgbb: status %d", resp.StatusCode())
 	}
 
 	if !imgbbResp.Success {
@@ -147,9 +117,7 @@ func (*AvatarService) UploadAvatar(imgURL, fileName string) (string, error) {
 }
 
 func (*AvatarService) GetGravatarURL(username string) string {
-	normalized := strings.TrimSpace(strings.ToLower(username))
-
-	hash := md5.Sum([]byte(normalized))
+	hash := sha256.Sum256([]byte(username))
 	hashStr := hex.EncodeToString(hash[:])
 
 	return fmt.Sprintf("https://www.gravatar.com/avatar/%s?d=retro", hashStr)
