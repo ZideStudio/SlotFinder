@@ -56,7 +56,10 @@ func uploadToImgbb(file io.Reader, fileName string) (string, error) {
 		return "", err
 	}
 
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		log.Error().Err(err).Msg("Failed to close multipart writer")
+		return "", err
+	}
 
 	config := config.GetConfig()
 
