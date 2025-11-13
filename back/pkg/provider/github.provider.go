@@ -7,16 +7,11 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type GithubUserInfo struct {
-	Id    string
-	Name  string
-	Email string
-}
-
 type GithubUserNameInfo struct {
-	Id    int32  `json:"id"`
-	Name  string `json:"login"`
-	Email string `json:"email"`
+	Id        int32  `json:"id"`
+	Name      string `json:"login"`
+	Email     string `json:"email"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 type GithubTokenResponse struct {
@@ -63,8 +58,9 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 	}
 
 	return ProviderAccount{
-		Id:       fmt.Sprintf("%d", userNameInfo.Id),
-		Username: userNameInfo.Name,
-		Email:    userNameInfo.Email,
+		Id:        fmt.Sprintf("%d", userNameInfo.Id),
+		Username:  userNameInfo.Name,
+		Email:     &userNameInfo.Email,
+		AvatarUrl: &userNameInfo.AvatarUrl,
 	}, nil
 }

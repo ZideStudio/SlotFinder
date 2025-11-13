@@ -16,6 +16,7 @@ import (
 
 type AccountService struct {
 	accountRepository *repository.AccountRepository
+	avatarService     *AvatarService
 	signinService     *signin.SigninService
 }
 
@@ -26,6 +27,7 @@ func NewAccountService(service *AccountService) *AccountService {
 
 	return &AccountService{
 		accountRepository: &repository.AccountRepository{},
+		avatarService:     NewAvatarService(),
 		signinService:     signin.NewSigninService(nil),
 	}
 }
@@ -44,10 +46,12 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 }
 
 func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
+	// Validate input
 	if !lib.IsValidEmail(data.Email) {
 		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
+	// Check if username is available
 	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
 	if err != nil {
 		return "", err
@@ -56,6 +60,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_USERNAME_ALREADY_TAKEN.Err
 	}
 
+	// Check if email already exists
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return "", err
@@ -64,15 +69,25 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
+	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
 		UserName: &data.UserName,
-		Email:    data.Email,
+		Email:    &data.Email,
 		Password: data.Password,
 	}, &account); err != nil {
 		return "", err
 	}
 
+	// Update avatar
+	if err := s.accountRepository.Updates(model.Account{
+		Id:        account.Id,
+		AvatarUrl: s.avatarService.GetGravatarURL(account.Id.String()),
+	}); err != nil {
+		return "", err
+	}
+
+	// Generate token
 	claims := &guard.Claims{
 		Id:       account.Id,
 		Username: account.UserName,
@@ -115,7 +130,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		account.UserName = dto.UserName
 	}
 	if dto.Email != nil {
-		account.Email = *dto.Email
+		account.Email = dto.Email
 	}
 	if dto.Password != nil {
 		account.Password = dto.Password

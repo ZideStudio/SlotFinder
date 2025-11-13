@@ -11,6 +11,7 @@ type GoogleUserInfo struct {
 	Id       string `json:"sub"`
 	Username string `json:"name"`
 	Email    string `json:"email"`
+	Picture  string `json:"picture"`
 }
 
 type GoogleTokenResponse struct {
@@ -52,5 +53,10 @@ func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Google user with status %v info: %s", res.StatusCode(), res)
 	}
 
-	return ProviderAccount(userInfo), nil
+	return ProviderAccount{
+		Id:        userInfo.Id,
+		Username:  userInfo.Username,
+		Email:     &userInfo.Email,
+		AvatarUrl: &userInfo.Picture,
+	}, nil
 }

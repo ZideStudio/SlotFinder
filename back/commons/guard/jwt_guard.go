@@ -19,7 +19,7 @@ import (
 type Claims struct {
 	Id       uuid.UUID `json:"id"`
 	Username *string   `json:"username"`
-	Email    string    `json:"email"`
+	Email    *string   `json:"email"`
 	jwt.RegisteredClaims
 }
 

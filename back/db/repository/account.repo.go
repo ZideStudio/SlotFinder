@@ -15,8 +15,9 @@ type AccountRepository struct{}
 
 type AccountCreateDto struct {
 	UserName  *string
-	Email     string
+	Email     *string
 	Password  string
+	AvatarUrl string
 	Providers []model.AccountProvider
 }
 
@@ -25,6 +26,7 @@ func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) 
 		Id:        uuid.New(),
 		UserName:  data.UserName,
 		Email:     data.Email,
+		AvatarUrl: data.AvatarUrl,
 		Providers: data.Providers,
 	}
 

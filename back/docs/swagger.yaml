@@ -84,6 +84,8 @@ definitions:
     type: object
   model.Account:
     properties:
+      avatarUrl:
+        type: string
       createdAt:
         type: string
       email:

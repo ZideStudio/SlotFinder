@@ -10,7 +10,7 @@ import (
 type DiscordUserInfo struct {
 	Id       string `json:"id"`
 	Username string `json:"username"`
-	Email    string `json:"email"`
+	Avatar   string `json:"avatar"`
 }
 
 type DiscordTokenResponse struct {
@@ -56,5 +56,12 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Discord user with status %v info: %s", res.StatusCode(), res)
 	}
 
-	return ProviderAccount(userInfo), nil
+	pictureUrl := fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", userInfo.Id, userInfo.Avatar)
+
+	return ProviderAccount{
+		Id:        userInfo.Id,
+		Username:  userInfo.Username,
+		Email:     nil,
+		AvatarUrl: &pictureUrl,
+	}, nil
 }
