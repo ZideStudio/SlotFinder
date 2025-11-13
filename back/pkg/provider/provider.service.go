@@ -96,7 +96,6 @@ func (s *ProviderService) GetProviderUrl(providerEntry, returnUrl string, user *
 type ProviderAccount struct {
 	Id        string
 	Username  string
-	Email     *string
 	AvatarUrl *string
 }
 
@@ -131,16 +130,12 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 		providerAccountResponse.AccountProvider = &model.AccountProvider{
 			Provider: providerUser.Provider,
 			Id:       providerUser.ProviderAccount.Id,
-			Email:    providerUser.ProviderAccount.Email,
-			Username: providerUser.ProviderAccount.Username,
 		}
 
 		return providerAccountResponse, nil
 	} else if existingAccountProvider.AccountId != uuid.Nil {
 		jwt, err := s.signinService.GenerateToken(&guard.Claims{
-			Id:       existingAccountProvider.AccountId,
-			Username: &existingAccountProvider.Username,
-			Email:    existingAccountProvider.Email,
+			Id: existingAccountProvider.AccountId,
 		})
 		if err != nil {
 			return providerAccountResponse, err
@@ -157,8 +152,6 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 			{
 				Provider: providerUser.Provider,
 				Id:       providerUser.ProviderAccount.Id,
-				Email:    providerUser.ProviderAccount.Email,
-				Username: providerUser.ProviderAccount.Username,
 			},
 		},
 	}
