@@ -61,7 +61,6 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 	return ProviderAccount{
 		Id:        userInfo.Id,
 		Username:  userInfo.Username,
-		Email:     nil,
 		AvatarUrl: &pictureUrl,
 	}, nil
 }

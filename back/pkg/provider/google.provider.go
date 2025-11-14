@@ -56,7 +56,6 @@ func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error
 	return ProviderAccount{
 		Id:        userInfo.Id,
 		Username:  userInfo.Username,
-		Email:     &userInfo.Email,
 		AvatarUrl: &userInfo.Picture,
 	}, nil
 }
