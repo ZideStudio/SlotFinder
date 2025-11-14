@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 type ApiError struct {
@@ -27,6 +28,11 @@ func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
 	}
 
 	code, status := parseError(err)
+
+	if code == constants.ERR_SERVER_ERROR.Err.Error() {
+		log.Error().Err(err).Msg("Internal server error")
+	}
+
 	httpContext.AbortWithStatusJSON(status, ApiError{
 		Code: code,
 	})
