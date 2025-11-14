@@ -135,7 +135,9 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 		return providerAccountResponse, nil
 	} else if existingAccountProvider.AccountId != uuid.Nil {
 		jwt, err := s.signinService.GenerateToken(&guard.Claims{
-			Id: existingAccountProvider.AccountId,
+			Id:       existingAccountProvider.AccountId,
+			Username: existingAccountProvider.Account.UserName,
+			Email:    existingAccountProvider.Account.Email,
 		})
 		if err != nil {
 			return providerAccountResponse, err
