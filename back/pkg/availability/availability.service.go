@@ -50,20 +50,20 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, user *guard.Cl
 	minDuration := 5 * time.Minute
 	duration := data.EndsAt.Sub(data.StartsAt)
 	if duration < minDuration {
-		return model.Availability{}, constants.ERR_AVALIABILITY_DURATION_TOO_SHORT.Err
+		return model.Availability{}, constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
 	}
 
 	// Check that start and end times are 5 minute intervals
 	if data.StartsAt.Minute()%5 != 0 || data.EndsAt.Minute()%5 != 0 {
-		return model.Availability{}, constants.ERR_AVALIABILITY_INVALID_TIME_INTERVAL.Err
+		return model.Availability{}, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
 	}
 
 	// Prevent creating availabilities outside of event date range
 	if data.StartsAt.Before(event.StartsAt) {
-		return model.Availability{}, constants.ERR_AVALIABILITY_START_BEFORE_EVENT.Err
+		return model.Availability{}, constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
 	}
 	if data.EndsAt.After(event.EndsAt) {
-		return model.Availability{}, constants.ERR_AVALIABILITY_START_AFTER_EVENT.Err
+		return model.Availability{}, constants.ERR_AVAILABILITY_START_AFTER_EVENT.Err
 	}
 
 	// Create availability model
