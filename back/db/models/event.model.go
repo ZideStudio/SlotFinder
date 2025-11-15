@@ -50,6 +50,7 @@ func (e *Event) HasUserAccess(userId *uuid.UUID) bool {
 	for _, accountEvent := range e.AccountEvents {
 		if accountEvent.AccountId == *userId {
 			hasAccess = true
+			break
 		}
 	}
 
