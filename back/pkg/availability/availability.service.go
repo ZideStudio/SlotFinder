@@ -68,7 +68,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
 	}
 	if data.EndsAt.After(event.EndsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_START_AFTER_EVENT.Err
+		return model.Availability{}, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
 	}
 
 	// Create availability model
