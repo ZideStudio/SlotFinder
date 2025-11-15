@@ -55,3 +55,7 @@ func (e *Event) HasUserAccess(userId *uuid.UUID) bool {
 
 	return hasAccess
 }
+
+func (e *Event) HasEnded() bool {
+	return time.Now().After(e.EndsAt)
+}

@@ -36,6 +36,11 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, constants.ERR_EVENT_NOT_FOUND.Err
 	}
 
+	// Check if event is ended
+	if event.HasEnded() {
+		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
+	}
+
 	// Check if user as access to the event
 	if !event.HasUserAccess(&user.Id) {
 		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
