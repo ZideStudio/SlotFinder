@@ -51,7 +51,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, constants.ERR_EVENT_START_AFTER_END.Err
 	}
 
-	// Prevent creation availabilityToCreate with less than minimum duration of 5 minutes
+	// Prevent creating availabilities with less than minimum duration of 5 minutes
 	minDuration := 5 * time.Minute
 	duration := data.EndsAt.Sub(data.StartsAt)
 	if duration < minDuration {
