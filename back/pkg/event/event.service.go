@@ -82,7 +82,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 
 	return EventResponse{
 		Event:    event,
-		Accounts: []model.Account{accountEvent.Account.Sanitized()},
+		Accounts: []model.Account{accountEvent.Account},
 	}, nil
 }
 
@@ -108,13 +108,13 @@ func (s *EventService) getEventResponseFromEvents(eventIds []uuid.UUID) ([]Event
 			eventMap[ae.EventId] = eg
 		}
 
-		eg.accounts = append(eg.accounts, ae.Account.Sanitized())
+		eg.accounts = append(eg.accounts, ae.Account)
 	}
 
 	// Build final event response
 	events := make([]EventResponse, 0, len(eventMap))
 	for _, eg := range eventMap {
-		eg.event.Owner = eg.event.Owner.Sanitized()
+		eg.event.Owner = eg.event.Owner
 
 		events = append(events, EventResponse{
 			Event:    eg.event,
@@ -156,7 +156,6 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 
 		return EventResponse{}, err
 	}
-	event.Owner = event.Owner.Sanitized()
 
 	// If no user, return event basic info
 	if user == nil {

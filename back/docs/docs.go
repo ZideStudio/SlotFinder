@@ -268,6 +268,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/availability": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Availability"
+                ],
+                "summary": "Create an availability",
+                "parameters": [
+                    {
+                        "description": "Availability parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/availability.AvailabilityCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Availability"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/event": {
             "get": {
                 "security": [
@@ -457,6 +501,25 @@ const docTemplate = `{
                 }
             }
         },
+        "availability.AvailabilityCreateDto": {
+            "type": "object",
+            "required": [
+                "endsAt",
+                "eventId",
+                "startsAt"
+            ],
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "eventId": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
         "constants.Provider": {
             "type": "string",
             "enum": [
@@ -501,6 +564,12 @@ const docTemplate = `{
         "event.EventResponse": {
             "type": "object",
             "properties": {
+                "availabilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Availability"
+                    }
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -606,9 +675,32 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Availability": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "$ref": "#/definitions/model.Account"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Event": {
             "type": "object",
             "properties": {
+                "availabilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Availability"
+                    }
+                },
                 "createdAt": {
                     "type": "string"
                 },
