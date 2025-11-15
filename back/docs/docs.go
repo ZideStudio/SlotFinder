@@ -268,50 +268,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/availability": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Availability"
-                ],
-                "summary": "Create an availability",
-                "parameters": [
-                    {
-                        "description": "Availability parameters",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/availability.AvailabilityCreateDto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Availability"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/event": {
             "get": {
                 "security": [
@@ -379,6 +335,57 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/event/{eventId}/availability": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Availability"
+                ],
+                "summary": "Create an availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Availability parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/availability.AvailabilityCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Availability"
                         }
                     },
                     "400": {
@@ -505,14 +512,10 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "endsAt",
-                "eventId",
                 "startsAt"
             ],
             "properties": {
                 "endsAt": {
-                    "type": "string"
-                },
-                "eventId": {
                     "type": "string"
                 },
                 "startsAt": {

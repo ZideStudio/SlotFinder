@@ -29,10 +29,10 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 	}
 }
 
-func (s *AvailabilityService) Create(data *AvailabilityCreateDto, user *guard.Claims) (model.Availability, error) {
+func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
 	// Get event
 	var event model.Event
-	if err := s.eventRepository.FindOneById(data.EventId, &event); err != nil {
+	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
 		return model.Availability{}, constants.ERR_EVENT_NOT_FOUND.Err
 	}
 
@@ -72,7 +72,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, user *guard.Cl
 		StartsAt:  data.StartsAt,
 		EndsAt:    data.EndsAt,
 		AccountId: user.Id,
-		EventId:   data.EventId,
+		EventId:   eventId,
 	}
 
 	// Merge availabilities overlapping with the new one

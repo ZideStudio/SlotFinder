@@ -83,7 +83,7 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 		return
 	}
 
-	idUuid, err := uuid.Parse(c.Param("id"))
+	idUuid, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return
@@ -109,7 +109,7 @@ func (ctl *EventController) JoinEvent(c *gin.Context) {
 		return
 	}
 
-	idUuid, err := uuid.Parse(c.Param("id"))
+	idUuid, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return

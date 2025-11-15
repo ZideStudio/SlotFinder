@@ -32,6 +32,7 @@ func NewRouter() *gin.Engine {
 
 	v1 := router.Group("/v1")
 	{
+		// Account routes
 		accountGroup := v1.Group("/account")
 		{
 			accountRouter := account.NewAccountController(nil)
@@ -41,6 +42,7 @@ func NewRouter() *gin.Engine {
 			accountGroup.PATCH("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireUsername: false}), accountRouter.Update)
 		}
 
+		// Auth routes
 		authGroup := v1.Group("/auth")
 		{
 			signinRouter := signin.NewSigninController(nil)
@@ -57,22 +59,24 @@ func NewRouter() *gin.Engine {
 
 		}
 
+		// Event routes
 		eventGroup := v1.Group("/event")
 		{
 			eventRouter := event.NewEventController(nil)
 
 			eventGroup.GET("", guard.AuthCheck(nil), eventRouter.GetUserEvents)
-			eventGroup.GET("/:id", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
-			eventGroup.POST("/:id/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
+			eventGroup.GET("/:eventId", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
+			eventGroup.POST("/:eventId/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 			eventGroup.POST("", guard.AuthCheck(nil), eventRouter.Create)
+
+			// Availability routes
+			{
+				availabilityRouter := availability.NewAvailabilityController(nil)
+
+				eventGroup.POST("/:eventId/availability", guard.AuthCheck(nil), availabilityRouter.Create)
+			}
 		}
 
-		availabilityGroup := v1.Group("/availability")
-		{
-			availabilityRouter := availability.NewAvailabilityController(nil)
-
-			availabilityGroup.POST("", guard.AuthCheck(nil), availabilityRouter.Create)
-		}
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
