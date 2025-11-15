@@ -16,7 +16,7 @@ func (*EventRepository) Create(event *model.Event) error {
 		return err
 	}
 
-	event = event.Sanitized()
+	event.Sanitized()
 
 	return nil
 }
@@ -27,7 +27,7 @@ func (*EventRepository) FindOneById(id uuid.UUID, event *model.Event) error {
 		return err
 	}
 
-	event = event.Sanitized()
+	event.Sanitized()
 
 	return nil
 }
