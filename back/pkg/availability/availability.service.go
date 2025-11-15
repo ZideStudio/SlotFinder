@@ -59,10 +59,10 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, user *guard.Cl
 	}
 
 	// Prevent creating availabilities outside of event date range
-	if event.StartsAt.Before(event.StartsAt) {
+	if data.StartsAt.Before(event.StartsAt) {
 		return model.Availability{}, constants.ERR_AVALIABILITY_START_BEFORE_EVENT.Err
 	}
-	if event.EndsAt.After(event.EndsAt) {
+	if data.EndsAt.After(event.EndsAt) {
 		return model.Availability{}, constants.ERR_AVALIABILITY_START_AFTER_EVENT.Err
 	}
 
