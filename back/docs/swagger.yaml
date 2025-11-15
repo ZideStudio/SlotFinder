@@ -25,13 +25,10 @@ definitions:
     properties:
       endsAt:
         type: string
-      eventId:
-        type: string
       startsAt:
         type: string
     required:
     - endsAt
-    - eventId
     - startsAt
     type: object
   constants.Provider:
@@ -355,33 +352,6 @@ paths:
       summary: Status Check
       tags:
       - Authentication
-  /v1/availability:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Availability parameters
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/availability.AvailabilityCreateDto'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Availability'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
-      security:
-      - BearerAuth: []
-      summary: Create an availability
-      tags:
-      - Availability
   /v1/event:
     get:
       consumes:
@@ -430,6 +400,38 @@ paths:
       summary: Create an event
       tags:
       - Event
+  /v1/event/{eventId}/availability:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Availability parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/availability.AvailabilityCreateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Availability'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Create an availability
+      tags:
+      - Availability
   /v1/event/{id}:
     get:
       consumes:

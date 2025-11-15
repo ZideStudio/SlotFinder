@@ -1,10 +1,12 @@
 package availability
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/helpers"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AvailabilityController struct {
@@ -21,15 +23,32 @@ func NewAvailabilityController(ctl *AvailabilityController) *AvailabilityControl
 	}
 }
 
+func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid uuid.UUID, err error) {
+	eventId := c.Param("eventId")
+	if eventId == "" {
+		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
+	}
+
+	eventIdUuid, err = uuid.Parse(eventId)
+	if err != nil {
+		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
+	} else if eventIdUuid == uuid.Nil {
+		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
+	}
+
+	return eventIdUuid, nil
+}
+
 // @Summary Create an availability
 // @Tags Availability
 // @Accept json
 // @Produce json
+// @Param eventId path string true "Event ID"
 // @Param data body AvailabilityCreateDto true "Availability parameters"
 // @Security BearerAuth
 // @Success 200 {object} model.Availability
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/availability [post]
+// @Router /v1/event/{eventId}/availability [post]
 func (ctl *AvailabilityController) Create(c *gin.Context) {
 	var data AvailabilityCreateDto
 	if err := helpers.SetHttpContextBody(c, &data); err != nil {
@@ -42,7 +61,13 @@ func (ctl *AvailabilityController) Create(c *gin.Context) {
 		return
 	}
 
-	availability, err := ctl.availabilityService.Create(&data, user)
+	eventId, err := ctl.getEventIdParam(c)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	availability, err := ctl.availabilityService.Create(&data, eventId, user)
 
 	helpers.HandleJSONResponse(c, availability, err)
 }
