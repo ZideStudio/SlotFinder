@@ -20,11 +20,11 @@ func (*AvailabilityRepository) Create(availability *model.Availability) error {
 }
 
 func (*AvailabilityRepository) FindOverlappingAvailabilities(availability *model.Availability, availabilities *[]model.Availability) error {
-	if err := db.GetDB().Where("account_id = ? AND event_id = ? AND NOT (ends_at < ? OR starts_at > ?)",
+	if err := db.GetDB().Where("account_id = ? AND event_id = ? AND starts_at <= ? AND ends_at >= ?",
 		availability.AccountId,
 		availability.EventId,
-		availability.StartsAt,
 		availability.EndsAt,
+		availability.StartsAt,
 	).Find(&availabilities).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::FIND_OVERLAPPING_AVAILABILITIES Failed to find overlapping availabilities")
 		return err
