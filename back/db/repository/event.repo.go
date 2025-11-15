@@ -16,14 +16,18 @@ func (*EventRepository) Create(event *model.Event) error {
 		return err
 	}
 
+	event = event.Sanitized()
+
 	return nil
 }
 
 func (*EventRepository) FindOneById(id uuid.UUID, event *model.Event) error {
-	if err := db.GetDB().Where("id = ?", id.String()).Preload("Owner").Preload("AccountEvents").Preload("AccountEvents.Account").First(&event).Error; err != nil {
+	if err := db.GetDB().Where("id = ?", id.String()).Preload("Owner").Preload("AccountEvents").Preload("AccountEvents.Account").Preload("Availabilities").Preload("Availabilities.Account").First(&event).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::FIND_ONE_BY_ID Failed to find event by id")
 		return err
 	}
+
+	event = event.Sanitized()
 
 	return nil
 }
