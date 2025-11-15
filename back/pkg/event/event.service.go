@@ -114,8 +114,6 @@ func (s *EventService) getEventResponseFromEvents(eventIds []uuid.UUID) ([]Event
 	// Build final event response
 	events := make([]EventResponse, 0, len(eventMap))
 	for _, eg := range eventMap {
-		eg.event.Owner = eg.event.Owner
-
 		events = append(events, EventResponse{
 			Event:    eg.event,
 			Accounts: eg.accounts,
