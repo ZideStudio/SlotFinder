@@ -4,6 +4,7 @@ import (
 	"app/commons/guard"
 	"app/pkg/account"
 	"app/pkg/auth"
+	"app/pkg/availability"
 	"app/pkg/event"
 	"app/pkg/health"
 	"app/pkg/provider"
@@ -64,6 +65,13 @@ func NewRouter() *gin.Engine {
 			eventGroup.GET("/:id", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
 			eventGroup.POST("/:id/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 			eventGroup.POST("", guard.AuthCheck(nil), eventRouter.Create)
+		}
+
+		availabilityGroup := v1.Group("/availability")
+		{
+			availabilityRouter := availability.NewAvailabilityController(nil)
+
+			availabilityGroup.POST("", guard.AuthCheck(nil), availabilityRouter.Create)
 		}
 	}
 

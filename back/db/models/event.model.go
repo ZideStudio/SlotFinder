@@ -17,10 +17,41 @@ type Event struct {
 	OwnerId     uuid.UUID `gorm:"column:owner_id;type:uuid;primaryKey" json:"-"`
 
 	// Relations
-	Owner         Account        `gorm:"foreignKey:OwnerId;references:Id" json:"owner"`
-	AccountEvents []AccountEvent `gorm:"foreignKey:EventId;references:Id" json:"-"`
+	Owner          Account        `gorm:"foreignKey:OwnerId;references:Id" json:"owner"`
+	AccountEvents  []AccountEvent `gorm:"foreignKey:EventId;references:Id" json:"-"`
+	Availabilities []Availability `gorm:"foreignKey:EventId;references:Id" json:"availabilities"`
 }
 
 func (Event) TableName() string {
 	return "event"
+}
+
+func (e *Event) Sanitized() *Event {
+	e.Owner = e.Owner.Sanitized()
+
+	if len(e.Availabilities) != 0 {
+		availabilities := make([]Availability, len(e.Availabilities))
+		for i, availability := range e.Availabilities {
+			availabilities[i] = *availability.Sanitized()
+		}
+
+		e.Availabilities = availabilities
+	}
+
+	return e
+}
+
+func (e *Event) HasUserAccess(userId *uuid.UUID) bool {
+	if userId == nil {
+		return false
+	}
+
+	var hasAccess bool
+	for _, accountEvent := range e.AccountEvents {
+		if accountEvent.AccountId == *userId {
+			hasAccess = true
+		}
+	}
+
+	return hasAccess
 }
