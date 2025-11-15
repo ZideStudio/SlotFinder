@@ -46,6 +46,9 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
+	data.StartsAt = data.StartsAt.Truncate(time.Minute)
+	data.EndsAt = data.EndsAt.Truncate(time.Minute)
+
 	// Prevent creating availabilities with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
 		return model.Availability{}, constants.ERR_EVENT_START_AFTER_END.Err
