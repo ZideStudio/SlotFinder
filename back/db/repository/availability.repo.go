@@ -11,10 +11,12 @@ import (
 type AvailabilityRepository struct{}
 
 func (*AvailabilityRepository) Create(availability *model.Availability) error {
-	if err := db.GetDB().Create(&availability).Error; err != nil {
+	if err := db.GetDB().Preload("Account").Create(&availability).First(&availability).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::CREATE Failed to create availability")
 		return err
 	}
+
+	availability.Sanitized()
 
 	return nil
 }

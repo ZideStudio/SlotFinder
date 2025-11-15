@@ -16,7 +16,7 @@ func (*AccountEventRepository) Create(accountEvent *model.AccountEvent) error {
 		return err
 	}
 
-	accountEvent = accountEvent.Sanitized()
+	accountEvent.Sanitized()
 
 	return nil
 }
@@ -27,7 +27,7 @@ func (*AccountEventRepository) FindByAccountAndEventId(accountId, eventId uuid.U
 		return err
 	}
 
-	accountEvent = accountEvent.Sanitized()
+	accountEvent.Sanitized()
 
 	return nil
 }
@@ -56,6 +56,6 @@ func (r *AccountEventRepository) FindByIds(eventIds []uuid.UUID, accountEvents *
 
 func (*AccountEventRepository) sanitizeAccountEvents(accountEvents *[]model.AccountEvent) {
 	for i := range *accountEvents {
-		(*accountEvents)[i] = *(*accountEvents)[i].Sanitized()
+		(*accountEvents)[i].Sanitized()
 	}
 }
