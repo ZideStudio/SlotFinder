@@ -346,6 +346,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/event/{eventId}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Get event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/event.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/event/{eventId}/availability": {
             "post": {
                 "security": [
@@ -397,44 +434,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event/{id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Get event",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Event Id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/event.EventResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/event/{id}/join": {
+        "/v1/event/{eventId}/join": {
             "post": {
                 "security": [
                     {
@@ -455,7 +455,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Event Id",
-                        "name": "id",
+                        "name": "eventId",
                         "in": "path",
                         "required": true
                     }

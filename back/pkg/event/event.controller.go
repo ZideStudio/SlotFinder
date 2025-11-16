@@ -70,12 +70,12 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 
 // @Summary Get event
 // @Tags Event
-// @Param id path string true "Event Id"
+// @Param eventId path string true "Event Id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} EventResponse
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/event/{id} [get]
+// @Router /v1/event/{eventId} [get]
 func (ctl *EventController) GetEvent(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -95,13 +95,13 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 
 // @Summary Join event
 // @Tags Event
-// @Param id path string true "Event Id"
+// @Param eventId path string true "Event Id"
 // @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Success 200
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/event/{id}/join [post]
+// @Router /v1/event/{eventId}/join [post]
 func (ctl *EventController) JoinEvent(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {

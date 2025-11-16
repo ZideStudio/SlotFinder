@@ -400,6 +400,30 @@ paths:
       summary: Create an event
       tags:
       - Event
+  /v1/event/{eventId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event Id
+        in: path
+        name: eventId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/event.EventResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Get event
+      tags:
+      - Event
   /v1/event/{eventId}/availability:
     post:
       consumes:
@@ -432,38 +456,14 @@ paths:
       summary: Create an availability
       tags:
       - Availability
-  /v1/event/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Event Id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/event.EventResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
-      summary: Get event
-      tags:
-      - Event
-  /v1/event/{id}/join:
+  /v1/event/{eventId}/join:
     post:
       consumes:
       - application/json
       parameters:
       - description: Event Id
         in: path
-        name: id
+        name: eventId
         required: true
         type: string
       produces:
