@@ -46,15 +46,13 @@ func (e *Event) HasUserAccess(userId *uuid.UUID) bool {
 		return false
 	}
 
-	var hasAccess bool
 	for _, accountEvent := range e.AccountEvents {
 		if accountEvent.AccountId == *userId {
-			hasAccess = true
-			break
+			return true
 		}
 	}
 
-	return hasAccess
+	return false
 }
 
 func (e *Event) HasEnded() bool {
