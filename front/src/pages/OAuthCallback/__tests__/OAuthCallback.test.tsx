@@ -1,4 +1,3 @@
-import { dashboardRoutes } from '@Front/pages/Dashboard';
 import { errorRoutes } from '@Front/pages/Error';
 import { homeRoutes } from '@Front/pages/Home';
 import { appRoutes } from '@Front/routing/appRoutes';
@@ -9,7 +8,7 @@ import { oauthCallbackRoutes } from '../routes';
 
 const renderOAuthCallback = (params?: { message?: string; returnUrl?: string }) =>
   renderRoute({
-    routes: [oauthCallbackRoutes, homeRoutes, dashboardRoutes, errorRoutes],
+    routes: [oauthCallbackRoutes, homeRoutes, errorRoutes],
     initialEntry: appRoutes.oAuthCallback(params),
   });
 
@@ -26,31 +25,31 @@ describe('OAuthCallback', () => {
 
   it('should redirect to returnUrl when returnUrl param is present', async () => {
     renderOAuthCallback({ returnUrl: appRoutes.home() });
-    expect(await screen.findByText('home.welcome')).toBeInTheDocument();
+    expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
   });
 
-  it('should redirect to dashboard when returnUrl param is invalid', async () => {
+  it('should redirect to home when returnUrl param is invalid', async () => {
     renderOAuthCallback({ returnUrl: 'invalid-url' });
     expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
   });
 
   describe('Security: Open Redirect Prevention', () => {
-    it('should redirect to dashboard when returnUrl is a protocol-relative URL', async () => {
+    it('should redirect to home when returnUrl is a protocol-relative URL', async () => {
       renderOAuthCallback({ returnUrl: '//evil.com' });
       expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
     });
 
-    it('should redirect to dashboard when returnUrl is an absolute http URL', async () => {
+    it('should redirect to home when returnUrl is an absolute http URL', async () => {
       renderOAuthCallback({ returnUrl: 'http://evil.com' });
       expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
     });
 
-    it('should redirect to dashboard when returnUrl is an absolute https URL', async () => {
+    it('should redirect to home when returnUrl is an absolute https URL', async () => {
       renderOAuthCallback({ returnUrl: 'https://evil.com' });
       expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
     });
 
-    it('should redirect to dashboard when returnUrl uses javascript protocol', async () => {
+    it('should redirect to home when returnUrl uses javascript protocol', async () => {
       renderOAuthCallback({ returnUrl: 'javascript:alert(1)' });
       expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
     });

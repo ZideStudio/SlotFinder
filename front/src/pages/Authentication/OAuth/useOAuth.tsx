@@ -21,7 +21,7 @@ export const useOAuth = (): TUseOAuth => {
   const { postAuthRedirectPath } = useAuthenticationContext();
   const oAuthProviders: OAuthProvider[] = oauthProvidersData.map(provider => ({
     ...provider,
-    href: generateOAuthUrl(provider.id, postAuthRedirectPath ?? appRoutes.dashboard()),
+    href: generateOAuthUrl(provider.id, postAuthRedirectPath ?? appRoutes.home()),
   }));
 
   return {

@@ -24,7 +24,7 @@ describe('OAuth', () => {
   });
 
   it('should render all OAuth providers as links with correct aria-labels and generated URLs', () => {
-    const RETURN_URL = encodeURIComponent('/dashboard');
+    const RETURN_URL = encodeURIComponent('/');
 
     renderOAuth();
 

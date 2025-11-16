@@ -1,11 +1,11 @@
 import enAuthentication from './authentication.json';
 import enDashboard from './dashboard.json';
 import enError from './error.json';
-import enHome from './home.json';
 import enSignUp from './signUp.json';
+import enWelcome from './welcome.json';
 
 export const en = {
-  home: enHome,
+  welcome: enWelcome,
   dashboard: enDashboard,
   signUp: enSignUp,
   authentication: enAuthentication,

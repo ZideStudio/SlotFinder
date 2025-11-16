@@ -1,14 +1,17 @@
-import { appRoutes } from '@Front/routing/appRoutes';
-import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router';
+import { useAuthenticationContext } from '@Front/hooks/useAuthenticationContext';
+import { Dashboard } from './Dashboard/Dashboard';
+import { Welcome } from './Welcome/Welcome';
 
 export const Home = () => {
-  const { t } = useTranslation('home');
+  const { isAuthenticated } = useAuthenticationContext();
 
-  return (
-    <>
-      <h1>{t('welcome')}</h1>
-      <NavLink to={appRoutes.signUp()}>Sign Up</NavLink>
-    </>
-  );
+  if (isAuthenticated === undefined) {
+    return null;
+  }
+
+  if (isAuthenticated) {
+    return <Dashboard />;
+  }
+
+  return <Welcome />;
 };
