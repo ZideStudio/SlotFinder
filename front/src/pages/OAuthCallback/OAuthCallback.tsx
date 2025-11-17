@@ -11,7 +11,7 @@ export const OAuthCallback = () => {
     return <Navigate to={appRoutes.error()} state={{ message }} replace />;
   }
 
-  const destinationPath = returnUrl && isInternalUrl(returnUrl) ? returnUrl : appRoutes.dashboard();
+  const destinationPath = returnUrl && isInternalUrl(returnUrl) ? returnUrl : appRoutes.home();
 
   return <Navigate to={destinationPath} replace />;
 };

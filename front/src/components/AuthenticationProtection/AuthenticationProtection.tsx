@@ -36,7 +36,7 @@ export const AuthenticationProtection = ({ children }: AuthenticationProtectionP
   }
 
   if (mustBeAuthenticate === false && isAuthenticated) {
-    return <Navigate to={postAuthRedirectPath ?? appRoutes.dashboard()} replace />;
+    return <Navigate to={postAuthRedirectPath ?? appRoutes.home()} replace />;
   }
 
   return children;
