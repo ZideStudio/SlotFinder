@@ -5,10 +5,6 @@ import { Welcome } from './Welcome/Welcome';
 export const Home = () => {
   const { isAuthenticated } = useAuthenticationContext();
 
-  if (isAuthenticated === undefined) {
-    return null;
-  }
-
   if (isAuthenticated) {
     return <Dashboard />;
   }
