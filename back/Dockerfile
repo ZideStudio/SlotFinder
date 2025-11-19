@@ -23,8 +23,8 @@ RUN go mod download && go mod verify
 COPY ./ ./
 
 # generate swagger docs and remove LeftDelim/RightDelim lines
-RUN go install github.com/swaggo/swag/cmd/swag@latest && \
-    swag init && \
+RUN go install github.com/swaggo/swag/v2/cmd/swag@latest && \
+    swag init --v3.1 && \
     sed -i -e '/LeftDelim/d' -e '/RightDelim/d' docs/docs.go
 
 # compile application
