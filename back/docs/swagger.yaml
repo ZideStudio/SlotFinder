@@ -1,235 +1,246 @@
-definitions:
-  account.AccountCreateDto:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      username:
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  account.AccountUpdateDto:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      username:
-        type: string
-    type: object
-  constants.Provider:
-    enum:
-    - google
-    - discord
-    - github
-    type: string
-    x-enum-varnames:
-    - PROVIDER_GOOGLE
-    - PROVIDER_DISCORD
-    - PROVIDER_GITHUB
-  event.EventCreateDto:
-    properties:
-      description:
-        type: string
-      duration:
-        maximum: 30240
-        minimum: 15
-        type: integer
-      endsAt:
-        type: string
-      name:
-        type: string
-      startsAt:
-        type: string
-    required:
-    - duration
-    - endsAt
-    - name
-    - startsAt
-    type: object
-  event.EventResponse:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      duration:
-        description: In minutes
-        type: integer
-      endsAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      owner:
-        allOf:
-        - $ref: '#/definitions/model.Account'
-        description: Relations
-      participants:
-        items:
-          $ref: '#/definitions/model.Account'
-        type: array
-      startsAt:
-        type: string
-    type: object
-  helpers.ApiError:
-    properties:
-      code:
-        type: string
-    type: object
-  model.Account:
-    properties:
-      avatarUrl:
-        type: string
-      createdAt:
-        type: string
-      email:
-        type: string
-      events:
-        items:
-          $ref: '#/definitions/model.AccountEvent'
-        type: array
-      id:
-        type: string
-      providers:
-        items:
-          $ref: '#/definitions/model.AccountProvider'
-        type: array
-      userName:
-        type: string
-    type: object
-  model.AccountEvent:
-    properties:
-      account:
-        allOf:
-        - $ref: '#/definitions/model.Account'
-        description: Relations
-      createdAt:
-        type: string
-      event:
-        $ref: '#/definitions/model.Event'
-    type: object
-  model.AccountProvider:
-    properties:
-      provider:
-        $ref: '#/definitions/constants.Provider'
-    type: object
-  model.Event:
-    properties:
-      createdAt:
-        type: string
-      description:
-        type: string
-      duration:
-        description: In minutes
-        type: integer
-      endsAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      owner:
-        allOf:
-        - $ref: '#/definitions/model.Account'
-        description: Relations
-      startsAt:
-        type: string
-    type: object
-  signin.SigninDto:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  signin.TokenResponseDto:
-    properties:
-      access_token:
-        type: string
-    type: object
+components:
+  schemas:
+    account.AccountCreateDto:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+      required:
+      - email
+      - password
+      - username
+      type: object
+    account.AccountUpdateDto:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+      type: object
+    constants.Provider:
+      type: string
+      x-enum-varnames:
+      - PROVIDER_GOOGLE
+      - PROVIDER_DISCORD
+      - PROVIDER_GITHUB
+    event.EventCreateDto:
+      properties:
+        description:
+          type: string
+        duration:
+          maximum: 30240
+          minimum: 15
+          type: integer
+        endsAt:
+          type: string
+        name:
+          type: string
+        startsAt:
+          type: string
+      required:
+      - duration
+      - endsAt
+      - name
+      - startsAt
+      type: object
+    event.EventResponse:
+      properties:
+        createdAt:
+          type: string
+        description:
+          type: string
+        duration:
+          description: In minutes
+          type: integer
+        endsAt:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        owner:
+          $ref: '#/components/schemas/model.Account'
+        participants:
+          items:
+            $ref: '#/components/schemas/model.Account'
+          type: array
+          uniqueItems: false
+        startsAt:
+          type: string
+      type: object
+    helpers.ApiError:
+      properties:
+        code:
+          type: string
+      type: object
+    model.Account:
+      properties:
+        avatarUrl:
+          type: string
+        createdAt:
+          type: string
+        email:
+          type: string
+        events:
+          items:
+            $ref: '#/components/schemas/model.AccountEvent'
+          type: array
+          uniqueItems: false
+        id:
+          type: string
+        providers:
+          items:
+            $ref: '#/components/schemas/model.AccountProvider'
+          type: array
+          uniqueItems: false
+        userName:
+          type: string
+      type: object
+    model.AccountEvent:
+      properties:
+        account:
+          $ref: '#/components/schemas/model.Account'
+        createdAt:
+          type: string
+        event:
+          $ref: '#/components/schemas/model.Event'
+      type: object
+    model.AccountProvider:
+      properties:
+        provider:
+          $ref: '#/components/schemas/constants.Provider'
+      type: object
+    model.Event:
+      properties:
+        createdAt:
+          type: string
+        description:
+          type: string
+        duration:
+          description: In minutes
+          type: integer
+        endsAt:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        owner:
+          $ref: '#/components/schemas/model.Account'
+        startsAt:
+          type: string
+      type: object
+    signin.SigninDto:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+      - email
+      - password
+      type: object
+    signin.TokenResponseDto:
+      properties:
+        access_token:
+          type: string
+      type: object
+  securitySchemes:
+    AccessTokenCookie:
+      description: Enter your bearer token in the format **Bearer &lt;token&gt;**
+      in: cookie
+      name: access_token
+      type: apiKey
+externalDocs:
+  description: ""
+  url: ""
 info:
   contact:
     email: contact@zide.fr
   description: SlotFinder API Doc
   title: SlotFinder API
   version: 1.0b
+openapi: 3.1.0
 paths:
   /v1/account:
     patch:
-      consumes:
-      - application/json
       description: Update own account
-      parameters:
-      - description: Account parameters
-        in: body
-        name: data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account.AccountUpdateDto'
+        description: Account parameters
         required: true
-        schema:
-          $ref: '#/definitions/account.AccountUpdateDto'
-      produces:
-      - application/json
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Account'
           description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       security:
       - AccessTokenCookie: []
       summary: Update my account
       tags:
       - Account
     post:
-      consumes:
-      - application/json
       description: Create a new account with the provided parameters.
-      parameters:
-      - description: Account parameters
-        in: body
-        name: data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account.AccountCreateDto'
+        description: Account parameters
         required: true
-        schema:
-          $ref: '#/definitions/account.AccountCreateDto'
-      produces:
-      - application/json
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                type: object
           description: OK
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       summary: Create an account
       tags:
       - Account
   /v1/account/me:
     get:
-      consumes:
-      - application/json
       description: Get the account information of the current user.
-      produces:
-      - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Account'
           description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       security:
       - AccessTokenCookie: []
       summary: Get My Account
@@ -239,43 +250,56 @@ paths:
     get:
       parameters:
       - description: OAuth provider
-        enum:
-        - google
-        - github
-        - discord
         in: path
         name: provider
         required: true
-        type: string
+        schema:
+          enum:
+          - google
+          - github
+          - discord
+          type: string
       - description: URL to return to after OAuth
         in: query
         name: returnUrl
-        type: string
+        schema:
+          type: string
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                type: string
           description: OAuth URL
-          schema:
-            type: string
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       summary: Get redirect URL for OAuth provider
       tags:
       - Authentication
   /v1/auth/logout:
     post:
-      consumes:
-      - application/json
-      produces:
-      - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                type: object
           description: OK
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Unauthorized
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       security:
       - AccessTokenCookie: []
       summary: Logout
@@ -283,89 +307,101 @@ paths:
       - Authentication
   /v1/auth/signin:
     post:
-      consumes:
-      - application/json
       description: Sign in with email and password
-      parameters:
-      - description: Sign in parameters
-        in: body
-        name: data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signin.SigninDto'
+        description: Sign in parameters
         required: true
-        schema:
-          $ref: '#/definitions/signin.SigninDto'
-      produces:
-      - application/json
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/signin.TokenResponseDto'
           description: OK
-          schema:
-            $ref: '#/definitions/signin.TokenResponseDto'
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       summary: Sign in
       tags:
       - Authentication
   /v1/auth/status:
     get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                type: object
           description: OK
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Unauthorized
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       summary: Status Check
       tags:
       - Authentication
   /v1/event:
     get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/event.EventResponse'
+                type: array
           description: OK
-          schema:
-            items:
-              $ref: '#/definitions/event.EventResponse'
-            type: array
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       security:
       - BearerAuth: []
       summary: Get user events
       tags:
       - Event
     post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Event parameters
-        in: body
-        name: data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/event.EventCreateDto'
+        description: Event parameters
         required: true
-        schema:
-          $ref: '#/definitions/event.EventCreateDto'
-      produces:
-      - application/json
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/model.Event'
           description: OK
-          schema:
-            $ref: '#/definitions/model.Event'
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       security:
       - BearerAuth: []
       summary: Create an event
@@ -373,56 +409,63 @@ paths:
       - Event
   /v1/event/{id}:
     get:
-      consumes:
-      - application/json
       parameters:
       - description: Event Id
         in: path
         name: id
         required: true
-        type: string
-      produces:
-      - application/json
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event.EventResponse'
           description: OK
-          schema:
-            $ref: '#/definitions/event.EventResponse'
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       summary: Get event
       tags:
       - Event
   /v1/event/{id}/join:
     post:
-      consumes:
-      - application/json
       parameters:
       - description: Event Id
         in: path
         name: id
         required: true
-        type: string
-      produces:
-      - application/json
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                type: object
           description: OK
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/helpers.ApiError'
           description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
       security:
       - BearerAuth: []
       summary: Join event
       tags:
       - Event
-securityDefinitions:
-  AccessTokenCookie:
-    description: Enter your bearer token in the format **Bearer &lt;token&gt;**
-    in: cookie
-    name: access_token
-    type: apiKey
-swagger: "2.0"
