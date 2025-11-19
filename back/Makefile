@@ -2,7 +2,7 @@ all: install start
 
 install:
 	go install github.com/air-verse/air@latest
-	go install github.com/swaggo/swag/v2/cmd/swag@v2.0.0-rc4
+	go install github.com/swaggo/swag/v2/cmd/swag@latest
 
 start:
 	air
