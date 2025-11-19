@@ -21,7 +21,7 @@ tmp_dir = "tmp"
   poll = false
   poll_interval = 0
   post_cmd = []
-  pre_cmd = ["swag init && if [ \"$(uname)\" = \"Darwin\" ]; then sed -i '' '/LeftDelim/d; /RightDelim/d' docs/docs.go; else sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go; fi"]
+  pre_cmd = ["swag init --v3.1 && if [ \"$(uname)\" = \"Darwin\" ]; then sed -i '' '/LeftDelim/d; /RightDelim/d' docs/docs.go; else sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go; fi"]
   rerun = false
   rerun_delay = 500
   send_interrupt = false
