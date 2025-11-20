@@ -1,25 +1,25 @@
 import { render, screen } from '@testing-library/react';
-import { InputTextAtom } from '../InputTextAtom';
+import { TextInputAtom } from '../TextInputAtom';
 
-describe('InputTextAtom', () => {
+describe('TextInputAtom', () => {
   it('renders an input of type text', () => {
-    render(<InputTextAtom placeholder="Enter text" />);
+    render(<TextInputAtom placeholder="Enter text" />);
     const input = screen.getByRole('textbox');
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'text');
-    expect(input).toHaveClass('ds-input-text-atom');
+    expect(input).toHaveClass('ds-text-input-atom');
     expect(input).toHaveAttribute('placeholder', 'Enter text');
   });
 
   it('applies classModifier as a modifier', () => {
-    render(<InputTextAtom classModifier="large" />);
+    render(<TextInputAtom classModifier="large" />);
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('ds-input-text-atom ds-input-text-atom--large');
+    expect(input).toHaveClass('ds-text-input-atom ds-text-input-atom--large');
   });
 
   it('applies custom className', () => {
-    render(<InputTextAtom className="custom-class" />);
+    render(<TextInputAtom className="custom-class" />);
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('ds-input-text-atom custom-class');
+    expect(input).toHaveClass('ds-text-input-atom custom-class');
   });
 });
