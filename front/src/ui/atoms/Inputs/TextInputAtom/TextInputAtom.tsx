@@ -1,15 +1,15 @@
 import { getClassName } from '@Front/utils/getClassName';
 import type { ComponentPropsWithRef } from 'react';
 
-import './InputTextAtom.scss';
+import './TextInputAtom.scss';
 
-type InputTextAtomProps = ComponentPropsWithRef<'input'> & {
+type TextInputAtomProps = ComponentPropsWithRef<'input'> & {
   classModifier?: string;
 };
 
-export const InputTextAtom = ({ className, classModifier, ...props }: InputTextAtomProps) => {
+export const TextInputAtom = ({ className, classModifier, ...props }: TextInputAtomProps) => {
   const parentClassName = getClassName({
-    defaultClassName: 'ds-input-text-atom',
+    defaultClassName: 'ds-text-input-atom',
     modifiers: classModifier,
     className,
   });
