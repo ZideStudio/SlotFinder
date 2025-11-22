@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type AvailabilityService struct {
@@ -83,41 +84,54 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		EventId:   eventId,
 	}
 
-	// Merge availabilities overlapping with the new one
-	var availabilitiesToMerge []model.Availability
-	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availabilityToCreate, &availabilitiesToMerge); err != nil {
+	// Use transaction with row-level locking to prevent concurrent duplicates
+	var finalAvailability model.Availability
+	err := s.availabilityRepository.CreateWithLock(&availabilityToCreate, func(tx *gorm.DB) error {
+		// Find overlapping availabilities within the locked transaction
+		var availabilitiesToMerge []model.Availability
+		if err := s.availabilityRepository.FindOverlappingAvailabilitiesWithTx(tx, &availabilityToCreate, &availabilitiesToMerge); err != nil {
+			return err
+		}
+
+		if len(availabilitiesToMerge) == 0 {
+			// No overlapping availabilities, just create the new one
+			if err := s.availabilityRepository.CreateWithTx(tx, &availabilityToCreate); err != nil {
+				return err
+			}
+			finalAvailability = availabilityToCreate
+			return nil
+		}
+
+		// Merge overlapping availabilities
+		var availabilitiesIdsToDelete []uuid.UUID
+		for _, existingAvailability := range availabilitiesToMerge {
+			if existingAvailability.StartsAt.Before(availabilityToCreate.StartsAt) {
+				availabilityToCreate.StartsAt = existingAvailability.StartsAt
+			}
+			if existingAvailability.EndsAt.After(availabilityToCreate.EndsAt) {
+				availabilityToCreate.EndsAt = existingAvailability.EndsAt
+			}
+
+			availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
+		}
+
+		// Delete merged availabilities within the transaction
+		if err := s.availabilityRepository.DeleteByIdsWithTx(tx, &availabilitiesIdsToDelete); err != nil {
+			return err
+		}
+
+		// Create the merged availability within the transaction
+		if err := s.availabilityRepository.CreateWithTx(tx, &availabilityToCreate); err != nil {
+			return err
+		}
+
+		finalAvailability = availabilityToCreate
+		return nil
+	})
+
+	if err != nil {
 		return model.Availability{}, err
 	}
 
-	if len(availabilitiesToMerge) == 0 {
-		// Save availability
-		if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
-			return model.Availability{}, err
-		}
-		return availabilityToCreate, nil
-	}
-
-	var availabilitiesIdsToDelete []uuid.UUID
-	for _, existingAvailability := range availabilitiesToMerge {
-		if existingAvailability.StartsAt.Before(availabilityToCreate.StartsAt) {
-			availabilityToCreate.StartsAt = existingAvailability.StartsAt
-		}
-		if existingAvailability.EndsAt.After(availabilityToCreate.EndsAt) {
-			availabilityToCreate.EndsAt = existingAvailability.EndsAt
-		}
-
-		availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
-	}
-
-	// Delete merged availability
-	if err := s.availabilityRepository.DeleteByIds(&availabilitiesIdsToDelete); err != nil {
-		return model.Availability{}, err
-	}
-
-	// Save availability
-	if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
-		return model.Availability{}, err
-	}
-
-	return availabilityToCreate, nil
+	return finalAvailability, nil
 }
