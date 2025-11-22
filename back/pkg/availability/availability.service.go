@@ -61,7 +61,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
 	}
 
-	// Check that start and end times are 5 minute intervals
+	// Prevent creating availabilities not aligned on 5 minutes interval
 	if data.StartsAt.Minute()%5 != 0 || data.EndsAt.Minute()%5 != 0 {
 		return model.Availability{}, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
 	}
