@@ -352,7 +352,7 @@ paths:
       summary: Status Check
       tags:
       - Authentication
-  /v1/event:
+  /v1/events:
     get:
       consumes:
       - application/json
@@ -400,7 +400,7 @@ paths:
       summary: Create an event
       tags:
       - Event
-  /v1/event/{eventId}:
+  /v1/events/{eventId}:
     get:
       consumes:
       - application/json
@@ -424,7 +424,7 @@ paths:
       summary: Get event
       tags:
       - Event
-  /v1/event/{eventId}/availability:
+  /v1/events/{eventId}/availability:
     post:
       consumes:
       - application/json
@@ -456,7 +456,7 @@ paths:
       summary: Create an availability
       tags:
       - Availability
-  /v1/event/{eventId}/join:
+  /v1/events/{eventId}/join:
     post:
       consumes:
       - application/json
