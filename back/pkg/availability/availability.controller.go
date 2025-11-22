@@ -30,9 +30,7 @@ func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid 
 	}
 
 	eventIdUuid, err = uuid.Parse(eventId)
-	if err != nil {
-		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
-	} else if eventIdUuid == uuid.Nil {
+	if err != nil || eventIdUuid == uuid.Nil {
 		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
 	}
 
