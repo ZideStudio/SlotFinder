@@ -268,7 +268,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event": {
+        "/v1/events": {
             "get": {
                 "security": [
                     {
@@ -346,7 +346,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event/{eventId}": {
+        "/v1/events/{eventId}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -383,7 +383,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event/{eventId}/availability": {
+        "/v1/events/{eventId}/availability": {
             "post": {
                 "security": [
                     {
@@ -434,7 +434,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event/{eventId}/join": {
+        "/v1/events/{eventId}/join": {
             "post": {
                 "security": [
                     {
