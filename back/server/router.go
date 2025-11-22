@@ -60,7 +60,7 @@ func NewRouter() *gin.Engine {
 		}
 
 		// Event routes
-		eventGroup := v1.Group("/event")
+		eventGroup := v1.Group("/events")
 		{
 			eventRouter := event.NewEventController(nil)
 

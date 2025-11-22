@@ -31,7 +31,7 @@ func NewEventController(ctl *EventController) *EventController {
 // @Security BearerAuth
 // @Success 200 {object} model.Event
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/event [post]
+// @Router /v1/events [post]
 func (ctl *EventController) Create(c *gin.Context) {
 	var data EventCreateDto
 	if err := helpers.SetHttpContextBody(c, &data); err != nil {
@@ -56,7 +56,7 @@ func (ctl *EventController) Create(c *gin.Context) {
 // @Security BearerAuth
 // @Success 200 {array} EventResponse
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/event [get]
+// @Router /v1/events [get]
 func (ctl *EventController) GetUserEvents(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -75,7 +75,7 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} EventResponse
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/event/{eventId} [get]
+// @Router /v1/events/{eventId} [get]
 func (ctl *EventController) GetEvent(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
@@ -101,7 +101,7 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 // @Security BearerAuth
 // @Success 200
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/event/{eventId}/join [post]
+// @Router /v1/events/{eventId}/join [post]
 func (ctl *EventController) JoinEvent(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {
