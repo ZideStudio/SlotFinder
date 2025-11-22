@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
 import { pluginSvgr } from '@rsbuild/plugin-svgr';
+import { resolve } from 'path';
 import StylelintPlugin from 'stylelint-webpack-plugin';
 import packageJson from './package.json';
 
@@ -29,9 +30,15 @@ export default defineConfig(({ env }) => {
     plugins: [pluginReact(), pluginSvgr(), pluginSass()],
     source: {
       entry: {
-        index: 'src/main.ts',
+        index: './src/main.ts',
       },
       define: publicVars,
+    },
+    resolve: {
+      alias: {
+        '@Front': resolve(__dirname, 'src'),
+        '@Mocks': resolve(__dirname, 'mocks'),
+      },
     },
     output: {
       assetPrefix: publicPath,
