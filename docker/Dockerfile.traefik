@@ -1,0 +1,29 @@
+FROM traefik:v3.6.2
+
+# Install openssl for certificate generation
+RUN apk add --no-cache openssl
+
+# Create certificates and config directories
+RUN mkdir -p /etc/ssl/traefik /etc/traefik
+
+# Generate self-signed certificate at build time
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/traefik/tls.key \
+    -out /etc/ssl/traefik/tls.crt \
+    -subj "/C=US/ST=Local/L=Local/O=Local/CN=localhost" \
+    -addext "subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1,IP:::1"
+
+# Create TLS configuration file
+RUN echo "tls:" > /etc/traefik/tls.yml && \
+    echo "  stores:" >> /etc/traefik/tls.yml && \
+    echo "    default:" >> /etc/traefik/tls.yml && \
+    echo "      defaultCertificate:" >> /etc/traefik/tls.yml && \
+    echo "        certFile: /etc/ssl/traefik/tls.crt" >> /etc/traefik/tls.yml && \
+    echo "        keyFile: /etc/ssl/traefik/tls.key" >> /etc/traefik/tls.yml && \
+    echo "  certificates:" >> /etc/traefik/tls.yml && \
+    echo "    - certFile: /etc/ssl/traefik/tls.crt" >> /etc/traefik/tls.yml && \
+    echo "      keyFile: /etc/ssl/traefik/tls.key" >> /etc/traefik/tls.yml
+
+# Set proper permissions
+RUN chmod 644 /etc/ssl/traefik/tls.crt && \
+    chmod 600 /etc/ssl/traefik/tls.key
