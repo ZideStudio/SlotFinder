@@ -14,15 +14,17 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -addext "subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1,IP:::1"
 
 # Create TLS configuration file
-RUN echo "tls:" > /etc/traefik/tls.yml && \
-    echo "  stores:" >> /etc/traefik/tls.yml && \
-    echo "    default:" >> /etc/traefik/tls.yml && \
-    echo "      defaultCertificate:" >> /etc/traefik/tls.yml && \
-    echo "        certFile: /etc/ssl/traefik/tls.crt" >> /etc/traefik/tls.yml && \
-    echo "        keyFile: /etc/ssl/traefik/tls.key" >> /etc/traefik/tls.yml && \
-    echo "  certificates:" >> /etc/traefik/tls.yml && \
-    echo "    - certFile: /etc/ssl/traefik/tls.crt" >> /etc/traefik/tls.yml && \
-    echo "      keyFile: /etc/ssl/traefik/tls.key" >> /etc/traefik/tls.yml
+RUN cat <<'EOF' > /etc/traefik/tls.yml
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/ssl/traefik/tls.crt
+        keyFile: /etc/ssl/traefik/tls.key
+  certificates:
+    - certFile: /etc/ssl/traefik/tls.crt
+      keyFile: /etc/ssl/traefik/tls.key
+EOF
 
 # Set proper permissions
 RUN chmod 644 /etc/ssl/traefik/tls.crt && \
