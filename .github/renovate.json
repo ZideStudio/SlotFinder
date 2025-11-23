@@ -3,9 +3,9 @@
   "extends": ["config:recommended", ":timezone(Europe/Paris)", ":enableVulnerabilityAlertsWithLabel(security)"],
   "dependencyDashboard": true,
   "labels": ["dependencies"],
+  "minimumReleaseAge": "5 days",
   "npm": {
-    "rangeStrategy": "bump",
-    "minimumReleaseAge": "3 days"
+    "rangeStrategy": "bump"
   },
   "packageRules": [
     {
