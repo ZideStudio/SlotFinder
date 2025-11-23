@@ -99,3 +99,19 @@ jobs:
       - name: Run build
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npm run build
+
+  storybook-build:
+    name: Build Storybook
+    needs:
+      - install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run build
+        working-directory: ${{ env.FRONT_FOLDER }}
+        run: npm run build:storybook
