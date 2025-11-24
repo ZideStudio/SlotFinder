@@ -22,10 +22,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
-      "@Front/*": ["src/*"],
-      "@Mocks/*": ["mocks/*"]
+      "@Front/*": ["./src/*"],
+      "@Mocks/*": ["./mocks/*"]
     }
   },
   "include": ["src", "mocks", "rsbuild.config.ts", "vitest.setup.ts"],
