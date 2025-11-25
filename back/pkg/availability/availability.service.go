@@ -5,7 +5,6 @@ import (
 	"app/commons/guard"
 	model "app/db/models"
 	"app/db/repository"
-	"app/pkg/signin"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +14,6 @@ import (
 type AvailabilityService struct {
 	availabilityRepository *repository.AvailabilityRepository
 	eventRepository        *repository.EventRepository
-	signinService          *signin.SigninService
 }
 
 func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
@@ -26,7 +24,6 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 	return &AvailabilityService{
 		availabilityRepository: &repository.AvailabilityRepository{},
 		eventRepository:        &repository.EventRepository{},
-		signinService:          signin.NewSigninService(nil),
 	}
 }
 
