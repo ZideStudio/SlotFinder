@@ -1,10 +1,10 @@
 .PHONY: dev dev-build dev-down clean logs
 
 # Default target
-all: dev-build
+all: start
 
 # Start development environment
-dev:
+start:
 	docker compose -f docker-compose.dev.yml up -d
 	@echo "\n🚀 Development environment started!"
 	@echo "📱 Front: https://localhost"
@@ -12,10 +12,9 @@ dev:
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"
 	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
-	docker compose -f docker-compose.dev.yml logs -f backend frontend
 
 # Build and start development environment
-dev-build:
+build-start:
 	docker compose -f docker-compose.dev.yml up -d --build
 	@echo "\n🚀 Development environment built and started!"
 	@echo "📱 Front: https://localhost"
@@ -23,13 +22,19 @@ dev-build:
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"
 	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
-	docker compose -f docker-compose.dev.yml logs -f backend frontend
-
 
 # Stop development environment
-dev-down:
+stop:
+	docker compose -f docker-compose.dev.yml stop
+
+# Stop and remove development environment containers
+down:
 	docker compose -f docker-compose.dev.yml down
 
 # Clean development environment (remove containers and volumes)
 clean:
 	docker compose -f docker-compose.dev.yml down -v --remove-orphans
+
+# Tail logs of backend and frontend services
+logs:
+	docker compose -f docker-compose.dev.yml logs -f backend frontend
