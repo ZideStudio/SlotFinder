@@ -13,6 +13,8 @@ git clone https://github.com/ZideStudio/SlotFinder
 cd SlotFinder
 ```
 
+Clone the env `backend/.env.model` file to `backend/.env` and modify the variables as needed.
+
 Start the development environment with Docker:
 
 ```bash
