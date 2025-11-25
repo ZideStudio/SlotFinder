@@ -16,7 +16,7 @@ cd SlotFinder
 Start the development environment with Docker:
 
 ```bash
-make dev
+make
 ```
 
 Access the application:
@@ -48,15 +48,18 @@ psql -h localhost -p 5432 -U slotfinder -d slotfinder
 ### Available Commands
 
 ```bash
-make dev        # Start development environment
-make dev-build  # Build and start development environment
-make dev-down   # Stop development environment
-make clean      # Clean development environment (remove containers and volumes)
+make                # Start development environment
+make start          # Start development environment
+make start-build    # Build and start development environment
+make stop           # Stop development environment
+make down           # Tear down development environment
+make clean          # Clean development environment (remove containers and volumes)
+make logs           # View logs of frontend and backend services
 ```
 
 ## Technology Stack
 
-- **Frontend**: React with Rsbuild, TypeScript, Tailwind CSS
+- **Frontend**: React with Rsbuild, TypeScript, Sass
 - **Backend**: Go with Gin framework, PostgreSQL
 - **Development**: Docker Compose with Traefik reverse proxy
 - **Hot Reload**: Automatic updates for both frontend and backend
