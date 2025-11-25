@@ -23,6 +23,7 @@ func NewAvailabilityController(ctl *AvailabilityController) *AvailabilityControl
 	}
 }
 
+// extracts and validates the eventId parameter from the URL path.
 func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid uuid.UUID, err error) {
 	eventId := c.Param("eventId")
 	if eventId == "" {
