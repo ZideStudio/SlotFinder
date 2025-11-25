@@ -41,6 +41,8 @@ func (e *Event) Sanitized() *Event {
 	return e
 }
 
+// checks if a user has access to this event by verifying
+// if the user ID exists in the event's AccountEvents relation.
 func (e *Event) HasUserAccess(userId *uuid.UUID) bool {
 	if userId == nil {
 		return false
