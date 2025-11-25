@@ -51,7 +51,6 @@ export default defineConfig(({ env }) => {
     },
     server: {
       port: parseInt(process.env.PORT ?? '3000', 10),
-      host: '0.0.0.0',
       open: (process.env.BROWSER ?? 'false') === 'true',
     },
     tools: {
