@@ -6,14 +6,20 @@ No more endless discussions to find a date: let us suggest the best times that s
 
 ### Prerequisites
 
-Clone the repository:
+#### Clone the repository
 
 ```bash
 git clone https://github.com/ZideStudio/SlotFinder
 cd SlotFinder
 ```
 
+#### Set up environment variables
+
 Clone the env `backend/.env.model` file to `backend/.env` and modify the variables as needed.
+
+Note that the default values prefixed with `DB_` are already set and work with the dockerized development environment. You can change them if you want to connect to an external database.
+
+#### Start the development environment
 
 Start the development environment with Docker:
 
