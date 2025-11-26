@@ -36,8 +36,7 @@ func (r *AvailabilityRepository) CreateWithLock(availability *model.Availability
 		// This prevents concurrent transactions from processing the same combination simultaneously
 		lockKey := r.computeAdvisoryLockKey(availability.AccountId, availability.EventId)
 
-		var result int
-		if err := tx.Raw("SELECT pg_advisory_xact_lock(?)", lockKey).Scan(&result).Error; err != nil {
+		if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", lockKey).Error; err != nil {
 			log.Error().Err(err).Int64("lockKey", lockKey).Msg("AVAILABILITY_REPOSITORY::CREATE_WITH_LOCK Failed to acquire advisory lock")
 			return err
 		}
