@@ -14,7 +14,6 @@ type FetchApiProps<CustomErrorResponseCodeType extends string> = {
   method?: METHODS;
   data?: Json;
   headers?: HeadersInit;
-  sendCredentials?: boolean;
   CustomErrorResponse?: ErrorResponseClass<CustomErrorResponseCodeType>;
 };
 
@@ -26,7 +25,6 @@ export const fetchApi = async <
   method = METHODS.get,
   data,
   headers = [],
-  sendCredentials,
   CustomErrorResponse = ErrorResponse,
 }: FetchApiProps<CustomErrorResponseCodeType>): Promise<Response> => {
   const mergeHeaders = new Headers(headers);
@@ -38,7 +36,6 @@ export const fetchApi = async <
   const response = await fetch(path, {
     method,
     ...(data && { body: JSON.stringify(data) }),
-    credentials: sendCredentials ? 'include' : undefined,
     headers: mergeHeaders,
   });
 
