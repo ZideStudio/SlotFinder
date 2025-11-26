@@ -4,6 +4,7 @@ import (
 	"app/db"
 	model "app/db/models"
 	"context"
+	"hash/fnv"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,20 +14,31 @@ import (
 
 type AvailabilityRepository struct{}
 
-// CreateWithLock creates an availability with row-level locking to prevent concurrent duplicates
-func (*AvailabilityRepository) CreateWithLock(availability *model.Availability, mergeFunc func(*gorm.DB) error) error {
+// computeAdvisoryLockKey computes a deterministic int64 key from account_id and event_id
+// for use with PostgreSQL advisory locks. This ensures mutual exclusion across the entire
+// operation, including both existing rows and potential new insertions.
+func (*AvailabilityRepository) computeAdvisoryLockKey(accountId, eventId uuid.UUID) int64 {
+	h := fnv.New64a()
+	h.Write(accountId[:])
+	h.Write(eventId[:])
+	return int64(h.Sum64())
+}
+
+// CreateWithLock creates an availability with PostgreSQL advisory locking to prevent concurrent duplicates.
+// Uses pg_advisory_xact_lock to ensure mutual exclusion for the entire operation, including both
+// existing rows and potential new insertions. The lock is automatically released at transaction end.
+func (r *AvailabilityRepository) CreateWithLock(availability *model.Availability, mergeFunc func(*gorm.DB) error) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	return db.GetDB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// Lock existing availabilities for this user and event, this prevents concurrent requests from creating duplicates
-		var lockRows []model.Availability
-		if err := tx.Set("gorm:query_option", "FOR UPDATE").Where(
-			"account_id = ? AND event_id = ?",
-			availability.AccountId,
-			availability.EventId,
-		).Find(&lockRows).Error; err != nil {
-			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::CREATE_WITH_LOCK Failed to lock rows")
+		// Acquire PostgreSQL advisory lock for this (account_id, event_id) combination
+		// This prevents concurrent transactions from processing the same combination simultaneously
+		lockKey := r.computeAdvisoryLockKey(availability.AccountId, availability.EventId)
+
+		var result int
+		if err := tx.Raw("SELECT pg_advisory_xact_lock(?)", lockKey).Scan(&result).Error; err != nil {
+			log.Error().Err(err).Int64("lockKey", lockKey).Msg("AVAILABILITY_REPOSITORY::CREATE_WITH_LOCK Failed to acquire advisory lock")
 			return err
 		}
 
