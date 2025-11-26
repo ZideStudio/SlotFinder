@@ -67,12 +67,7 @@ func (*AvailabilityRepository) FindOverlappingAvailabilitiesWithTx(tx *gorm.DB, 
 
 // DeleteByIdsWithTx deletes availabilities by IDs within a transaction
 func (*AvailabilityRepository) DeleteByIdsWithTx(tx *gorm.DB, ids *[]uuid.UUID) error {
-	idsStrings := make([]string, len(*ids))
-	for i, id := range *ids {
-		idsStrings[i] = id.String()
-	}
-
-	if err := tx.Where("id IN (?)", idsStrings).Delete(&model.Availability{}).Error; err != nil {
+	if err := tx.Where("id IN ?", *ids).Delete(&model.Availability{}).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_BY_IDS_WITH_TX Failed to delete availabilities")
 		return err
 	}
