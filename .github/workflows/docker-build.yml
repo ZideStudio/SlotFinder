@@ -4,8 +4,20 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'docker-compose.dev.yml'
+      - 'docker/**'
+      - 'front/Dockerfile'
+      - 'back/Dockerfile'
+      - '.github/workflows/docker-build.yml'
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'docker-compose.dev.yml'
+      - 'docker/**'
+      - 'front/Dockerfile'
+      - 'back/Dockerfile'
+      - '.github/workflows/docker-build.yml'
   workflow_dispatch:
 
 jobs:
