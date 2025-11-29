@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+		"label": "make: start",
+		"type": "shell",
+		"command": "make",
+		"args": ["start"]
+	},
+    {
+		"label": "make: build-start",
+		"type": "shell",
+		"command": "make",
+		"args": ["build-start"]
+	},
+    {
+		"label": "make: stop",
+		"type": "shell",
+		"command": "make",
+		"args": ["stop"]
+	},
+    {
+		"label": "make: down",
+		"type": "shell",
+		"command": "make",
+		"args": ["down"]
+	},
+    {
+		"label": "make: clean",
+		"type": "shell",
+		"command": "make",
+		"args": ["clean"]
+	},
+    {
+		"label": "make: logs",
+		"type": "shell",
+		"command": "make",
+		"args": ["logs"]
+	}
+  ]
+}
