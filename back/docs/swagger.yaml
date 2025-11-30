@@ -21,6 +21,16 @@ definitions:
       username:
         type: string
     type: object
+  availability.AvailabilityCreateDto:
+    properties:
+      endsAt:
+        type: string
+      startsAt:
+        type: string
+    required:
+    - endsAt
+    - startsAt
+    type: object
   constants.Provider:
     enum:
     - google
@@ -53,6 +63,10 @@ definitions:
     type: object
   event.EventResponse:
     properties:
+      availabilities:
+        items:
+          $ref: '#/definitions/model.Availability'
+        type: array
       createdAt:
         type: string
       description:
@@ -119,8 +133,23 @@ definitions:
       provider:
         $ref: '#/definitions/constants.Provider'
     type: object
+  model.Availability:
+    properties:
+      account:
+        $ref: '#/definitions/model.Account'
+      endsAt:
+        type: string
+      id:
+        type: string
+      startsAt:
+        type: string
+    type: object
   model.Event:
     properties:
+      availabilities:
+        items:
+          $ref: '#/definitions/model.Availability'
+        type: array
       createdAt:
         type: string
       description:
@@ -323,7 +352,7 @@ paths:
       summary: Status Check
       tags:
       - Authentication
-  /v1/event:
+  /v1/events:
     get:
       consumes:
       - application/json
@@ -371,14 +400,14 @@ paths:
       summary: Create an event
       tags:
       - Event
-  /v1/event/{id}:
+  /v1/events/{eventId}:
     get:
       consumes:
       - application/json
       parameters:
       - description: Event Id
         in: path
-        name: id
+        name: eventId
         required: true
         type: string
       produces:
@@ -395,14 +424,46 @@ paths:
       summary: Get event
       tags:
       - Event
-  /v1/event/{id}/join:
+  /v1/events/{eventId}/availability:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Availability parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/availability.AvailabilityCreateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Availability'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Create an availability
+      tags:
+      - Availability
+  /v1/events/{eventId}/join:
     post:
       consumes:
       - application/json
       parameters:
       - description: Event Id
         in: path
-        name: id
+        name: eventId
         required: true
         type: string
       produces:

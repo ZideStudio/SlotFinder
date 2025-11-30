@@ -268,7 +268,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event": {
+        "/v1/events": {
             "get": {
                 "security": [
                     {
@@ -346,7 +346,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event/{id}": {
+        "/v1/events/{eventId}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -362,7 +362,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Event Id",
-                        "name": "id",
+                        "name": "eventId",
                         "in": "path",
                         "required": true
                     }
@@ -383,7 +383,58 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/event/{id}/join": {
+        "/v1/events/{eventId}/availability": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Availability"
+                ],
+                "summary": "Create an availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Availability parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/availability.AvailabilityCreateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Availability"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/{eventId}/join": {
             "post": {
                 "security": [
                     {
@@ -404,7 +455,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Event Id",
-                        "name": "id",
+                        "name": "eventId",
                         "in": "path",
                         "required": true
                     }
@@ -457,6 +508,21 @@ const docTemplate = `{
                 }
             }
         },
+        "availability.AvailabilityCreateDto": {
+            "type": "object",
+            "required": [
+                "endsAt",
+                "startsAt"
+            ],
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
         "constants.Provider": {
             "type": "string",
             "enum": [
@@ -501,6 +567,12 @@ const docTemplate = `{
         "event.EventResponse": {
             "type": "object",
             "properties": {
+                "availabilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Availability"
+                    }
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -606,9 +678,32 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Availability": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "$ref": "#/definitions/model.Account"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Event": {
             "type": "object",
             "properties": {
+                "availabilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Availability"
+                    }
+                },
                 "createdAt": {
                     "type": "string"
                 },

@@ -18,3 +18,9 @@ type AccountEvent struct {
 func (AccountEvent) TableName() string {
 	return "account_event"
 }
+
+func (ae *AccountEvent) Sanitized() *AccountEvent {
+	ae.Account = ae.Account.Sanitized()
+	ae.Event = *ae.Event.Sanitized()
+	return ae
+}
