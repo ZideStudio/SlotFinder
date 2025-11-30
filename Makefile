@@ -5,6 +5,7 @@ all: start
 
 # Start development environment
 start:
+	cd front && npm install
 	docker compose -f docker-compose.dev.yml up -d
 	@echo "\n🚀 Development environment started!"
 	@echo "📱 Front: https://localhost"
@@ -15,6 +16,7 @@ start:
 
 # Build and start development environment
 build-start:
+	cd front && npm install
 	docker compose -f docker-compose.dev.yml up -d --build
 	@echo "\n🚀 Development environment built and started!"
 	@echo "📱 Front: https://localhost"
