@@ -1,0 +1,35 @@
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docker-compose.dev.yml'
+      - 'docker/**'
+      - 'front/Dockerfile'
+      - 'back/Dockerfile'
+      - '.github/workflows/docker-build.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'docker-compose.dev.yml'
+      - 'docker/**'
+      - 'front/Dockerfile'
+      - 'back/Dockerfile'
+      - '.github/workflows/docker-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Development Docker Compose Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Development Docker Compose
+        run: docker compose -f docker-compose.dev.yml build
