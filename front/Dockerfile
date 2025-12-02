@@ -1,6 +1,9 @@
-FROM node:24-alpine AS builder
+FROM node:24.11.1-alpine AS builder
 
 WORKDIR /app
+
+# Install specific npm version to match Volta configuration
+RUN npm install -g npm@11.6.4
 
 COPY package*.json ./
 
