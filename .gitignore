@@ -1,0 +1,2 @@
+# Volta version cache for Docker builds
+.env.volta

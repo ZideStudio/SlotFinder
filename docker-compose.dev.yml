@@ -27,6 +27,9 @@ services:
       context: ./front
       dockerfile: Dockerfile
       target: builder
+      args:
+        - NODE_VERSION=${NODE_VERSION:-24.11.1}
+        - NPM_VERSION=${NPM_VERSION:-11.6.4}
     volumes:
       - ./front:/app
       - /app/node_modules
