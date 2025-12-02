@@ -104,8 +104,4 @@ jobs:
         working-directory: ${{ env.BACK_FOLDER }}
         run: |
           swag init
-          if [ "$(uname)" = "Darwin" ]; then
-            sed -i '' '/LeftDelim/d; /RightDelim/d' docs/docs.go
-          else
-            sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go
-          fi
+          sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go
