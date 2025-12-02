@@ -6,7 +6,7 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
-# Install npm version to match Volta configuration
+# Install the specific npm version provided via build arg (extracted from Volta config by Makefile)
 RUN npm install -g npm@${NPM_VERSION}
 
 COPY package*.json ./
