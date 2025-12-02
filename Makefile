@@ -1,4 +1,4 @@
-.PHONY: dev dev-build dev-down clean logs
+.PHONY: start build-start stop down clean logs get-volta-versions
 
 # Default target
 all: start
@@ -6,7 +6,8 @@ all: start
 # Extract Volta versions from package.json
 get-volta-versions:
 	@command -v jq >/dev/null 2>&1 || { echo "Error: jq is required but not installed. Please install jq to continue." >&2; exit 1; }
-	@VOLTA_CONFIG=$$(jq -r '.volta // empty' front/package.json) && \
+	@trap 'rm -f .env.volta.tmp' EXIT; \
+	VOLTA_CONFIG=$$(jq -r '.volta // empty' front/package.json) && \
 	if [ -z "$$VOLTA_CONFIG" ] || [ "$$VOLTA_CONFIG" = "null" ]; then \
 		echo "Error: Volta configuration not found in front/package.json" >&2; \
 		exit 1; \
