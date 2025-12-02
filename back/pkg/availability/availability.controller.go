@@ -41,7 +41,7 @@ func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid 
 // @Summary Create an availability
 // @Tags Availability
 // @Accept json
-// @Produce jso
+// @Produce json
 // @Param eventId path string true "Event ID"
 // @Param data body AvailabilityCreateDto true "Availability parameters"
 // @Security BearerAuth
