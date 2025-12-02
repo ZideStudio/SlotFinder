@@ -59,7 +59,6 @@
     "concurrently": "^9.2.1",
     "i18next-resources-for-ts": "^1.8.0",
     "jsdom": "^27.2.0",
-    "lint-staged": "^16.2.7",
     "monocart-coverage-reports": "^2.12.9",
     "msw": "^2.12.3",
     "oxlint": "^1.30.0",
