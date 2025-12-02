@@ -28,8 +28,8 @@ services:
       dockerfile: Dockerfile
       target: builder
       args:
-        - NODE_VERSION=${NODE_VERSION:-24.11.1}
-        - NPM_VERSION=${NPM_VERSION:-11.6.4}
+        - NODE_VERSION=${NODE_VERSION}
+        - NPM_VERSION=${NPM_VERSION}
     volumes:
       - ./front:/app
       - /app/node_modules

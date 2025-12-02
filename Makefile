@@ -6,14 +6,19 @@ all: start
 # Extract Volta versions from package.json
 get-volta-versions:
 	@command -v jq >/dev/null 2>&1 || { echo "Error: jq is required but not installed. Please install jq to continue." >&2; exit 1; }
-	@NODE_VERSION=$$(jq -r '.volta.node // empty' front/package.json) && \
-	NPM_VERSION=$$(jq -r '.volta.npm // empty' front/package.json) && \
-	if [ -z "$$NODE_VERSION" ] || [ -z "$$NPM_VERSION" ]; then \
+	@VOLTA_CONFIG=$$(jq -r '.volta // empty' front/package.json) && \
+	if [ -z "$$VOLTA_CONFIG" ] || [ "$$VOLTA_CONFIG" = "null" ]; then \
 		echo "Error: Volta configuration not found in front/package.json" >&2; \
 		exit 1; \
 	fi && \
-	echo "NODE_VERSION=$$NODE_VERSION" > .env.volta && \
-	echo "NPM_VERSION=$$NPM_VERSION" >> .env.volta
+	NODE_VERSION=$$(echo "$$VOLTA_CONFIG" | jq -r '.node // empty') && \
+	NPM_VERSION=$$(echo "$$VOLTA_CONFIG" | jq -r '.npm // empty') && \
+	if [ -z "$$NODE_VERSION" ] || [ -z "$$NPM_VERSION" ]; then \
+		echo "Error: Volta node or npm version not found in front/package.json" >&2; \
+		exit 1; \
+	fi && \
+	printf "NODE_VERSION=%s\nNPM_VERSION=%s\n" "$$NODE_VERSION" "$$NPM_VERSION" > .env.volta.tmp && \
+	mv .env.volta.tmp .env.volta
 
 # Start development environment
 start: get-volta-versions
@@ -46,7 +51,7 @@ down:
 # Clean development environment (remove containers and volumes)
 clean:
 	docker compose -f docker-compose.dev.yml down -v --remove-orphans
-	@rm -f .env.volta
+	@rm -f .env.volta .env.volta.tmp
 
 # Tail logs of backend and frontend services
 logs:
