@@ -6,6 +6,12 @@ No more endless discussions to find a date: let us suggest the best times that s
 
 ### Prerequisites
 
+- **Docker** and **Docker Compose** installed on your system
+- **jq** (command-line JSON processor) - required for extracting Volta versions
+  - macOS: `brew install jq`
+  - Ubuntu/Debian: `sudo apt-get install jq`
+  - Windows: Download from [jqlang.github.io/jq](https://jqlang.github.io/jq/)
+
 #### Clone the repository
 
 ```bash
@@ -26,6 +32,8 @@ Start the development environment with Docker:
 ```bash
 make
 ```
+
+The Makefile will automatically extract Node.js and npm versions from the Volta configuration in `front/package.json` and use them for the Docker build.
 
 Access the application:
 

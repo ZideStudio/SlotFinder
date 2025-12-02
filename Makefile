@@ -5,8 +5,13 @@ all: start
 
 # Extract Volta versions from package.json
 get-volta-versions:
-	@NODE_VERSION=$$(jq -r '.volta.node' front/package.json) && \
-	NPM_VERSION=$$(jq -r '.volta.npm' front/package.json) && \
+	@command -v jq >/dev/null 2>&1 || { echo "Error: jq is required but not installed. Please install jq to continue." >&2; exit 1; }
+	@NODE_VERSION=$$(jq -r '.volta.node // empty' front/package.json) && \
+	NPM_VERSION=$$(jq -r '.volta.npm // empty' front/package.json) && \
+	if [ -z "$$NODE_VERSION" ] || [ -z "$$NPM_VERSION" ]; then \
+		echo "Error: Volta configuration not found in front/package.json" >&2; \
+		exit 1; \
+	fi && \
 	echo "NODE_VERSION=$$NODE_VERSION" > .env.volta && \
 	echo "NPM_VERSION=$$NPM_VERSION" >> .env.volta
 
