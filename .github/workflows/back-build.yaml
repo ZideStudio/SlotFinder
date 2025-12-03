@@ -85,3 +85,25 @@ jobs:
       - name: Build
         working-directory: ${{ env.BACK_FOLDER }}
         run: go build -v ./...
+
+  swaggo:
+    name: Check Swagger documentation build
+    needs: install
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
+
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Generate Swagger documentation
+        working-directory: ${{ env.BACK_FOLDER }}
+        run: |
+          swag init
+          sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go
