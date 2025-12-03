@@ -72,7 +72,7 @@
     "remark-gfm": "^4.0.1",
     "storybook": "^10.1.0",
     "storybook-react-rsbuild": "^2.1.6",
-    "stylelint": "^16.26.0",
+    "stylelint": "^16.26.1",
     "stylelint-prettier": "^5.0.3",
     "stylelint-webpack-plugin": "^5.0.1",
     "tsc-files": "^1.1.4",
