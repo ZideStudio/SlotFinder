@@ -18,6 +18,8 @@ console.log('export NODE_MAJOR="' + pkg.volta.node.split('.')[0] + '"');
 EOF
 
 # Stage 2: Builder with Volta-specified Node.js version
+# NOTE: Update the version tag below if Volta's Node.js major version changes in package.json
+# The validation step below will warn if there's a mismatch
 FROM node:24-alpine AS builder
 
 WORKDIR /app
