@@ -13,10 +13,7 @@ jobs:
     steps:
       - name: Validate PR title follows Conventional Commits
         uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Configure which types are allowed (must match your commit convention)
           types: |
             feat
             fix
@@ -29,15 +26,7 @@ jobs:
             ci
             chore
             revert
-          # Require a scope to be provided
           requireScope: false
-          # Configure which scopes are allowed (optional)
-          # scopes: |
-          #   appointment
-          #   unit
-          #   e2e
-          #   summary
-          # Validate the subject line of the PR title
           subjectPattern: ^(?![A-Z]).+$
           subjectPatternError: |
             The subject "{subject}" found in the pull request title "{title}"
