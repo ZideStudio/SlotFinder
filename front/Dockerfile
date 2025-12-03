@@ -5,28 +5,34 @@ WORKDIR /app
 
 COPY package.json ./
 
-# Extract and validate Volta configuration, then determine the correct base image tag
+# Extract and validate Volta configuration
 RUN node << 'EOF' > /tmp/volta-info.sh
 const pkg = require('./package.json');
 if (!pkg.volta || !pkg.volta.node || !pkg.volta.npm) {
     console.error('Error: Volta configuration not found in package.json');
     process.exit(1);
 }
-console.log('export NODE_VERSION=' + pkg.volta.node);
-console.log('export NPM_VERSION=' + pkg.volta.npm);
+console.log('export NODE_VERSION="' + pkg.volta.node + '"');
+console.log('export NPM_VERSION="' + pkg.volta.npm + '"');
+console.log('export NODE_MAJOR="' + pkg.volta.node.split('.')[0] + '"');
 EOF
 
-# Stage 2: Builder with extracted Volta versions  
-FROM node:alpine AS builder
+# Stage 2: Builder with Volta-specified Node.js version
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
 # Copy the Volta version info
 COPY --from=volta-reader /tmp/volta-info.sh /tmp/
 
-# Source the versions and install the correct npm version
+# Validate Node.js version and install the correct npm version from Volta
 RUN . /tmp/volta-info.sh && \
-    echo "Using npm version from Volta: ${NPM_VERSION}" && \
+    ACTUAL_NODE=$(node --version | sed 's/v//') && \
+    echo "Volta specifies Node.js ${NODE_VERSION}, using ${ACTUAL_NODE}" && \
+    if [ "${ACTUAL_NODE%%.*}" != "${NODE_MAJOR}" ]; then \
+        echo "WARNING: Node.js major version mismatch. Update FROM node:${NODE_MAJOR}-alpine in Dockerfile"; \
+    fi && \
+    echo "Installing npm@${NPM_VERSION} from Volta configuration" && \
     npm install -g npm@${NPM_VERSION}
 
 # Install dependencies
