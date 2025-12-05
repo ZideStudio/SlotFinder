@@ -91,7 +91,7 @@ func (*AvailabilityRepository) CreateWithTx(tx *gorm.DB, availability *model.Ava
 // Find an availability by ID
 func (*AvailabilityRepository) FindOneById(id uuid.UUID, availability *model.Availability) error {
 	if id == uuid.Nil {
-		return nil
+		return errors.New("id is nil UUID")
 	}
 	if availability == nil {
 		return errors.New("availability pointer is nil")
