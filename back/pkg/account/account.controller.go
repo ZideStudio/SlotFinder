@@ -31,7 +31,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 // @Param data body AccountCreateDto true "Account parameters"
 // @Success 200
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/account [post]
+// @Router /api/v1/account [post]
 func (ctl *AccountController) Create(c *gin.Context) {
 	var data AccountCreateDto
 	if err := helpers.SetHttpContextBody(c, &data); err != nil {
@@ -56,7 +56,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} model.Account
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/account/me [get]
+// @Router /api/v1/account/me [get]
 // @security AccessTokenCookie
 func (ctl *AccountController) GetMe(c *gin.Context) {
 	var user *guard.Claims
@@ -82,7 +82,7 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 // @Param data body AccountUpdateDto true "Account parameters"
 // @Success 200 {object} model.Account
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/account [patch]
+// @Router /api/v1/account [patch]
 // @security AccessTokenCookie
 func (ctl *AccountController) Update(c *gin.Context) {
 	var user *guard.Claims

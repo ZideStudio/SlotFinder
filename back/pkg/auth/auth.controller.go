@@ -19,7 +19,7 @@ func NewAuthController() *AuthController {
 // @Produce json
 // @Success 200
 // @Failure 401 {object} helpers.ApiError
-// @Router /v1/auth/status [get]
+// @Router /api/v1/auth/status [get]
 func (ctl *AuthController) Status(c *gin.Context) {
 	helpers.HandleJSONResponse(c, nil, nil)
 }
@@ -30,7 +30,7 @@ func (ctl *AuthController) Status(c *gin.Context) {
 // @Produce json
 // @Success 200
 // @Failure 401 {object} helpers.ApiError
-// @Router /v1/auth/logout [post]
+// @Router /api/v1/auth/logout [post]
 // @security AccessTokenCookie
 func (ctl *AuthController) Logout(c *gin.Context) {
 	lib.SetAccessTokenCookie(c, "", -1)

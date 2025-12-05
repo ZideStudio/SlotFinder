@@ -192,7 +192,7 @@ info:
   title: SlotFinder API
   version: 1.0b
 paths:
-  /v1/account:
+  /api/v1/account:
     patch:
       consumes:
       - application/json
@@ -243,7 +243,7 @@ paths:
       summary: Create an account
       tags:
       - Account
-  /v1/account/me:
+  /api/v1/account/me:
     get:
       consumes:
       - application/json
@@ -264,7 +264,7 @@ paths:
       summary: Get My Account
       tags:
       - Account
-  /v1/auth/{provider}/url:
+  /api/v1/auth/{provider}/url:
     get:
       parameters:
       - description: OAuth provider
@@ -292,7 +292,7 @@ paths:
       summary: Get redirect URL for OAuth provider
       tags:
       - Authentication
-  /v1/auth/logout:
+  /api/v1/auth/logout:
     post:
       consumes:
       - application/json
@@ -310,33 +310,7 @@ paths:
       summary: Logout
       tags:
       - Authentication
-  /v1/auth/signin:
-    post:
-      consumes:
-      - application/json
-      description: Sign in with email and password
-      parameters:
-      - description: Sign in parameters
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/signin.SigninDto'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/signin.TokenResponseDto'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
-      summary: Sign in
-      tags:
-      - Authentication
-  /v1/auth/status:
+  /api/v1/auth/status:
     get:
       consumes:
       - application/json
@@ -352,7 +326,7 @@ paths:
       summary: Status Check
       tags:
       - Authentication
-  /v1/events:
+  /api/v1/events:
     get:
       consumes:
       - application/json
@@ -400,7 +374,7 @@ paths:
       summary: Create an event
       tags:
       - Event
-  /v1/events/{eventId}:
+  /api/v1/events/{eventId}:
     get:
       consumes:
       - application/json
@@ -424,7 +398,7 @@ paths:
       summary: Get event
       tags:
       - Event
-  /v1/events/{eventId}/availability:
+  /api/v1/events/{eventId}/availability:
     post:
       consumes:
       - application/json
@@ -456,7 +430,7 @@ paths:
       summary: Create an availability
       tags:
       - Availability
-  /v1/events/{eventId}/join:
+  /api/v1/events/{eventId}/join:
     post:
       consumes:
       - application/json
@@ -480,6 +454,32 @@ paths:
       summary: Join event
       tags:
       - Event
+  /v1/auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: Sign in with email and password
+      parameters:
+      - description: Sign in parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/signin.SigninDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/signin.TokenResponseDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Sign in
+      tags:
+      - Authentication
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**

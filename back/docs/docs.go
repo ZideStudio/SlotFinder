@@ -17,7 +17,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/account": {
+        "/api/v1/account": {
             "post": {
                 "description": "Create a new account with the provided parameters.",
                 "consumes": [
@@ -97,7 +97,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/account/me": {
+        "/api/v1/account/me": {
             "get": {
                 "security": [
                     {
@@ -131,7 +131,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/auth/logout": {
+        "/api/v1/auth/logout": {
             "post": {
                 "security": [
                     {
@@ -161,47 +161,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/auth/signin": {
-            "post": {
-                "description": "Sign in with email and password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Sign in",
-                "parameters": [
-                    {
-                        "description": "Sign in parameters",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/signin.SigninDto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/signin.TokenResponseDto"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/auth/status": {
+        "/api/v1/auth/status": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -226,7 +186,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/auth/{provider}/url": {
+        "/api/v1/auth/{provider}/url": {
             "get": {
                 "tags": [
                     "Authentication"
@@ -268,7 +228,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events": {
+        "/api/v1/events": {
             "get": {
                 "security": [
                     {
@@ -346,7 +306,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{eventId}": {
+        "/api/v1/events/{eventId}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -383,7 +343,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{eventId}/availability": {
+        "/api/v1/events/{eventId}/availability": {
             "post": {
                 "security": [
                     {
@@ -434,7 +394,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/events/{eventId}/join": {
+        "/api/v1/events/{eventId}/join": {
             "post": {
                 "security": [
                     {
@@ -463,6 +423,46 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/signin": {
+            "post": {
+                "description": "Sign in with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Sign in",
+                "parameters": [
+                    {
+                        "description": "Sign in parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/signin.SigninDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/signin.TokenResponseDto"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
