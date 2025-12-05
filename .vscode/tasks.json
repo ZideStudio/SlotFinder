@@ -1,41 +1,47 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-    {
-		"label": "make: start",
-		"type": "shell",
-		"command": "make",
-		"args": ["start"]
-	},
-    {
-		"label": "make: build-start",
-		"type": "shell",
-		"command": "make",
-		"args": ["build-start"]
-	},
-    {
-		"label": "make: stop",
-		"type": "shell",
-		"command": "make",
-		"args": ["stop"]
-	},
-    {
-		"label": "make: down",
-		"type": "shell",
-		"command": "make",
-		"args": ["down"]
-	},
-    {
-		"label": "make: clean",
-		"type": "shell",
-		"command": "make",
-		"args": ["clean"]
-	},
-    {
-		"label": "make: logs",
-		"type": "shell",
-		"command": "make",
-		"args": ["logs"]
-	}
-  ]
+		{
+			"label": "make: start",
+			"type": "shell",
+			"command": "make",
+			"args": ["start"],
+			"problemMatcher": []
+		},
+		{
+			"label": "make: build-start",
+			"type": "shell",
+			"command": "make",
+			"args": ["build-start"],
+			"problemMatcher": []
+		},
+		{
+			"label": "make: stop",
+			"type": "shell",
+			"command": "make",
+			"args": ["stop"],
+			"problemMatcher": []
+		},
+		{
+			"label": "make: down",
+			"type": "shell",
+			"command": "make",
+			"args": ["down"],
+			"problemMatcher": []
+		},
+		{
+			"label": "make: clean",
+			"type": "shell",
+			"command": "make",
+			"args": ["clean"],
+			"problemMatcher": []
+		},
+		{
+			"label": "make: logs",
+			"type": "shell",
+			"command": "make",
+			"args": ["logs"],
+			"problemMatcher": []
+		}
+	]
 }
