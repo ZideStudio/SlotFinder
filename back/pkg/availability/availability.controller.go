@@ -38,6 +38,21 @@ func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid 
 	return eventIdUuid, nil
 }
 
+// extracts and validates the availability parameter from the URL path.
+func (ctl *AvailabilityController) getAvailabilityIdParam(c *gin.Context) (availabilityIdUuid uuid.UUID, err error) {
+	availability := c.Param("availabilityId")
+	if availability == "" {
+		return availabilityIdUuid, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+	}
+
+	availabilityIdUuid, err = uuid.Parse(availability)
+	if err != nil || availabilityIdUuid == uuid.Nil {
+		return availabilityIdUuid, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+	}
+
+	return availabilityIdUuid, nil
+}
+
 // @Summary Create an availability
 // @Tags Availability
 // @Accept json
@@ -69,4 +84,38 @@ func (ctl *AvailabilityController) Create(c *gin.Context) {
 	availability, err := ctl.availabilityService.Create(&data, eventId, user)
 
 	helpers.HandleJSONResponse(c, availability, err)
+}
+
+// @Summary Delete an availability
+// @Tags Availability
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param availabilityId path string true "Availability ID"
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/events/{eventId}/availability/{availabilityId} [delete]
+func (ctl *AvailabilityController) Delete(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	eventId, err := ctl.getEventIdParam(c)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	availabilityId, err := ctl.getAvailabilityIdParam(c)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	err = ctl.availabilityService.Delete(eventId, availabilityId, user)
+
+	helpers.HandleJSONResponse(c, nil, err)
 }
