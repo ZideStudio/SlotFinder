@@ -11,6 +11,7 @@ type Availability struct {
 	AccountId uuid.UUID `gorm:"column:account_id;type:uuid;primaryKey" json:"-"`
 	Account   Account   `gorm:"foreignKey:AccountId;references:Id" json:"account"`
 	EventId   uuid.UUID `gorm:"column:event_id;type:uuid;primaryKey" json:"-"`
+	Event     Event     `gorm:"foreignKey:EventId;references:Id" json:"-"`
 	StartsAt  time.Time `gorm:"column:starts_at" json:"startsAt"`
 	EndsAt    time.Time `gorm:"column:ends_at" json:"endsAt"`
 }
