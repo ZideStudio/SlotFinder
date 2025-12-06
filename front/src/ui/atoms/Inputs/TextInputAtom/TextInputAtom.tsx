@@ -3,14 +3,11 @@ import type { ComponentPropsWithRef } from 'react';
 
 import './TextInputAtom.scss';
 
-type TextInputAtomProps = ComponentPropsWithRef<'input'> & {
-  classModifier?: string;
-};
+type TextInputAtomProps = ComponentPropsWithRef<'input'>;
 
-export const TextInputAtom = ({ className, classModifier, ...props }: TextInputAtomProps) => {
+export const TextInputAtom = ({ className, ...props }: TextInputAtomProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-text-input-atom',
-    modifiers: classModifier,
     className,
   });
 
