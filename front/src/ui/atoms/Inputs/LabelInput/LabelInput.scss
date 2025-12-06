@@ -1,0 +1,13 @@
+@use '../../../../utils/sass/mixins/px-to-rem';
+
+.ds-label-input {
+  display: flex;
+  column-gap: px-to-rem.rem(4);
+  font-size: px-to-rem.rem(18);
+  font-weight: 600;
+
+  span {
+    font-weight: normal;
+    color: hsl(var(--color-error));
+  }
+}
