@@ -29,7 +29,7 @@ func NewSigninController(ctl *SigninController) *SigninController {
 // @Param data body SigninDto true "Sign in parameters"
 // @Success 200 {object} TokenResponseDto
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/auth/signin [post]
+// @Router /api/v1/auth/signin [post]
 func (ctl *SigninController) Signin(c *gin.Context) {
 	var data SigninDto
 	err := helpers.SetHttpContextBody(c, &data)

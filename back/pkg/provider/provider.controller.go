@@ -35,7 +35,7 @@ func NewProviderController(ctl *ProviderController) *ProviderController {
 // @Param returnUrl query string false "URL to return to after OAuth"
 // @Success 200 {string} string "OAuth URL"
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/auth/{provider}/url [get]
+// @Router /api/v1/auth/{provider}/url [get]
 func (ctl *ProviderController) ProviderUrl(c *gin.Context) {
 	provider := c.Param("provider")
 	returnUrl := c.Query("returnUrl")

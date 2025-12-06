@@ -47,7 +47,7 @@ func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid 
 // @Security BearerAuth
 // @Success 200 {object} model.Availability
 // @Failure 400 {object} helpers.ApiError
-// @Router /v1/events/{eventId}/availability [post]
+// @Router /api/v1/events/{eventId}/availability [post]
 func (ctl *AvailabilityController) Create(c *gin.Context) {
 	var data AvailabilityCreateDto
 	if err := helpers.SetHttpContextBody(c, &data); err != nil {
