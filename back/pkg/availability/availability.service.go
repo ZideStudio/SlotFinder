@@ -152,16 +152,11 @@ func (s *AvailabilityService) Delete(eventId uuid.UUID, availabilityId uuid.UUID
 
 	// Get availability
 	var availability model.Availability
-	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
+	if err := s.availabilityRepository.FindOneByIdAndEventId(availabilityId, eventId, &availability); err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return constants.ERR_AVAILABILITY_NOT_FOUND.Err
 		}
 		return err
-	}
-
-	// Check if availability belongs to the event
-	if availability.EventId != event.Id {
-		return constants.ERR_AVAILABILITY_NOT_FOUND.Err
 	}
 
 	// Check if availability belongs to the user
