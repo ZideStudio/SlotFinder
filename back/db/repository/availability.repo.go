@@ -89,7 +89,7 @@ func (*AvailabilityRepository) CreateWithTx(tx *gorm.DB, availability *model.Ava
 }
 
 // Find an availability by ID and event id
-func (*AvailabilityRepository) FindOneByIdAndEventId(id uuid.UUID, eventId uuid.UUID, availability *model.Availability) error {
+func (*AvailabilityRepository) FindOneById(id uuid.UUID, availability *model.Availability) error {
 	if id == uuid.Nil {
 		return errors.New("id is nil UUID")
 	}
@@ -97,7 +97,7 @@ func (*AvailabilityRepository) FindOneByIdAndEventId(id uuid.UUID, eventId uuid.
 		return errors.New("availability pointer is nil")
 	}
 
-	if err := db.GetDB().Preload("Account").First(&availability, "id = ? AND event_id = ?", id, eventId).Error; err != nil {
+	if err := db.GetDB().Preload("Account").Preload("Event").Preload("Event.AccountEvents").First(&availability, "id = ?", id).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::FIND_ONE_BY_ID Failed to find availability by ID")
 		return err
 	}
