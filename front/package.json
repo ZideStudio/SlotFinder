@@ -62,7 +62,7 @@
     "monocart-coverage-reports": "^2.12.9",
     "msw": "^2.12.3",
     "oxlint": "^1.30.0",
-    "prettier": "^3.7.1",
+    "prettier": "^3.7.3",
     "prettier-plugin-sh": "^0.18.0",
     "remark-gfm": "^4.0.1",
     "storybook": "^10.1.2",
