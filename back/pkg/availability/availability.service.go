@@ -140,14 +140,14 @@ func (s *AvailabilityService) Delete(eventId uuid.UUID, availabilityId uuid.UUID
 		return constants.ERR_EVENT_NOT_FOUND.Err
 	}
 
-	// Check if event is ended
-	if event.HasEnded() {
-		return constants.ERR_EVENT_ENDED.Err
-	}
-
 	// Check if user has access to the event
 	if !event.HasUserAccess(&user.Id) {
 		return constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	// Check if event is ended
+	if event.HasEnded() {
+		return constants.ERR_EVENT_ENDED.Err
 	}
 
 	// Get availability
