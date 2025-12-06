@@ -310,6 +310,32 @@ paths:
       summary: Logout
       tags:
       - Authentication
+  /api/v1/auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: Sign in with email and password
+      parameters:
+      - description: Sign in parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/signin.SigninDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/signin.TokenResponseDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Sign in
+      tags:
+      - Authentication
   /api/v1/auth/status:
     get:
       consumes:
@@ -454,32 +480,6 @@ paths:
       summary: Join event
       tags:
       - Event
-  /v1/auth/signin:
-    post:
-      consumes:
-      - application/json
-      description: Sign in with email and password
-      parameters:
-      - description: Sign in parameters
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/signin.SigninDto'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/signin.TokenResponseDto'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
-      summary: Sign in
-      tags:
-      - Authentication
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**

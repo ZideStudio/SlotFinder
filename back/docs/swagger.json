@@ -153,6 +153,46 @@
                 }
             }
         },
+        "/api/v1/auth/signin": {
+            "post": {
+                "description": "Sign in with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Sign in",
+                "parameters": [
+                    {
+                        "description": "Sign in parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/signin.SigninDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/signin.TokenResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/status": {
             "get": {
                 "consumes": [
@@ -415,46 +455,6 @@
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/auth/signin": {
-            "post": {
-                "description": "Sign in with email and password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Sign in",
-                "parameters": [
-                    {
-                        "description": "Sign in parameters",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/signin.SigninDto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/signin.TokenResponseDto"
-                        }
                     },
                     "400": {
                         "description": "Bad Request",
