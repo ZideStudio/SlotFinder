@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -224,13 +225,9 @@ func (s *SlotService) mergeOverlappingTimeSlots(slots []TimeSlot) []TimeSlot {
 	}
 
 	// Sort slots by start time
-	for i := 0; i < len(slots)-1; i++ {
-		for j := i + 1; j < len(slots); j++ {
-			if slots[j].StartsAt.Before(slots[i].StartsAt) {
-				slots[i], slots[j] = slots[j], slots[i]
-			}
-		}
-	}
+	sort.Slice(slots, func(i, j int) bool {
+		return slots[i].StartsAt.Before(slots[j].StartsAt)
+	})
 
 	merged := []TimeSlot{slots[0]}
 
