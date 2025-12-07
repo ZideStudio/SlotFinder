@@ -12,7 +12,7 @@ type SlotRepository struct{}
 
 func (*SlotRepository) Create(slot *model.Slot) error {
 	if err := db.GetDB().Create(&slot).Error; err != nil {
-		log.Error().Err(err).Msg("slot_REPOSITORY::CREATE Failed to create slot")
+		log.Error().Err(err).Msg("SLOT_REPOSITORY::CREATE Failed to create slot")
 		return err
 	}
 
@@ -21,7 +21,7 @@ func (*SlotRepository) Create(slot *model.Slot) error {
 
 func (*SlotRepository) Updates(slot *model.Slot) error {
 	if err := db.GetDB().Save(&slot).Error; err != nil {
-		log.Error().Err(err).Msg("slot_REPOSITORY::UPDATES Failed to update slot")
+		log.Error().Err(err).Msg("SLOT_REPOSITORY::UPDATES Failed to update slot")
 		return err
 	}
 
@@ -57,7 +57,7 @@ func (*SlotRepository) DeleteByEventId(eventId uuid.UUID) error {
 
 func (*SlotRepository) Delete(id uuid.UUID) error {
 	if err := db.GetDB().Where("id = ?", id.String()).Delete(&model.Slot{}).Error; err != nil {
-		log.Error().Err(err).Msg("slot_REPOSITORY::DELETE Failed to delete slot")
+		log.Error().Err(err).Msg("SLOT_REPOSITORY::DELETE Failed to delete slot")
 		return err
 	}
 
@@ -66,7 +66,7 @@ func (*SlotRepository) Delete(id uuid.UUID) error {
 
 func (*SlotRepository) DeleteByIds(ids []uuid.UUID) error {
 	if err := db.GetDB().Where("id IN ?", ids).Delete(&model.Slot{}).Error; err != nil {
-		log.Error().Err(err).Msg("slot_REPOSITORY::DELETE_BY_IDS Failed to delete slots by ids")
+		log.Error().Err(err).Msg("SLOT_REPOSITORY::DELETE_BY_IDS Failed to delete slots by ids")
 		return err
 	}
 
