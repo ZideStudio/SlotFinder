@@ -30,6 +30,7 @@ func NewSlotService(service *SlotService) *SlotService {
 		eventRepository:        &repository.EventRepository{},
 		availabilityRepository: &repository.AvailabilityRepository{},
 		accountEventRepository: &repository.AccountEventRepository{},
+		loadSlotsMutexes:       sync.Map{},
 	}
 }
 
