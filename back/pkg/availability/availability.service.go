@@ -39,7 +39,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
 	}
 
-	// Check if user as access to the event
+	// Check if user has access to the event
 	if !event.HasUserAccess(&user.Id) {
 		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
@@ -131,4 +131,40 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	}
 
 	return finalAvailability, nil
+}
+
+func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claims) error {
+	// Get availability
+	var availability model.Availability
+	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return constants.ERR_AVAILABILITY_NOT_FOUND.Err
+		}
+		return err
+	}
+
+	// Check if availability belongs to the user
+	if availability.AccountId != user.Id {
+		return constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
+	}
+
+	// Check if user has access to the event
+	if !availability.Event.HasUserAccess(&user.Id) {
+		return constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	// Check if event is ended
+	if availability.Event.HasEnded() {
+		return constants.ERR_EVENT_ENDED.Err
+	}
+
+	// Delete availability
+	if err := s.availabilityRepository.DeleteById(&availabilityId); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return constants.ERR_AVAILABILITY_NOT_FOUND.Err
+		}
+		return err
+	}
+
+	return nil
 }
