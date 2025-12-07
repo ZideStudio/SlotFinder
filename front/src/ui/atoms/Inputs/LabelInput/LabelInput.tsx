@@ -18,7 +18,7 @@ export const LabelInput = ({ inputId, children, className, required }: LabelInpu
   return (
     <label htmlFor={inputId} className={parentClassName}>
       {children}
-      {required ? <span aria-hidden>*</span> : null}
+      {Boolean(required) && <span aria-hidden>*</span>}
     </label>
   );
 };
