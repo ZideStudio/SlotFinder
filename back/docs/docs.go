@@ -551,10 +551,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Slot"
-                            }
+                            "$ref": "#/definitions/model.Slot"
                         }
                     },
                     "400": {

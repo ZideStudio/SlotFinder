@@ -30,7 +30,7 @@ func NewSlotController(ctl *SlotController) *SlotController {
 // @Produce json
 // @Security BearerAuth
 // @Param data body ConfirmSlotDto true "Confirm Slot parameters"
-// @Success 200 {array} model.Slot
+// @Success 200 {object} model.Slot
 // @Failure 400 {object} helpers.ApiError
 // @Router /api/v1/slots/{slotId} [post]
 func (ctl *SlotController) ConfirmSlot(c *gin.Context) {

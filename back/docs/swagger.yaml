@@ -569,9 +569,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.Slot'
-            type: array
+            $ref: '#/definitions/model.Slot'
         "400":
           description: Bad Request
           schema:
