@@ -94,7 +94,7 @@ func (ctl *AvailabilityController) Create(c *gin.Context) {
 // @Security BearerAuth
 // @Success 200
 // @Failure 400 {object} helpers.ApiError
-// @Router /api/v1/events/availability/{availabilityId} [delete]
+// @Router /api/v1/availabilities/{availabilityId} [delete]
 func (ctl *AvailabilityController) Delete(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {

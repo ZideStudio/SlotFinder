@@ -352,6 +352,30 @@ paths:
       summary: Status Check
       tags:
       - Authentication
+  /api/v1/availabilities/{availabilityId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Availability ID
+        in: path
+        name: availabilityId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Delete an availability
+      tags:
+      - Availability
   /api/v1/events:
     get:
       consumes:
@@ -480,30 +504,6 @@ paths:
       summary: Join event
       tags:
       - Event
-  /api/v1/events/availability/{availabilityId}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: Availability ID
-        in: path
-        name: availabilityId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helpers.ApiError'
-      security:
-      - BearerAuth: []
-      summary: Delete an availability
-      tags:
-      - Availability
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**

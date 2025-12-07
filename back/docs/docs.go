@@ -268,6 +268,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/availabilities/{availabilityId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Availability"
+                ],
+                "summary": "Delete an availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Availability ID",
+                        "name": "availabilityId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/events": {
             "get": {
                 "security": [
@@ -336,45 +375,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.Event"
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/events/availability/{availabilityId}": {
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Availability"
-                ],
-                "summary": "Delete an availability",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Availability ID",
-                        "name": "availabilityId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",

@@ -59,6 +59,13 @@ func NewRouter() *gin.Engine {
 
 		}
 
+		// Availability routes
+		availabilityGroup := v1.Group("/availabilities")
+		availabilityRouter := availability.NewAvailabilityController(nil)
+		{
+			availabilityGroup.DELETE("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Delete)
+		}
+
 		// Event routes
 		eventGroup := v1.Group("/events")
 		{
@@ -71,13 +78,11 @@ func NewRouter() *gin.Engine {
 
 			// Availability routes
 			{
-				availabilityRouter := availability.NewAvailabilityController(nil)
 
 				eventGroup.POST("/:eventId/availability", guard.AuthCheck(nil), availabilityRouter.Create)
 				eventGroup.DELETE("/availability/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Delete)
 			}
 		}
-
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
