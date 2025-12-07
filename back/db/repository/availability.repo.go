@@ -118,3 +118,13 @@ func (*AvailabilityRepository) DeleteById(availabilityId *uuid.UUID) error {
 
 	return nil
 }
+
+// retrieves all availabilities for a given event ID
+func (*AvailabilityRepository) FindByEventId(eventId uuid.UUID, availabilities *[]model.Availability) error {
+	if err := db.GetDB().Where("event_id = ?", eventId).Find(&availabilities).Error; err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("AVAILABILITY_REPOSITORY::GET_BY_EVENT_ID Failed to get availabilities by event ID")
+		return err
+	}
+
+	return nil
+}

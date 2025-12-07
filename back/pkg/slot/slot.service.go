@@ -1,0 +1,255 @@
+package slot
+
+import (
+	"app/commons/constants"
+	model "app/db/models"
+	"app/db/repository"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
+)
+
+type SlotService struct {
+	slotRepository         *repository.SlotRepository
+	eventRepository        *repository.EventRepository
+	availabilityRepository *repository.AvailabilityRepository
+	accountEventRepository *repository.AccountEventRepository
+}
+
+func NewSlotService(service *SlotService) *SlotService {
+	if service != nil {
+		return service
+	}
+
+	return &SlotService{
+		slotRepository:         &repository.SlotRepository{},
+		eventRepository:        &repository.EventRepository{},
+		availabilityRepository: &repository.AvailabilityRepository{},
+		accountEventRepository: &repository.AccountEventRepository{},
+	}
+}
+
+// Time interval
+type TimeSlot struct {
+	StartsAt time.Time
+	EndsAt   time.Time
+}
+
+func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId uuid.UUID) (model.Slot, error) {
+	var slot model.Slot
+	if err := s.slotRepository.FindOneById(slotId, &slot); err != nil {
+		return model.Slot{}, constants.ERR_SLOT_NOT_FOUND.Err
+	}
+
+	// Check if dto StartsAt is equals or after slot.StartsAt and before slot.EndsAt
+	if dto.StartsAt.Before(slot.StartsAt) || !dto.StartsAt.Before(slot.EndsAt) {
+		return model.Slot{}, constants.ERR_SLOT_INVALID_STARTS_AT.Err
+	}
+	// Check if dto EndsAt is after dto.StartsAt and before or equals slot.EndsAt
+	if !dto.EndsAt.After(dto.StartsAt) || dto.EndsAt.After(slot.EndsAt) {
+		return model.Slot{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
+	}
+
+	// Update slot with dto values
+	slot.StartsAt = dto.StartsAt
+	slot.EndsAt = dto.EndsAt
+	slot.IsValidated = true
+
+	// Check if user is admin of the event
+	if !slot.Event.IsAdmin(&userId) {
+		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	// If event is finished, do not recalculate slots
+	if slot.Event.IsLocked() {
+		log.Debug().Str("eventId", slot.EventId.String()).Msg("Event is locked, skipping slot recalculation")
+		return model.Slot{}, constants.ERR_EVENT_ENDED.Err
+	}
+
+	// Save slot
+	if err := s.slotRepository.Updates(&slot); err != nil {
+		return model.Slot{}, err
+	}
+
+	// Update event status
+	event := model.Event{
+		Id:     slot.Event.Id,
+		Status: constants.EVENT_STATUS_UPCOMING,
+	}
+	if err := s.eventRepository.Updates(&event); err != nil {
+		return model.Slot{}, err
+	}
+
+	return slot, nil
+}
+
+// Recalculates and recreates all slots for an event
+func (s *SlotService) LoadSlots(eventId uuid.UUID) {
+	log.Debug().Str("eventId", eventId.String()).Msg("Starting slot recalculation")
+
+	// Get event
+	var event model.Event
+	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to get event for slot calculation")
+		return
+	}
+
+	// If event is finished, do not recalculate slots
+	if event.IsLocked() {
+		log.Debug().Str("eventId", eventId.String()).Msg("Event is locked, skipping slot recalculation")
+		return
+	}
+
+	// Delete existing slots for this event
+	if err := s.slotRepository.DeleteByEventId(eventId); err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to delete existing slots")
+		return
+	}
+
+	accountEvents := event.AccountEvents
+	if len(accountEvents) < 2 {
+		log.Debug().Str("eventId", eventId.String()).Msg("Not enough participants to calculate slots")
+		return
+	}
+
+	// Get all availabilities for this event
+	var availabilities []model.Availability
+	if err := s.availabilityRepository.FindByEventId(eventId, &availabilities); err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to get availabilities")
+		return
+	}
+
+	// Get all active user IDs and their availabilities
+	userAvailabilities := make(map[uuid.UUID][]TimeSlot)
+	for _, availability := range availabilities {
+		userAvailabilities[availability.AccountId] = append(
+			userAvailabilities[availability.AccountId],
+			TimeSlot{
+				StartsAt: availability.StartsAt,
+				EndsAt:   availability.EndsAt,
+			},
+		)
+	}
+
+	// Find common available time slots
+	commonSlots := s.findIntersectingTimeSlots(userAvailabilities, time.Duration(event.Duration)*time.Minute)
+	if len(commonSlots) == 0 {
+		log.Debug().Str("eventId", eventId.String()).Msg("No common available slots found")
+		return
+	}
+
+	// Create new slots in database
+	for _, slot := range commonSlots {
+		newSlot := model.Slot{
+			Id:          uuid.New(),
+			EventId:     eventId,
+			StartsAt:    slot.StartsAt,
+			EndsAt:      slot.EndsAt,
+			IsValidated: false,
+		}
+
+		if err := s.slotRepository.Create(&newSlot); err != nil {
+			log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to create slot")
+		}
+	}
+
+	log.Debug().Str("eventId", eventId.String()).Int("slotsCreated", len(commonSlots)).Msg("Slot recalculation completed")
+}
+
+// Finds time slots where all users are available
+func (s *SlotService) findIntersectingTimeSlots(userAvailabilities map[uuid.UUID][]TimeSlot, requiredDuration time.Duration) []TimeSlot {
+	// Get all active user IDs
+	allUserIds := make([]uuid.UUID, 0, len(userAvailabilities))
+	for userID := range userAvailabilities {
+		allUserIds = append(allUserIds, userID)
+	}
+	if len(allUserIds) < 2 {
+		return []TimeSlot{}
+	}
+
+	// Intersect with each subsequent user's availabilities
+	commonSlots := userAvailabilities[allUserIds[0]]
+	for i := 1; i < len(allUserIds); i++ {
+		userSlots := userAvailabilities[allUserIds[i]]
+		commonSlots = s.intersectTimeSlots(commonSlots, userSlots)
+		if len(commonSlots) == 0 {
+			break
+		}
+	}
+
+	// Filter slots that meet the minimum duration requirement
+	validSlots := []TimeSlot{}
+	for _, slot := range commonSlots {
+		if slot.EndsAt.Sub(slot.StartsAt) >= requiredDuration {
+			validSlots = append(validSlots, slot)
+		}
+	}
+
+	return validSlots
+}
+
+// Finds the intersection of two sets of time slots
+func (s *SlotService) intersectTimeSlots(slots1, slots2 []TimeSlot) []TimeSlot {
+	var intersections []TimeSlot
+
+	for _, slot1 := range slots1 {
+		for _, slot2 := range slots2 {
+			// Find overlap
+			start := slot1.StartsAt
+			if slot2.StartsAt.After(start) {
+				start = slot2.StartsAt
+			}
+
+			end := slot1.EndsAt
+			if slot2.EndsAt.Before(end) {
+				end = slot2.EndsAt
+			}
+
+			// Overlap
+			if start.Before(end) {
+				intersections = append(intersections, TimeSlot{
+					StartsAt: start,
+					EndsAt:   end,
+				})
+			}
+		}
+	}
+
+	return s.mergeOverlappingTimeSlots(intersections)
+}
+
+// Merges overlapping time slots
+func (s *SlotService) mergeOverlappingTimeSlots(slots []TimeSlot) []TimeSlot {
+	if len(slots) <= 1 {
+		return slots
+	}
+
+	// Sort slots by start time
+	for i := 0; i < len(slots)-1; i++ {
+		for j := i + 1; j < len(slots); j++ {
+			if slots[j].StartsAt.Before(slots[i].StartsAt) {
+				slots[i], slots[j] = slots[j], slots[i]
+			}
+		}
+	}
+
+	merged := []TimeSlot{slots[0]}
+
+	for i := 1; i < len(slots); i++ {
+		lastMerged := &merged[len(merged)-1]
+		current := slots[i]
+
+		// If current slot starts before or at the end of the last merged slot, merge them
+		if current.StartsAt.Before(lastMerged.EndsAt) || current.StartsAt.Equal(lastMerged.EndsAt) {
+			if current.EndsAt.After(lastMerged.EndsAt) {
+				lastMerged.EndsAt = current.EndsAt
+			}
+		} else {
+			// No overlap, add a new slot
+			merged = append(merged, current)
+		}
+	}
+
+	return merged
+}

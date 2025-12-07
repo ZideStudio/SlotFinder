@@ -61,6 +61,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 			Id:       user.Id,
 			UserName: user.Username,
 		},
+		Status: constants.EVENT_STATUS_IN_DECISION,
 	}
 	if err := s.eventRepository.Create(&event); err != nil {
 		return EventResponse{}, err

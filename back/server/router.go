@@ -9,6 +9,7 @@ import (
 	"app/pkg/health"
 	"app/pkg/provider"
 	"app/pkg/signin"
+	"app/pkg/slot"
 
 	_ "app/docs"
 
@@ -80,6 +81,15 @@ func NewRouter() *gin.Engine {
 			{
 				eventGroup.POST("/:eventId/availability", guard.AuthCheck(nil), availabilityRouter.Create)
 			}
+
+		}
+
+		// Slot routes
+		slotGroup := v1.Group("/slots")
+		{
+			slotRouter := slot.NewSlotController(nil)
+
+			slotGroup.POST("/:slotId", guard.AuthCheck(nil), slotRouter.ConfirmSlot)
 		}
 	}
 
