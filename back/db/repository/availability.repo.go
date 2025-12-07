@@ -51,6 +51,32 @@ func (r *AvailabilityRepository) CreateWithLock(availability *model.Availability
 	})
 }
 
+// UpdateWithLock updates an availability with PostgreSQL advisory locking to prevent concurrent duplicates.
+// Uses pg_advisory_xact_lock to ensure mutual exclusion for the entire operation, including both
+// existing rows and potential new insertions. The lock is automatically released at transaction end.
+func (r *AvailabilityRepository) UpdateWithLock(availability *model.Availability, mergeFunc func(*gorm.DB) error) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	return db.GetDB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Acquire PostgreSQL advisory lock for this (account_id, event_id) combination
+		// This prevents concurrent transactions from processing the same combination simultaneously
+		lockKey := r.computeAdvisoryLockKey(availability.AccountId, availability.EventId)
+
+		if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", lockKey).Error; err != nil {
+			log.Error().Err(err).Int64("lockKey", lockKey).Msg("AVAILABILITY_REPOSITORY::UPDATE_WITH_LOCK Failed to acquire advisory lock")
+			return err
+		}
+
+		// Execute the merge function with the locked transaction
+		if err := mergeFunc(tx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 // FindOverlappingAvailabilitiesWithTx finds overlapping availabilities within a transaction
 func (*AvailabilityRepository) FindOverlappingAvailabilitiesWithTx(tx *gorm.DB, availability *model.Availability, availabilities *[]model.Availability) error {
 	if err := tx.Where("account_id = ? AND event_id = ? AND starts_at <= ? AND ends_at >= ?",

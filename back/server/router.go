@@ -63,6 +63,7 @@ func NewRouter() *gin.Engine {
 		availabilityGroup := v1.Group("/availabilities")
 		availabilityRouter := availability.NewAvailabilityController(nil)
 		{
+			availabilityGroup.PUT("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Update)
 			availabilityGroup.DELETE("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Delete)
 		}
 
