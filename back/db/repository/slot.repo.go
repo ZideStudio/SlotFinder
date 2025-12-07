@@ -28,9 +28,9 @@ func (*SlotRepository) Updates(slot *model.Slot) error {
 	return nil
 }
 
-func (*SlotRepository) FindOneById(availabilityId uuid.UUID, slot *model.Slot) error {
-	if err := db.GetDB().Where("id = ?", availabilityId.String()).Preload("Event").Preload("Event.AccountEvents").First(slot).Error; err != nil {
-		log.Error().Err(err).Str("slotId", availabilityId.String()).Msg("SLOT_REPOSITORY::FIND_ONE_BY_ID Failed to find slot by id")
+func (*SlotRepository) FindOneById(slotId uuid.UUID, slot *model.Slot) error {
+	if err := db.GetDB().Where("id = ?", slotId.String()).Preload("Event").Preload("Event.AccountEvents").First(slot).Error; err != nil {
+		log.Error().Err(err).Str("slotId", slotId.String()).Msg("SLOT_REPOSITORY::FIND_ONE_BY_ID Failed to find slot by id")
 		return err
 	}
 
