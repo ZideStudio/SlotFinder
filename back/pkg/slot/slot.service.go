@@ -51,11 +51,6 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		return model.Slot{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
 	}
 
-	// Update slot with dto values
-	slot.StartsAt = dto.StartsAt
-	slot.EndsAt = dto.EndsAt
-	slot.IsValidated = true
-
 	// Check if user is admin of the event
 	if !slot.Event.IsAdmin(&userId) {
 		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
@@ -68,6 +63,9 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	}
 
 	// Save slot
+	slot.StartsAt = dto.StartsAt
+	slot.EndsAt = dto.EndsAt
+	slot.IsValidated = true
 	if err := s.slotRepository.Updates(&slot); err != nil {
 		return model.Slot{}, err
 	}
