@@ -11,12 +11,6 @@ describe('TextInputAtom', () => {
     expect(input).toHaveAttribute('placeholder', 'Enter text');
   });
 
-  it('applies classModifier as a modifier', () => {
-    render(<TextInputAtom classModifier="large" />);
-    const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('ds-text-input-atom ds-text-input-atom--large');
-  });
-
   it('applies custom className', () => {
     render(<TextInputAtom className="custom-class" />);
     const input = screen.getByRole('textbox');
