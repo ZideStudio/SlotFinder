@@ -1,7 +1,6 @@
 package slot
 
 import (
-	"app/commons/guard"
 	"sync"
 	"testing"
 	"time"
@@ -12,15 +11,7 @@ import (
 
 var service = NewSlotService(nil)
 
-var username = "testuser"
-var user = &guard.Claims{
-	Id:       uuid.New(),
-	Username: &username,
-}
-
 func TestFindIntersectingTimeSlots_BasicIntersection(t *testing.T) {
-	service := NewSlotService(nil)
-
 	// Test basic intersection of two users' availabilities
 	userAvailabilities := map[uuid.UUID][]TimeSlot{
 		uuid.New(): {
@@ -46,8 +37,6 @@ func TestFindIntersectingTimeSlots_BasicIntersection(t *testing.T) {
 }
 
 func TestFindIntersectingTimeSlots_NoIntersection(t *testing.T) {
-	service := NewSlotService(nil)
-
 	// Test no intersection between users' availabilities
 	userAvailabilities := map[uuid.UUID][]TimeSlot{
 		uuid.New(): {
@@ -71,8 +60,6 @@ func TestFindIntersectingTimeSlots_NoIntersection(t *testing.T) {
 }
 
 func TestFindIntersectingTimeSlots_InsufficientDuration(t *testing.T) {
-	service := NewSlotService(nil)
-
 	// Test intersection that doesn't meet minimum duration
 	userAvailabilities := map[uuid.UUID][]TimeSlot{
 		uuid.New(): {
@@ -96,8 +83,6 @@ func TestFindIntersectingTimeSlots_InsufficientDuration(t *testing.T) {
 }
 
 func TestFindIntersectingTimeSlots_MultipleSlots(t *testing.T) {
-	service := NewSlotService(nil)
-
 	// Test multiple non-overlapping intersections
 	userAvailabilities := map[uuid.UUID][]TimeSlot{
 		uuid.New(): {
@@ -137,8 +122,6 @@ func TestFindIntersectingTimeSlots_MultipleSlots(t *testing.T) {
 }
 
 func TestMergeOverlappingTimeSlots(t *testing.T) {
-	service := NewSlotService(nil)
-
 	// Test merging overlapping time slots
 	slots := []TimeSlot{
 		{
@@ -169,8 +152,6 @@ func TestMergeOverlappingTimeSlots(t *testing.T) {
 }
 
 func TestIntersectTimeSlots_SimpleOverlap(t *testing.T) {
-	service := NewSlotService(nil)
-
 	slots1 := []TimeSlot{
 		{
 			StartsAt: time.Date(2024, 1, 1, 10, 0, 0, 0, time.UTC),
@@ -193,8 +174,6 @@ func TestIntersectTimeSlots_SimpleOverlap(t *testing.T) {
 }
 
 func TestIntersectTimeSlots_NoOverlap(t *testing.T) {
-	service := NewSlotService(nil)
-
 	slots1 := []TimeSlot{
 		{
 			StartsAt: time.Date(2024, 1, 1, 10, 0, 0, 0, time.UTC),
@@ -215,8 +194,6 @@ func TestIntersectTimeSlots_NoOverlap(t *testing.T) {
 }
 
 func TestMergeOverlappingTimeSlots_AdjacentSlots(t *testing.T) {
-	service := NewSlotService(nil)
-
 	slots := []TimeSlot{
 		{
 			StartsAt: time.Date(2024, 1, 1, 10, 0, 0, 0, time.UTC),
@@ -236,14 +213,13 @@ func TestMergeOverlappingTimeSlots_AdjacentSlots(t *testing.T) {
 }
 
 func TestLoadSlots_ConcurrentCallsDoNotRace(t *testing.T) {
-	service := NewSlotService(nil)
 	eventId := uuid.New()
 
 	// This test verifies that the mutex mechanism in LoadSlots prevents
 	// race conditions when multiple goroutines try to recalculate slots
 	// for the same event concurrently. The test doesn't require database
 	// access - we're just verifying the mutex works.
-	
+
 	const numCalls = 10
 	callCount := 0
 	var mu sync.Mutex
@@ -256,11 +232,11 @@ func TestLoadSlots_ConcurrentCallsDoNotRace(t *testing.T) {
 	for i := 0; i < numCalls; i++ {
 		go func() {
 			<-start // Wait for all goroutines to be ready
-			
+
 			// Get the mutex for this event
 			mutexInterface, _ := service.loadSlotsMutexes.LoadOrStore(eventId.String(), &sync.Mutex{})
 			mutex := mutexInterface.(*sync.Mutex)
-			
+
 			// Try to acquire the mutex
 			mutex.Lock()
 			// Increment call count (simulating critical section)
@@ -268,7 +244,7 @@ func TestLoadSlots_ConcurrentCallsDoNotRace(t *testing.T) {
 			callCount++
 			mu.Unlock()
 			mutex.Unlock()
-			
+
 			done <- true
 		}()
 	}
@@ -286,8 +262,6 @@ func TestLoadSlots_ConcurrentCallsDoNotRace(t *testing.T) {
 }
 
 func TestLoadSlots_ConcurrentCallsDifferentEvents(t *testing.T) {
-	service := NewSlotService(nil)
-
 	// Test that calls to LoadSlots for different events use different mutexes
 	// and can run concurrently without blocking each other
 	const numEvents = 5
@@ -298,16 +272,16 @@ func TestLoadSlots_ConcurrentCallsDifferentEvents(t *testing.T) {
 		eventId := uuid.New()
 		go func(id uuid.UUID) {
 			<-start
-			
+
 			// Get the mutex for this event
 			mutexInterface, _ := service.loadSlotsMutexes.LoadOrStore(id.String(), &sync.Mutex{})
 			mutex := mutexInterface.(*sync.Mutex)
-			
+
 			mutex.Lock()
 			// Simulate some work
 			time.Sleep(10 * time.Millisecond)
 			mutex.Unlock()
-			
+
 			done <- true
 		}(eventId)
 	}
