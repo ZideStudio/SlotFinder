@@ -1,6 +1,7 @@
 package signin
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/config"
 	model "app/db/models"
@@ -67,7 +68,7 @@ func (s *SigninService) GenerateTokens(claims *guard.Claims) (tokenResponse Toke
 	// Generate refresh token
 	refreshToken, err := s.refreshTokenRepository.Create(
 		claims.Id,
-		time.Now().Add(168*time.Hour), // 7 days
+		time.Now().Add(constants.REFRESH_TOKEN_DURATION),
 	)
 	if err != nil {
 		return tokenResponse, err
@@ -90,7 +91,7 @@ func (s *SigninService) GenerateAccessToken(claims *guard.Claims) (string, error
 		return "", err
 	}
 
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(15 * time.Minute))
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(constants.ACCESS_TOKEN_DURATION))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
