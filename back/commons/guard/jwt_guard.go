@@ -63,6 +63,42 @@ func ParseToken(jwtToken string) (*Claims, error) {
 	return claims, err
 }
 
+// GenerateAccessToken generates a new access token for the given claims
+func GenerateAccessToken(claims *Claims) (string, error) {
+	config := config.GetConfig()
+
+	privateKeyFile, err := os.ReadFile(config.Auth.PrivatePemPath)
+	if err != nil {
+		return "", err
+	}
+
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyFile)
+	if err != nil {
+		return "", err
+	}
+
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(15 * time.Minute))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+
+	tokenString, err := token.SignedString(privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+// ShouldRenewToken checks if the token should be renewed (less than 5 minutes remaining)
+func ShouldRenewToken(claims *Claims) bool {
+	if claims.ExpiresAt == nil {
+		return false
+	}
+	
+	timeUntilExpiry := time.Until(claims.ExpiresAt.Time)
+	return timeUntilExpiry > 0 && timeUntilExpiry < 5*time.Minute
+}
+
 type AuthCheckParams struct {
 	RequireAuthentication  bool
 	RequireCompleteProfile bool
@@ -109,6 +145,15 @@ func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
 				helpers.HandleJSONResponse(c, nil, constants.ERR_TERMS_NOT_ACCEPTED.Err)
 				return
 			}
+		}
+
+		// Auto-renew token if it's close to expiration (less than 5 minutes)
+		if ShouldRenewToken(claims) {
+			newToken, err := GenerateAccessToken(claims)
+			if err == nil {
+				lib.SetAccessTokenCookie(c, newToken, 0)
+			}
+			// Continue even if renewal fails - the current token is still valid
 		}
 
 		c.Set("user", claims)
