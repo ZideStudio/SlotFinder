@@ -9,6 +9,7 @@ func startMigration() (err error) {
 		&model.AccountEvent{},
 		&model.AccountProvider{},
 		&model.Availability{},
+		&model.RefreshToken{},
 	}
 
 	for _, m := range models {
