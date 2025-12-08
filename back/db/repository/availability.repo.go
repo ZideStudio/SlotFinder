@@ -11,7 +11,7 @@ import (
 
 type AvailabilityRepository struct{}
 
-// FindOverlappingAvailabilities finds overlapping availabilities for a given availability
+// Finds overlapping availabilities for a given availability
 func (*AvailabilityRepository) FindOverlappingAvailabilities(availability *model.Availability, availabilities *[]model.Availability) error {
 	if err := db.GetDB().Where("account_id = ? AND event_id = ? AND starts_at <= ? AND ends_at >= ?",
 		availability.AccountId,
@@ -26,7 +26,7 @@ func (*AvailabilityRepository) FindOverlappingAvailabilities(availability *model
 	return nil
 }
 
-// DeleteByIds deletes availabilities by IDs
+// Deletes availabilities by IDs
 func (*AvailabilityRepository) DeleteByIds(ids *[]uuid.UUID) error {
 	if err := db.GetDB().Where("id IN ?", *ids).Delete(&model.Availability{}).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_BY_IDS Failed to delete availabilities")
@@ -36,7 +36,7 @@ func (*AvailabilityRepository) DeleteByIds(ids *[]uuid.UUID) error {
 	return nil
 }
 
-// Create creates an availability
+// Creates an availability
 func (*AvailabilityRepository) Create(availability *model.Availability) error {
 	if err := db.GetDB().Preload("Account").Create(&availability).First(&availability).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::CREATE Failed to create availability")
@@ -48,7 +48,7 @@ func (*AvailabilityRepository) Create(availability *model.Availability) error {
 	return nil
 }
 
-// FindOneById finds an availability by ID
+// Finds an availability by ID
 func (*AvailabilityRepository) FindOneById(id uuid.UUID, availability *model.Availability) error {
 	if id == uuid.Nil {
 		return errors.New("id is nil UUID")
@@ -65,7 +65,7 @@ func (*AvailabilityRepository) FindOneById(id uuid.UUID, availability *model.Ava
 	return nil
 }
 
-// DeleteById deletes an availability by ID
+// Deletes an availability by ID
 func (*AvailabilityRepository) DeleteById(availabilityId *uuid.UUID) error {
 	if availabilityId == nil {
 		return errors.New("availabilityId pointer is nil")
