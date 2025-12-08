@@ -6,6 +6,8 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/slot"
+	"fmt"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +18,7 @@ type AvailabilityService struct {
 	slotService            *slot.SlotService
 	availabilityRepository *repository.AvailabilityRepository
 	eventRepository        *repository.EventRepository
+	locks                  sync.Map // Map to store mutexes per (accountId, eventId) combination
 }
 
 func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
@@ -84,59 +87,58 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		EventId:   eventId,
 	}
 
-	// Use transaction with row-level locking to prevent concurrent duplicates
-	var finalAvailability model.Availability
-	err := s.availabilityRepository.CreateWithLock(&availabilityToCreate, func(tx *gorm.DB) error {
-		// Find overlapping availabilities within the locked transaction
-		var availabilitiesToMerge []model.Availability
-		if err := s.availabilityRepository.FindOverlappingAvailabilitiesWithTx(tx, &availabilityToCreate, &availabilitiesToMerge); err != nil {
-			return err
+	// Use sync.Map to ensure mutual exclusion for this (accountId, eventId) combination
+	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), eventId.String())
+
+	// Get or create a mutex for this specific key
+	value, _ := s.locks.LoadOrStore(lockKey, &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	// Lock the mutex for this combination
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Find overlapping availabilities
+	var availabilitiesToMerge []model.Availability
+	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availabilityToCreate, &availabilitiesToMerge); err != nil {
+		return model.Availability{}, err
+	}
+
+	if len(availabilitiesToMerge) == 0 {
+		// No overlapping availabilities, just create the new one
+		if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
+			return model.Availability{}, err
+		}
+		return availabilityToCreate, nil
+	}
+
+	// Merge overlapping availabilities
+	var availabilitiesIdsToDelete []uuid.UUID
+	for _, existingAvailability := range availabilitiesToMerge {
+		if existingAvailability.StartsAt.Before(availabilityToCreate.StartsAt) {
+			availabilityToCreate.StartsAt = existingAvailability.StartsAt
+		}
+		if existingAvailability.EndsAt.After(availabilityToCreate.EndsAt) {
+			availabilityToCreate.EndsAt = existingAvailability.EndsAt
 		}
 
-		if len(availabilitiesToMerge) == 0 {
-			// No overlapping availabilities, just create the new one
-			if err := s.availabilityRepository.CreateWithTx(tx, &availabilityToCreate); err != nil {
-				return err
-			}
-			finalAvailability = availabilityToCreate
-			return nil
-		}
+		availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
+	}
 
-		// Merge overlapping availabilities
-		var availabilitiesIdsToDelete []uuid.UUID
-		for _, existingAvailability := range availabilitiesToMerge {
-			if existingAvailability.StartsAt.Before(availabilityToCreate.StartsAt) {
-				availabilityToCreate.StartsAt = existingAvailability.StartsAt
-			}
-			if existingAvailability.EndsAt.After(availabilityToCreate.EndsAt) {
-				availabilityToCreate.EndsAt = existingAvailability.EndsAt
-			}
+	// Delete merged availabilities
+	if err := s.availabilityRepository.DeleteByIds(&availabilitiesIdsToDelete); err != nil {
+		return model.Availability{}, err
+	}
 
-			availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
-		}
-
-		// Delete merged availabilities within the transaction
-		if err := s.availabilityRepository.DeleteByIdsWithTx(tx, &availabilitiesIdsToDelete); err != nil {
-			return err
-		}
-
-		// Create the merged availability within the transaction
-		if err := s.availabilityRepository.CreateWithTx(tx, &availabilityToCreate); err != nil {
-			return err
-		}
-
-		finalAvailability = availabilityToCreate
-		return nil
-	})
-
-	if err != nil {
+	// Create the merged availability
+	if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
 		return model.Availability{}, err
 	}
 
 	// Trigger slot recalculation asynchronously
 	go s.slotService.LoadSlots(eventId)
 
-	return finalAvailability, nil
+	return availabilityToCreate, nil
 }
 
 func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claims) error {
