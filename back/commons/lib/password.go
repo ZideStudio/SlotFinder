@@ -41,4 +41,3 @@ func IsValidPassword(password string) bool {
 
 	return hasLower && hasUpper && hasDigit && hasSpecial
 }
-
