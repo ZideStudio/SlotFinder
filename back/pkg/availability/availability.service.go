@@ -34,6 +34,15 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 }
 
 func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
+	// Acquire per-event mutex to prevent concurrent availability modifications
+	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), eventId.String())
+
+	value, _ := s.locks.LoadOrStore(lockKey, &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	// Get event
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
@@ -86,17 +95,6 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		AccountId: user.Id,
 		EventId:   eventId,
 	}
-
-	// Use sync.Map to ensure mutual exclusion for this (accountId, eventId) combination
-	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), eventId.String())
-
-	// Get or create a mutex for this specific key
-	value, _ := s.locks.LoadOrStore(lockKey, &sync.Mutex{})
-	mu := value.(*sync.Mutex)
-
-	// Lock the mutex for this combination
-	mu.Lock()
-	defer mu.Unlock()
 
 	// Find overlapping availabilities
 	var availabilitiesToMerge []model.Availability
