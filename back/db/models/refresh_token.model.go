@@ -8,8 +8,8 @@ import (
 
 type RefreshToken struct {
 	Id        uuid.UUID  `gorm:"column:id;type:uuid;unique;primary_key" json:"id,omitzero"`
-	AccountId uuid.UUID  `gorm:"column:account_id;type:uuid;not null" json:"accountId"`
-	TokenHash string     `gorm:"column:token_hash;type:varchar(255);not null" json:"-"`
+	AccountId uuid.UUID  `gorm:"column:account_id;type:uuid;not null;index" json:"accountId"`
+	TokenHash string     `gorm:"column:token_hash;type:varchar(255);not null;index" json:"-"`
 	ExpiresAt time.Time  `gorm:"column:expires_at;not null" json:"expiresAt"`
 	IsRevoked bool       `gorm:"column:is_revoked;default:false" json:"isRevoked"`
 	CreatedAt time.Time  `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt,omitzero"`
