@@ -246,11 +246,9 @@ func (s *SlotService) mergeOverlappingTimeSlots(slots []TimeSlot) []TimeSlot {
 		current := slots[i]
 
 		// If current slot starts before or at the end of the last merged slot, merge them
-		if current.StartsAt.Before(lastMerged.EndsAt) || current.StartsAt.Equal(lastMerged.EndsAt) {
-			if current.EndsAt.After(lastMerged.EndsAt) {
-				lastMerged.EndsAt = current.EndsAt
-			}
-		} else {
+		if (current.StartsAt.Before(lastMerged.EndsAt) || current.StartsAt.Equal(lastMerged.EndsAt)) && current.EndsAt.After(lastMerged.EndsAt) {
+			lastMerged.EndsAt = current.EndsAt
+		} else if !current.StartsAt.Before(lastMerged.EndsAt) && !current.StartsAt.Equal(lastMerged.EndsAt) {
 			// No overlap, add a new slot
 			merged = append(merged, current)
 		}
