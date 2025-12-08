@@ -15,8 +15,9 @@ import (
 )
 
 type SigninService struct {
-	accountRepository *repository.AccountRepository
-	config            *config.Config
+	accountRepository      *repository.AccountRepository
+	refreshTokenRepository *repository.RefreshTokenRepository
+	config                 *config.Config
 }
 
 func NewSigninService(service *SigninService) *SigninService {
@@ -25,8 +26,9 @@ func NewSigninService(service *SigninService) *SigninService {
 	}
 
 	return &SigninService{
-		accountRepository: &repository.AccountRepository{},
-		config:            config.GetConfig(),
+		accountRepository:      &repository.AccountRepository{},
+		refreshTokenRepository: &repository.RefreshTokenRepository{},
+		config:                 config.GetConfig(),
 	}
 }
 
@@ -50,29 +52,95 @@ func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err err
 		TermsAccepted: account.TermsAcceptedAt != nil,
 	}
 
-	return s.GenerateToken(claims)
+	return s.GenerateTokens(claims)
 }
 
-func (s *SigninService) GenerateToken(claims *guard.Claims) (tokenResponse TokenResponseDto, err error) {
-	privateKeyFile, err := os.ReadFile(s.config.Auth.PrivatePemPath)
+func (s *SigninService) GenerateTokens(claims *guard.Claims) (tokenResponse TokenResponseDto, err error) {
+	// Generate access token
+	accessToken, err := s.GenerateAccessToken(claims)
 	if err != nil {
 		return tokenResponse, err
+	}
+
+	// Generate refresh token
+	refreshToken, err := s.refreshTokenRepository.Create(
+		claims.Id,
+		time.Now().Add(168*time.Hour), // 7 days
+	)
+	if err != nil {
+		return tokenResponse, err
+	}
+
+	tokenResponse.AccessToken = accessToken
+	tokenResponse.RefreshToken = refreshToken
+
+	return tokenResponse, nil
+}
+
+func (s *SigninService) GenerateAccessToken(claims *guard.Claims) (string, error) {
+	privateKeyFile, err := os.ReadFile(s.config.Auth.PrivatePemPath)
+	if err != nil {
+		return "", err
 	}
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyFile)
 	if err != nil {
-		return tokenResponse, err
+		return "", err
 	}
 
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(168 * time.Hour))
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(15 * time.Minute))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
 	tokenString, err := token.SignedString(privateKey)
 	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+// RefreshAccessToken generates a new access token using a refresh token
+func (s *SigninService) RefreshAccessToken(refreshTokenString string) (tokenResponse TokenResponseDto, err error) {
+	// Hash the refresh token to look it up in the database
+	tokenHash := s.refreshTokenRepository.HashToken(refreshTokenString)
+
+	// Find the refresh token in the database
+	var refreshToken model.RefreshToken
+	if err := s.refreshTokenRepository.FindByTokenHash(tokenHash, &refreshToken); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return tokenResponse, errors.New("invalid refresh token")
+		}
 		return tokenResponse, err
 	}
-	tokenResponse.AccessToken = tokenString
 
-	return tokenResponse, nil
+	// Check if token is expired
+	if time.Now().After(refreshToken.ExpiresAt) {
+		return tokenResponse, errors.New("refresh token expired")
+	}
+
+	// Check if token is revoked
+	if refreshToken.IsRevoked {
+		return tokenResponse, errors.New("refresh token revoked")
+	}
+
+	// Get the account
+	var account model.Account
+	if err := s.accountRepository.FindOneById(refreshToken.AccountId, &account); err != nil {
+		return tokenResponse, err
+	}
+
+	// Revoke the old refresh token (token rotation)
+	if err := s.refreshTokenRepository.Revoke(refreshToken.Id); err != nil {
+		return tokenResponse, err
+	}
+
+	// Generate new tokens
+	claims := &guard.Claims{
+		Id:       account.Id,
+		Username: account.UserName,
+		Email:    account.Email,
+	}
+
+	return s.GenerateTokens(claims)
 }
