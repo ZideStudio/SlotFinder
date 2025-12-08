@@ -61,23 +61,24 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 	return false, nil
 }
 
-func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
+func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error) {
+	var tokens AccountTokensDto
 	// Validate input
 	if !lib.IsValidEmail(data.Email) {
-		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
+		return tokens, constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
 	if !lib.IsValidPassword(data.Password) {
-		return "", constants.ERR_INVALID_PASSWORD_FORMAT.Err
+		return tokens, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 	}
 
 	// Check if email already exists
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", err
+		return tokens, err
 	}
 	if existingAccount.Id != uuid.Nil {
-		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
+		return tokens, constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
 	// Choose a random color
@@ -91,7 +92,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Color:    string(color),
 		Password: data.Password,
 	}, &account); err != nil {
-		return "", err
+		return tokens, err
 	}
 
 	// Update avatar
@@ -99,7 +100,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Id:        account.Id,
 		AvatarUrl: s.avatarService.GetGravatarURL(account.Id.String()),
 	}); err != nil {
-		return "", err
+		return tokens, err
 	}
 
 	// Generate token
@@ -109,10 +110,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Email:    account.Email,
 	}
 
-	token, err := s.signinService.GenerateToken(claims)
+	token, err := s.signinService.GenerateTokens(claims)
 	if err != nil {
 		_ = s.accountRepository.Delete(account.Id)
-		return "", err
+		return tokens, err
 	}
 
 	if account.Email != nil {
@@ -128,7 +129,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		}()
 	}
 
-	return token.AccessToken, nil
+	tokens.AccessToken = token.AccessToken
+	tokens.RefreshToken = token.RefreshToken
+
+	return tokens, nil
 }
 
 func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err error) {
@@ -139,7 +143,7 @@ func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err err
 	return account, nil
 }
 
-func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, accessToken *string, err error) {
+func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, tokens *AccountTokensDto, err error) {
 	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
 		return account, nil, err
 	}
@@ -184,12 +188,15 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 			Email:    account.Email,
 		}
 
-		token, err := s.signinService.GenerateToken(claims)
+		token, err := s.signinService.GenerateTokens(claims)
 		if err != nil {
 			_ = s.accountRepository.Delete(account.Id)
 			return account, nil, err
 		}
-		accessToken = &token.AccessToken
+		tokens = &AccountTokensDto{
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+		}
 	}
 
 	me, err := s.GetMe(userId)
@@ -197,7 +204,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	return me, accessToken, nil
+	return me, tokens, nil
 }
 
 // ForgotPassword generates a reset token and sends reset email
