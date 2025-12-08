@@ -5,6 +5,7 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +17,7 @@ type SlotService struct {
 	eventRepository        *repository.EventRepository
 	availabilityRepository *repository.AvailabilityRepository
 	accountEventRepository *repository.AccountEventRepository
+	loadSlotsMutexes       sync.Map // Map of eventId to *sync.Mutex for preventing concurrent LoadSlots
 }
 
 func NewSlotService(service *SlotService) *SlotService {
@@ -28,6 +30,7 @@ func NewSlotService(service *SlotService) *SlotService {
 		eventRepository:        &repository.EventRepository{},
 		availabilityRepository: &repository.AvailabilityRepository{},
 		accountEventRepository: &repository.AccountEventRepository{},
+		loadSlotsMutexes:       sync.Map{},
 	}
 }
 
@@ -85,6 +88,13 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 
 // Recalculates and recreates all slots for an event
 func (s *SlotService) LoadSlots(eventId uuid.UUID) {
+	// Acquire per-event mutex to prevent concurrent slot recalculations for the same event
+	mutexInterface, _ := s.loadSlotsMutexes.LoadOrStore(eventId.String(), &sync.Mutex{})
+	mutex := mutexInterface.(*sync.Mutex)
+
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	log.Debug().Str("eventId", eventId.String()).Msg("Starting slot recalculation")
 
 	// Get event
