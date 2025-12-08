@@ -1,0 +1,55 @@
+.ds-checkbox-input-atom {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid hsl(var(--color-primary));
+  border-radius: 3px;
+  background: transparent;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+
+  &:focus-visible {
+    outline: 3px solid rgba(0, 0, 0, 0.24);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.25rem;
+    height: 0.45rem;
+    transform: translate(-50%, -60%) rotate(45deg);
+    border-right: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    box-sizing: border-box;
+    pointer-events: none;
+    transition: border-color 120ms ease, opacity 120ms ease;
+    opacity: 0;
+  }
+  &:hover:not(:disabled) {
+    border: 2px solid hsl(var(--color-primary));
+  }
+
+  &:checked {
+    background: transparent;
+    border-color: hsl(var(--color-primary));
+
+    &::after {
+      border-right-color: hsl(var(--color-primary));
+      border-bottom-color: hsl(var(--color-primary));
+      opacity: 1;
+    }
+  }
+}
