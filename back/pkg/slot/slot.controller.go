@@ -32,7 +32,7 @@ func NewSlotController(ctl *SlotController) *SlotController {
 // @Param data body ConfirmSlotDto true "Confirm Slot parameters"
 // @Success 200 {object} model.Slot
 // @Failure 400 {object} helpers.ApiError
-// @Router /api/v1/slots/{slotId} [post]
+// @Router /api/v1/slots/{slotId}/confirm [post]
 func (ctl *SlotController) ConfirmSlot(c *gin.Context) {
 	var user *guard.Claims
 	if err := guard.GetUserClaims(c, &user); err != nil {

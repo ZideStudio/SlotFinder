@@ -512,7 +512,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/slots/{slotId}": {
+        "/api/v1/slots/{slotId}/confirm": {
             "post": {
                 "security": [
                     {

@@ -89,7 +89,7 @@ func NewRouter() *gin.Engine {
 		{
 			slotRouter := slot.NewSlotController(nil)
 
-			slotGroup.POST("/:slotId", guard.AuthCheck(nil), slotRouter.ConfirmSlot)
+			slotGroup.POST("/:slotId/confirm", guard.AuthCheck(nil), slotRouter.ConfirmSlot)
 		}
 	}
 

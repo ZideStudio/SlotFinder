@@ -547,7 +547,7 @@ paths:
       summary: Join event
       tags:
       - Event
-  /api/v1/slots/{slotId}:
+  /api/v1/slots/{slotId}/confirm:
     post:
       consumes:
       - application/json
