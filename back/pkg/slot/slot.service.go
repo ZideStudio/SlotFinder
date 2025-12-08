@@ -46,6 +46,11 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		return model.Slot{}, constants.ERR_SLOT_NOT_FOUND.Err
 	}
 
+	// Check if user is admin of the event
+	if !slot.Event.IsOwner(&userId) {
+		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
 	// Check if dto StartsAt is equals or after slot.StartsAt and before slot.EndsAt
 	if dto.StartsAt.Before(slot.StartsAt) || !dto.StartsAt.Before(slot.EndsAt) {
 		return model.Slot{}, constants.ERR_SLOT_INVALID_STARTS_AT.Err
@@ -53,11 +58,6 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	// Check if dto EndsAt is after dto.StartsAt and before or equals slot.EndsAt
 	if !dto.EndsAt.After(dto.StartsAt) || dto.EndsAt.After(slot.EndsAt) {
 		return model.Slot{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
-	}
-
-	// Check if user is admin of the event
-	if !slot.Event.IsOwner(&userId) {
-		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
 	// If event is finished, do not recalculate slots
