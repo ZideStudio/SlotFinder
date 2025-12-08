@@ -139,7 +139,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 
 		return providerAccountResponse, nil
 	} else if existingAccountProvider.AccountId != uuid.Nil {
-		jwt, err := s.signinService.GenerateToken(&guard.Claims{
+		jwt, err := s.signinService.GenerateTokens(&guard.Claims{
 			Id:       existingAccountProvider.AccountId,
 			Username: existingAccountProvider.Account.UserName,
 			Email:    existingAccountProvider.Account.Email,
@@ -263,7 +263,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		}
 
 		// Generate token
-		token, err := s.signinService.GenerateToken(&guard.Claims{
+		token, err := s.signinService.GenerateTokens(&guard.Claims{
 			Id:       account.Id,
 			Username: account.UserName,
 			Email:    account.Email,
@@ -303,7 +303,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			return tokenResponse, err
 		}
 
-		token, err := s.signinService.GenerateToken(&guard.Claims{
+		token, err := s.signinService.GenerateTokens(&guard.Claims{
 			Id:       account.Id,
 			Username: account.UserName,
 			Email:    account.Email,
