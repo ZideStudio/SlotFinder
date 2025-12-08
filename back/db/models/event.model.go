@@ -61,7 +61,7 @@ func (e *Event) HasUserAccess(userId *uuid.UUID) bool {
 }
 
 // checks if the given user ID has administrative privileges
-func (e *Event) IsAdmin(userId *uuid.UUID) bool {
+func (e *Event) IsOwner(userId *uuid.UUID) bool {
 	if userId == nil {
 		return false
 	}

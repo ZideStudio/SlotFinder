@@ -56,7 +56,7 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	}
 
 	// Check if user is admin of the event
-	if !slot.Event.IsAdmin(&userId) {
+	if !slot.Event.IsOwner(&userId) {
 		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
