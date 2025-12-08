@@ -77,7 +77,7 @@ func GenerateAccessToken(claims *Claims) (string, error) {
 		return "", err
 	}
 
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(15 * time.Minute))
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(constants.ACCESS_TOKEN_DURATION))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
@@ -89,14 +89,14 @@ func GenerateAccessToken(claims *Claims) (string, error) {
 	return tokenString, nil
 }
 
-// ShouldRenewToken checks if the token should be renewed (less than 5 minutes remaining)
+// ShouldRenewToken checks if the token should be renewed
 func ShouldRenewToken(claims *Claims) bool {
 	if claims.ExpiresAt == nil {
 		return false
 	}
 	
 	timeUntilExpiry := time.Until(claims.ExpiresAt.Time)
-	return timeUntilExpiry > 0 && timeUntilExpiry < 5*time.Minute
+	return timeUntilExpiry > 0 && timeUntilExpiry < constants.TOKEN_RENEWAL_THRESHOLD_DURATION
 }
 
 type AuthCheckParams struct {
