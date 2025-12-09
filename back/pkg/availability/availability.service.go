@@ -17,7 +17,7 @@ type AvailabilityService struct {
 	slotService            *slot.SlotService
 	availabilityRepository *repository.AvailabilityRepository
 	eventRepository        *repository.EventRepository
-	locks                  sync.Map // Map to store mutexes per (accountId, eventId) combination
+	locks                  sync.Map // Map to store mutexes per user ID
 }
 
 func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
@@ -157,14 +157,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 }
 
 func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId uuid.UUID, user *guard.Claims) (model.Availability, error) {
-	// Acquire per-event mutex to prevent concurrent availability modifications
-	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
-	mu := value.(*sync.Mutex)
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	// Get availability
+	// Get availability first to validate access
 	var availability model.Availability
 	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -172,6 +165,13 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		}
 		return model.Availability{}, err
 	}
+
+	// Acquire per-user mutex to prevent concurrent availability modifications
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	// Check if availability belongs to the user
 	if availability.AccountId != user.Id {
@@ -246,6 +246,11 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		}
 
 		availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
+	}
+
+	// Revalidate the merged times to ensure they still meet all constraints
+	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
+		return model.Availability{}, err
 	}
 
 	// Delete merged availabilities
