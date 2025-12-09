@@ -209,7 +209,51 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		return model.Availability{}, err
 	}
 
-	// Update availability
+	// Find overlapping availabilities (excluding the current one being updated)
+	var availabilitiesToMerge []model.Availability
+	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availability, &availabilitiesToMerge); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Filter out the current availability from the list
+	var otherAvailabilities []model.Availability
+	for _, existing := range availabilitiesToMerge {
+		if existing.Id != availabilityId {
+			otherAvailabilities = append(otherAvailabilities, existing)
+		}
+	}
+
+	if len(otherAvailabilities) == 0 {
+		// No overlapping availabilities, just update the current one
+		if err := s.availabilityRepository.Update(&availability); err != nil {
+			return model.Availability{}, err
+		}
+		
+		// Trigger slot recalculation asynchronously
+		go s.slotService.LoadSlots(availability.EventId)
+		
+		return availability, nil
+	}
+
+	// Merge overlapping availabilities
+	var availabilitiesIdsToDelete []uuid.UUID
+	for _, existingAvailability := range otherAvailabilities {
+		if existingAvailability.StartsAt.Before(availability.StartsAt) {
+			availability.StartsAt = existingAvailability.StartsAt
+		}
+		if existingAvailability.EndsAt.After(availability.EndsAt) {
+			availability.EndsAt = existingAvailability.EndsAt
+		}
+
+		availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
+	}
+
+	// Delete merged availabilities
+	if err := s.availabilityRepository.DeleteByIds(&availabilitiesIdsToDelete); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Update the merged availability
 	if err := s.availabilityRepository.Update(&availability); err != nil {
 		return model.Availability{}, err
 	}
