@@ -6,7 +6,6 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/slot"
-	"fmt"
 	"sync"
 	"time"
 
@@ -85,9 +84,7 @@ func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uui
 
 func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
 	// Acquire per-event mutex to prevent concurrent availability modifications
-	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), eventId.String())
-
-	value, _ := s.locks.LoadOrStore(lockKey, &sync.Mutex{})
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
 	mu := value.(*sync.Mutex)
 
 	mu.Lock()
@@ -159,6 +156,70 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	return availabilityToCreate, nil
 }
 
+func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId uuid.UUID, user *guard.Claims) (model.Availability, error) {
+	// Acquire per-event mutex to prevent concurrent availability modifications
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Get availability
+	var availability model.Availability
+	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return model.Availability{}, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+		}
+		return model.Availability{}, err
+	}
+
+	// Check if availability belongs to the user
+	if availability.AccountId != user.Id {
+		return model.Availability{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
+	}
+
+	// Check if user has access to the event
+	if !availability.Event.HasUserAccess(&user.Id) {
+		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	// Check if event is locked (same check as in Create via validateEventAccess)
+	if availability.Event.IsLocked() {
+		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
+	}
+
+	// Update fields if provided
+	updated := false
+	if data.StartsAt != nil {
+		availability.StartsAt = data.StartsAt.Truncate(time.Minute)
+		updated = true
+	}
+	if data.EndsAt != nil {
+		availability.EndsAt = data.EndsAt.Truncate(time.Minute)
+		updated = true
+	}
+
+	// If no fields were updated, return early
+	if !updated {
+		return availability, nil
+	}
+
+	// Validate availability times
+	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Update availability
+	if err := s.availabilityRepository.Update(&availability); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Trigger slot recalculation asynchronously
+	go s.slotService.LoadSlots(availability.EventId)
+
+	return availability, nil
+}
+
 func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claims) error {
 	// Get availability
 	var availability model.Availability
@@ -196,70 +257,4 @@ func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claim
 	go s.slotService.LoadSlots(availability.EventId)
 
 	return nil
-}
-
-func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId uuid.UUID, user *guard.Claims) (model.Availability, error) {
-	// Get availability
-	var availability model.Availability
-	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return model.Availability{}, constants.ERR_AVAILABILITY_NOT_FOUND.Err
-		}
-		return model.Availability{}, err
-	}
-
-	// Check if availability belongs to the user
-	if availability.AccountId != user.Id {
-		return model.Availability{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
-	}
-
-	// Check if user has access to the event
-	if !availability.Event.HasUserAccess(&user.Id) {
-		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
-	}
-
-	// Check if event is locked (same check as in Create via validateEventAccess)
-	if availability.Event.IsLocked() {
-		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
-	}
-
-	// Acquire per-event mutex to prevent concurrent availability modifications
-	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), availability.EventId.String())
-
-	value, _ := s.locks.LoadOrStore(lockKey, &sync.Mutex{})
-	mu := value.(*sync.Mutex)
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	// Update fields if provided
-	updated := false
-	if data.StartsAt != nil {
-		availability.StartsAt = data.StartsAt.Truncate(time.Minute)
-		updated = true
-	}
-	if data.EndsAt != nil {
-		availability.EndsAt = data.EndsAt.Truncate(time.Minute)
-		updated = true
-	}
-
-	// If no fields were updated, return early
-	if !updated {
-		return availability, nil
-	}
-
-	// Validate availability times
-	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
-		return model.Availability{}, err
-	}
-
-	// Update availability
-	if err := s.availabilityRepository.Update(&availability); err != nil {
-		return model.Availability{}, err
-	}
-
-	// Trigger slot recalculation asynchronously
-	go s.slotService.LoadSlots(availability.EventId)
-
-	return availability, nil
 }

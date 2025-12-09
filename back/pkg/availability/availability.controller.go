@@ -86,33 +86,6 @@ func (ctl *AvailabilityController) Create(c *gin.Context) {
 	helpers.HandleJSONResponse(c, availability, err)
 }
 
-// @Summary Delete an availability
-// @Tags Availability
-// @Accept json
-// @Produce json
-// @Param availabilityId path string true "Availability ID"
-// @Security BearerAuth
-// @Success 200
-// @Failure 400 {object} helpers.ApiError
-// @Router /api/v1/availabilities/{availabilityId} [delete]
-func (ctl *AvailabilityController) Delete(c *gin.Context) {
-	var user *guard.Claims
-	if err := guard.GetUserClaims(c, &user); err != nil {
-		helpers.HandleJSONResponse(c, nil, err)
-		return
-	}
-
-	availabilityId, err := ctl.getAvailabilityIdParam(c)
-	if err != nil {
-		helpers.HandleJSONResponse(c, nil, err)
-		return
-	}
-
-	err = ctl.availabilityService.Delete(availabilityId, user)
-
-	helpers.HandleJSONResponse(c, nil, err)
-}
-
 // @Summary Update an availability
 // @Tags Availability
 // @Accept json
@@ -144,4 +117,31 @@ func (ctl *AvailabilityController) Update(c *gin.Context) {
 	availability, err := ctl.availabilityService.Update(&data, availabilityId, user)
 
 	helpers.HandleJSONResponse(c, availability, err)
+}
+
+// @Summary Delete an availability
+// @Tags Availability
+// @Accept json
+// @Produce json
+// @Param availabilityId path string true "Availability ID"
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/availabilities/{availabilityId} [delete]
+func (ctl *AvailabilityController) Delete(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	availabilityId, err := ctl.getAvailabilityIdParam(c)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	err = ctl.availabilityService.Delete(availabilityId, user)
+
+	helpers.HandleJSONResponse(c, nil, err)
 }

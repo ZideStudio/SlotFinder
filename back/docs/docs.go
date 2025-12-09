@@ -993,8 +993,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "SlotFinder API Doc",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
