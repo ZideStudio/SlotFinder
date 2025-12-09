@@ -511,6 +511,57 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/slots/{slotId}/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Slot"
+                ],
+                "summary": "Confirm a slot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Slot Id",
+                        "name": "slotId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Confirm Slot parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/slot.ConfirmSlotDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Slot"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -561,6 +612,19 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "constants.EventStatus": {
+            "type": "string",
+            "enum": [
+                "IN_DECISION",
+                "UPCOMING",
+                "FINISHED"
+            ],
+            "x-enum-varnames": [
+                "EVENT_STATUS_IN_DECISION",
+                "EVENT_STATUS_UPCOMING",
+                "EVENT_STATUS_FINISHED"
+            ]
         },
         "constants.Provider": {
             "type": "string",
@@ -645,8 +709,17 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Account"
                     }
                 },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Slot"
+                    }
+                },
                 "startsAt": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
                 }
             }
         },
@@ -770,6 +843,32 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Slot"
+                    }
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
+        "model.Slot": {
+            "type": "object",
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isValidated": {
+                    "type": "boolean"
+                },
                 "startsAt": {
                     "type": "string"
                 }
@@ -794,6 +893,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "slot.ConfirmSlotDto": {
+            "type": "object",
+            "required": [
+                "endsAt",
+                "startsAt"
+            ],
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
                     "type": "string"
                 }
             }

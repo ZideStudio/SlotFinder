@@ -5,6 +5,7 @@ import (
 	"app/commons/guard"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/slot"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,6 +13,7 @@ import (
 )
 
 type AvailabilityService struct {
+	slotService            *slot.SlotService
 	availabilityRepository *repository.AvailabilityRepository
 	eventRepository        *repository.EventRepository
 }
@@ -22,6 +24,7 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 	}
 
 	return &AvailabilityService{
+		slotService:            slot.NewSlotService(nil),
 		availabilityRepository: &repository.AvailabilityRepository{},
 		eventRepository:        &repository.EventRepository{},
 	}
@@ -35,7 +38,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	}
 
 	// Check if event is ended
-	if event.HasEnded() {
+	if event.IsLocked() {
 		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
 	}
 
@@ -130,6 +133,9 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		return model.Availability{}, err
 	}
 
+	// Trigger slot recalculation asynchronously
+	go s.slotService.LoadSlots(eventId)
+
 	return finalAvailability, nil
 }
 
@@ -165,6 +171,9 @@ func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claim
 		}
 		return err
 	}
+
+	// Trigger slot recalculation asynchronously
+	go s.slotService.LoadSlots(availability.EventId)
 
 	return nil
 }

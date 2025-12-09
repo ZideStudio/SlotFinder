@@ -31,6 +31,16 @@ definitions:
     - endsAt
     - startsAt
     type: object
+  constants.EventStatus:
+    enum:
+    - IN_DECISION
+    - UPCOMING
+    - FINISHED
+    type: string
+    x-enum-varnames:
+    - EVENT_STATUS_IN_DECISION
+    - EVENT_STATUS_UPCOMING
+    - EVENT_STATUS_FINISHED
   constants.Provider:
     enum:
     - google
@@ -88,8 +98,14 @@ definitions:
         items:
           $ref: '#/definitions/model.Account'
         type: array
+      slots:
+        items:
+          $ref: '#/definitions/model.Slot'
+        type: array
       startsAt:
         type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
     type: object
   helpers.ApiError:
     properties:
@@ -167,6 +183,23 @@ definitions:
         allOf:
         - $ref: '#/definitions/model.Account'
         description: Relations
+      slots:
+        items:
+          $ref: '#/definitions/model.Slot'
+        type: array
+      startsAt:
+        type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
+    type: object
+  model.Slot:
+    properties:
+      endsAt:
+        type: string
+      id:
+        type: string
+      isValidated:
+        type: boolean
       startsAt:
         type: string
     type: object
@@ -184,6 +217,16 @@ definitions:
     properties:
       access_token:
         type: string
+    type: object
+  slot.ConfirmSlotDto:
+    properties:
+      endsAt:
+        type: string
+      startsAt:
+        type: string
+    required:
+    - endsAt
+    - startsAt
     type: object
 info:
   contact:
@@ -504,6 +547,38 @@ paths:
       summary: Join event
       tags:
       - Event
+  /api/v1/slots/{slotId}/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Slot Id
+        in: path
+        name: slotId
+        required: true
+        type: string
+      - description: Confirm Slot parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/slot.ConfirmSlotDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Slot'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Confirm a slot
+      tags:
+      - Slot
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**
