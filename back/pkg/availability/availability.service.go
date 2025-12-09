@@ -218,8 +218,8 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
-	// Check if event is ended
-	if availability.Event.HasEnded() {
+	// Check if event is locked (same check as in Create via validateEventAccess)
+	if availability.Event.IsLocked() {
 		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
 	}
 
