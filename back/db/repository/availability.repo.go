@@ -105,5 +105,7 @@ func (*AvailabilityRepository) Update(availability *model.Availability) error {
 		return err
 	}
 
+	availability.Sanitized()
+
 	return nil
 }

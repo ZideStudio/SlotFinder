@@ -215,11 +215,11 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 	// Update fields if provided
 	updated := false
 	if data.StartsAt != nil {
-		availability.StartsAt = data.StartsAt.Truncate(time.Minute)
+		availability.StartsAt = data.StartsAt.Truncate(5 * time.Minute)
 		updated = true
 	}
 	if data.EndsAt != nil {
-		availability.EndsAt = data.EndsAt.Truncate(time.Minute)
+		availability.EndsAt = data.EndsAt.Truncate(5 * time.Minute)
 		updated = true
 	}
 
@@ -260,8 +260,6 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 
 	// Trigger slot recalculation asynchronously
 	go s.slotService.LoadSlots(availability.EventId)
-
-	availability.Sanitized()
 
 	return availability, nil
 }
