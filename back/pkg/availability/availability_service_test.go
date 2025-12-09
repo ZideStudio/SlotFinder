@@ -33,6 +33,11 @@ func createMockEvent() model.Event {
 	}
 }
 
+// Helper function to align time to 5-minute boundaries
+func alignToFiveMinutes(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), (t.Minute()/5)*5, 0, 0, t.Location())
+}
+
 // TestServiceHasSyncMap verifies that the service has a sync.Map for locking
 func TestServiceHasSyncMap(t *testing.T) {
 	service := NewAvailabilityService(nil)
@@ -168,11 +173,9 @@ func TestValidateAvailabilityTimes_InvalidMinuteInterval(t *testing.T) {
 // TestValidateAvailabilityTimes_StartBeforeEvent tests validation for start time before event start
 func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
 	event := createMockEvent()
-	// Use naturally aligned time (on 5-minute boundary)
-	startsAt := event.StartsAt.Add(-1 * time.Hour) // Before event start
-	startsAt = time.Date(startsAt.Year(), startsAt.Month(), startsAt.Day(), startsAt.Hour(), (startsAt.Minute()/5)*5, 0, 0, startsAt.Location())
-	endsAt := event.StartsAt.Add(1 * time.Hour)
-	endsAt = time.Date(endsAt.Year(), endsAt.Month(), endsAt.Day(), endsAt.Hour(), (endsAt.Minute()/5)*5, 0, 0, endsAt.Location())
+	// Use helper to align time to 5-minute boundary
+	startsAt := alignToFiveMinutes(event.StartsAt.Add(-1 * time.Hour)) // Before event start
+	endsAt := alignToFiveMinutes(event.StartsAt.Add(1 * time.Hour))
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for start time before event start")
@@ -182,11 +185,9 @@ func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
 // TestValidateAvailabilityTimes_EndAfterEvent tests validation for end time after event end
 func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
 	event := createMockEvent()
-	// Use naturally aligned time (on 5-minute boundary)
-	startsAt := event.EndsAt.Add(-1 * time.Hour)
-	startsAt = time.Date(startsAt.Year(), startsAt.Month(), startsAt.Day(), startsAt.Hour(), (startsAt.Minute()/5)*5, 0, 0, startsAt.Location())
-	endsAt := event.EndsAt.Add(1 * time.Hour) // After event end
-	endsAt = time.Date(endsAt.Year(), endsAt.Month(), endsAt.Day(), endsAt.Hour(), (endsAt.Minute()/5)*5, 0, 0, endsAt.Location())
+	// Use helper to align time to 5-minute boundary
+	startsAt := alignToFiveMinutes(event.EndsAt.Add(-1 * time.Hour))
+	endsAt := alignToFiveMinutes(event.EndsAt.Add(1 * time.Hour)) // After event end
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for end time after event end")
@@ -196,9 +197,8 @@ func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
 // TestValidateAvailabilityTimes_ValidTimes tests validation for valid times
 func TestValidateAvailabilityTimes_ValidTimes(t *testing.T) {
 	event := createMockEvent()
-	// Use naturally aligned time (on 5-minute boundary)
-	startsAt := event.StartsAt.Add(1 * time.Hour)
-	startsAt = time.Date(startsAt.Year(), startsAt.Month(), startsAt.Day(), startsAt.Hour(), (startsAt.Minute()/5)*5, 0, 0, startsAt.Location())
+	// Use helper to align time to 5-minute boundary
+	startsAt := alignToFiveMinutes(event.StartsAt.Add(1 * time.Hour))
 	endsAt := startsAt.Add(30 * time.Minute) // Valid: 30 minutes, naturally aligned on 5-minute intervals
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
