@@ -33,6 +33,55 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 	}
 }
 
+// validateAvailabilityTimes validates the time constraints for an availability
+func (s *AvailabilityService) validateAvailabilityTimes(startsAt, endsAt time.Time, event *model.Event) error {
+	// Prevent creating/updating availabilities with end date before start date
+	if startsAt.After(endsAt) {
+		return constants.ERR_EVENT_START_AFTER_END.Err
+	}
+
+	// Prevent creating/updating availabilities with less than minimum duration of 5 minutes
+	minDuration := 5 * time.Minute
+	duration := endsAt.Sub(startsAt)
+	if duration < minDuration {
+		return constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
+	}
+
+	// Prevent creating/updating availabilities not aligned on 5 minutes interval
+	if startsAt.Minute()%5 != 0 || endsAt.Minute()%5 != 0 {
+		return constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
+	}
+
+	// Prevent creating/updating availabilities outside of event date range
+	if startsAt.Before(event.StartsAt) {
+		return constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
+	}
+	if endsAt.After(event.EndsAt) {
+		return constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
+	}
+
+	return nil
+}
+
+// validateEventAccess validates that the event exists, is accessible, and not ended
+func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uuid.UUID, event *model.Event) error {
+	if err := s.eventRepository.FindOneById(eventId, event); err != nil {
+		return constants.ERR_EVENT_NOT_FOUND.Err
+	}
+
+	// Check if event is ended
+	if event.IsLocked() {
+		return constants.ERR_EVENT_ENDED.Err
+	}
+
+	// Check if user has access to the event
+	if !event.HasUserAccess(userId) {
+		return constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	return nil
+}
+
 func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
 	// Acquire per-event mutex to prevent concurrent availability modifications
 	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), eventId.String())
@@ -43,48 +92,18 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	mu.Lock()
 	defer mu.Unlock()
 
-	// Get event
+	// Get event and validate access
 	var event model.Event
-	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
-		return model.Availability{}, constants.ERR_EVENT_NOT_FOUND.Err
-	}
-
-	// Check if event is ended
-	if event.IsLocked() {
-		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
-	}
-
-	// Check if user has access to the event
-	if !event.HasUserAccess(&user.Id) {
-		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
+	if err := s.validateEventAccess(eventId, &user.Id, &event); err != nil {
+		return model.Availability{}, err
 	}
 
 	data.StartsAt = data.StartsAt.Truncate(time.Minute)
 	data.EndsAt = data.EndsAt.Truncate(time.Minute)
 
-	// Prevent creating availabilities with end date before start date
-	if data.StartsAt.After(data.EndsAt) {
-		return model.Availability{}, constants.ERR_EVENT_START_AFTER_END.Err
-	}
-
-	// Prevent creating availabilities with less than minimum duration of 5 minutes
-	minDuration := 5 * time.Minute
-	duration := data.EndsAt.Sub(data.StartsAt)
-	if duration < minDuration {
-		return model.Availability{}, constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
-	}
-
-	// Prevent creating availabilities not aligned on 5 minutes interval
-	if data.StartsAt.Minute()%5 != 0 || data.EndsAt.Minute()%5 != 0 {
-		return model.Availability{}, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
-	}
-
-	// Prevent creating availabilities outside of event date range
-	if data.StartsAt.Before(event.StartsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
-	}
-	if data.EndsAt.After(event.EndsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
+	// Validate availability times
+	if err := s.validateAvailabilityTimes(data.StartsAt, data.EndsAt, &event); err != nil {
+		return model.Availability{}, err
 	}
 
 	// Create availability model
@@ -228,29 +247,9 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		return availability, nil
 	}
 
-	// Prevent updating availabilities with end date before start date
-	if availability.StartsAt.After(availability.EndsAt) {
-		return model.Availability{}, constants.ERR_EVENT_START_AFTER_END.Err
-	}
-
-	// Prevent updating availabilities with less than minimum duration of 5 minutes
-	minDuration := 5 * time.Minute
-	duration := availability.EndsAt.Sub(availability.StartsAt)
-	if duration < minDuration {
-		return model.Availability{}, constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
-	}
-
-	// Prevent updating availabilities not aligned on 5 minutes interval
-	if availability.StartsAt.Minute()%5 != 0 || availability.EndsAt.Minute()%5 != 0 {
-		return model.Availability{}, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
-	}
-
-	// Prevent updating availabilities outside of event date range
-	if availability.StartsAt.Before(availability.Event.StartsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
-	}
-	if availability.EndsAt.After(availability.Event.EndsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
+	// Validate availability times
+	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
+		return model.Availability{}, err
 	}
 
 	// Update availability
