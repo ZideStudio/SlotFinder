@@ -88,3 +88,22 @@ func (*AvailabilityRepository) FindByEventId(eventId uuid.UUID, availabilities *
 
 	return nil
 }
+
+// Updates an availability
+func (*AvailabilityRepository) Update(availability *model.Availability) error {
+	if availability == nil {
+		return errors.New("availability pointer is nil")
+	}
+
+	if err := db.GetDB().Model(&availability).Updates(availability).Error; err != nil {
+		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::UPDATE Failed to update availability")
+		return err
+	}
+
+	if err := db.GetDB().Preload("Account").Preload("Event").Preload("Event.AccountEvents").First(&availability, "id = ?", availability.Id).Error; err != nil {
+		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::UPDATE Failed to reload availability after update")
+		return err
+	}
+
+	return nil
+}

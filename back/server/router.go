@@ -65,6 +65,7 @@ func NewRouter() *gin.Engine {
 		availabilityRouter := availability.NewAvailabilityController(nil)
 		{
 			availabilityGroup.DELETE("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Delete)
+			availabilityGroup.PATCH("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Update)
 		}
 
 		// Event routes
