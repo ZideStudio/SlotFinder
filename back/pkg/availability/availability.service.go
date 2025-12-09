@@ -48,7 +48,8 @@ func (s *AvailabilityService) validateAvailabilityTimes(startsAt, endsAt time.Ti
 	}
 
 	// Prevent creating/updating availabilities not aligned on 5 minutes interval
-	if startsAt.Minute()%5 != 0 || endsAt.Minute()%5 != 0 {
+	// Check if times are exactly on 5-minute boundaries (no seconds or sub-seconds)
+	if startsAt.Truncate(5*time.Minute) != startsAt || endsAt.Truncate(5*time.Minute) != endsAt {
 		return constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
 	}
 

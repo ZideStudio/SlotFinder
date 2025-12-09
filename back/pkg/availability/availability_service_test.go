@@ -23,8 +23,8 @@ var testUser = &guard.Claims{
 // Helper function to create a mock event for testing
 func createMockEvent() model.Event {
 	now := time.Now().UTC()
-	tomorrow := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC)
-	threeDaysLater := tomorrow.Add(48 * time.Hour)
+	tomorrow := now.AddDate(0, 0, 1)
+	threeDaysLater := tomorrow.AddDate(0, 0, 2)
 
 	return model.Event{
 		Id:       uuid.New(),
@@ -142,19 +142,28 @@ func TestValidateAvailabilityTimes_DurationTooShort(t *testing.T) {
 // TestValidateAvailabilityTimes_InvalidTimeInterval tests validation for times not aligned on 5-minute intervals
 func TestValidateAvailabilityTimes_InvalidTimeInterval(t *testing.T) {
 	event := createMockEvent()
-	startsAt := event.StartsAt.Add(1*time.Hour + 3*time.Minute) // Not on 5-minute interval
+	// Create time with seconds/nanoseconds to test proper validation
+	startsAt := event.StartsAt.Add(1*time.Hour + 3*time.Minute + 30*time.Second) // Has seconds
 	endsAt := startsAt.Add(10 * time.Minute)
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for times not aligned on 5-minute intervals")
 	assert.Equal(t, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err, err, "Expected ERR_AVAILABILITY_INVALID_TIME_INTERVAL error")
+	
+	// Also test with time on wrong minute interval (e.g., 13 minutes)
+	startsAt2 := event.StartsAt.Add(1*time.Hour + 13*time.Minute)
+	endsAt2 := startsAt2.Add(10 * time.Minute)
+	
+	err2 := service.validateAvailabilityTimes(startsAt2, endsAt2, &event)
+	assert.Error(t, err2, "Expected error for times not on 5-minute intervals")
+	assert.Equal(t, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err, err2, "Expected ERR_AVAILABILITY_INVALID_TIME_INTERVAL error")
 }
 
 // TestValidateAvailabilityTimes_StartBeforeEvent tests validation for start time before event start
 func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
 	event := createMockEvent()
-	startsAt := event.StartsAt.Add(-1 * time.Hour) // Before event start
-	endsAt := event.StartsAt.Add(1 * time.Hour)
+	startsAt := event.StartsAt.Add(-1 * time.Hour).Truncate(5 * time.Minute) // Before event start, aligned to 5 min
+	endsAt := event.StartsAt.Add(1 * time.Hour).Truncate(5 * time.Minute)
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for start time before event start")
@@ -164,8 +173,8 @@ func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
 // TestValidateAvailabilityTimes_EndAfterEvent tests validation for end time after event end
 func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
 	event := createMockEvent()
-	startsAt := event.EndsAt.Add(-1 * time.Hour)
-	endsAt := event.EndsAt.Add(1 * time.Hour) // After event end
+	startsAt := event.EndsAt.Add(-1 * time.Hour).Truncate(5 * time.Minute)
+	endsAt := event.EndsAt.Add(1 * time.Hour).Truncate(5 * time.Minute) // After event end, aligned to 5 min
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for end time after event end")
@@ -175,7 +184,7 @@ func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
 // TestValidateAvailabilityTimes_ValidTimes tests validation for valid times
 func TestValidateAvailabilityTimes_ValidTimes(t *testing.T) {
 	event := createMockEvent()
-	startsAt := event.StartsAt.Add(1 * time.Hour)
+	startsAt := event.StartsAt.Add(1 * time.Hour).Truncate(5 * time.Minute)
 	endsAt := startsAt.Add(30 * time.Minute) // Valid: 30 minutes, aligned on 5-minute intervals
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
