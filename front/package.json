@@ -60,7 +60,7 @@
     "i18next-resources-for-ts": "^1.8.0",
     "jsdom": "^27.2.0",
     "monocart-coverage-reports": "^2.12.9",
-    "msw": "^2.12.3",
+    "msw": "^2.12.4",
     "oxlint": "^1.31.0",
     "prettier": "^3.7.3",
     "prettier-plugin-sh": "^0.18.0",
