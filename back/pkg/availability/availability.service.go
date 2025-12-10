@@ -83,13 +83,6 @@ func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uui
 }
 
 func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
-	// Acquire per-event mutex to prevent concurrent availability modifications
-	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
-	mu := value.(*sync.Mutex)
-
-	mu.Lock()
-	defer mu.Unlock()
-
 	// Get event and validate access
 	var event model.Event
 	if err := s.validateEventAccess(eventId, &user.Id, &event); err != nil {
@@ -103,6 +96,13 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	if err := s.validateAvailabilityTimes(data.StartsAt, data.EndsAt, &event); err != nil {
 		return model.Availability{}, err
 	}
+
+	// Acquire per-event mutex to prevent concurrent availability modifications
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
 
 	// Create availability model
 	availabilityToCreate := model.Availability{
@@ -166,13 +166,6 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		return model.Availability{}, err
 	}
 
-	// Acquire per-user mutex to prevent concurrent availability modifications
-	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
-	mu := value.(*sync.Mutex)
-
-	mu.Lock()
-	defer mu.Unlock()
-
 	// Check if availability belongs to the user
 	if availability.AccountId != user.Id {
 		return model.Availability{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
@@ -209,6 +202,13 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		return model.Availability{}, err
 	}
 
+	// Acquire per-user mutex to prevent concurrent availability modifications
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	// Find overlapping availabilities (excluding the current one being updated)
 	var availabilitiesToMerge []model.Availability
 	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availability, &availabilitiesToMerge); err != nil {
@@ -228,10 +228,10 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		if err := s.availabilityRepository.Update(&availability); err != nil {
 			return model.Availability{}, err
 		}
-		
+
 		// Trigger slot recalculation asynchronously
 		go s.slotService.LoadSlots(availability.EventId)
-		
+
 		return availability, nil
 	}
 
