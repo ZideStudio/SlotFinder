@@ -2,7 +2,6 @@ package availability
 
 import (
 	"app/commons/constants"
-	"app/commons/guard"
 	model "app/db/models"
 	"sync"
 	"testing"
@@ -13,12 +12,6 @@ import (
 )
 
 var service = NewAvailabilityService(nil)
-
-var username = "testuser"
-var testUser = &guard.Claims{
-	Id:       uuid.New(),
-	Username: &username,
-}
 
 // Helper function to create a mock event for testing
 func createMockEvent() model.Event {
@@ -147,7 +140,7 @@ func TestValidateAvailabilityTimes_DurationTooShort(t *testing.T) {
 // TestValidateAvailabilityTimes_InvalidTimeInterval tests validation for times not aligned on 5-minute intervals
 func TestValidateAvailabilityTimes_InvalidTimeInterval(t *testing.T) {
 	event := createMockEvent()
-	
+
 	// Test 1: Time with seconds/nanoseconds should fail
 	startsAtWithSeconds := event.StartsAt.Add(1*time.Hour + 5*time.Minute + 30*time.Second) // Has 30 seconds
 	endsAtWithSeconds := startsAtWithSeconds.Add(10 * time.Minute)
@@ -160,11 +153,11 @@ func TestValidateAvailabilityTimes_InvalidTimeInterval(t *testing.T) {
 // TestValidateAvailabilityTimes_InvalidMinuteInterval tests validation for times on wrong minute boundary
 func TestValidateAvailabilityTimes_InvalidMinuteInterval(t *testing.T) {
 	event := createMockEvent()
-	
+
 	// Time on wrong minute interval (e.g., 13 minutes, not divisible by 5)
 	startsAtWrongMinute := event.StartsAt.Add(1*time.Hour + 13*time.Minute)
 	endsAtWrongMinute := startsAtWrongMinute.Add(10 * time.Minute)
-	
+
 	err := service.validateAvailabilityTimes(startsAtWrongMinute, endsAtWrongMinute, &event)
 	assert.Error(t, err, "Expected error for times not on 5-minute intervals")
 	assert.Equal(t, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err, err, "Expected ERR_AVAILABILITY_INVALID_TIME_INTERVAL error")
