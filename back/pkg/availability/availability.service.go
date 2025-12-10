@@ -65,8 +65,10 @@ func (s *AvailabilityService) validateAvailabilityTimes(startsAt, endsAt time.Ti
 
 // validateEventAccess validates that the event exists, is accessible, and not ended
 func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uuid.UUID, event *model.Event) error {
-	if err := s.eventRepository.FindOneById(eventId, event); err != nil {
-		return constants.ERR_EVENT_NOT_FOUND.Err
+	if event == nil || event.Id == uuid.Nil {
+		if err := s.eventRepository.FindOneById(eventId, event); err != nil {
+			return constants.ERR_EVENT_NOT_FOUND.Err
+		}
 	}
 
 	// Check if event is ended
@@ -171,14 +173,9 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		return model.Availability{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
 	}
 
-	// Check if user has access to the event
-	if !availability.Event.HasUserAccess(&user.Id) {
-		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
-	}
-
-	// Check if event is locked (same check as in Create via validateEventAccess)
-	if availability.Event.IsLocked() {
-		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
+	// Validate event access
+	if err := s.validateEventAccess(availability.Event.Id, &user.Id, &availability.Event); err != nil {
+		return model.Availability{}, err
 	}
 
 	// Update fields if provided
