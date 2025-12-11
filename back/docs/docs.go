@@ -305,6 +305,55 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Availability"
+                ],
+                "summary": "Update an availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Availability ID",
+                        "name": "availabilityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Availability parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/availability.AvailabilityUpdateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Availability"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/events": {
@@ -604,6 +653,17 @@ const docTemplate = `{
                 "endsAt",
                 "startsAt"
             ],
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "availability.AvailabilityUpdateDto": {
+            "type": "object",
             "properties": {
                 "endsAt": {
                     "type": "string"

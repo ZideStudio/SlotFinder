@@ -6,7 +6,6 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/slot"
-	"fmt"
 	"sync"
 	"time"
 
@@ -18,7 +17,7 @@ type AvailabilityService struct {
 	slotService            *slot.SlotService
 	availabilityRepository *repository.AvailabilityRepository
 	eventRepository        *repository.EventRepository
-	locks                  sync.Map // Map to store mutexes per (accountId, eventId) combination
+	locks                  sync.Map // Map to store mutexes per user ID
 }
 
 func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
@@ -33,59 +32,79 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 	}
 }
 
-func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
-	// Acquire per-event mutex to prevent concurrent availability modifications
-	lockKey := fmt.Sprintf("%s:%s", user.Id.String(), eventId.String())
+// validateAvailabilityTimes validates the time constraints for an availability
+func (s *AvailabilityService) validateAvailabilityTimes(startsAt, endsAt time.Time, event *model.Event) error {
+	// Prevent creating/updating availabilities with end date before start date
+	if startsAt.After(endsAt) {
+		return constants.ERR_EVENT_START_AFTER_END.Err
+	}
 
-	value, _ := s.locks.LoadOrStore(lockKey, &sync.Mutex{})
-	mu := value.(*sync.Mutex)
+	// Prevent creating/updating availabilities with less than minimum duration of 5 minutes
+	minDuration := 5 * time.Minute
+	duration := endsAt.Sub(startsAt)
+	if duration < minDuration {
+		return constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
+	}
 
-	mu.Lock()
-	defer mu.Unlock()
+	// Prevent creating/updating availabilities not aligned on 5 minutes interval
+	// Check if times are exactly on 5-minute boundaries (no seconds or sub-seconds)
+	if startsAt.Truncate(5*time.Minute) != startsAt || endsAt.Truncate(5*time.Minute) != endsAt {
+		return constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
+	}
 
-	// Get event
-	var event model.Event
-	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
-		return model.Availability{}, constants.ERR_EVENT_NOT_FOUND.Err
+	// Prevent creating/updating availabilities outside of event date range
+	if startsAt.Before(event.StartsAt) {
+		return constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
+	}
+	if endsAt.After(event.EndsAt) {
+		return constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
+	}
+
+	return nil
+}
+
+// validateEventAccess validates that the event exists, is accessible, and not ended
+func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uuid.UUID, event *model.Event) error {
+	if event == nil || event.Id == uuid.Nil {
+		if err := s.eventRepository.FindOneById(eventId, event); err != nil {
+			return constants.ERR_EVENT_NOT_FOUND.Err
+		}
 	}
 
 	// Check if event is ended
 	if event.IsLocked() {
-		return model.Availability{}, constants.ERR_EVENT_ENDED.Err
+		return constants.ERR_EVENT_ENDED.Err
 	}
 
 	// Check if user has access to the event
-	if !event.HasUserAccess(&user.Id) {
-		return model.Availability{}, constants.ERR_EVENT_ACCESS_DENIED.Err
+	if !event.HasUserAccess(userId) {
+		return constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	return nil
+}
+
+func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
+	// Get event and validate access
+	var event model.Event
+	if err := s.validateEventAccess(eventId, &user.Id, &event); err != nil {
+		return model.Availability{}, err
 	}
 
 	data.StartsAt = data.StartsAt.Truncate(time.Minute)
 	data.EndsAt = data.EndsAt.Truncate(time.Minute)
 
-	// Prevent creating availabilities with end date before start date
-	if data.StartsAt.After(data.EndsAt) {
-		return model.Availability{}, constants.ERR_EVENT_START_AFTER_END.Err
+	// Validate availability times
+	if err := s.validateAvailabilityTimes(data.StartsAt, data.EndsAt, &event); err != nil {
+		return model.Availability{}, err
 	}
 
-	// Prevent creating availabilities with less than minimum duration of 5 minutes
-	minDuration := 5 * time.Minute
-	duration := data.EndsAt.Sub(data.StartsAt)
-	if duration < minDuration {
-		return model.Availability{}, constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
-	}
+	// Acquire per-event mutex to prevent concurrent availability modifications
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
+	mu := value.(*sync.Mutex)
 
-	// Prevent creating availabilities not aligned on 5 minutes interval
-	if data.StartsAt.Minute()%5 != 0 || data.EndsAt.Minute()%5 != 0 {
-		return model.Availability{}, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
-	}
-
-	// Prevent creating availabilities outside of event date range
-	if data.StartsAt.Before(event.StartsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
-	}
-	if data.EndsAt.After(event.EndsAt) {
-		return model.Availability{}, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
-	}
+	mu.Lock()
+	defer mu.Unlock()
 
 	// Create availability model
 	availabilityToCreate := model.Availability{
@@ -137,6 +156,114 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	go s.slotService.LoadSlots(eventId)
 
 	return availabilityToCreate, nil
+}
+
+func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId uuid.UUID, user *guard.Claims) (model.Availability, error) {
+	// Get availability first to validate access
+	var availability model.Availability
+	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return model.Availability{}, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+		}
+		return model.Availability{}, err
+	}
+
+	// Check if availability belongs to the user
+	if availability.AccountId != user.Id {
+		return model.Availability{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
+	}
+
+	// Validate event access
+	if err := s.validateEventAccess(availability.Event.Id, &user.Id, &availability.Event); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Update fields if provided
+	updated := false
+	if data.StartsAt != nil {
+		availability.StartsAt = data.StartsAt.Truncate(time.Minute)
+		updated = true
+	}
+	if data.EndsAt != nil {
+		availability.EndsAt = data.EndsAt.Truncate(time.Minute)
+		updated = true
+	}
+
+	// If no fields were updated, return early
+	if !updated {
+		return availability, nil
+	}
+
+	// Validate availability times
+	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Acquire per-user mutex to prevent concurrent availability modifications
+	value, _ := s.locks.LoadOrStore(user.Id.String(), &sync.Mutex{})
+	mu := value.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Find overlapping availabilities (excluding the current one being updated)
+	var availabilitiesToMerge []model.Availability
+	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availability, &availabilitiesToMerge); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Filter out the current availability from the list
+	var otherAvailabilities []model.Availability
+	for _, existing := range availabilitiesToMerge {
+		if existing.Id != availabilityId {
+			otherAvailabilities = append(otherAvailabilities, existing)
+		}
+	}
+
+	if len(otherAvailabilities) == 0 {
+		// No overlapping availabilities, just update the current one
+		if err := s.availabilityRepository.Update(&availability); err != nil {
+			return model.Availability{}, err
+		}
+
+		// Trigger slot recalculation asynchronously
+		go s.slotService.LoadSlots(availability.EventId)
+
+		return availability, nil
+	}
+
+	// Merge overlapping availabilities
+	var availabilitiesIdsToDelete []uuid.UUID
+	for _, existingAvailability := range otherAvailabilities {
+		if existingAvailability.StartsAt.Before(availability.StartsAt) {
+			availability.StartsAt = existingAvailability.StartsAt
+		}
+		if existingAvailability.EndsAt.After(availability.EndsAt) {
+			availability.EndsAt = existingAvailability.EndsAt
+		}
+
+		availabilitiesIdsToDelete = append(availabilitiesIdsToDelete, existingAvailability.Id)
+	}
+
+	// Revalidate the merged times to ensure they still meet all constraints
+	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Delete merged availabilities
+	if err := s.availabilityRepository.DeleteByIds(&availabilitiesIdsToDelete); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Update the merged availability
+	if err := s.availabilityRepository.Update(&availability); err != nil {
+		return model.Availability{}, err
+	}
+
+	// Trigger slot recalculation asynchronously
+	go s.slotService.LoadSlots(availability.EventId)
+
+	return availability, nil
 }
 
 func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claims) error {

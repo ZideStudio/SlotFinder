@@ -31,6 +31,13 @@ definitions:
     - endsAt
     - startsAt
     type: object
+  availability.AvailabilityUpdateDto:
+    properties:
+      endsAt:
+        type: string
+      startsAt:
+        type: string
+    type: object
   constants.EventStatus:
     enum:
     - IN_DECISION
@@ -417,6 +424,37 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete an availability
+      tags:
+      - Availability
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Availability ID
+        in: path
+        name: availabilityId
+        required: true
+        type: string
+      - description: Availability parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/availability.AvailabilityUpdateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Availability'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Update an availability
       tags:
       - Availability
   /api/v1/events:
