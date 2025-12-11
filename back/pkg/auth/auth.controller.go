@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"app/commons/guard"
 	"app/commons/helpers"
 	"app/commons/lib"
+	model "app/db/models"
 	"app/db/repository"
 
 	"github.com/gin-gonic/gin"
@@ -39,11 +39,15 @@ func (ctl *AuthController) Status(c *gin.Context) {
 // @Router /api/v1/auth/logout [post]
 // @security AccessTokenCookie
 func (ctl *AuthController) Logout(c *gin.Context) {
-	// Get user claims to revoke all refresh tokens
-	var user *guard.Claims
-	if err := guard.GetUserClaims(c, &user); err == nil && user != nil {
-		// Revoke all refresh tokens for this user
-		_ = ctl.refreshTokenRepository.RevokeAllForAccount(user.Id)
+	// Get the current refresh token from cookie
+	refreshToken, err := c.Cookie("refresh_token")
+	if err == nil && refreshToken != "" {
+		// Revoke only the current refresh token (logout from this device only)
+		tokenHash := ctl.refreshTokenRepository.HashToken(refreshToken)
+		var token model.RefreshToken
+		if err := ctl.refreshTokenRepository.FindByTokenHash(tokenHash, &token); err == nil {
+			_ = ctl.refreshTokenRepository.Revoke(token.Id)
+		}
 	}
 
 	// Clear cookies

@@ -27,12 +27,13 @@ import (
 )
 
 type AccountService struct {
-	accountRepository     *repository.AccountRepository
-	avatarService         *AvatarService
-	signinService         *signin.SigninService
-	mailService           *mail.MailService
-	config                *config.Config
-	passwordResetCooldown *cache.Cache
+	accountRepository      *repository.AccountRepository
+	avatarService          *AvatarService
+	signinService          *signin.SigninService
+	mailService            *mail.MailService
+	config                 *config.Config
+	passwordResetCooldown  *cache.Cache
+	refreshTokenRepository *repository.RefreshTokenRepository
 }
 
 func NewAccountService(service *AccountService) *AccountService {
@@ -41,12 +42,13 @@ func NewAccountService(service *AccountService) *AccountService {
 	}
 
 	return &AccountService{
-		accountRepository:     &repository.AccountRepository{},
-		avatarService:         NewAvatarService(nil),
-		signinService:         signin.NewSigninService(nil),
-		mailService:           mail.NewMailService(nil),
-		config:                config.GetConfig(),
-		passwordResetCooldown: cache.New(10*time.Minute, 15*time.Minute),
+		accountRepository:      &repository.AccountRepository{},
+		avatarService:          NewAvatarService(nil),
+		signinService:          signin.NewSigninService(nil),
+		mailService:            mail.NewMailService(nil),
+		config:                 config.GetConfig(),
+		passwordResetCooldown:  cache.New(10*time.Minute, 15*time.Minute),
+		refreshTokenRepository: &repository.RefreshTokenRepository{},
 	}
 }
 
@@ -67,7 +69,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 	var tokens AccountTokensDto
 	// Validate input
 	if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(data.TermsVersion)) {
-		return "", errors.New("invalid terms version")
+		return tokens, errors.New("invalid terms version")
 	}
 
 	if !lib.IsValidEmail(data.Email) {
@@ -172,11 +174,13 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	if dto.Email != nil {
 		account.Email = dto.Email
 	}
+	passwordChanged := false
 	if dto.Password != nil {
 		if !lib.IsValidPassword(*dto.Password) {
 			return account, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
+		passwordChanged = true
 	}
 	if dto.Language != nil {
 		account.Language = *dto.Language
@@ -202,13 +206,18 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	if dto.UserName != nil || termsUpdated {
-		termsAccepted := account.TermsAcceptedAt != nil
+	// Generate new tokens if username was set or password was changed
+	if dto.UserName != nil || termsUpdated || passwordChanged {
+		// If password changed, revoke all existing refresh tokens to force re-login on all devices
+		if passwordChanged {
+			_ = s.refreshTokenRepository.RevokeAllForAccount(userId)
+		}
+
 		claims := &guard.Claims{
 			Id:            account.Id,
 			Username:      account.UserName,
 			Email:         account.Email,
-			TermsAccepted: termsAccepted,
+			TermsAccepted: account.TermsAcceptedAt != nil,
 		}
 
 		token, err := s.signinService.GenerateTokens(claims)
