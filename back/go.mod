@@ -1,6 +1,6 @@
 module app
 
-go 1.25.3
+go 1.25.5
 
 require (
 	github.com/gin-contrib/gzip v1.2.5
