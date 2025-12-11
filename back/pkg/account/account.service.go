@@ -25,12 +25,13 @@ import (
 )
 
 type AccountService struct {
-	accountRepository     *repository.AccountRepository
-	avatarService         *AvatarService
-	signinService         *signin.SigninService
-	mailService           *mail.MailService
-	config                *config.Config
-	passwordResetCooldown *cache.Cache
+	accountRepository      *repository.AccountRepository
+	avatarService          *AvatarService
+	signinService          *signin.SigninService
+	mailService            *mail.MailService
+	config                 *config.Config
+	passwordResetCooldown  *cache.Cache
+	refreshTokenRepository *repository.RefreshTokenRepository
 }
 
 func NewAccountService(service *AccountService) *AccountService {
@@ -39,12 +40,13 @@ func NewAccountService(service *AccountService) *AccountService {
 	}
 
 	return &AccountService{
-		accountRepository:     &repository.AccountRepository{},
-		avatarService:         NewAvatarService(),
-		signinService:         signin.NewSigninService(nil),
-		mailService:           mail.NewMailService(nil),
-		config:                config.GetConfig(),
-		passwordResetCooldown: cache.New(10*time.Minute, 15*time.Minute),
+		accountRepository:      &repository.AccountRepository{},
+		avatarService:          NewAvatarService(),
+		signinService:          signin.NewSigninService(nil),
+		mailService:            mail.NewMailService(nil),
+		config:                 config.GetConfig(),
+		passwordResetCooldown:  cache.New(10*time.Minute, 15*time.Minute),
+		refreshTokenRepository: &repository.RefreshTokenRepository{},
 	}
 }
 
@@ -148,6 +150,8 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
+	passwordChanged := false
+
 	if dto.UserName != nil {
 		if account.UserName != nil && *dto.UserName == *account.UserName {
 			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
@@ -169,6 +173,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 			return account, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
+		passwordChanged = true
 	}
 	if dto.Color != nil {
 		if !lib.IsHexa(*dto.Color) {
@@ -181,7 +186,13 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	if dto.UserName != nil {
+	// Generate new tokens if username was set OR password was changed
+	if dto.UserName != nil || passwordChanged {
+		// If password changed, revoke all existing refresh tokens to force re-login on all devices
+		if passwordChanged {
+			_ = s.refreshTokenRepository.RevokeAllForAccount(userId)
+		}
+
 		claims := &guard.Claims{
 			Id:       account.Id,
 			Username: account.UserName,
