@@ -51,6 +51,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
+	if !lib.IsValidPassword(data.Password) {
+		return "", constants.ERR_INVALID_PASSWORD.Err
+	}
+
 	// Check if username is available
 	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
 	if err != nil {
@@ -133,6 +137,9 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		account.Email = dto.Email
 	}
 	if dto.Password != nil {
+		if !lib.IsValidPassword(*dto.Password) {
+			return account, nil, constants.ERR_INVALID_PASSWORD.Err
+		}
 		account.Password = dto.Password
 	}
 
