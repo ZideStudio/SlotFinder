@@ -28,11 +28,10 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./front:/app
-      - /app/node_modules
     env_file:
       - path: ./front/.env.development
         required: true
-    command: sh -c "npm install && npm run start"
+    command: npm run start
     ports:
       - "3000:3000"
     labels:
