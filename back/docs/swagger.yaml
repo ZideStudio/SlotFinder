@@ -617,6 +617,36 @@ paths:
       summary: Confirm a slot
       tags:
       - Slot
+  /v1/events/{eventId}/sse:
+    get:
+      description: Establishes a Server-Sent Events connection to receive real-time
+        updates for a specific event
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: SSE connection established
+          schema:
+            type: string
+        "400":
+          description: Invalid event ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: User not authenticated
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Connect to SSE for event updates
+      tags:
+      - SSE
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**

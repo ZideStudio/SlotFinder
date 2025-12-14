@@ -10,6 +10,7 @@ import (
 	"app/pkg/provider"
 	"app/pkg/signin"
 	"app/pkg/slot"
+	"app/pkg/sse"
 
 	_ "app/docs"
 
@@ -81,6 +82,12 @@ func NewRouter() *gin.Engine {
 			// Availability routes
 			{
 				eventGroup.POST("/:eventId/availability", guard.AuthCheck(nil), availabilityRouter.Create)
+			}
+
+			// SSE routes
+			{
+				sseRouter := sse.NewSSEController(nil)
+				eventGroup.GET("/:eventId/sse", guard.AuthCheck(nil), sseRouter.Connect)
 			}
 
 		}

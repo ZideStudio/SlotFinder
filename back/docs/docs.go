@@ -611,6 +611,50 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/events/{eventId}/sse": {
+            "get": {
+                "description": "Establishes a Server-Sent Events connection to receive real-time updates for a specific event",
+                "tags": [
+                    "SSE"
+                ],
+                "summary": "Connect to SSE for event updates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE connection established",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid event ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

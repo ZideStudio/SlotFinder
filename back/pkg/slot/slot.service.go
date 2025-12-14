@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/sse"
 	"sort"
 	"sync"
 	"time"
@@ -17,6 +18,7 @@ type SlotService struct {
 	eventRepository        *repository.EventRepository
 	availabilityRepository *repository.AvailabilityRepository
 	accountEventRepository *repository.AccountEventRepository
+	sseService             *sse.SSEService
 	loadSlotsMutexes       sync.Map // Map of eventId to *sync.Mutex for preventing concurrent LoadSlots
 }
 
@@ -30,6 +32,7 @@ func NewSlotService(service *SlotService) *SlotService {
 		eventRepository:        &repository.EventRepository{},
 		availabilityRepository: &repository.AvailabilityRepository{},
 		accountEventRepository: &repository.AccountEventRepository{},
+		sseService:             sse.GetSSEService(),
 		loadSlotsMutexes:       sync.Map{},
 	}
 }
@@ -149,6 +152,7 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 	}
 
 	// Create new slots in database
+	slots := make([]model.Slot, 0, len(commonSlots))
 	for _, slot := range commonSlots {
 		newSlot := model.Slot{
 			Id:          uuid.New(),
@@ -161,9 +165,14 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 		if err := s.slotRepository.Create(&newSlot); err != nil {
 			log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to create slot")
 		}
+
+		slots = append(slots, newSlot)
 	}
 
 	log.Debug().Str("eventId", eventId.String()).Int("slotsCreated", len(commonSlots)).Msg("Slot recalculation completed")
+
+	// Send new slots to all participants via SSE
+	s.sseService.BroadcastSlotsUpdate(eventId, slots)
 }
 
 // Finds time slots where all users are available
