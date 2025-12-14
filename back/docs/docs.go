@@ -937,11 +937,11 @@ const docTemplate = `{
         "signin.SigninDto": {
             "type": "object",
             "required": [
-                "email",
+                "identifier",
                 "password"
             ],
             "properties": {
-                "email": {
+                "identifier": {
                     "type": "string"
                 },
                 "password": {

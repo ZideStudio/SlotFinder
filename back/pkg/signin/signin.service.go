@@ -1,6 +1,7 @@
 package signin
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/config"
 	model "app/db/models"
@@ -30,20 +31,21 @@ func NewSigninService(service *SigninService) *SigninService {
 	}
 }
 
-var errorSignin = errors.New("invalid email or password")
-
 func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err error) {
 	var account model.Account
-	if err := s.accountRepository.FindOneByEmail(data.Email, &account); err != nil && err.Error() != gorm.ErrRecordNotFound.Error() {
+	if err := s.accountRepository.FindOneByEmailOrUsername(data.Identifier, &account); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return token, constants.ERR_INVALID_IDENTIFIER_OR_PASSWORD.Err
+		}
 		return token, err
 	}
 
 	if account.Id == uuid.Nil {
-		return token, errorSignin
+		return token, constants.ERR_INVALID_IDENTIFIER_OR_PASSWORD.Err
 	}
 
 	if !account.ComparePassword(data.Password) {
-		return token, errorSignin
+		return token, constants.ERR_INVALID_IDENTIFIER_OR_PASSWORD.Err
 	}
 
 	claims := &guard.Claims{
