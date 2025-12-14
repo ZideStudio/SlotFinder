@@ -1,15 +1,40 @@
 import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef, ChangeEvent } from 'react';
 
 import './CheckboxInputAtom.scss';
 
-export type CheckboxInputAtomProps = ComponentPropsWithRef<'input'>;
+export type CheckboxInputAtomProps = ComponentPropsWithRef<'input'> & {
+  id: string;
+  name?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
+  required?: boolean;
+};
 
-export const CheckboxInputAtom = ({ className, ...props }: CheckboxInputAtomProps) => {
+export const CheckboxInputAtom = ({
+  id,
+  name,
+  onChange,
+  disabled,
+  required,
+  className,
+  ...props
+}: CheckboxInputAtomProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-checkbox-input-atom',
     className,
   });
 
-  return <input className={parentClassName} type="checkbox" {...props} />;
+  return (
+    <input
+      id={id}
+      name={name}
+      className={parentClassName}
+      type="checkbox"
+      onChange={onChange}
+      disabled={disabled}
+      required={required}
+      {...props}
+    />
+  );
 };

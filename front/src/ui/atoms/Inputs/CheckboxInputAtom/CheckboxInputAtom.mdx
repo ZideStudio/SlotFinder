@@ -3,14 +3,14 @@ import * as CheckboxInputAtomStories from './CheckboxInputAtom.stories';
 
 <Meta of={CheckboxInputAtomStories} />
 
-# TextInCheckboxInputAtom
+# CheckboxInputAtom
 
-A reusable, accessible text checkbox atom for forms and UI elements.
+A reusable, accessible checkbox atom for forms and UI elements.
 
 ## Usage
 
 ```tsx
-<CheckboxInputAtom />
+<CheckboxInputAtom id="example" name="example" />
 ```
 
 ## Props
@@ -24,6 +24,51 @@ A reusable, accessible text checkbox atom for forms and UI elements.
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td>
+        <code>id</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Unique id to associate a label with the input</td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Form name for grouped inputs</td>
+    </tr>
+    <tr>
+      <td>
+        <code>onChange</code>
+      </td>
+      <td>
+        <code>(e: ChangeEvent&lt;HTMLInputElement&gt;) =&gt; void</code>
+      </td>
+      <td>Change handler (storybook action enabled)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Disable interaction</td>
+    </tr>
+    <tr>
+      <td>
+        <code>required</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Marks input as required</td>
+    </tr>
     <tr>
       <td>
         <code>className</code>
@@ -40,7 +85,7 @@ A reusable, accessible text checkbox atom for forms and UI elements.
       <td>
         <code>input props (HTMLInput)</code>
       </td>
-      <td>All standard input props (e.g. value, onChange)</td>
+      <td>All standard input props (e.g. value, aria attributes)</td>
     </tr>
   </tbody>
 </table>
@@ -53,7 +98,7 @@ A reusable, accessible text checkbox atom for forms and UI elements.
 ## Example
 
 ```tsx
-<CheckboxInputAtom />
+<CheckboxInputAtom id="agree" name="terms" required />
 ```
 
 ## Playground
