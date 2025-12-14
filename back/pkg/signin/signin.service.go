@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -38,10 +37,6 @@ func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err err
 			return token, constants.ERR_INVALID_IDENTIFIER_OR_PASSWORD.Err
 		}
 		return token, err
-	}
-
-	if account.Id == uuid.Nil {
-		return token, constants.ERR_INVALID_IDENTIFIER_OR_PASSWORD.Err
 	}
 
 	if !account.ComparePassword(data.Password) {
