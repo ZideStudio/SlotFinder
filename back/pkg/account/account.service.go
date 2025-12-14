@@ -51,15 +51,6 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
-	// Check if username is available
-	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
-	if err != nil {
-		return "", err
-	}
-	if !isUserNameAvailable {
-		return "", constants.ERR_USERNAME_ALREADY_TAKEN.Err
-	}
-
 	// Check if email already exists
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -72,7 +63,6 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
-		UserName: &data.UserName,
 		Email:    &data.Email,
 		Password: data.Password,
 	}, &account); err != nil {
