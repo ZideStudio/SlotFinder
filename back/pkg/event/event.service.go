@@ -88,6 +88,44 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	}, nil
 }
 
+func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *guard.Claims) error {
+	// Get event
+	var event model.Event
+	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return constants.ERR_EVENT_NOT_FOUND.Err
+		}
+		return err
+	}
+
+	// Check if user is the owner of the event
+	if !event.IsOwner(&user.Id) {
+		return constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	updatedEvent := model.Event{
+		Id: event.Id,
+	}
+
+	// Update fields if provided
+	if data.Name != nil {
+		updatedEvent.Name = *data.Name
+	}
+	if data.Description != nil {
+		updatedEvent.Description = data.Description
+	}
+	if data.Duration != nil {
+		updatedEvent.Duration = *data.Duration
+	}
+
+	// Update event in repository
+	if err := s.eventRepository.Updates(&updatedEvent); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *EventService) getEventResponseFromEvents(eventIds []uuid.UUID) ([]EventResponse, error) {
 	// Find all account_events for these events to get all accounts
 	var allAccountEvents []model.AccountEvent

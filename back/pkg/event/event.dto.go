@@ -18,6 +18,12 @@ type EventResponse struct {
 	Accounts []model.Account `json:"participants"`
 }
 
+type EventUpdateDto struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Duration    *int    `json:"duration" binding:"omitempty,min=15,max=30240"`
+}
+
 type EventProfileDto struct {
 	Color string `json:"color"`
 }

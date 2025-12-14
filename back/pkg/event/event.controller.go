@@ -49,6 +49,39 @@ func (ctl *EventController) Create(c *gin.Context) {
 	helpers.HandleJSONResponse(c, event, err)
 }
 
+// @Summary Update an event
+// @Tags Event
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event Id"
+// @Param data body EventUpdateDto true "Event parameters"
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/events/{eventId} [patch]
+func (ctl *EventController) Update(c *gin.Context) {
+	var data EventUpdateDto
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
+		return
+	}
+
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	idUuid, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	err = ctl.eventService.Update(idUuid, &data, user)
+
+	helpers.HandleJSONResponse(c, nil, err)
+}
+
 // @Summary Get user events
 // @Tags Event
 // @Accept json
