@@ -13,6 +13,7 @@ type Account struct {
 	Email                *string           `gorm:"column:email;default:null;size:255" json:"email,omitempty"`
 	Password             *string           `gorm:"column:password;size:255" json:"-"`
 	AvatarUrl            string            `gorm:"column:avatar_url;size:255;default:null" json:"avatarUrl"`
+	Color                string            `gorm:"column:color;size:7" json:"color"`
 	ResetToken           *string           `gorm:"column:reset_token;size:255;default:null" json:"-"`
 	PasswordResetTokenAt *time.Time        `gorm:"column:password_reset_token_at;default:null" json:"-"`
 	Events               []AccountEvent    `gorm:"foreignKey:AccountId;references:Id" json:"events,omitempty"`
@@ -35,9 +36,15 @@ func (a *Account) ComparePassword(password string) bool {
 	return err == nil
 }
 
-func (a *Account) Sanitized() Account {
+func (a *Account) Sanitized(overrideColor *string) Account {
+	color := a.Color
+	if overrideColor != nil {
+		color = *overrideColor
+	}
+
 	return Account{
 		UserName:  a.UserName,
 		AvatarUrl: a.AvatarUrl,
+		Color:     color,
 	}
 }

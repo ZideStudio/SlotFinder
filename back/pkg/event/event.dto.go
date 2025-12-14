@@ -17,3 +17,7 @@ type EventResponse struct {
 	model.Event
 	Accounts []model.Account `json:"participants"`
 }
+
+type EventProfileDto struct {
+	Color string `json:"color"`
+}

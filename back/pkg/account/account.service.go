@@ -9,6 +9,7 @@ import (
 	"app/db/repository"
 	"app/pkg/signin"
 	"errors"
+	"math/rand"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -69,11 +70,18 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
+	// Choose a random color
+	colors := constants.COLORS
+	max := len(colors)
+	min := 0
+	color := colors[rand.Intn(max-min)+min]
+
 	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
 		UserName: &data.UserName,
 		Email:    &data.Email,
+		Color:    string(color),
 		Password: data.Password,
 	}, &account); err != nil {
 		return "", err
@@ -134,6 +142,12 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 	if dto.Password != nil {
 		account.Password = dto.Password
+	}
+	if dto.Color != nil && !lib.IsHexa(*dto.Color) {
+		return account, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
+	}
+	if dto.Color != nil {
+		account.Color = *dto.Color
 	}
 
 	if err := s.accountRepository.Updates(account); err != nil {

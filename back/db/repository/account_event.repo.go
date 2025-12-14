@@ -21,6 +21,17 @@ func (*AccountEventRepository) Create(accountEvent *model.AccountEvent) error {
 	return nil
 }
 
+func (*AccountEventRepository) Updates(accountEvent *model.AccountEvent) error {
+	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountEvent.AccountId, accountEvent.EventId).Preload("Account").Updates(&accountEvent).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::UPDATES Failed to update account_event")
+		return err
+	}
+
+	accountEvent.Sanitized()
+
+	return nil
+}
+
 func (*AccountEventRepository) FindByAccountAndEventId(accountId, eventId uuid.UUID, accountEvent *model.AccountEvent) error {
 	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountId, eventId).Preload("Account").First(&accountEvent).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_ACCOUNT_AND_EVENT_ID Failed to find account_event")

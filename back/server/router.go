@@ -77,6 +77,7 @@ func NewRouter() *gin.Engine {
 			eventGroup.GET("/:eventId", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
 			eventGroup.POST("/:eventId/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 			eventGroup.POST("", guard.AuthCheck(nil), eventRouter.Create)
+			eventGroup.PATCH("/:eventId/profile", guard.AuthCheck(nil), eventRouter.UpdateProfile)
 
 			// Availability routes
 			{

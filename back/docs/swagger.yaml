@@ -14,6 +14,8 @@ definitions:
     type: object
   account.AccountUpdateDto:
     properties:
+      color:
+        type: string
       email:
         type: string
       password:
@@ -78,6 +80,11 @@ definitions:
     - name
     - startsAt
     type: object
+  event.EventProfileDto:
+    properties:
+      color:
+        type: string
+    type: object
   event.EventResponse:
     properties:
       availabilities:
@@ -123,6 +130,8 @@ definitions:
     properties:
       avatarUrl:
         type: string
+      color:
+        type: string
       createdAt:
         type: string
       email:
@@ -158,13 +167,13 @@ definitions:
     type: object
   model.Availability:
     properties:
-      account:
-        $ref: '#/definitions/model.Account'
       endsAt:
         type: string
       id:
         type: string
       startsAt:
+        type: string
+      userName:
         type: string
     type: object
   model.Event:
@@ -583,6 +592,36 @@ paths:
       security:
       - BearerAuth: []
       summary: Join event
+      tags:
+      - Event
+  /api/v1/events/{eventId}/profile:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event Id
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Event profile parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/event.EventProfileDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Update event profile
       tags:
       - Event
   /api/v1/slots/{slotId}/confirm:
