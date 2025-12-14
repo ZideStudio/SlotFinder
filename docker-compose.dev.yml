@@ -28,7 +28,6 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./front:/app
-      - /app/node_modules
     env_file:
       - path: ./front/.env.development
         required: true
