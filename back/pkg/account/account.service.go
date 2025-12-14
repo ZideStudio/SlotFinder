@@ -72,9 +72,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 
 	// Choose a random color
 	colors := constants.COLORS
-	max := len(colors)
-	min := 0
-	color := colors[rand.Intn(max-min)+min]
+	color := colors[rand.Intn(len(colors))]
 
 	// Create account
 	var account model.Account
@@ -143,10 +141,10 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	if dto.Password != nil {
 		account.Password = dto.Password
 	}
-	if dto.Color != nil && !lib.IsHexa(*dto.Color) {
-		return account, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
-	}
 	if dto.Color != nil {
+		if !lib.IsHexa(*dto.Color) {
+			return account, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
+		}
 		account.Color = *dto.Color
 	}
 
