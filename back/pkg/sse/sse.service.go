@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
 
@@ -186,15 +187,32 @@ func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, event
 
 	initialMessage := SlotUpdateMessage(currentSlots)
 	initialBytes, _ := json.Marshal(initialMessage)
-	fmt.Fprintf(c.Writer, "data: %s\n\n", string(initialBytes))
-	c.Writer.Flush()
+
+	// Send initial message
+	if _, err := fmt.Fprintf(c.Writer, "data: %s\n\n", string(initialBytes)); err != nil {
+		return
+	}
+
+	flusher, ok := c.Writer.(http.Flusher)
+	if !ok {
+		return
+	}
+	flusher.Flush()
 
 	// Listen for messages and client disconnect
 	for {
 		select {
 		case message := <-client.Channel:
-			fmt.Fprintf(c.Writer, "data: %s\n\n", string(message))
-			c.Writer.Flush()
+			if _, err := fmt.Fprintf(c.Writer, "data: %s\n\n", string(message)); err != nil {
+				return
+			}
+
+			// Flush with error handling
+			if flusher, ok := c.Writer.(http.Flusher); ok {
+				flusher.Flush()
+			} else {
+				return
+			}
 		case <-client.Context.Done():
 			return
 		case <-c.Request.Context().Done():
