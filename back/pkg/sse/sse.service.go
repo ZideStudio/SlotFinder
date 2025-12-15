@@ -125,23 +125,17 @@ func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot)
 		return
 	}
 
-	var connectedClients []string
 	var clientsToRemove []string
 	var sentCount int
-
-	// O(1) lookup of clients for this event
 	if eventClients, exists := s.clientsByEvent[eventId]; exists {
 		for clientId := range eventClients {
 			if client, exists := s.clients[clientId]; exists {
 				select {
 				case client.Channel <- messageBytes:
-					connectedClients = append(connectedClients, clientId)
 					sentCount++
 				case <-client.Context.Done():
 					// Collect clients to remove instead of removing immediately
 					clientsToRemove = append(clientsToRemove, clientId)
-				default:
-					// Channel full, skip this client
 				}
 			} else {
 				// Client doesn't exist, mark for removal from event index
