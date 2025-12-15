@@ -3,20 +3,12 @@ import type { ComponentPropsWithRef, ChangeEvent } from 'react';
 
 import './CheckboxInputAtom.scss';
 
-export type CheckboxInputAtomProps = ComponentPropsWithRef<'input'> & {
-  id: string;
-  name?: string;
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean;
-  required?: boolean;
+export type CheckboxInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
+  name: string;
 };
 
 export const CheckboxInputAtom = ({
-  id,
   name,
-  onChange,
-  disabled,
-  required,
   className,
   ...props
 }: CheckboxInputAtomProps) => {
@@ -27,13 +19,9 @@ export const CheckboxInputAtom = ({
 
   return (
     <input
-      id={id}
       name={name}
       className={parentClassName}
       type="checkbox"
-      onChange={onChange}
-      disabled={disabled}
-      required={required}
       {...props}
     />
   );
