@@ -118,3 +118,36 @@ func (ctl *EventController) JoinEvent(c *gin.Context) {
 	events, err := ctl.eventService.JoinEvent(idUuid, user)
 	helpers.HandleJSONResponse(c, events, err)
 }
+
+// @Summary Update event profile
+// @Tags Event
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event Id"
+// @Param data body EventProfileDto true "Event profile parameters"
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/events/{eventId}/profile [patch]
+func (ctl *EventController) UpdateProfile(c *gin.Context) {
+	var data EventProfileDto
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
+		return
+	}
+
+	idUuid, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	err = ctl.eventService.UpdateProfile(&data, idUuid, user)
+
+	helpers.HandleJSONResponse(c, nil, err)
+}

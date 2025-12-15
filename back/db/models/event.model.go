@@ -30,7 +30,7 @@ func (Event) TableName() string {
 }
 
 func (e *Event) Sanitized() *Event {
-	e.Owner = e.Owner.Sanitized()
+	e.Owner = e.Owner.Sanitized(nil)
 
 	if len(e.Availabilities) > 0 {
 		availabilities := make([]Availability, len(e.Availabilities))

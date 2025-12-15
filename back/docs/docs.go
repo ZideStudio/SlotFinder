@@ -561,6 +561,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/events/{eventId}/profile": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Update event profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event profile parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/event.EventProfileDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/slots/{slotId}/confirm": {
             "post": {
                 "security": [
@@ -676,6 +724,9 @@ const docTemplate = `{
         "account.AccountUpdateDto": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -767,6 +818,14 @@ const docTemplate = `{
                 }
             }
         },
+        "event.EventProfileDto": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                }
+            }
+        },
         "event.EventResponse": {
             "type": "object",
             "properties": {
@@ -837,6 +896,9 @@ const docTemplate = `{
                 "avatarUrl": {
                     "type": "string"
                 },
+                "color": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -893,9 +955,6 @@ const docTemplate = `{
         "model.Availability": {
             "type": "object",
             "properties": {
-                "account": {
-                    "$ref": "#/definitions/model.Account"
-                },
                 "endsAt": {
                     "type": "string"
                 },
@@ -903,6 +962,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startsAt": {
+                    "type": "string"
+                },
+                "userName": {
                     "type": "string"
                 }
             }

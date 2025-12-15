@@ -1,0 +1,27 @@
+package constants
+
+type Color string
+
+const (
+	COLOR_PINK   Color = "#F7A8B8"
+	COLOR_YELLOW Color = "#F3D768"
+	COLOR_BLUE   Color = "#ACD8FC"
+	COLOR_GREEN  Color = "#ADDDC0"
+	COLOR_RED    Color = "#FDBDBE"
+	COLOR_GREY   Color = "#D9D9D9"
+	COLOR_ORANGE Color = "#FBC687"
+	COLOR_PURPLE Color = "#E0C4F4"
+	COLOR_BROWN  Color = "#D2B48C"
+)
+
+var COLORS = []Color{
+	COLOR_PINK,
+	COLOR_YELLOW,
+	COLOR_BLUE,
+	COLOR_GREEN,
+	COLOR_RED,
+	COLOR_GREY,
+	COLOR_ORANGE,
+	COLOR_PURPLE,
+	COLOR_BROWN,
+}
