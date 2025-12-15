@@ -1,4 +1,4 @@
-FROM node:24-alpine AS builder
+FROM marcaureln/volta:2.0.2-bookworm-slim AS builder
 
 WORKDIR /app
 
