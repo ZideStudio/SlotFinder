@@ -2,6 +2,7 @@ package sse
 
 import (
 	model "app/db/models"
+	"app/db/repository"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -22,8 +23,10 @@ type SSEClient struct {
 }
 
 type SSEService struct {
-	clients map[string]*SSEClient
-	mutex   sync.RWMutex
+	clients         map[string]*SSEClient
+	mutex           sync.RWMutex
+	eventRepository *repository.EventRepository
+	slotRepository  *repository.SlotRepository
 }
 
 type SlotUpdateMessage []model.Slot
@@ -35,8 +38,9 @@ var sseServiceOnce sync.Once
 func GetSSEService() *SSEService {
 	sseServiceOnce.Do(func() {
 		sseServiceInstance = &SSEService{
-			clients: make(map[string]*SSEClient),
-			mutex:   sync.RWMutex{},
+			clients:        make(map[string]*SSEClient),
+			mutex:          sync.RWMutex{},
+			slotRepository: &repository.SlotRepository{},
 		}
 	})
 	return sseServiceInstance
@@ -45,8 +49,9 @@ func GetSSEService() *SSEService {
 // NewSSEService creates a new SSE service instance
 func NewSSEService() *SSEService {
 	return &SSEService{
-		clients: make(map[string]*SSEClient),
-		mutex:   sync.RWMutex{},
+		clients:        make(map[string]*SSEClient),
+		mutex:          sync.RWMutex{},
+		slotRepository: &repository.SlotRepository{},
 	}
 }
 
@@ -136,6 +141,25 @@ func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, event
 	// Add client to SSE service
 	client := s.AddClient(clientID, userId, eventId, c.Request.Context())
 	defer s.RemoveClient(clientID)
+
+	// Check if user has access to the event
+	var event model.Event
+	err := s.eventRepository.FindOneById(eventId, &event)
+	if err != nil || !event.HasUserAccess(&userId) {
+		c.JSON(403, gin.H{"error": "Access denied to event"})
+		return
+	}
+
+	// Send current event slots on connection
+	var currentSlots []model.Slot
+	if err := s.slotRepository.FindByEventId(eventId, &currentSlots); err != nil {
+		currentSlots = []model.Slot{} // Fallback to empty array if error
+	}
+
+	initialMessage := SlotUpdateMessage(currentSlots)
+	initialBytes, _ := json.Marshal(initialMessage)
+	fmt.Fprintf(c.Writer, "data: %s\n\n", string(initialBytes))
+	c.Writer.Flush()
 
 	// Listen for messages and client disconnect
 	for {
