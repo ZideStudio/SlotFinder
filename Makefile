@@ -8,6 +8,7 @@ start:
 	docker compose -f docker-compose.dev.yml up -d
 	@echo "\n🚀 Development environment started!"
 	@echo "📱 Front: https://localhost"
+	@echo "📒 Storybook: http://localhost:3002"
 	@echo "🔧 API: https://localhost/api"
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"
@@ -18,6 +19,7 @@ build-start:
 	docker compose -f docker-compose.dev.yml up -d --build
 	@echo "\n🚀 Development environment built and started!"
 	@echo "📱 Front: https://localhost"
+	@echo "📒 Storybook: http://localhost:3002"
 	@echo "🔧 API: https://localhost/api"
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"

@@ -45,6 +45,19 @@ services:
     depends_on:
       - traefik
 
+  storybook:
+    build:
+      context: ./front
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./front:/app
+    env_file:
+      - path: ./front/.env.development
+        required: true
+    command: ["npm", "run", "start:storybook"]
+    ports:
+      - "3002:3002"
+
   backend:
     build:
       context: ./back
