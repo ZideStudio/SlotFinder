@@ -1,8 +1,8 @@
 package signin
 
 type SigninDto struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Identifier string `json:"identifier" binding:"required"`
+	Password   string `json:"password" binding:"required"`
 }
 
 type TokenResponseDto struct {

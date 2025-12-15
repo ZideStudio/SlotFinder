@@ -94,6 +94,14 @@ func (*AccountRepository) FindOneByEmail(email string, account *model.Account) e
 	return err
 }
 
+func (*AccountRepository) FindOneByEmailOrUsername(emailOrUsername string, account *model.Account) error {
+	if err := db.GetDB().Where("(LOWER(email) = LOWER(?) OR LOWER(username) = LOWER(?)) AND deleted_at IS NULL", emailOrUsername, emailOrUsername).Preload("Providers").First(&account).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_EMAIL_OR_USERNAME Failed to find account by email or username")
+		return err
+	}
+	return nil
+}
+
 func (*AccountRepository) Delete(id uuid.UUID) error {
 	var account model.Account
 	if err := db.GetDB().Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error; err != nil {
