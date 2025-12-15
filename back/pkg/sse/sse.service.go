@@ -91,16 +91,17 @@ func (s *SSEService) RemoveClient(clientID string) {
 // BroadcastSlotsUpdate sends slot updates to all participants of an event
 func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot) {
 	s.mutex.RLock()
-	defer s.mutex.RUnlock()
 
 	message := SlotUpdateMessage(slots)
 
 	messageBytes, err := json.Marshal(message)
 	if err != nil {
+		s.mutex.RUnlock()
 		return
 	}
 
 	var connectedClients []string
+	var clientsToRemove []string
 	var sentCount int
 	var totalClients int
 
@@ -114,9 +115,16 @@ func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot)
 			connectedClients = append(connectedClients, clientID)
 			sentCount++
 		case <-client.Context.Done():
-			// Client context is done, remove it
-			go s.RemoveClient(clientID)
+			// Collect clients to remove instead of removing immediately
+			clientsToRemove = append(clientsToRemove, clientID)
 		}
+	}
+
+	s.mutex.RUnlock()
+
+	// Remove disconnected clients after releasing the read lock
+	for _, clientID := range clientsToRemove {
+		s.RemoveClient(clientID)
 	}
 }
 
