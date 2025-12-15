@@ -102,13 +102,18 @@ func (s *SSEService) RemoveClient(clientId string) {
 		delete(s.clients, clientId)
 
 		// Remove from event index
-		if eventClients, exists := s.clientsByEvent[client.EventId]; exists {
-			delete(eventClients, clientId)
-			// Clean up empty event entries
-			if len(eventClients) == 0 {
-				delete(s.clientsByEvent, client.EventId)
-			}
+		eventClients, exists := s.clientsByEvent[client.EventId]
+		if !exists {
+			return
 		}
+
+		delete(eventClients, clientId)
+		// Clean up empty event entries
+		if len(eventClients) != 0 {
+			return
+		}
+
+		delete(s.clientsByEvent, client.EventId)
 	}
 }
 
