@@ -12,11 +12,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 type SSEClient struct {
 	Id      string
-	userId  uuid.UUID
+	UserId  uuid.UUID
 	EventId uuid.UUID
 	Channel chan []byte
 	Context context.Context
@@ -24,14 +25,18 @@ type SSEClient struct {
 }
 
 type SSEService struct {
-	clients         map[string]*SSEClient         // clientID -> client
-	clientsByEvent  map[uuid.UUID]map[string]bool // eventID -> set of clientIDs
+	clients         map[string]*SSEClient         // clientId -> client
+	clientsByEvent  map[uuid.UUID]map[string]bool // eventId -> set of clientIds
 	mutex           sync.RWMutex
 	eventRepository *repository.EventRepository
 	slotRepository  *repository.SlotRepository
 }
 
 type SlotUpdateMessage []model.Slot
+
+const (
+	defaultChannelBuffer = 10 // Buffer size for SSE client channels
+)
 
 var sseServiceInstance *SSEService
 var sseServiceOnce sync.Once
@@ -40,9 +45,10 @@ var sseServiceOnce sync.Once
 func GetSSEService() *SSEService {
 	sseServiceOnce.Do(func() {
 		sseServiceInstance = &SSEService{
-			clients:        make(map[string]*SSEClient),
-			clientsByEvent: make(map[uuid.UUID]map[string]bool),
-			slotRepository: &repository.SlotRepository{},
+			clients:         make(map[string]*SSEClient),
+			clientsByEvent:  make(map[uuid.UUID]map[string]bool),
+			eventRepository: &repository.EventRepository{},
+			slotRepository:  &repository.SlotRepository{},
 		}
 	})
 	return sseServiceInstance
@@ -51,52 +57,53 @@ func GetSSEService() *SSEService {
 // NewSSEService creates a new SSE service instance
 func NewSSEService() *SSEService {
 	return &SSEService{
-		clients:        make(map[string]*SSEClient),
-		clientsByEvent: make(map[uuid.UUID]map[string]bool),
-		slotRepository: &repository.SlotRepository{},
+		clients:         make(map[string]*SSEClient),
+		clientsByEvent:  make(map[uuid.UUID]map[string]bool),
+		eventRepository: &repository.EventRepository{},
+		slotRepository:  &repository.SlotRepository{},
 	}
 }
 
 // AddClient adds a new SSE client
-func (s *SSEService) AddClient(clientID string, userId uuid.UUID, eventId uuid.UUID, ctx context.Context) *SSEClient {
+func (s *SSEService) AddClient(clientId string, userId uuid.UUID, eventId uuid.UUID, ctx context.Context) *SSEClient {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	clientCtx, cancel := context.WithCancel(ctx)
 
 	client := &SSEClient{
-		Id:      clientID,
-		userId:  userId,
+		Id:      clientId,
+		UserId:  userId,
 		EventId: eventId,
-		Channel: make(chan []byte, 10), // Buffer of 10 messages
+		Channel: make(chan []byte, defaultChannelBuffer),
 		Context: clientCtx,
 		Cancel:  cancel,
 	}
 
-	s.clients[clientID] = client
+	s.clients[clientId] = client
 
 	// Add to event index
 	if s.clientsByEvent[eventId] == nil {
 		s.clientsByEvent[eventId] = make(map[string]bool)
 	}
-	s.clientsByEvent[eventId][clientID] = true
+	s.clientsByEvent[eventId][clientId] = true
 
 	return client
 }
 
 // RemoveClient removes an SSE client
-func (s *SSEService) RemoveClient(clientID string) {
+func (s *SSEService) RemoveClient(clientId string) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if client, exists := s.clients[clientID]; exists {
+	if client, exists := s.clients[clientId]; exists {
 		client.Cancel()
 		close(client.Channel)
-		delete(s.clients, clientID)
+		delete(s.clients, clientId)
 
 		// Remove from event index
 		if eventClients, exists := s.clientsByEvent[client.EventId]; exists {
-			delete(eventClients, clientID)
+			delete(eventClients, clientId)
 			// Clean up empty event entries
 			if len(eventClients) == 0 {
 				delete(s.clientsByEvent, client.EventId)
@@ -113,6 +120,7 @@ func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot)
 
 	messageBytes, err := json.Marshal(message)
 	if err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to marshal SSE message")
 		s.mutex.RUnlock()
 		return
 	}
@@ -123,21 +131,21 @@ func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot)
 
 	// O(1) lookup of clients for this event
 	if eventClients, exists := s.clientsByEvent[eventId]; exists {
-		for clientID := range eventClients {
-			if client, exists := s.clients[clientID]; exists {
+		for clientId := range eventClients {
+			if client, exists := s.clients[clientId]; exists {
 				select {
 				case client.Channel <- messageBytes:
-					connectedClients = append(connectedClients, clientID)
+					connectedClients = append(connectedClients, clientId)
 					sentCount++
 				case <-client.Context.Done():
 					// Collect clients to remove instead of removing immediately
-					clientsToRemove = append(clientsToRemove, clientID)
+					clientsToRemove = append(clientsToRemove, clientId)
 				default:
 					// Channel full, skip this client
 				}
 			} else {
 				// Client doesn't exist, mark for removal from event index
-				clientsToRemove = append(clientsToRemove, clientID)
+				clientsToRemove = append(clientsToRemove, clientId)
 			}
 		}
 	}
@@ -145,8 +153,8 @@ func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot)
 	s.mutex.RUnlock()
 
 	// Remove disconnected clients after releasing the read lock
-	for _, clientID := range clientsToRemove {
-		s.RemoveClient(clientID)
+	for _, clientId := range clientsToRemove {
+		s.RemoveClient(clientId)
 	}
 }
 
@@ -163,17 +171,21 @@ func (s *SSEService) GetConnectedClientsCount(eventId uuid.UUID) int {
 
 // HandleSSEConnection handles the SSE connection endpoint
 func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, eventId uuid.UUID) {
-	clientID := fmt.Sprintf("%s-%s-%d", userId.String(), eventId.String(), time.Now().UnixNano())
+	clientId := fmt.Sprintf("%s-%s-%d", userId.String(), eventId.String(), time.Now().UnixNano())
 
 	// Add client to SSE service
-	client := s.AddClient(clientID, userId, eventId, c.Request.Context())
-	defer s.RemoveClient(clientID)
+	client := s.AddClient(clientId, userId, eventId, c.Request.Context())
+	defer s.RemoveClient(clientId)
 
 	// Check if user has access to the event
 	var event model.Event
 	err := s.eventRepository.FindOneById(eventId, &event)
-	if err != nil || !event.HasUserAccess(&userId) {
-		c.JSON(403, gin.H{"error": "Access denied to event"})
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Event not found"})
+		return
+	}
+	if !event.HasUserAccess(&userId) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied to event"})
 		return
 	}
 
@@ -184,9 +196,14 @@ func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, event
 	}
 
 	initialMessage := SlotUpdateMessage(currentSlots)
-	initialBytes, _ := json.Marshal(initialMessage)
+	initialBytes, err := json.Marshal(initialMessage)
+	if err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to marshal initial SSE message")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
 
-	// Send initial message
+	// Send initial message with error handling
 	if _, err := fmt.Fprintf(c.Writer, "data: %s\n\n", string(initialBytes)); err != nil {
 		return
 	}
@@ -202,15 +219,11 @@ func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, event
 		select {
 		case message := <-client.Channel:
 			if _, err := fmt.Fprintf(c.Writer, "data: %s\n\n", string(message)); err != nil {
+				log.Error().Err(err).Str("clientId", clientId).Msg("Failed to send SSE message to client")
 				return
 			}
 
-			// Flush with error handling
-			if flusher, ok := c.Writer.(http.Flusher); ok {
-				flusher.Flush()
-			} else {
-				return
-			}
+			flusher.Flush()
 		case <-client.Context.Done():
 			return
 		case <-c.Request.Context().Done():
