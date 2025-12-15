@@ -14,7 +14,7 @@ import (
 )
 
 type SSEClient struct {
-	ID      string
+	Id      string
 	userId  uuid.UUID
 	EventId uuid.UUID
 	Channel chan []byte
@@ -63,7 +63,7 @@ func (s *SSEService) AddClient(clientID string, userId uuid.UUID, eventId uuid.U
 	clientCtx, cancel := context.WithCancel(ctx)
 
 	client := &SSEClient{
-		ID:      clientID,
+		Id:      clientID,
 		userId:  userId,
 		EventId: eventId,
 		Channel: make(chan []byte, 10), // Buffer of 10 messages
