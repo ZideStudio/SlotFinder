@@ -3,7 +3,7 @@ import type { ComponentPropsWithRef } from 'react';
 
 import './TextInputAtom.scss';
 
-type TextInputAtomProps = ComponentPropsWithRef<'input'> & {
+type TextInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
   name: string;
 };
 
