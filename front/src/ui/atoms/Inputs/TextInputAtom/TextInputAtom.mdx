@@ -10,7 +10,7 @@ A reusable, accessible text input atom for forms and UI elements.
 ## Usage
 
 ```tsx
-<TextInputAtom placeholder="Enter text" value={value} onChange={handleChange} className="custom-class" />
+<TextInputAtom name="input-name" placeholder="Enter text" value={value} onChange={handleChange} className="custom-class" />
 ```
 
 ## Props
@@ -20,10 +20,23 @@ A reusable, accessible text input atom for forms and UI elements.
     <tr>
       <th>Name</th>
       <th>Type</th>
+      <th>Required</th>
       <th>Description</th>
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input name attribute for form identification</td>
+    </tr>
     <tr>
       <td>
         <code>className</code>
@@ -31,6 +44,7 @@ A reusable, accessible text input atom for forms and UI elements.
       <td>
         <code>string</code>
       </td>
+      <td>No</td>
       <td>Custom class for styling</td>
     </tr>
     <tr>
@@ -40,7 +54,8 @@ A reusable, accessible text input atom for forms and UI elements.
       <td>
         <code>input props (HTMLInput)</code>
       </td>
-      <td>All standard input props (e.g. value, onChange)</td>
+      <td>No</td>
+      <td>All standard input props (e.g. value, onChange, placeholder)</td>
     </tr>
   </tbody>
 </table>
@@ -55,7 +70,7 @@ A reusable, accessible text input atom for forms and UI elements.
 
 ```tsx
 <label htmlFor="my-input">Label</label>
-<TextInputAtom id="my-input" placeholder="Type here..." />
+<TextInputAtom name="my-input" id="my-input" placeholder="Type here..." />
 ```
 
 ## Playground
