@@ -5,7 +5,7 @@ import { TextInputAtom } from './TextInputAtom';
 const meta = {
   title: 'Atoms/TextInputAtom',
   component: TextInputAtom,
-  args: { className: 'custom-class' },
+  args: { name: 'text-input', className: 'custom-class' },
   argTypes: {
     'aria-invalid': {
       control: { type: 'boolean' },
