@@ -68,30 +68,27 @@ func (*AccountRepository) Updates(account model.Account) error {
 }
 
 func (*AccountRepository) FindOneById(id uuid.UUID, account *model.Account) error {
-	err := db.GetDB().Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.GetDB().Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_ID Failed to find account by id")
 		return err
 	}
-	return err
+	return nil
 }
 
 func (*AccountRepository) FindOneByUsername(username string, account *model.Account) error {
-	err := db.GetDB().Where("LOWER(username) = LOWER(?) AND deleted_at IS NULL", username).Preload("Providers").First(&account).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.GetDB().Where("LOWER(username) = LOWER(?) AND deleted_at IS NULL", username).Preload("Providers").First(&account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_USERNAME Failed to find account by username")
 		return err
 	}
-	return err
+	return nil
 }
 
 func (*AccountRepository) FindOneByEmail(email string, account *model.Account) error {
-	err := db.GetDB().Where("LOWER(email) = LOWER(?) AND deleted_at IS NULL", email).Preload("Providers").First(&account).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := db.GetDB().Where("LOWER(email) = LOWER(?) AND deleted_at IS NULL", email).Preload("Providers").First(&account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_EMAIL Failed to find account by email")
 		return err
 	}
-	return err
+	return nil
 }
 
 func (*AccountRepository) FindOneByEmailOrUsername(emailOrUsername string, account *model.Account) error {
