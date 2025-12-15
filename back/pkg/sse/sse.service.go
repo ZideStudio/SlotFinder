@@ -23,7 +23,8 @@ type SSEClient struct {
 }
 
 type SSEService struct {
-	clients         map[string]*SSEClient
+	clients         map[string]*SSEClient         // clientID -> client
+	clientsByEvent  map[uuid.UUID]map[string]bool // eventID -> set of clientIDs
 	mutex           sync.RWMutex
 	eventRepository *repository.EventRepository
 	slotRepository  *repository.SlotRepository
@@ -39,6 +40,7 @@ func GetSSEService() *SSEService {
 	sseServiceOnce.Do(func() {
 		sseServiceInstance = &SSEService{
 			clients:        make(map[string]*SSEClient),
+			clientsByEvent: make(map[uuid.UUID]map[string]bool),
 			mutex:          sync.RWMutex{},
 			slotRepository: &repository.SlotRepository{},
 		}
@@ -50,6 +52,7 @@ func GetSSEService() *SSEService {
 func NewSSEService() *SSEService {
 	return &SSEService{
 		clients:        make(map[string]*SSEClient),
+		clientsByEvent: make(map[uuid.UUID]map[string]bool),
 		mutex:          sync.RWMutex{},
 		slotRepository: &repository.SlotRepository{},
 	}
@@ -73,6 +76,12 @@ func (s *SSEService) AddClient(clientID string, userId uuid.UUID, eventId uuid.U
 
 	s.clients[clientID] = client
 
+	// Add to event index
+	if s.clientsByEvent[eventId] == nil {
+		s.clientsByEvent[eventId] = make(map[string]bool)
+	}
+	s.clientsByEvent[eventId][clientID] = true
+
 	return client
 }
 
@@ -85,6 +94,15 @@ func (s *SSEService) RemoveClient(clientID string) {
 		client.Cancel()
 		close(client.Channel)
 		delete(s.clients, clientID)
+
+		// Remove from event index
+		if eventClients, exists := s.clientsByEvent[client.EventId]; exists {
+			delete(eventClients, clientID)
+			// Clean up empty event entries
+			if len(eventClients) == 0 {
+				delete(s.clientsByEvent, client.EventId)
+			}
+		}
 	}
 }
 
@@ -103,20 +121,25 @@ func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot)
 	var connectedClients []string
 	var clientsToRemove []string
 	var sentCount int
-	var totalClients int
 
-	for clientID, client := range s.clients {
-		totalClients++
-		if client.EventId != eventId {
-			continue
-		}
-		select {
-		case client.Channel <- messageBytes:
-			connectedClients = append(connectedClients, clientID)
-			sentCount++
-		case <-client.Context.Done():
-			// Collect clients to remove instead of removing immediately
-			clientsToRemove = append(clientsToRemove, clientID)
+	// O(1) lookup of clients for this event
+	if eventClients, exists := s.clientsByEvent[eventId]; exists {
+		for clientID := range eventClients {
+			if client, exists := s.clients[clientID]; exists {
+				select {
+				case client.Channel <- messageBytes:
+					connectedClients = append(connectedClients, clientID)
+					sentCount++
+				case <-client.Context.Done():
+					// Collect clients to remove instead of removing immediately
+					clientsToRemove = append(clientsToRemove, clientID)
+				default:
+					// Channel full, skip this client
+				}
+			} else {
+				// Client doesn't exist, mark for removal from event index
+				clientsToRemove = append(clientsToRemove, clientID)
+			}
 		}
 	}
 
@@ -133,13 +156,10 @@ func (s *SSEService) GetConnectedClientsCount(eventId uuid.UUID) int {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	count := 0
-	for _, client := range s.clients {
-		if client.EventId == eventId {
-			count++
-		}
+	if eventClients, exists := s.clientsByEvent[eventId]; exists {
+		return len(eventClients)
 	}
-	return count
+	return 0
 }
 
 // HandleSSEConnection handles the SSE connection endpoint
