@@ -57,7 +57,7 @@
     "@vitejs/plugin-react-swc": "^4.2.2",
     "@vitest/coverage-v8": "^4.0.15",
     "concurrently": "^9.2.1",
-    "i18next-resources-for-ts": "^1.9.0",
+    "i18next-resources-for-ts": "^2.0.0",
     "jsdom": "^27.3.0",
     "monocart-coverage-reports": "^2.12.9",
     "msw": "^2.12.4",
