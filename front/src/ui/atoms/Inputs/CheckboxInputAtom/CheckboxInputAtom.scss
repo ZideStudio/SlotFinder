@@ -1,73 +1,55 @@
 .ds-checkbox-input-atom {
-  --input-shadow-color: hsla(var(--color-primary), 1);
+  --input-shadow-color: hsl(var(--color-primary));
   --input-shadow-size: 2px;
+  --checkbox-check-offset: -1px;
 
   position: relative;
-  display: inline-block;
+  display: inline-flex;
   width: 1.5rem;
   height: 1.5rem;
   margin: 0;
   padding: 0;
-  border: none;
+  border: 1px solid currentcolor;
   border-radius: 3px;
-  vertical-align: middle;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--color-primary));
   background-color: transparent;
   box-shadow: 0 0 0 var(--input-shadow-size) var(--input-shadow-color);
   transition:
-    background-color 300ms ease,
-    border-color 300ms ease;
+    background-color 200ms ease,
+    color 200ms ease;
   cursor: pointer;
   appearance: none;
 
   &::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    box-sizing: border-box;
     width: 0.45rem;
     height: 0.65rem;
-    border-right: 1px solid transparent;
-    border-bottom: 1px solid transparent;
+    border-right: 1px solid hsl(var(--color-grey-100));
+    border-bottom: 1px solid hsl(var(--color-grey-100));
     opacity: 0;
-    transform: translate(-50%, -60%) rotate(45deg);
-    transition:
-      border-color 200ms ease,
-      opacity 200ms ease;
-    pointer-events: none;
+    transform: rotate(45deg) translateY(var(--checkbox-check-offset)) translateX(var(--checkbox-check-offset));
     content: '';
   }
 
   &:checked {
-    border-color: hsl(var(--color-primary));
-    background-color: hsl(var(--color-primary));
-  }
+    background-color: currentcolor;
 
-  &:checked::after {
-    border-right-color: hsl(var(--color-grey-100));
-    border-bottom-color: hsl(var(--color-grey-100));
-    opacity: 1;
-  }
-
-  &:focus-visible {
-    outline: none;
-
-    --input-shadow-size: 3px;
-    --input-shadow-color: hsl(var(--color-primary));
-  }
-
-  &:hover:not(:disabled) {
-    border-color: hsl(var(--color-primary));
-
-    --input-shadow-size: 3px;
-  }
-
-  &[aria-invalid='true'] {
-    --input-shadow-size: 2px;
-    --input-shadow-color: hsl(var(--color-error));
-
-    &:hover,
-    &:focus {
-      --input-shadow-size: 3px;
+    &::after {
+      opacity: 1;
     }
+  }
+
+  &:focus-visible,
+  &:hover:not(:disabled) {
+    --input-shadow-size: 3px;
+
+    outline: none;
+  }
+
+  &[aria-invalid='true']:not(:checked) {
+    border-color: hsl(var(--color-error));
+
+    --input-shadow-color: hsl(var(--color-error));
   }
 }

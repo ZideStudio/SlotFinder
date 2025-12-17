@@ -18,13 +18,6 @@ const meta = {
       table: { disable: true },
     },
   },
-  decorators: [
-    Story => (
-      <div>
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof CheckboxInputAtom>;
 
 export default meta;
