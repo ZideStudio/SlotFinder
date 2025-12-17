@@ -1,5 +1,5 @@
 import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithRef, ChangeEvent } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 
 import './CheckboxInputAtom.scss';
 
