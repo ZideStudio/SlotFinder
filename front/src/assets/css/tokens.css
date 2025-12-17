@@ -3,9 +3,9 @@
 :root {
   /* Main colors (HSL) */
   --color-primary: hsl(274deg 36% 43%); /* Royal Twilight */
-  --color-primary-50: hsla(274deg 36% 43% / 50%); /* Ultra Light Violet */
+  --color-primary-50: hsl(from var(--color-primary) h s l / 50%); /* Ultra Light Violet */
   --color-primary-light: hsl(274deg 36% 70%); /* Pale Lightened Violet */
-  --color-primary-light-50: hsla(274deg 36% 70% / 50%); /* Light Violet 50% */
+  --color-primary-light-50: hsl(from var(--color-primary-light) h s l / 50%); /* Light Violet 50% */
   --color-primary-dark: hsl(274deg 42% 23%); /* Dark Violet */
   --color-primary-soft: hsl(274deg 36% 95%); /* Soft Violet Background */
 
