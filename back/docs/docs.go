@@ -305,6 +305,55 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Availability"
+                ],
+                "summary": "Update an availability",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Availability ID",
+                        "name": "availabilityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Availability parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/availability.AvailabilityUpdateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Availability"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/events": {
@@ -511,6 +560,149 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/events/{eventId}/profile": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Update event profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event profile parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/event.EventProfileDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/slots/{slotId}/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Slot"
+                ],
+                "summary": "Confirm a slot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Slot Id",
+                        "name": "slotId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Confirm Slot parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/slot.ConfirmSlotDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Slot"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/events/{eventId}/sse": {
+            "get": {
+                "description": "Establishes a Server-Sent Events connection to receive real-time updates for a specific event",
+                "tags": [
+                    "SSE"
+                ],
+                "summary": "Connect to SSE for event updates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE connection established",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid event ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -518,8 +710,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "password",
-                "username"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -527,15 +718,15 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
         "account.AccountUpdateDto": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -561,6 +752,30 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "availability.AvailabilityUpdateDto": {
+            "type": "object",
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "constants.EventStatus": {
+            "type": "string",
+            "enum": [
+                "IN_DECISION",
+                "UPCOMING",
+                "FINISHED"
+            ],
+            "x-enum-varnames": [
+                "EVENT_STATUS_IN_DECISION",
+                "EVENT_STATUS_UPCOMING",
+                "EVENT_STATUS_FINISHED"
+            ]
         },
         "constants.Provider": {
             "type": "string",
@@ -599,6 +814,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "event.EventProfileDto": {
+            "type": "object",
+            "properties": {
+                "color": {
                     "type": "string"
                 }
             }
@@ -645,8 +868,17 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.Account"
                     }
                 },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Slot"
+                    }
+                },
                 "startsAt": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
                 }
             }
         },
@@ -662,6 +894,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "avatarUrl": {
+                    "type": "string"
+                },
+                "color": {
                     "type": "string"
                 },
                 "createdAt": {
@@ -720,9 +955,6 @@ const docTemplate = `{
         "model.Availability": {
             "type": "object",
             "properties": {
-                "account": {
-                    "$ref": "#/definitions/model.Account"
-                },
                 "endsAt": {
                     "type": "string"
                 },
@@ -730,6 +962,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startsAt": {
+                    "type": "string"
+                },
+                "userName": {
                     "type": "string"
                 }
             }
@@ -770,6 +1005,32 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Slot"
+                    }
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
+        "model.Slot": {
+            "type": "object",
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isValidated": {
+                    "type": "boolean"
+                },
                 "startsAt": {
                     "type": "string"
                 }
@@ -778,11 +1039,11 @@ const docTemplate = `{
         "signin.SigninDto": {
             "type": "object",
             "required": [
-                "email",
+                "identifier",
                 "password"
             ],
             "properties": {
-                "email": {
+                "identifier": {
                     "type": "string"
                 },
                 "password": {
@@ -794,6 +1055,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "slot.ConfirmSlotDto": {
+            "type": "object",
+            "required": [
+                "endsAt",
+                "startsAt"
+            ],
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
                     "type": "string"
                 }
             }

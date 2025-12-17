@@ -9,6 +9,7 @@ import (
 	"app/db/repository"
 	"app/pkg/signin"
 	"errors"
+	"math/rand"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -51,15 +52,6 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
-	// Check if username is available
-	isUserNameAvailable, err := s.CheckUserNameAvailability(data.UserName)
-	if err != nil {
-		return "", err
-	}
-	if !isUserNameAvailable {
-		return "", constants.ERR_USERNAME_ALREADY_TAKEN.Err
-	}
-
 	// Check if email already exists
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -69,11 +61,15 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
+	// Choose a random color
+	colors := constants.COLORS
+	color := colors[rand.Intn(len(colors))]
+
 	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
-		UserName: &data.UserName,
 		Email:    &data.Email,
+		Color:    string(color),
 		Password: data.Password,
 	}, &account); err != nil {
 		return "", err
@@ -134,6 +130,12 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 	if dto.Password != nil {
 		account.Password = dto.Password
+	}
+	if dto.Color != nil {
+		if !lib.IsHexa(*dto.Color) {
+			return account, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
+		}
+		account.Color = *dto.Color
 	}
 
 	if err := s.accountRepository.Updates(account); err != nil {

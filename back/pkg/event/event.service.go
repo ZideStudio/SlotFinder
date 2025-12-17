@@ -3,6 +3,7 @@ package event
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/signin"
@@ -61,6 +62,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 			Id:       user.Id,
 			UserName: user.Username,
 		},
+		Status: constants.EVENT_STATUS_IN_DECISION,
 	}
 	if err := s.eventRepository.Create(&event); err != nil {
 		return EventResponse{}, err
@@ -229,4 +231,27 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventRe
 	}
 
 	return eventResponse[0], nil
+}
+
+func (s *EventService) UpdateProfile(data *EventProfileDto, eventId uuid.UUID, user *guard.Claims) error {
+	// Find account event relation
+	var accountEvent model.AccountEvent
+	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, eventId, &accountEvent); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return constants.ERR_EVENT_NOT_FOUND.Err
+		}
+		return err
+	}
+
+	if !lib.IsHexa(data.Color) {
+		return constants.ERR_INVALID_COLOR_FORMAT.Err
+	}
+
+	// Update color property
+	accountEvent.Color = &data.Color
+	if err := s.accountEventRepository.Updates(&accountEvent); err != nil {
+		return err
+	}
+
+	return nil
 }

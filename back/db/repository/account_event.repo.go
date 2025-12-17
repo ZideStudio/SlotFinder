@@ -21,6 +21,17 @@ func (*AccountEventRepository) Create(accountEvent *model.AccountEvent) error {
 	return nil
 }
 
+func (*AccountEventRepository) Updates(accountEvent *model.AccountEvent) error {
+	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountEvent.AccountId, accountEvent.EventId).Updates(&accountEvent).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::UPDATES Failed to update account_event")
+		return err
+	}
+
+	accountEvent.Sanitized()
+
+	return nil
+}
+
 func (*AccountEventRepository) FindByAccountAndEventId(accountId, eventId uuid.UUID, accountEvent *model.AccountEvent) error {
 	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountId, eventId).Preload("Account").First(&accountEvent).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_ACCOUNT_AND_EVENT_ID Failed to find account_event")
@@ -44,8 +55,19 @@ func (r *AccountEventRepository) FindByAccountId(accountId uuid.UUID, accountEve
 }
 
 func (r *AccountEventRepository) FindByIds(eventIds []uuid.UUID, accountEvents *[]model.AccountEvent) error {
-	if err := db.GetDB().Preload("Account").Preload("Event").Preload("Event.Owner").Preload("Event.Availabilities").Preload("Event.Availabilities.Account").Where("event_id IN ?", eventIds).Find(&accountEvents).Error; err != nil {
+	if err := db.GetDB().Preload("Account").Preload("Event").Preload("Event.Owner").Preload("Event.Availabilities").Preload("Event.Availabilities.Account").Preload("Event.Slots").Where("event_id IN ?", eventIds).Find(&accountEvents).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_IDS Failed to find account_events")
+		return err
+	}
+
+	r.sanitizeAccountEvents(accountEvents)
+
+	return nil
+}
+
+func (r *AccountEventRepository) FindByEventId(eventId uuid.UUID, accountEvents *[]model.AccountEvent) error {
+	if err := db.GetDB().Where("event_id = ?", eventId).Preload("Account").Find(&accountEvents).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_EVENT_ID Failed to find account_events")
 		return err
 	}
 

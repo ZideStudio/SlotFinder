@@ -6,9 +6,10 @@ func startMigration() (err error) {
 	models := []any{
 		&model.Account{},
 		&model.Event{},
+		&model.Availability{},
+		&model.Slot{},
 		&model.AccountEvent{},
 		&model.AccountProvider{},
-		&model.Availability{},
 	}
 
 	for _, m := range models {

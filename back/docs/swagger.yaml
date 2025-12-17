@@ -5,15 +5,14 @@ definitions:
         type: string
       password:
         type: string
-      username:
-        type: string
     required:
     - email
     - password
-    - username
     type: object
   account.AccountUpdateDto:
     properties:
+      color:
+        type: string
       email:
         type: string
       password:
@@ -31,6 +30,23 @@ definitions:
     - endsAt
     - startsAt
     type: object
+  availability.AvailabilityUpdateDto:
+    properties:
+      endsAt:
+        type: string
+      startsAt:
+        type: string
+    type: object
+  constants.EventStatus:
+    enum:
+    - IN_DECISION
+    - UPCOMING
+    - FINISHED
+    type: string
+    x-enum-varnames:
+    - EVENT_STATUS_IN_DECISION
+    - EVENT_STATUS_UPCOMING
+    - EVENT_STATUS_FINISHED
   constants.Provider:
     enum:
     - google
@@ -61,6 +77,11 @@ definitions:
     - name
     - startsAt
     type: object
+  event.EventProfileDto:
+    properties:
+      color:
+        type: string
+    type: object
   event.EventResponse:
     properties:
       availabilities:
@@ -88,8 +109,14 @@ definitions:
         items:
           $ref: '#/definitions/model.Account'
         type: array
+      slots:
+        items:
+          $ref: '#/definitions/model.Slot'
+        type: array
       startsAt:
         type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
     type: object
   helpers.ApiError:
     properties:
@@ -99,6 +126,8 @@ definitions:
   model.Account:
     properties:
       avatarUrl:
+        type: string
+      color:
         type: string
       createdAt:
         type: string
@@ -135,13 +164,13 @@ definitions:
     type: object
   model.Availability:
     properties:
-      account:
-        $ref: '#/definitions/model.Account'
       endsAt:
         type: string
       id:
         type: string
       startsAt:
+        type: string
+      userName:
         type: string
     type: object
   model.Event:
@@ -167,23 +196,50 @@ definitions:
         allOf:
         - $ref: '#/definitions/model.Account'
         description: Relations
+      slots:
+        items:
+          $ref: '#/definitions/model.Slot'
+        type: array
+      startsAt:
+        type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
+    type: object
+  model.Slot:
+    properties:
+      endsAt:
+        type: string
+      id:
+        type: string
+      isValidated:
+        type: boolean
       startsAt:
         type: string
     type: object
   signin.SigninDto:
     properties:
-      email:
+      identifier:
         type: string
       password:
         type: string
     required:
-    - email
+    - identifier
     - password
     type: object
   signin.TokenResponseDto:
     properties:
       access_token:
         type: string
+    type: object
+  slot.ConfirmSlotDto:
+    properties:
+      endsAt:
+        type: string
+      startsAt:
+        type: string
+    required:
+    - endsAt
+    - startsAt
     type: object
 info:
   contact:
@@ -376,6 +432,37 @@ paths:
       summary: Delete an availability
       tags:
       - Availability
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Availability ID
+        in: path
+        name: availabilityId
+        required: true
+        type: string
+      - description: Availability parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/availability.AvailabilityUpdateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Availability'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Update an availability
+      tags:
+      - Availability
   /api/v1/events:
     get:
       consumes:
@@ -504,6 +591,98 @@ paths:
       summary: Join event
       tags:
       - Event
+  /api/v1/events/{eventId}/profile:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event Id
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Event profile parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/event.EventProfileDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Update event profile
+      tags:
+      - Event
+  /api/v1/slots/{slotId}/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Slot Id
+        in: path
+        name: slotId
+        required: true
+        type: string
+      - description: Confirm Slot parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/slot.ConfirmSlotDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Slot'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Confirm a slot
+      tags:
+      - Slot
+  /v1/events/{eventId}/sse:
+    get:
+      description: Establishes a Server-Sent Events connection to receive real-time
+        updates for a specific event
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: SSE connection established
+          schema:
+            type: string
+        "400":
+          description: Invalid event ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: User not authenticated
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Connect to SSE for event updates
+      tags:
+      - SSE
 securityDefinitions:
   AccessTokenCookie:
     description: Enter your bearer token in the format **Bearer &lt;token&gt;**

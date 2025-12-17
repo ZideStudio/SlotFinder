@@ -9,6 +9,8 @@ import (
 	"app/pkg/health"
 	"app/pkg/provider"
 	"app/pkg/signin"
+	"app/pkg/slot"
+	"app/pkg/sse"
 
 	_ "app/docs"
 
@@ -64,6 +66,7 @@ func NewRouter() *gin.Engine {
 		availabilityRouter := availability.NewAvailabilityController(nil)
 		{
 			availabilityGroup.DELETE("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Delete)
+			availabilityGroup.PATCH("/:availabilityId", guard.AuthCheck(nil), availabilityRouter.Update)
 		}
 
 		// Event routes
@@ -72,14 +75,34 @@ func NewRouter() *gin.Engine {
 			eventRouter := event.NewEventController(nil)
 
 			eventGroup.GET("", guard.AuthCheck(nil), eventRouter.GetUserEvents)
-			eventGroup.GET("/:eventId", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
-			eventGroup.POST("/:eventId/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 			eventGroup.POST("", guard.AuthCheck(nil), eventRouter.Create)
+
+			specificEventGroup := eventGroup.Group("/:eventId")
+			{
+				specificEventGroup.GET("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
+				specificEventGroup.POST("/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
+				specificEventGroup.PATCH("/profile", guard.AuthCheck(nil), eventRouter.UpdateProfile)
+			}
 
 			// Availability routes
 			{
 				eventGroup.POST("/:eventId/availability", guard.AuthCheck(nil), availabilityRouter.Create)
 			}
+
+			// SSE routes
+			{
+				sseRouter := sse.NewSSEController(nil)
+				eventGroup.GET("/:eventId/sse", guard.AuthCheck(nil), sseRouter.Connect)
+			}
+
+		}
+
+		// Slot routes
+		slotGroup := v1.Group("/slots")
+		{
+			slotRouter := slot.NewSlotController(nil)
+
+			slotGroup.POST("/:slotId/confirm", guard.AuthCheck(nil), slotRouter.ConfirmSlot)
 		}
 	}
 

@@ -86,6 +86,39 @@ func (ctl *AvailabilityController) Create(c *gin.Context) {
 	helpers.HandleJSONResponse(c, availability, err)
 }
 
+// @Summary Update an availability
+// @Tags Availability
+// @Accept json
+// @Produce json
+// @Param availabilityId path string true "Availability ID"
+// @Param data body AvailabilityUpdateDto true "Availability parameters"
+// @Security BearerAuth
+// @Success 200 {object} model.Availability
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/availabilities/{availabilityId} [patch]
+func (ctl *AvailabilityController) Update(c *gin.Context) {
+	var data AvailabilityUpdateDto
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
+		return
+	}
+
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	availabilityId, err := ctl.getAvailabilityIdParam(c)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	availability, err := ctl.availabilityService.Update(&data, availabilityId, user)
+
+	helpers.HandleJSONResponse(c, availability, err)
+}
+
 // @Summary Delete an availability
 // @Tags Availability
 // @Accept json
