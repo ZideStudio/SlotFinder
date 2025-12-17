@@ -3,15 +3,17 @@
 :root {
   /* Main colors (HSL) */
   --color-primary: hsl(274deg 36% 43%); /* Royal Twilight */
-  --color-primary-50: hsl(from var(--color-primary) h s l / 50%); /* Ultra Light Violet */
+  --color-primary-50: hsla(274deg 36% 43% / 50%); /* Ultra Light Violet */
   --color-primary-light: hsl(274deg 36% 70%); /* Pale Lightened Violet */
-  --color-primary-light-50: hsl(from var(--color-primary-light) h s l / 50%); /* Light Violet 50% */
+  --color-primary-light-50: hsla(274deg 36% 70% / 50%); /* Light Violet 50% */
   --color-primary-dark: hsl(274deg 42% 23%); /* Dark Violet */
   --color-primary-soft: hsl(274deg 36% 95%); /* Soft Violet Background */
+
   --color-accent: hsl(330deg 80% 52%); /* Electric Raspberry */
   --color-accent-light: hsl(330deg 80% 75%); /* Light Pink */
   --color-accent-dark: hsl(330deg 80% 30%); /* Dark Raspberry */
   --color-accent-soft: hsl(330deg 80% 96%); /* Soft Pink Background */
+
   --color-grey-100: hsl(280deg 25% 98%); /* Very Light Grey */
   --color-grey-200: hsl(270deg 20% 92%); /* Light Grey */
   --color-grey-300: hsl(270deg 15% 85%); /* Medium Grey */
