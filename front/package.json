@@ -15,6 +15,7 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:browser": "vitest --config=vitest.browser.config.ts --run",
+    "test:browser:update": "vitest --config=vitest.browser.config.ts --run --update",
     "test:browser:watch": "vitest --config=vitest.browser.config.ts",
     "lint": "node scripts/lint.js",
     "lint:oxlint": "oxlint src/ mock/",
