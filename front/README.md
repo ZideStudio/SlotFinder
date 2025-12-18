@@ -48,6 +48,22 @@ Runs unit tests using Vitest.
 
 Runs unit tests in watch mode using Vitest.
 
+### `npm run test:browser`
+
+Runs browser tests using Vitest in browser mode with Playwright.
+
+This command executes all tests in files matching `*.browser.test.[jt]sx` in a real Chromium browser environment.
+
+### `npm run test:browser:watch`
+
+Runs browser tests in watch mode for development.
+
+### `npm run test:browser:update`
+
+Updates visual regression test snapshots after validating visual changes.
+
+Use this command after intentional visual changes to update the baseline snapshots for comparison in future test runs.
+
 ### `npm run build`
 
 Builds the application for production in the `build` folder.
@@ -80,6 +96,80 @@ To remove the demo application.
 ### `npm run migrate:vite`
 
 To migrate from webpack to vite.
+
+## 🧪 <span id="browser-testing">Browser Testing (Vitest Browser)</span>
+
+Vitest Browser mode allows testing components in a real browser environment (Chromium via Playwright) instead of a simulated jsdom environment. This is particularly useful for:
+
+- **Visual regression testing** : Screenshot snapshots to detect unintended visual changes
+- **Real browser APIs** : Testing features that depend on actual browser behavior
+- **Accessibility in real environment** : Testing keyboard navigation, focus management, and screen reader compatibility
+- **Complex interactions** : Testing components with real user interactions in a browser context
+
+### When to Use Browser Tests
+
+✅ **Use browser tests for:**
+
+- Organisms and complex components with real browser dependencies
+- Visual regression testing with screenshot snapshots
+- Components requiring real browser APIs (Clipboard, IntersectionObserver, etc.)
+- Testing keyboard navigation and focus management
+- End-to-end-like component testing
+
+❌ **Don't use browser tests for:**
+
+- Simple atoms and molecules without visual complexity
+- Pure logic testing (use unit tests instead)
+- Tests that don't require browser environment
+
+### Browser Test File Naming Convention
+
+Browser tests must use the `.browser.test.[jt]sx` suffix to be recognized and executed separately:
+
+```
+MyComponent.test.tsx       # Unit test (Node/jsdom)
+MyComponent.browser.test.tsx  # Browser test (Chromium/Playwright)
+```
+
+### Visual Regression Testing Example
+
+```typescript
+import { expect, test } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { MyComponent } from '../MyComponent';
+
+test('MyComponent visual snapshot', async () => {
+  const { container, getByText } = await render(<MyComponent />);
+  
+  // Verify component is rendered
+  await expect.element(getByText('Expected text')).toBeInTheDocument();
+  
+  // Capture screenshot - threshold: 0 detects any pixel change
+  await expect(container).toMatchScreenshot('my-component-default');
+});
+```
+
+### Snapshot Management Workflow
+
+**First time - Create baseline snapshots:**
+
+```bash
+npm run test:browser:update
+```
+
+**Development - Test against baseline:**
+
+```bash
+npm run test:browser
+```
+
+**After intentional changes - Update snapshots:**
+
+```bash
+npm run test:browser:update
+```
+
+For more details, see [vitest-browser.instructions.md](/.github/instructions/vitest-browser.instructions.md).
 
 ## 🏗 <span id="project-structure">Project Structure</span>
 
@@ -249,4 +339,6 @@ Please note that the web configuration pre-filters environment variables via the
   - [React Hook Form Documentation.](https://react-hook-form.com/).
 - Test
   - [Vitest Documentation.](https://vitest.dev/).
+  - [Vitest Browser Mode Documentation.](https://vitest.dev/guide/browser.html).
   - [Testing Library Documentation.](https://testing-library.com/).
+  - [Playwright Documentation.](https://playwright.dev/).
