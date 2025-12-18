@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react-swc';
+import { playwright } from '@vitest/browser-playwright';
 import { resolve } from 'path';
 import { loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
@@ -8,7 +9,6 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-
   return {
     plugins: [
       react(),
@@ -20,8 +20,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: env.ENV_PREFIX ?? 'FRONT_',
     test: {
       globals: true,
-      environment: 'jsdom',
-      setupFiles: 'vitest.setup.ts',
+      // TODO: setup vitest browser with msw : https://mswjs.io/docs/recipes/vitest-browser-mode
       clearMocks: true,
       css: false,
       reporters: ['default', 'junit', 'vitest-sonar-reporter'],
@@ -29,8 +28,7 @@ export default defineConfig(({ mode }) => {
         'vitest-sonar-reporter': 'sonar-report.xml',
         junit: 'junit-report.xml',
       },
-      include: ['src/**/*.(spec|test|steps).[jt]s?(x)'],
-      exclude: ['src/**/*.browser.test.[jt]sx'],
+      include: ['src/**/*.browser.test.[jt]sx'],
       poolOptions: {
         forks: {
           minForks: env.CI ? 1 : undefined,
@@ -57,6 +55,12 @@ export default defineConfig(({ mode }) => {
           'src/routing/**',
           'src/main.ts',
         ],
+      },
+      browser: {
+        enabled: true,
+        provider: playwright(),
+        // https://vitest.dev/config/browser/playwright
+        instances: [{ browser: 'chromium' }],
       },
     },
   };
