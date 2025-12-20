@@ -31,12 +31,7 @@ export default defineConfig(({ mode }) => {
       },
       include: ['src/**/*.(spec|test|steps).[jt]s?(x)'],
       exclude: ['src/**/*.browser.test.[jt]sx'],
-      poolOptions: {
-        forks: {
-          minForks: env.CI ? 1 : undefined,
-          maxForks: env.CI ? 2 : undefined,
-        },
-      },
+      maxWorkers: env.CI ? 2 : undefined,
       coverage: {
         enabled: env.CI === 'true',
         reporter: ['lcovonly', 'html', 'text', 'text-summary'],
