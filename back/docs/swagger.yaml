@@ -126,8 +126,17 @@ definitions:
         maximum: 30240
         minimum: 15
         type: integer
+      endsAt:
+        type: string
       name:
         type: string
+      startsAt:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/constants.EventStatus'
+        enum:
+        - IN_DECISION
     type: object
   helpers.ApiError:
     properties:

@@ -939,8 +939,24 @@ const docTemplate = `{
                     "maximum": 30240,
                     "minimum": 15
                 },
+                "endsAt": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "IN_DECISION"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.EventStatus"
+                        }
+                    ]
                 }
             }
         },

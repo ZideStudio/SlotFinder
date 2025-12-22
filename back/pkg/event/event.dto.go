@@ -1,6 +1,7 @@
 package event
 
 import (
+	"app/commons/constants"
 	model "app/db/models"
 	"time"
 )
@@ -19,9 +20,12 @@ type EventResponse struct {
 }
 
 type EventUpdateDto struct {
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Duration    *int    `json:"duration" binding:"omitempty,min=15,max=30240"`
+	Name        *string                `json:"name"`
+	Description *string                `json:"description"`
+	Duration    *int                   `json:"duration" binding:"omitempty,min=15,max=30240"`
+	StartsAt    *time.Time             `json:"startsAt"`
+	EndsAt      *time.Time             `json:"endsAt"`
+	Status      *constants.EventStatus `json:"status" binding:"omitempty,oneof=IN_DECISION"`
 }
 
 type EventProfileDto struct {
