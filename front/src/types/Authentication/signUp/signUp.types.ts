@@ -26,5 +26,5 @@ export type SignUpResponseType = {
 };
 
 export type SignUpErrorCodeType = ErrorResponseCodeType<
-  'USERNAME_ALREADY_TAKEN' | 'INVALID_EMAIL_FORMAT' | 'EMAIL_ALREADY_EXISTS'
+  'USERNAME_ALREADY_TAKEN' | 'INVALID_EMAIL_FORMAT' | 'EMAIL_ALREADY_EXISTS' | 'INVALID_PASSWORD_FORMAT'
 >;
