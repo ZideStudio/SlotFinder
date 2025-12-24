@@ -43,8 +43,7 @@
 
   &:focus-visible,
   &:hover:not(:disabled) {
-    box-shadow: 0 0 0 1px var(--checkbox-atom-color);
-    outline: none;
+    outline: 1px solid var(--checkbox-atom-color);
   }
 
   &[aria-invalid='true'] {
