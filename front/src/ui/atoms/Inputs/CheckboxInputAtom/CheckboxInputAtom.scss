@@ -1,0 +1,52 @@
+.ds-checkbox-input-atom {
+  --checkbox-atom-color: var(--color-primary);
+  --checkbox-outline-size: 2px;
+  --checkbox-check-offset: -1px;
+
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  border: var(--checkbox-outline-size) solid var(--checkbox-atom-color);
+  border-radius: 3px;
+  align-items: center;
+  justify-content: center;
+  color: var(--checkbox-atom-color);
+  background-color: transparent;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+  cursor: pointer;
+  appearance: none;
+
+  &::after {
+    width: 0.45rem;
+    height: 0.65rem;
+    border-right: 2px solid var(--color-grey-100);
+    border-bottom: 2px solid var(--color-grey-100);
+    opacity: 0;
+    transform: rotate(45deg) translateY(var(--checkbox-check-offset)) translateX(var(--checkbox-check-offset));
+    content: '';
+  }
+
+  &:checked {
+    background-color: var(--checkbox-atom-color);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &:disabled {
+    --checkbox-atom-color: var(--color-grey-400);
+  }
+
+  &:focus-visible,
+  &:hover:not(:disabled) {
+    outline: 1px solid var(--checkbox-atom-color);
+  }
+
+  &[aria-invalid='true'] {
+    --checkbox-atom-color: var(--color-error);
+  }
+}
