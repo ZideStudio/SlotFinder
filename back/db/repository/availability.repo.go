@@ -146,16 +146,13 @@ func (*AvailabilityRepository) DeleteOutOfEventRangeAndAdjustOverlaps(eventId uu
 				adjustedAvailability.EndsAt = endsAt
 			}
 
-			// Only update if adjustments were made
-			if availability.StartsAt.Before(startsAt) || availability.EndsAt.After(endsAt) {
-				// Update the availability with adjusted times
-				if err := tx.Model(&availability).Updates(model.Availability{
-					StartsAt: adjustedAvailability.StartsAt,
-					EndsAt:   adjustedAvailability.EndsAt,
-				}).Error; err != nil {
-					log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to update overlapping availability")
-					return err
-				}
+			// Update the availability with adjusted times
+			if err := tx.Model(&availability).Updates(model.Availability{
+				StartsAt: adjustedAvailability.StartsAt,
+				EndsAt:   adjustedAvailability.EndsAt,
+			}).Error; err != nil {
+				log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to update overlapping availability")
+				return err
 			}
 		}
 
