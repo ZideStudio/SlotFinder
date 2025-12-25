@@ -117,8 +117,17 @@ func (*AvailabilityRepository) DeleteOutOfEventRangeAndAdjustOverlaps(eventId uu
 	return db.GetDB().Transaction(func(tx *gorm.DB) error {
 		// Find all availabilities that need adjustment (partial overlaps)
 		var overlappingAvailabilities []model.Availability
-		if err := tx.Where("event_id = ? AND ((starts_at < ? AND ends_at > ? AND ends_at <= ?) OR (starts_at >= ? AND starts_at < ? AND ends_at > ?))",
-			eventId, startsAt, startsAt, endsAt, startsAt, endsAt, endsAt).Find(&overlappingAvailabilities).Error; err != nil {
+
+		// Build the WHERE clause with clear conditions
+		leftOverlapCondition := "starts_at < ? AND ends_at > ? AND ends_at <= ?"    // Starts before event, ends within event
+		rightOverlapCondition := "starts_at >= ? AND starts_at < ? AND ends_at > ?" // Starts within event, ends after event
+		fullWhereClause := "event_id = ? AND ((" + leftOverlapCondition + ") OR (" + rightOverlapCondition + "))"
+
+		if err := tx.Where(fullWhereClause,
+			eventId,                    // event_id filter
+			startsAt, startsAt, endsAt, // left overlap: starts_at < eventStart AND ends_at > eventStart AND ends_at <= eventEnd
+			startsAt, endsAt, endsAt, // right overlap: starts_at >= eventStart AND starts_at < eventEnd AND ends_at > eventEnd
+		).Find(&overlappingAvailabilities).Error; err != nil {
 			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to find overlapping availabilities")
 			return err
 		}
