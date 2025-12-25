@@ -113,6 +113,10 @@ func parseDtoEventDates(event *model.Event, startsAtDto, endsAtDto *time.Time) e
 		endsAt = *endsAtDto
 	}
 
+	// Prevent creating events with end date before start date
+	if startsAt.After(endsAt) {
+		return constants.ERR_EVENT_START_AFTER_END.Err
+	}
 	// Prevent creating events with duration less than 1 day
 	oneDayAfterStart := startsAt.Add(24 * time.Hour)
 	if endsAt.Before(oneDayAfterStart) {
