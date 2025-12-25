@@ -125,7 +125,7 @@ func parseDtoEventDates(event *model.Event, startsAtDto, endsAtDto *time.Time) e
 		return constants.ERR_EVENT_START_BEFORE_TODAY.Err
 	}
 
-	if validatedSlot := event.GetValidatedSlot(); validatedSlot != nil && endsAt.Before(validatedSlot.EndsAt) {
+	if validatedSlot := event.GetValidatedSlot(); validatedSlot != nil && (endsAt.Before(validatedSlot.EndsAt) || startsAt.After(validatedSlot.StartsAt)) {
 		// Prevent updating events to end date before already validated slot
 		return constants.ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED.Err
 	}
