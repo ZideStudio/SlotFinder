@@ -82,3 +82,18 @@ func (e *Event) IsLocked() bool {
 
 	return e.HasEnded()
 }
+
+// GetValidatedSlot returns the validated slot for the event
+func (e *Event) GetValidatedSlot() *Slot {
+	if len(e.Slots) == 0 {
+		return nil
+	}
+
+	for _, slot := range e.Slots {
+		if slot.IsValidated {
+			return &slot
+		}
+	}
+
+	return nil
+}
