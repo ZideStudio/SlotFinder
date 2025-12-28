@@ -44,42 +44,51 @@ type TimeSlot struct {
 }
 
 func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId uuid.UUID) (model.Slot, error) {
-	var slot model.Slot
-	if err := s.slotRepository.FindOneById(slotId, &slot); err != nil {
+	var selectedSlot model.Slot
+	if err := s.slotRepository.FindOneById(slotId, &selectedSlot); err != nil {
 		return model.Slot{}, constants.ERR_SLOT_NOT_FOUND.Err
 	}
 
 	// Check if user is admin of the event
-	if !slot.Event.IsOwner(&userId) {
+	if !selectedSlot.Event.IsOwner(&userId) {
 		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
-	// Check if dto StartsAt is equals or after slot.StartsAt and before slot.EndsAt
-	if dto.StartsAt.Before(slot.StartsAt) || !dto.StartsAt.Before(slot.EndsAt) {
+	// Check if event is locked
+	if selectedSlot.Event.IsLocked() {
+		return model.Slot{}, constants.ERR_EVENT_ENDED.Err
+	}
+
+	// Check if dto StartsAt is equals or after selectedSlot.StartsAt and before selectedSlot.EndsAt
+	if dto.StartsAt.Before(selectedSlot.StartsAt) || !dto.StartsAt.Before(selectedSlot.EndsAt) {
 		return model.Slot{}, constants.ERR_SLOT_INVALID_STARTS_AT.Err
 	}
-	// Check if dto EndsAt is after dto.StartsAt and before or equals slot.EndsAt
-	if !dto.EndsAt.After(dto.StartsAt) || dto.EndsAt.After(slot.EndsAt) {
+	// Check if dto EndsAt is after dto.StartsAt and before or equals selectedSlot.EndsAt
+	if !dto.EndsAt.After(dto.StartsAt) || dto.EndsAt.After(selectedSlot.EndsAt) {
 		return model.Slot{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
 	}
 
 	// If event is finished, do not recalculate slots
-	if slot.Event.IsLocked() {
-		log.Debug().Str("eventId", slot.EventId.String()).Msg("Event is locked, skipping slot recalculation")
+	if selectedSlot.Event.IsLocked() {
+		log.Debug().Str("eventId", selectedSlot.EventId.String()).Msg("Event is locked, skipping selectedSlot recalculation")
 		return model.Slot{}, constants.ERR_EVENT_ENDED.Err
 	}
 
-	// Save slot
-	slot.StartsAt = dto.StartsAt
-	slot.EndsAt = dto.EndsAt
-	slot.IsValidated = true
-	if err := s.slotRepository.Updates(&slot); err != nil {
+	// Save as a new selectedSlot
+	slot := model.Slot{
+		Id:          uuid.New(),
+		EventId:     selectedSlot.EventId,
+		StartsAt:    dto.StartsAt,
+		EndsAt:      dto.EndsAt,
+		IsValidated: true,
+	}
+	if err := s.slotRepository.Create(&slot); err != nil {
 		return model.Slot{}, err
 	}
 
 	// Update event status
 	event := model.Event{
-		Id:     slot.Event.Id,
+		Id:     selectedSlot.EventId,
 		Status: constants.EVENT_STATUS_UPCOMING,
 	}
 	if err := s.eventRepository.Updates(&event); err != nil {
