@@ -62,6 +62,10 @@ jobs:
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
+      
+      - name: Run Playwright install
+        working-directory: ${{ env.FRONT_FOLDER }}
+        run: npx playwright install -- --with-deps
 
       - name: Run test
         working-directory: ${{ env.FRONT_FOLDER }}
