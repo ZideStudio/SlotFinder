@@ -162,14 +162,14 @@ import { Button } from '../Button';
 test('Button visual snapshot (default)', async () => {
   const { container, getByRole } = await render(<Button>Click me</Button>);
   await expect.element(getByRole('button')).toBeInTheDocument();
-  
+
   await expect(container).toMatchScreenshot('button-default');
 });
 
 test('Button visual snapshot (disabled)', async () => {
   const { container, getByRole } = await render(<Button disabled>Disabled</Button>);
   await expect.element(getByRole('button')).toBeDisabled();
-  
+
   await expect(container).toMatchScreenshot('button-disabled');
 });
 ```
