@@ -65,7 +65,7 @@ jobs:
       
       - name: Run Playwright install
         working-directory: ${{ env.FRONT_FOLDER }}
-        run: npx playwright install -- --with-deps
+        run: npx playwright install
 
       - name: Run test
         working-directory: ${{ env.FRONT_FOLDER }}
