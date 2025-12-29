@@ -3,7 +3,7 @@ import concurrently from 'concurrently';
 
 const args = process.argv.slice(2);
 
-let commands = ['npm:test:unit', 'npm:test:browser'];
+let commands = ['npm:test:unit', 'npm:test:browser:update'];
 
 if (args.includes('--coverage')) {
   commands = commands.map(command => `${command} -- --coverage`);
