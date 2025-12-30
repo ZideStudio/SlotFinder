@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
     test: {
       ...base.test,
       include: ['src/**/*.browser.test.[jt]sx'],
+      setupFiles: ['./vitest.browser.setup.ts'],
       browser: {
         enabled: true,
         provider: playwright(),
