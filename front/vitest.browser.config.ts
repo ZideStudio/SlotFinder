@@ -10,7 +10,6 @@ export default defineConfig(({ mode }) => {
     test: {
       ...base.test,
       include: ['src/**/*.browser.test.[jt]sx'],
-      exclude: undefined,
       browser: {
         enabled: true,
         provider: playwright(),
