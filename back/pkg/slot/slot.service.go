@@ -68,13 +68,7 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		return model.Slot{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
 	}
 
-	// If event is finished, do not recalculate slots
-	if selectedSlot.Event.IsLocked() {
-		log.Debug().Str("eventId", selectedSlot.EventId.String()).Msg("Event is locked, skipping selectedSlot recalculation")
-		return model.Slot{}, constants.ERR_EVENT_ENDED.Err
-	}
-
-	// Save as a new selectedSlot
+	// Create a new validated slot from the selected slot
 	slot := model.Slot{
 		Id:          uuid.New(),
 		EventId:     selectedSlot.EventId,
