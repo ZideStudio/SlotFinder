@@ -32,7 +32,7 @@ func NewEventService(service *EventService) *EventService {
 	return &EventService{
 		eventRepository:        &repository.EventRepository{},
 		accountEventRepository: &repository.AccountEventRepository{},
-		availabilityRepository: &repository.AvailabilityRepository{},
+		availabilityRepository: repository.NewAvailabilityRepository(nil),
 		slotRepository:         &repository.SlotRepository{},
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
@@ -139,6 +139,11 @@ func parseDtoEventDates(event *model.Event, startsAtDto, endsAtDto *time.Time) e
 	event.EndsAt = endsAt
 
 	return nil
+}
+
+// ParseDtoEventDatesForTesting is a wrapper for testing the private parseDtoEventDates function
+func ParseDtoEventDatesForTesting(event *model.Event, startsAtDto, endsAtDto *time.Time) error {
+	return parseDtoEventDates(event, startsAtDto, endsAtDto)
 }
 
 func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *guard.Claims) error {
