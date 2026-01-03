@@ -1,17 +1,21 @@
+import { routeAuthRegistry } from './routeAuthRegistry';
+
 /**
- * Checks if the current page requires authentication by checking the URL path
- * This relies on the convention that authenticated pages don't include '/sign-up' or '/oauth'
- * @returns true if the current page likely requires authentication, false otherwise
+ * Checks if the current page requires authentication
+ * Uses the route authentication registry which mirrors the route configuration
+ * without causing circular dependencies.
+ * 
+ * This follows the same convention as AuthenticationProtection component:
+ * - Pages explicitly marked as unauthenticated (handle.mustBeAuthenticate = false) don't require auth
+ * - All other pages require authentication by default
+ * 
+ * @returns true if the current page requires authentication, false otherwise
  */
 export const isAuthenticatedPage = (): boolean => {
   const currentPath = window.location.pathname;
   
-  // Pages that don't require authentication
-  const unauthenticatedPaths = ['/sign-up', '/oauth'];
+  // Remove leading slash for consistent comparison
+  const normalizedPath = currentPath.startsWith('/') ? currentPath.substring(1) : currentPath;
   
-  // Check if the current path matches any unauthenticated path
-  const isUnauthenticated = unauthenticatedPaths.some(path => currentPath.includes(path));
-  
-  // If not on an unauthenticated path, assume authentication is required
-  return !isUnauthenticated;
+  return routeAuthRegistry.requiresAuthentication(normalizedPath);
 };
