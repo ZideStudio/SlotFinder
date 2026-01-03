@@ -11,5 +11,4 @@ export const authStatusApi = () =>
     path: `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
     method: METHODS.get,
     CustomErrorResponse: AuthStatusErrorResponse,
-    skipAuthRefresh: true, // Don't trigger refresh on auth status check
   });

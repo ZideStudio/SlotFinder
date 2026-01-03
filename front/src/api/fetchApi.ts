@@ -1,5 +1,6 @@
 import type { Json } from '@Front/types/api.types';
 import { ErrorResponse } from '@Front/types/ErrorResponse';
+import { isAuthenticatedPage } from '@Front/utils/isAuthenticatedPage';
 import { HEADERS, METHODS, MIME_TYPES } from './constant';
 
 type FetchApiError = Error & {
@@ -15,7 +16,6 @@ type FetchApiProps<CustomErrorResponseCodeType extends string> = {
   data?: Json;
   headers?: HeadersInit;
   CustomErrorResponse?: ErrorResponseClass<CustomErrorResponseCodeType>;
-  skipAuthRefresh?: boolean; // Flag to skip automatic token refresh
 };
 
 // Global state for managing token refresh
@@ -48,7 +48,6 @@ export const fetchApi = async <
   data,
   headers = [],
   CustomErrorResponse = ErrorResponse,
-  skipAuthRefresh = false,
 }: FetchApiProps<CustomErrorResponseCodeType>): Promise<Response> => {
   const mergeHeaders = new Headers(headers);
 
@@ -68,11 +67,12 @@ export const fetchApi = async <
   let response = await makeRequest();
 
   // Handle 401 error with automatic token refresh
-  if (response.status === 401 && !skipAuthRefresh) {
-    // Check if path is an authenticated endpoint
-    const isAuthenticatedEndpoint = !path.includes('/auth/status') && !path.includes('/auth/refresh');
+  // Only attempt refresh if we're on an authenticated page and it's not the refresh endpoint itself
+  if (response.status === 401) {
+    const isOnAuthenticatedPage = isAuthenticatedPage();
+    const isRefreshEndpoint = path.includes('/auth/refresh');
 
-    if (isAuthenticatedEndpoint) {
+    if (isOnAuthenticatedPage && !isRefreshEndpoint) {
       try {
         // If another request is already refreshing, wait for it
         if (isRefreshing) {
