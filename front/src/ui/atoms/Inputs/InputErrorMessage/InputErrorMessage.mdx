@@ -10,7 +10,7 @@ A reusable, accessible error message for form inputs and UI elements.
 ## Usage
 
 ```tsx
-<InputErrorMessage id="error-input" message="Error message">Error message</InputErrorMessage>
+<InputErrorMessage id="error-input" message="Error message" />
 ```
 
 ## Props
@@ -33,9 +33,7 @@ A reusable, accessible error message for form inputs and UI elements.
         <code>string</code>
       </td>
       <td>No</td>
-      <td>
-        ID of the input element
-      </td>
+      <td>ID of the input element</td>
     </tr>
     <tr>
       <td>
@@ -70,16 +68,8 @@ A reusable, accessible error message for form inputs and UI elements.
 ```tsx
 <div>
   <label htmlFor="email-input">Email address</label>
-  <input 
-    id="email-input" 
-    type="email" 
-    required 
-    aria-describedby="email-error"
-  />
-  <InputErrorMessage 
-    id="email-error"
-    message="Please enter a valid email address"
-  />
+  <input id="email-input" type="email" required aria-describedby="email-error" />
+  <InputErrorMessage id="email-error" message="Please enter a valid email address" />
 </div>
 ```
 
