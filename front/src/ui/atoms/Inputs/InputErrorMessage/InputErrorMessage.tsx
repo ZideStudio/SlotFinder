@@ -8,7 +8,7 @@ type InputErrorMessageProps = {
 
 export const InputErrorMessage = ({ message, id }: InputErrorMessageProps) => (
   <div className="input-error">
-    <ErrorIcon className="input-error__icon" aria-hidden="true" />
+    <ErrorIcon className="input-error-icon" aria-hidden="true" />
     <span id={id} aria-live="assertive" className="input-error__message">
       {message}
     </span>
