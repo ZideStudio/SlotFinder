@@ -1,0 +1,82 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as CheckboxInputAtomStories from './CheckboxInputAtom.stories';
+
+<Meta of={CheckboxInputAtomStories} />
+
+# CheckboxInputAtom
+
+A reusable, accessible checkbox atom for forms and UI elements.
+
+## Usage
+
+```tsx
+<CheckboxInputAtom name="example" />
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Form name for grouped inputs</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>No</strong>
+      </td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>
+        <strong>No</strong>
+      </td>
+      <td>All standard input props (e.g. value, aria attributes)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Follows WCAG 2.2 AA and RGAA 4 guidelines.
+- Keyboard accessible.
+
+## Example
+
+```tsx
+<CheckboxInputAtom id="my-input" name="terms" required />
+<label htmlFor="my-input">Label</label>
+```
+
+## Playground
+
+<Canvas of={CheckboxInputAtomStories.Default} sourceState="shown" />
+<Controls of={CheckboxInputAtomStories.Default} />

@@ -30,6 +30,7 @@ make
 Access the application:
 
 - **Frontend**: https://localhost
+- **Storybook**: http://localhost:3002
 - **Backend API**: https://localhost/api
 - **Traefik Dashboard**: http://localhost:9000
 
