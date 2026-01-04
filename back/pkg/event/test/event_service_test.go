@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test the parseDtoEventDates function directly since it contains most of the validation logic
+// Test the SetEventDatesFromDto function directly since it contains most of the validation logic
 func TestParseDtoEventDates_Success(t *testing.T) {
 	t.Run("should parse dates successfully", func(t *testing.T) {
 		// Arrange
@@ -25,7 +25,7 @@ func TestParseDtoEventDates_Success(t *testing.T) {
 		newEnd := baseDate.AddDate(0, 0, 5)   // 5 days after base
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &newStart, &newEnd)
+		err := event.SetEventDatesFromDto(testEvent, &newStart, &newEnd)
 
 		// Assert
 		assert.NoError(t, err)
@@ -45,7 +45,7 @@ func TestParseDtoEventDates_Success(t *testing.T) {
 		}
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, nil, nil)
+		err := event.SetEventDatesFromDto(testEvent, nil, nil)
 
 		// Assert
 		assert.NoError(t, err)
@@ -65,7 +65,7 @@ func TestParseDtoEventDates_Success(t *testing.T) {
 		newStart := baseDate.AddDate(0, 0, 1) // 1 day after base
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &newStart, nil)
+		err := event.SetEventDatesFromDto(testEvent, &newStart, nil)
 
 		// Assert
 		assert.NoError(t, err)
@@ -85,7 +85,7 @@ func TestParseDtoEventDates_Success(t *testing.T) {
 		newEnd := baseDate.AddDate(0, 0, 5) // 5 days after base
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, nil, &newEnd)
+		err := event.SetEventDatesFromDto(testEvent, nil, &newEnd)
 
 		// Assert
 		assert.NoError(t, err)
@@ -107,7 +107,7 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 		newStart := baseDate.AddDate(0, 0, 10) // 10 days after base
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &newStart, nil)
+		err := event.SetEventDatesFromDto(testEvent, &newStart, nil)
 
 		// Assert
 		assert.Error(t, err)
@@ -126,7 +126,7 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 		newEnd := baseDate // Same as original base (before start)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, nil, &newEnd)
+		err := event.SetEventDatesFromDto(testEvent, nil, &newEnd)
 
 		// Assert
 		assert.Error(t, err)
@@ -145,7 +145,7 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 		newEnd := baseDate.AddDate(0, 0, 8)    // 8 days after base (before newStart)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &newStart, &newEnd)
+		err := event.SetEventDatesFromDto(testEvent, &newStart, &newEnd)
 
 		// Assert
 		assert.Error(t, err)
@@ -166,7 +166,7 @@ func TestParseDtoEventDates_DurationTooShort(t *testing.T) {
 		newEnd := testEvent.StartsAt.Add(1 * time.Hour)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, nil, &newEnd)
+		err := event.SetEventDatesFromDto(testEvent, nil, &newEnd)
 
 		// Assert
 		assert.Error(t, err)
@@ -185,7 +185,7 @@ func TestParseDtoEventDates_DurationTooShort(t *testing.T) {
 		newStart := testEvent.EndsAt.Add(-12 * time.Hour)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &newStart, nil)
+		err := event.SetEventDatesFromDto(testEvent, &newStart, nil)
 
 		// Assert
 		assert.Error(t, err)
@@ -205,7 +205,7 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 		pastDate := time.Now().AddDate(0, 0, -1)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &pastDate, nil)
+		err := event.SetEventDatesFromDto(testEvent, &pastDate, nil)
 
 		// Assert
 		assert.Error(t, err)
@@ -225,7 +225,7 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 		pastEndDate := time.Now().AddDate(0, 0, -1)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, nil, &pastEndDate)
+		err := event.SetEventDatesFromDto(testEvent, nil, &pastEndDate)
 
 		// Assert
 		assert.Error(t, err)
@@ -254,7 +254,7 @@ func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
 		newEnd := baseDate.AddDate(0, 0, 1) // Day 1 (before slot on day 2)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, nil, &newEnd)
+		err := event.SetEventDatesFromDto(testEvent, nil, &newEnd)
 
 		// Assert
 		assert.Error(t, err)
@@ -280,7 +280,7 @@ func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
 		newStart := baseDate.AddDate(0, 0, 3) // Day 3 (after slot on day 2)
 
 		// Act
-		err := event.ParseDtoEventDatesForTesting(testEvent, &newStart, nil)
+		err := event.SetEventDatesFromDto(testEvent, &newStart, nil)
 
 		// Assert
 		assert.Error(t, err)
@@ -291,7 +291,7 @@ func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
 func TestParseDtoEventDates_NilEvent(t *testing.T) {
 	t.Run("should return error for nil event", func(t *testing.T) {
 		// Act
-		err := event.ParseDtoEventDatesForTesting(nil, nil, nil)
+		err := event.SetEventDatesFromDto(nil, nil, nil)
 
 		// Assert
 		assert.Error(t, err)

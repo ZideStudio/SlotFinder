@@ -95,7 +95,8 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	}, nil
 }
 
-func parseDtoEventDates(event *model.Event, startsAtDto, endsAtDto *time.Time) error {
+// SetEventDatesFromDto validates and sets the event dates from the provided DTO values.
+func SetEventDatesFromDto(event *model.Event, startsAtDto, endsAtDto *time.Time) error {
 	if event == nil {
 		return errors.New("event pointer is nil")
 	}
@@ -141,11 +142,6 @@ func parseDtoEventDates(event *model.Event, startsAtDto, endsAtDto *time.Time) e
 	return nil
 }
 
-// ParseDtoEventDatesForTesting is a wrapper for testing the private parseDtoEventDates function
-func ParseDtoEventDatesForTesting(event *model.Event, startsAtDto, endsAtDto *time.Time) error {
-	return parseDtoEventDates(event, startsAtDto, endsAtDto)
-}
-
 func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *guard.Claims) error {
 	// Get event
 	var event model.Event
@@ -167,7 +163,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 	var areDatesBeingUpdated bool
 	if data.StartsAt != nil || data.EndsAt != nil {
-		if err := parseDtoEventDates(&event, data.StartsAt, data.EndsAt); err != nil {
+		if err := SetEventDatesFromDto(&event, data.StartsAt, data.EndsAt); err != nil {
 			return err
 		}
 		areDatesBeingUpdated = true
