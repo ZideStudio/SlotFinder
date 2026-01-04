@@ -126,26 +126,31 @@ func (r *AvailabilityRepository) Update(availability *model.Availability) error 
 // DeleteOutOfEventRangeAndAdjustOverlaps deletes availabilities that are out of the event range and adjusts overlapping ones
 func (r *AvailabilityRepository) DeleteOutOfEventRangeAndAdjustOverlaps(eventId uuid.UUID, startsAt time.Time, endsAt time.Time) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Find availabilities that overlap with the new event range and extend beyond it
-		var overlappingAvailabilities []model.Availability
+		// Find availabilities that extend beyond the event range
+		var availabilitiesToProcess []model.Availability
+		var availabilitiesToDelete []uuid.UUID
 
-		// Build the WHERE clause with clear conditions
-		overlapCondition := "(starts_at < ? AND ends_at > ?) AND (starts_at < ? OR ends_at > ?)"
-		fullWhereClause := "event_id = ? AND " + overlapCondition
-
-		if err := tx.Where(fullWhereClause,
+		// Select availabilities that extend beyond the event range (either before or after)
+		if err := tx.Where("event_id = ? AND (starts_at < ? OR ends_at > ?)",
 			eventId,
-			endsAt,
-			startsAt,
 			startsAt,
 			endsAt,
-		).Find(&overlappingAvailabilities).Error; err != nil {
-			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to find overlapping availabilities")
+		).Find(&availabilitiesToProcess).Error; err != nil {
+			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to find availabilities to process")
 			return err
 		}
 
-		// Adjust overlapping availabilities to fit within the event range
-		for _, availability := range overlappingAvailabilities {
+		// Process each availability: adjust if it overlaps, delete if it doesn't
+		for _, availability := range availabilitiesToProcess {
+			// Check if the availability actually overlaps with the event range
+			overlaps := availability.StartsAt.Before(endsAt) && availability.EndsAt.After(startsAt)
+
+			if !overlaps {
+				availabilitiesToDelete = append(availabilitiesToDelete, availability.Id)
+				continue
+			}
+
+			// Availability overlaps: adjust it to fit within the event range
 			adjustedAvailability := availability
 
 			// Adjust start time if it's before the event starts
@@ -168,9 +173,12 @@ func (r *AvailabilityRepository) DeleteOutOfEventRangeAndAdjustOverlaps(eventId 
 			}
 		}
 
-		// Delete availabilities that are completely out of range
-		if err := tx.Where("event_id = ? AND (ends_at < ? OR starts_at > ?)", eventId, startsAt, endsAt).Delete(&model.Availability{}).Error; err != nil {
-			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to delete availabilities out of event range")
+		if len(availabilitiesToDelete) == 0 {
+			return nil
+		}
+
+		if err := tx.Where("id IN ?", availabilitiesToDelete).Delete(&model.Availability{}).Error; err != nil {
+			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::DELETE_OUT_OF_EVENT_RANGE_AND_ADJUST_OVERLAPS Failed to delete non-overlapping availabilities")
 			return err
 		}
 
