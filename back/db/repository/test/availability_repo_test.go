@@ -122,10 +122,10 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC), // Event: Jan 5-10
 		time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC))
 
-	// Create availability that starts before event and ends within event (chevauche la date de début)
+	// Create availability that starts before and ends during event
 	availability := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC), // Availability: Jan 3-7 (overlaps left)
-		time.Date(2024, 1, 7, 0, 0, 0, 0, time.UTC))
+		time.Date(2024, 1, 3, 0, 0, 0, 0, time.UTC), // Availability: Jan 3-8 (overlaps left)
+		time.Date(2024, 1, 8, 0, 0, 0, 0, time.UTC))
 
 	// Act
 	err := suite.repo.DeleteOutOfEventRangeAndAdjustOverlaps(event.Id, event.StartsAt, event.EndsAt)
@@ -133,12 +133,12 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	// Assert
 	assert.NoError(suite.T(), err)
 
-	// Verify availability start was adjusted to event start
+	// Verify availability was adjusted - start time moved to event start
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result.StartsAt)    // Should be adjusted to Jan 5
-	assert.Equal(suite.T(), availability.EndsAt, result.EndsAt) // End should remain Jan 7
+	assert.Equal(suite.T(), event.StartsAt, result.StartsAt)
+	assert.Equal(suite.T(), availability.EndsAt, result.EndsAt)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_RightOverlap() {
@@ -148,7 +148,7 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC), // Event: Jan 5-10
 		time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC))
 
-	// Create availability that starts within event and ends after event (chevauche la date de fin)
+	// Create availability that starts during and ends after event
 	availability := suite.createTestAvailability(account.Id, event.Id,
 		time.Date(2024, 1, 8, 0, 0, 0, 0, time.UTC), // Availability: Jan 8-12 (overlaps right)
 		time.Date(2024, 1, 12, 0, 0, 0, 0, time.UTC))
@@ -159,12 +159,12 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	// Assert
 	assert.NoError(suite.T(), err)
 
-	// Verify availability end was adjusted to event end
+	// Verify availability was adjusted - end time moved to event end
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availability.StartsAt, result.StartsAt) // Start should remain Jan 8
-	assert.Equal(suite.T(), event.EndsAt, result.EndsAt)            // Should be adjusted to Jan 10
+	assert.Equal(suite.T(), availability.StartsAt, result.StartsAt)
+	assert.Equal(suite.T(), event.EndsAt, result.EndsAt)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_BothSidesOverlap() {
@@ -174,7 +174,7 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC), // Event: Jan 5-10
 		time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC))
 
-	// Create availability that encompasses entire event (chevauche la nouvelle date de fin et de début)
+	// Create availability that encompasses the entire event
 	availability := suite.createTestAvailability(account.Id, event.Id,
 		time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), // Availability: Jan 1-15 (encompasses event)
 		time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC))
@@ -185,12 +185,12 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	// Assert
 	assert.NoError(suite.T(), err)
 
-	// Verify availability was adjusted to exactly match event range
+	// Verify availability was adjusted - both start and end moved to event boundaries
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result.StartsAt) // Should be adjusted to Jan 5
-	assert.Equal(suite.T(), event.EndsAt, result.EndsAt)     // Should be adjusted to Jan 10
+	assert.Equal(suite.T(), event.StartsAt, result.StartsAt)
+	assert.Equal(suite.T(), event.EndsAt, result.EndsAt)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_CompletelyOutsideDeleted() {
@@ -352,7 +352,7 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	assert.NoError(suite.T(), err) // Should not error even with no availabilities
 }
 
-// Tests spécifiques pour tous les cas de chevauchement mentionnés
+// Test specific cases for all overlap scenarios mentioned in the requirements
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_AllOverlapCases() {
 	// Arrange
 	account := suite.createTestAccount()
@@ -360,29 +360,29 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 		time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC), // Event: Jan 10-20
 		time.Date(2024, 1, 20, 0, 0, 0, 0, time.UTC))
 
-	// Cas 1: Chevauche la date de début seulement
+	// Case 1: Overlaps start only
 	availLeftOverlap := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC), // Jan 5-15 (chevauche début)
+		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC), // Jan 5-15 (overlaps start)
 		time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC))
 
-	// Cas 2: Chevauche la date de fin seulement
+	// Case 2: Overlaps end only
 	availRightOverlap := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC), // Jan 15-25 (chevauche fin)
+		time.Date(2024, 1, 15, 0, 0, 0, 0, time.UTC), // Jan 15-25 (overlaps end)
 		time.Date(2024, 1, 25, 0, 0, 0, 0, time.UTC))
 
-	// Cas 3: Chevauche la nouvelle date de fin ET de début (englobe complètement)
+	// Case 3: Overlaps both start and end (encompasses completely)
 	availBothOverlap := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), // Jan 1-30 (chevauche début et fin)
+		time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), // Jan 1-30 (overlaps both start and end)
 		time.Date(2024, 1, 30, 0, 0, 0, 0, time.UTC))
 
-	// Cas 4: Complètement dans la plage (ne devrait pas changer)
+	// Case 4: Completely within range (should not change)
 	availWithin := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 12, 0, 0, 0, 0, time.UTC), // Jan 12-18 (complètement dedans)
+		time.Date(2024, 1, 12, 0, 0, 0, 0, time.UTC), // Jan 12-18 (completely inside)
 		time.Date(2024, 1, 18, 0, 0, 0, 0, time.UTC))
 
-	// Cas 5: Complètement en dehors (devrait être supprimé)
+	// Case 5: Completely outside (should be deleted)
 	availOutside := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 25, 0, 0, 0, 0, time.UTC), // Jan 25-30 (complètement après)
+		time.Date(2024, 1, 25, 0, 0, 0, 0, time.UTC), // Jan 25-30 (completely after)
 		time.Date(2024, 1, 30, 0, 0, 0, 0, time.UTC))
 
 	// Act
@@ -391,41 +391,41 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	// Assert
 	assert.NoError(suite.T(), err)
 
-	// Vérifier cas 1: chevauche début - start ajusté à début d'événement
+	// Verify case 1: overlaps start - start adjusted to event start
 	var result1 model.Availability
 	err = suite.db.Where("id = ?", availLeftOverlap.Id).First(&result1).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result1.StartsAt, "Availability qui chevauche le début devrait avoir son start ajusté")
-	assert.Equal(suite.T(), availLeftOverlap.EndsAt, result1.EndsAt, "End ne devrait pas changer")
+	assert.Equal(suite.T(), event.StartsAt, result1.StartsAt, "Availability that overlaps start should have its start adjusted")
+	assert.Equal(suite.T(), availLeftOverlap.EndsAt, result1.EndsAt, "End should not change")
 
-	// Vérifier cas 2: chevauche fin - end ajusté à fin d'événement
+	// Verify case 2: overlaps end - end adjusted to event end
 	var result2 model.Availability
 	err = suite.db.Where("id = ?", availRightOverlap.Id).First(&result2).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availRightOverlap.StartsAt, result2.StartsAt, "Start ne devrait pas changer")
-	assert.Equal(suite.T(), event.EndsAt, result2.EndsAt, "Availability qui chevauche la fin devrait avoir son end ajusté")
+	assert.Equal(suite.T(), availRightOverlap.StartsAt, result2.StartsAt, "Start should not change")
+	assert.Equal(suite.T(), event.EndsAt, result2.EndsAt, "Availability that overlaps end should have its end adjusted")
 
-	// Vérifier cas 3: chevauche début ET fin - les deux ajustés
+	// Verify case 3: overlaps start AND end - both adjusted
 	var result3 model.Availability
 	err = suite.db.Where("id = ?", availBothOverlap.Id).First(&result3).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result3.StartsAt, "Start devrait être ajusté au début d'événement")
-	assert.Equal(suite.T(), event.EndsAt, result3.EndsAt, "End devrait être ajusté à la fin d'événement")
+	assert.Equal(suite.T(), event.StartsAt, result3.StartsAt, "Start should be adjusted to event start")
+	assert.Equal(suite.T(), event.EndsAt, result3.EndsAt, "End should be adjusted to event end")
 
-	// Vérifier cas 4: complètement dedans - pas de changement
+	// Verify case 4: completely inside - no change
 	var result4 model.Availability
 	err = suite.db.Where("id = ?", availWithin.Id).First(&result4).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availWithin.StartsAt, result4.StartsAt, "Availability dans la plage ne devrait pas changer")
-	assert.Equal(suite.T(), availWithin.EndsAt, result4.EndsAt, "Availability dans la plage ne devrait pas changer")
+	assert.Equal(suite.T(), availWithin.StartsAt, result4.StartsAt, "Availability within range should not change")
+	assert.Equal(suite.T(), availWithin.EndsAt, result4.EndsAt, "Availability within range should not change")
 
-	// Vérifier cas 5: complètement dehors - supprimé
+	// Verify case 5: completely outside - deleted
 	var count int64
 	suite.db.Model(&model.Availability{}).Where("id = ?", availOutside.Id).Count(&count)
-	assert.Equal(suite.T(), int64(0), count, "Availability complètement en dehors devrait être supprimée")
+	assert.Equal(suite.T(), int64(0), count, "Availability completely outside should be deleted")
 }
 
-// Test pour vérifier les cas limites de chevauchement
+// Test edge cases for overlap detection
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_EdgeCases() {
 	// Arrange
 	account := suite.createTestAccount()
@@ -433,17 +433,17 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 		time.Date(2024, 1, 10, 12, 0, 0, 0, time.UTC), // Event: Jan 10 12h - Jan 15 18h
 		time.Date(2024, 1, 15, 18, 0, 0, 0, time.UTC))
 
-	// Cas limite: availability qui finit exactement quand l'événement commence
+	// Edge case: availability that ends exactly when event starts (no overlap)
 	availTouchingStart := suite.createTestAvailability(account.Id, event.Id,
 		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC),
-		time.Date(2024, 1, 10, 12, 0, 0, 0, time.UTC)) // finit exactement quand event commence
+		time.Date(2024, 1, 10, 12, 0, 0, 0, time.UTC)) // ends exactly when event starts
 
-	// Cas limite: availability qui commence exactement quand l'événement finit
+	// Edge case: availability that starts exactly when event ends (no overlap)
 	availTouchingEnd := suite.createTestAvailability(account.Id, event.Id,
-		time.Date(2024, 1, 15, 18, 0, 0, 0, time.UTC), // commence exactement quand event finit
+		time.Date(2024, 1, 15, 18, 0, 0, 0, time.UTC), // starts exactly when event ends
 		time.Date(2024, 1, 20, 0, 0, 0, 0, time.UTC))
 
-	// Cas limite: availability exactement à la même plage que l'événement
+	// Edge case: availability exactly the same range as event
 	availExactMatch := suite.createTestAvailability(account.Id, event.Id,
 		time.Date(2024, 1, 10, 12, 0, 0, 0, time.UTC),
 		time.Date(2024, 1, 15, 18, 0, 0, 0, time.UTC))
@@ -454,26 +454,56 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	// Assert
 	assert.NoError(suite.T(), err)
 
-	// Availability qui touche le début devrait rester inchangée (elle n'est ni en dehors ni chevauchante)
-	var resultTouchingStart model.Availability
-	err = suite.db.Where("id = ?", availTouchingStart.Id).First(&resultTouchingStart).Error
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availTouchingStart.StartsAt, resultTouchingStart.StartsAt)
-	assert.Equal(suite.T(), availTouchingStart.EndsAt, resultTouchingStart.EndsAt)
+	// Availability that touches start should be deleted (it doesn't overlap)
+	var count1 int64
+	suite.db.Model(&model.Availability{}).Where("id = ?", availTouchingStart.Id).Count(&count1)
+	assert.Equal(suite.T(), int64(0), count1, "Availability that ends when event starts should be deleted")
 
-	// Availability qui touche la fin devrait rester inchangée (elle n'est ni en dehors ni chevauchante)
-	var resultTouchingEnd model.Availability
-	err = suite.db.Where("id = ?", availTouchingEnd.Id).First(&resultTouchingEnd).Error
-	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availTouchingEnd.StartsAt, resultTouchingEnd.StartsAt)
-	assert.Equal(suite.T(), availTouchingEnd.EndsAt, resultTouchingEnd.EndsAt)
+	// Availability that touches end should be deleted (it doesn't overlap)
+	var count2 int64
+	suite.db.Model(&model.Availability{}).Where("id = ?", availTouchingEnd.Id).Count(&count2)
+	assert.Equal(suite.T(), int64(0), count2, "Availability that starts when event ends should be deleted")
 
-	// Availability avec match exact devrait rester inchangée
+	// Availability with exact match should remain unchanged
 	var resultExact model.Availability
 	err = suite.db.Where("id = ?", availExactMatch.Id).First(&resultExact).Error
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), event.StartsAt, resultExact.StartsAt)
 	assert.Equal(suite.T(), event.EndsAt, resultExact.EndsAt)
+}
+
+// Test case for availabilities that should be deleted because they don't overlap
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_NonOverlappingDeletion() {
+	// Arrange
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id,
+		time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC), // Event: Jan 10-20
+		time.Date(2024, 1, 20, 0, 0, 0, 0, time.UTC))
+
+	// Create availability that extends beyond event range but doesn't overlap
+	// This is the key test case for the bug fix: availability before event that extends beyond start
+	availBeforeEvent := suite.createTestAvailability(account.Id, event.Id,
+		time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC), // Jan 5-8 (extends beyond start but doesn't overlap)
+		time.Date(2024, 1, 8, 0, 0, 0, 0, time.UTC))
+
+	// Create availability after event that would be selected by the original logic
+	availAfterEvent := suite.createTestAvailability(account.Id, event.Id,
+		time.Date(2024, 1, 25, 0, 0, 0, 0, time.UTC), // Jan 25-30 (completely after)
+		time.Date(2024, 1, 30, 0, 0, 0, 0, time.UTC))
+
+	// Act
+	err := suite.repo.DeleteOutOfEventRangeAndAdjustOverlaps(event.Id, event.StartsAt, event.EndsAt)
+
+	// Assert
+	assert.NoError(suite.T(), err)
+
+	// Both availabilities should be deleted because they don't overlap with the event
+	var count int64
+	suite.db.Model(&model.Availability{}).Where("id = ?", availBeforeEvent.Id).Count(&count)
+	assert.Equal(suite.T(), int64(0), count, "Availability before event that doesn't overlap should be deleted")
+
+	suite.db.Model(&model.Availability{}).Where("id = ?", availAfterEvent.Id).Count(&count)
+	assert.Equal(suite.T(), int64(0), count, "Availability after event should be deleted")
 }
 
 // Run the test suite
