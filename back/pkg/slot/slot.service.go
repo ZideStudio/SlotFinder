@@ -30,7 +30,7 @@ func NewSlotService(service *SlotService) *SlotService {
 	return &SlotService{
 		slotRepository:         &repository.SlotRepository{},
 		eventRepository:        &repository.EventRepository{},
-		availabilityRepository: &repository.AvailabilityRepository{},
+		availabilityRepository: repository.NewAvailabilityRepository(nil),
 		accountEventRepository: &repository.AccountEventRepository{},
 		sseService:             sse.GetSSEService(),
 		loadSlotsMutexes:       sync.Map{},

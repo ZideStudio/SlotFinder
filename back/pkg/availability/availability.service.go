@@ -27,7 +27,7 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 
 	return &AvailabilityService{
 		slotService:            slot.NewSlotService(nil),
-		availabilityRepository: &repository.AvailabilityRepository{},
+		availabilityRepository: repository.NewAvailabilityRepository(nil),
 		eventRepository:        &repository.EventRepository{},
 	}
 }

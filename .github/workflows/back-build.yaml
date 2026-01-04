@@ -7,10 +7,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - 'back/**'
-      - '.github/workflows/back-build.yaml'
-      - '.github/actions/setup-go/**'
-      - 'Makefile'
+      - "back/**"
+      - ".github/workflows/back-build.yaml"
+      - ".github/actions/setup-go/**"
+      - "Makefile"
   workflow_dispatch:
 
 env:
@@ -48,7 +48,7 @@ jobs:
 
       - name: Run linter
         working-directory: ${{ env.BACK_FOLDER }}
-        run: golangci-lint run ./...
+        run: golangci-lint run ./... --timeout=5m
 
   test:
     name: Test
