@@ -13,6 +13,16 @@ git clone https://github.com/ZideStudio/SlotFinder
 cd SlotFinder
 ```
 
+#### Install frontend dependencies
+
+Install the required packages for the frontend:
+
+```bash
+cd front
+npm install
+cd ..
+```
+
 #### Set up environment variables
 
 Clone the env `backend/.env.model` file to `backend/.env` and modify the variables as needed.

@@ -121,6 +121,59 @@ export const MyComponent = () => {
 
 The "PageTemplate" component is a template because it incorporates the "Header" organism and other elements to create a complete page.
 
+## <span id="testing">🧪 Testing UI Components</span>
+
+### Unit Tests vs Browser Tests
+
+**Unit Tests (`ComponentName.test.tsx`)** - Use jsdom environment:
+
+- Test component logic and rendering
+- Test props and state changes
+- Use for atoms and simple molecules
+- Fast and suitable for most components
+
+**Browser Tests (`ComponentName.browser.test.tsx`)** - Use real Chromium browser:
+
+- Test visual regression with screenshot snapshots
+- Test real browser APIs and behavior
+- Test accessibility in real browser environment
+- Use for organisms and complex components
+- Slower but more realistic
+
+### Visual Regression Testing Best Practices
+
+For components where visual consistency is critical:
+
+1. **Create browser test file** with `.browser.test.tsx` suffix
+2. **Capture screenshots** with `page.screenshot()` with disabled animations
+3. **Use strict threshold** (`threshold: 0`) to detect any visual change
+4. **Name snapshots explicitly** (e.g., `component-default.png`, `component-required.png`)
+5. **Test variations** (default state, required, disabled, error states)
+6. **Validate visually before updating** snapshots with `UPDATE_SNAPSHOTS=true`
+
+### Example: Adding Visual Tests to an Atom
+
+```typescript
+// src/ui/atoms/Button/__tests__/Button.browser.test.tsx
+import { expect, test } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { Button } from '../Button';
+
+test('Button visual snapshot (default)', async () => {
+  const { container, getByRole } = await render(<Button>Click me</Button>);
+  await expect.element(getByRole('button')).toBeInTheDocument();
+
+  await expect(container).toMatchScreenshot('button-default');
+});
+
+test('Button visual snapshot (disabled)', async () => {
+  const { container, getByRole } = await render(<Button disabled>Disabled</Button>);
+  await expect.element(getByRole('button')).toBeDisabled();
+
+  await expect(container).toMatchScreenshot('button-disabled');
+});
+```
+
 ## <span id="best-practice">🎖️ Best Practice</span>
 
 When incorporating external component libraries, it is recommended to adhere to the following best practices for the organization of UI components:
