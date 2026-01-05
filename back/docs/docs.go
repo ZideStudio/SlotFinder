@@ -469,6 +469,52 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Update an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/event.EventUpdateDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/events/{eventId}/availability": {
@@ -879,6 +925,38 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
+        "event.EventUpdateDto": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer",
+                    "maximum": 30240,
+                    "minimum": 15
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "IN_DECISION"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.EventStatus"
+                        }
+                    ]
                 }
             }
         },

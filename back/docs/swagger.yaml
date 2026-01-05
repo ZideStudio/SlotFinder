@@ -118,6 +118,26 @@ definitions:
       status:
         $ref: '#/definitions/constants.EventStatus'
     type: object
+  event.EventUpdateDto:
+    properties:
+      description:
+        type: string
+      duration:
+        maximum: 30240
+        minimum: 15
+        type: integer
+      endsAt:
+        type: string
+      name:
+        type: string
+      startsAt:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/constants.EventStatus'
+        enum:
+        - IN_DECISION
+    type: object
   helpers.ApiError:
     properties:
       code:
@@ -533,6 +553,35 @@ paths:
           schema:
             $ref: '#/definitions/helpers.ApiError'
       summary: Get event
+      tags:
+      - Event
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event Id
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Event parameters
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/event.EventUpdateDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Update an event
       tags:
       - Event
   /api/v1/events/{eventId}/availability:
