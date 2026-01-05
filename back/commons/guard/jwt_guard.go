@@ -127,8 +127,11 @@ func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
 
 		claims, err := ParseToken(jwt)
 		if err != nil {
-			if err.Error() == "token expired" {
-				lib.SetAccessTokenCookie(c, "", -1)
+			// Return 498 for expired access token (Token Expired/Invalid)
+			if err.Error() == "token expired" || errors.Is(err, constants.ERR_TOKEN_EXPIRED.Err) {
+				c.JSON(498, gin.H{"error": "access token expired"})
+				c.Abort()
+				return
 			}
 
 			helpers.HandleJSONResponse(c, nil, err)
