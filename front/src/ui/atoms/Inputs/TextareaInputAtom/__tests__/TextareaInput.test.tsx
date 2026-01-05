@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { TextareaInputAtom } from "../TextareaInputAtom";
+import { render, screen } from '@testing-library/react';
+import { TextareaInputAtom } from '../TextareaInputAtom';
 
 describe('TextareaInputAtom', () => {
   it('should render a textarea with required name prop', () => {
