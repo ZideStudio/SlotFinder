@@ -18,26 +18,53 @@ type FetchApiProps<CustomErrorResponseCodeType extends string> = {
   CustomErrorResponse?: ErrorResponseClass<CustomErrorResponseCodeType>;
 };
 
-// Global state for managing token refresh
-let isRefreshing = false;
-let refreshPromise: Promise<void> | null = null;
+// Singleton for managing token refresh to prevent multiple simultaneous refresh calls
+class TokenRefreshManager {
+  private static instance: TokenRefreshManager;
+  private isRefreshing = false;
+  private refreshPromise: Promise<void> | null = null;
 
-const refreshToken = async (): Promise<void> => {
-  const response = await fetch(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, {
-    method: 'POST',
-    credentials: 'include',
-  });
+  private constructor() {}
 
-  if (!response.ok) {
-    throw new Error('Token refresh failed');
+  public static getInstance(): TokenRefreshManager {
+    if (!TokenRefreshManager.instance) {
+      TokenRefreshManager.instance = new TokenRefreshManager();
+    }
+    return TokenRefreshManager.instance;
   }
-};
 
-const waitForTokenRefresh = async (): Promise<void> => {
-  if (refreshPromise) {
-    await refreshPromise;
+  public async refreshToken(): Promise<void> {
+    // If already refreshing, wait for that operation to complete
+    if (this.isRefreshing && this.refreshPromise) {
+      await this.refreshPromise;
+      return;
+    }
+
+    // Start a new refresh operation
+    this.isRefreshing = true;
+    this.refreshPromise = this.performRefresh();
+
+    try {
+      await this.refreshPromise;
+    } finally {
+      this.isRefreshing = false;
+      this.refreshPromise = null;
+    }
   }
-};
+
+  private async performRefresh(): Promise<void> {
+    const response = await fetch(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      // On refresh failure, redirect to home page
+      window.location.href = '/';
+      throw new Error('Token refresh failed');
+    }
+  }
+}
 
 export const fetchApi = async <
   Response extends Json | string | null,
@@ -66,47 +93,29 @@ export const fetchApi = async <
 
   let response = await makeRequest();
 
-  // Handle 401 error with automatic token refresh
+  // Handle 498 status code (expired access token)
   // Only attempt refresh if we're on an authenticated page and it's not the refresh endpoint itself
-  if (response.status === 401) {
+  if (response.status === 498) {
     const isOnAuthenticatedPage = isAuthenticatedPage();
     const isRefreshEndpoint = path.includes('/auth/refresh');
 
     if (isOnAuthenticatedPage && !isRefreshEndpoint) {
       try {
-        // If another request is already refreshing, wait for it
-        if (isRefreshing) {
-          await waitForTokenRefresh();
-          // Retry the original request after refresh completes
-          response = await makeRequest();
-        } else {
-          // Start the refresh process
-          isRefreshing = true;
-          refreshPromise = refreshToken()
-            .then(() => {
-              isRefreshing = false;
-              refreshPromise = null;
-            })
-            .catch((error) => {
-              isRefreshing = false;
-              refreshPromise = null;
-              // Redirect to home on refresh failure
-              window.location.href = '/';
-              throw error;
-            });
-
-          await refreshPromise;
-
-          // Retry the original request
-          response = await makeRequest();
-        }
+        const refreshManager = TokenRefreshManager.getInstance();
+        await refreshManager.refreshToken();
+        
+        // Retry the original request after successful refresh
+        response = await makeRequest();
       } catch (error) {
-        // If refresh failed, the catch block already redirected
+        // If refresh failed, the manager already redirected to home
         // Just rethrow to prevent further processing
         throw error;
       }
     }
   }
+
+  // Handle 401 status code (unauthorized) - do nothing, just let it pass through
+  // This indicates the refresh token has expired or is invalid
 
   const content = await response.text();
 
