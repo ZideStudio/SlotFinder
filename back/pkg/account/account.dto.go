@@ -11,3 +11,12 @@ type AccountUpdateDto struct {
 	Password *string `json:"password"`
 	Color    *string `json:"color"`
 }
+
+type ForgotPasswordDto struct {
+	Email string `json:"email" binding:"required"`
+}
+
+type ResetPasswordDto struct {
+	Token    string `json:"token" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}

@@ -20,6 +20,23 @@ definitions:
       username:
         type: string
     type: object
+  account.ForgotPasswordDto:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  account.ResetPasswordDto:
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+    required:
+    - password
+    - token
+    type: object
   availability.AvailabilityCreateDto:
     properties:
       endsAt:
@@ -319,6 +336,30 @@ paths:
       summary: Create an account
       tags:
       - Account
+  /api/v1/account/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send a password reset email to the user
+      parameters:
+      - description: Email for password reset
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/account.ForgotPasswordDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Forgot Password
+      tags:
+      - Account
   /api/v1/account/me:
     get:
       consumes:
@@ -338,6 +379,30 @@ paths:
       security:
       - AccessTokenCookie: []
       summary: Get My Account
+      tags:
+      - Account
+  /api/v1/account/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password using reset token
+      parameters:
+      - description: Reset token and new password
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/account.ResetPasswordDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Reset Password
       tags:
       - Account
   /api/v1/auth/{provider}/url:

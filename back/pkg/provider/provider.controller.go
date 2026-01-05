@@ -85,7 +85,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 		return
 	}
 
-	redirectUrl := config.GetConfig().Origins[0] + "/oauth/callback"
+	redirectUrl := config.GetConfig().Origin + "/oauth/callback"
 	userId := state["userId"]
 	returnUrl := state["returnUrl"]
 	q := url.Values{}

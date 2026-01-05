@@ -107,3 +107,41 @@ func (ctl *AccountController) Update(c *gin.Context) {
 
 	helpers.HandleJSONResponse(c, account, err)
 }
+
+// @Summary Forgot Password
+// @Description Send a password reset email to the user
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param data body ForgotPasswordDto true "Email for password reset"
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/account/forgot-password [post]
+func (ctl *AccountController) ForgotPassword(c *gin.Context) {
+	var data ForgotPasswordDto
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
+		return
+	}
+
+	err := ctl.accountService.ForgotPassword(&data)
+	helpers.HandleJSONResponse(c, nil, err)
+}
+
+// @Summary Reset Password
+// @Description Reset password using reset token
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Param data body ResetPasswordDto true "Reset token and new password"
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/account/reset-password [post]
+func (ctl *AccountController) ResetPassword(c *gin.Context) {
+	var data ResetPasswordDto
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
+		return
+	}
+
+	err := ctl.accountService.ResetPassword(&data)
+	helpers.HandleJSONResponse(c, nil, err)
+}
