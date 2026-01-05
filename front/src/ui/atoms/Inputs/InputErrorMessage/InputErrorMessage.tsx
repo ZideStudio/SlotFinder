@@ -23,7 +23,7 @@ export const InputErrorMessage = ({ children, className, id }: InputErrorMessage
 
   return (
     <div className={parentClassName} role="alert">
-      <ErrorIcon className="input-error-icon" aria-hidden="true" />
+      <ErrorIcon className="input-error__icon" aria-hidden="true" />
       <span id={id} className="input-error__message">
         {children}
       </span>
