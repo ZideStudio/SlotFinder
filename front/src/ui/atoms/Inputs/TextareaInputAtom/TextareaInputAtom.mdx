@@ -1,0 +1,85 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as TextareaInputAtomStories from './TextareaInputAtom.stories';
+
+<Meta of={TextareaInputAtomStories} />
+
+# TextareaInputAtom
+
+A reusable, accessible textarea input atom for forms and UI elements.
+
+## Usage
+
+```tsx
+<TextareaInputAtom
+  name="input-name"
+  placeholder="Enter text"
+  value={value}
+  onChange={handleChange}
+  className="custom-class"
+/>
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input name attribute for form identification</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>No</td>
+      <td>All standard input props (e.g. value, onChange, placeholder)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Follows WCAG 2.2 AA and RGAA 4 guidelines.
+- Keyboard accessible.
+- Use with a `<label htmlFor>` for best accessibility.
+
+## Example
+
+```tsx
+<label htmlFor="my-input">Label</label>
+<TextareaInputAtom name="my-input" id="my-input" placeholder="Type here..." />
+```
+
+## Playground
+
+<Canvas of={TextareaInputAtomStories.Default} sourceState="shown" />
+<Controls of={TextareaInputAtomStories.Default} />
