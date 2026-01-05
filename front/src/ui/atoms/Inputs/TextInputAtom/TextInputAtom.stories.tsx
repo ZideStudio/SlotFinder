@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { TextInputAtom } from './TextInputAtom';
 
 const meta = {
-  title: 'Atoms/TextInputAtom',
+  title: 'Atoms/Inputs/TextInputAtom',
   component: TextInputAtom,
   args: { name: 'text-input', className: 'custom-class' },
   argTypes: {

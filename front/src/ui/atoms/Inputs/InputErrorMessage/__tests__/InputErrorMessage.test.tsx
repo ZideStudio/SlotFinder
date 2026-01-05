@@ -4,15 +4,19 @@ import { InputErrorMessage } from '../InputErrorMessage';
 
 describe('InputErrorMessage', () => {
   it('renders an error message with correct message', () => {
-    render(<InputErrorMessage message="test-input" />);
+    render(<InputErrorMessage>test-input</InputErrorMessage>);
     const errorMessage = screen.getByText('test-input');
     expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveTextContent('test-input');
   });
 
   it('applies custom id when provided', () => {
-    render(<InputErrorMessage message="test-input" id="test-id" />);
+    render(<InputErrorMessage id="test-id">test-input</InputErrorMessage>);
     const errorMessage = screen.getByText('test-input');
     expect(errorMessage).toHaveAttribute('id', 'test-id');
+  });
+
+  it('does not render anything when children is empty', () => {
+    const { container } = render(<InputErrorMessage>{null}</InputErrorMessage>);
+    expect(container.firstChild).toBeNull();
   });
 });
