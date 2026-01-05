@@ -54,3 +54,13 @@ func (*SlotRepository) DeleteByEventId(eventId uuid.UUID) error {
 
 	return nil
 }
+
+// DeleteValidatedByEventId Deletes validated slot by Event ID
+func (r *SlotRepository) DeleteValidatedByEventId(eventId uuid.UUID) error {
+	if err := db.GetDB().Where("event_id = ? AND is_validated = ?", eventId, true).Delete(&model.Slot{}).Error; err != nil {
+		log.Error().Err(err).Msg("SLOT_REPOSITORY::DELETE_VALIDATED_BY_EVENT_ID Failed to delete validated slot by event ID")
+		return err
+	}
+
+	return nil
+}

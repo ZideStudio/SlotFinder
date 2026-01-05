@@ -181,6 +181,12 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 	if data.Status != nil {
 		event.Status = *data.Status
+
+		if err := s.slotRepository.DeleteValidatedByEventId(event.Id); err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+		}
 	}
 
 	// Update event in repository
