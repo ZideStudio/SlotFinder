@@ -4,10 +4,10 @@ import (
 	"app/commons/constants"
 	"app/db"
 	model "app/db/models"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 )
 
 type AccountEventRepository struct{}
@@ -62,7 +62,7 @@ func (r *AccountEventRepository) FindEventIdsByAccountId(accountId uuid.UUID, li
 		Select("account_event.event_id").
 		Joins("JOIN event ON account_event.event_id = event.id").
 		Where("account_event.account_id = ?", accountId).
-		Order(fmt.Sprintf("CASE WHEN event.status = '%s' THEN 1 WHEN event.status = '%s' THEN 2 WHEN event.status = '%s' THEN 3 ELSE 4 END, event.name ASC", constants.EVENT_STATUS_IN_DECISION, constants.EVENT_STATUS_UPCOMING, constants.EVENT_STATUS_FINISHED)).
+		Order(gorm.Expr("CASE WHEN event.status = ? THEN 1 WHEN event.status = ? THEN 2 WHEN event.status = ? THEN 3 ELSE 4 END, event.name ASC", constants.EVENT_STATUS_IN_DECISION, constants.EVENT_STATUS_UPCOMING, constants.EVENT_STATUS_FINISHED)).
 		Limit(limit).
 		Offset(offset).
 		Pluck("account_event.event_id", &eventIds).Error; err != nil {
