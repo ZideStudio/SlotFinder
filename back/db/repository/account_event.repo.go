@@ -49,13 +49,16 @@ func (r *AccountEventRepository) FindEventIdsByAccountId(accountId uuid.UUID, li
 	db := db.GetDB()
 
 	var total int64
-	if err := db.
+	subQuery := db.
 		Model(&model.AccountEvent{}).
-		Where("account_id = ?", accountId).
-		Distinct("event_id").
+		Select("DISTINCT event_id").
+		Where("account_id = ?", accountId)
+	if err := db.
+		Table("(?) as distinct_events", subQuery).
 		Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
+
 	var eventIds []uuid.UUID
 	if err := db.
 		Model(&model.AccountEvent{}).
