@@ -51,11 +51,7 @@ func ParseToken(jwtToken string) (*Claims, error) {
 	_, err = jwt.ParseWithClaims(jwtToken, claims, func(token *jwt.Token) (any, error) {
 		return jwt.ParseRSAPublicKeyFromPEM([]byte(f))
 	})
-	if err != nil {
-		return claims, constants.ERR_TOKEN_INVALID.Err
-	}
-
-	if claims.ExpiresAt == nil || claims.ExpiresAt.Before(time.Now()) {
+	if err != nil || claims.ExpiresAt == nil || claims.ExpiresAt.Before(time.Now()) {
 		return claims, constants.ERR_TOKEN_EXPIRED.Err
 	}
 
@@ -76,7 +72,7 @@ func GenerateAccessToken(claims *Claims) (string, error) {
 		return "", err
 	}
 
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(constants.ACCESS_TOKEN_DURATION))
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(constants.ACCESS_TOKEN_EXPIRATION))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
@@ -93,9 +89,9 @@ func ShouldRenewToken(claims *Claims) bool {
 	if claims.ExpiresAt == nil {
 		return false
 	}
-	
+
 	timeUntilExpiry := time.Until(claims.ExpiresAt.Time)
-	return timeUntilExpiry > 0 && timeUntilExpiry < constants.TOKEN_RENEWAL_THRESHOLD_DURATION
+	return timeUntilExpiry > 0 && timeUntilExpiry < constants.TOKEN_RENEWAL_THRESHOLD_EXPIRATION
 }
 
 type AuthCheckParams struct {
@@ -126,13 +122,6 @@ func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
 
 		claims, err := ParseToken(jwt)
 		if err != nil {
-			// Return 498 for expired access token (Token Expired/Invalid)
-			if err.Error() == "token expired" || errors.Is(err, constants.ERR_TOKEN_EXPIRED.Err) {
-				c.JSON(498, gin.H{"error": "access token expired"})
-				c.Abort()
-				return
-			}
-
 			helpers.HandleJSONResponse(c, nil, err)
 			return
 		}
