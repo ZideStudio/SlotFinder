@@ -161,12 +161,12 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	if data.Status != nil && *data.Status != constants.EVENT_STATUS_IN_DECISION {
 		return errors.New("only status 'in_decision' can be set manually")
 	}
-	var areDatesBeingUpdated bool
+	var isBreakingSlots bool
 	if data.StartsAt != nil || data.EndsAt != nil {
 		if err := SetEventDatesFromDto(&event, data.StartsAt, data.EndsAt); err != nil {
 			return err
 		}
-		areDatesBeingUpdated = true
+		isBreakingSlots = true
 	}
 
 	// Update fields if provided
@@ -178,6 +178,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 	if data.Duration != nil {
 		event.Duration = *data.Duration
+		isBreakingSlots = true
 	}
 	if data.Status != nil {
 		event.Status = *data.Status
@@ -195,7 +196,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 
 	// If dates are not being updated, no need to remove slots
-	if !areDatesBeingUpdated {
+	if !isBreakingSlots {
 		return nil
 	}
 
