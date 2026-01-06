@@ -15,10 +15,10 @@ import (
 	"errors"
 	"fmt"
 	mathrand "math/rand"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/patrickmn/go-cache"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
@@ -29,7 +29,7 @@ type AccountService struct {
 	signinService         *signin.SigninService
 	mailService           *mail.MailService
 	config                *config.Config
-	passwordResetCooldown sync.Map
+	passwordResetCooldown *cache.Cache
 }
 
 func NewAccountService(service *AccountService) *AccountService {
@@ -43,7 +43,7 @@ func NewAccountService(service *AccountService) *AccountService {
 		signinService:         signin.NewSigninService(nil),
 		mailService:           mail.NewMailService(nil),
 		config:                config.GetConfig(),
-		passwordResetCooldown: sync.Map{},
+		passwordResetCooldown: cache.New(10*time.Minute, 15*time.Minute),
 	}
 }
 
@@ -199,13 +199,9 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 
 // ForgotPassword generates a reset token and sends reset email
 func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
-	// Check cooldown
-	if value, exists := s.passwordResetCooldown.Load(dto.Email); exists {
-		if lastAttempt, ok := value.(time.Time); ok {
-			if time.Since(lastAttempt) < 10*time.Minute {
-				return constants.ERR_PASSWORD_RESET_TOO_FREQUENT.Err
-			}
-		}
+	// Atomic check-and-set to prevent race conditions
+	if _, found := s.passwordResetCooldown.Get(dto.Email); found {
+		return constants.ERR_PASSWORD_RESET_TOO_FREQUENT.Err
 	}
 
 	var account model.Account
@@ -244,7 +240,7 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 	}
 
 	// Record this attempt
-	s.passwordResetCooldown.Store(dto.Email, time.Now())
+	s.passwordResetCooldown.Set(dto.Email, time.Now(), cache.DefaultExpiration)
 
 	return nil
 }
@@ -280,7 +276,7 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 		return err
 	}
 
-	if account.Email != nil {
+	if account.Email == nil {
 		return nil
 	}
 
