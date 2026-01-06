@@ -2,7 +2,6 @@ package config
 
 import (
 	"os"
-	"strings"
 )
 
 type Config struct {
@@ -11,10 +10,11 @@ type Config struct {
 	Port        string `env:"APP_PORT"`
 	Domain      string `env:"DOMAIN"`
 	ImgBBApiKey string `env:"IMGBB_API_KEY"`
-	Origins     []string
+	Origin      string `env:"ORIGIN"`
 	Db          DbConfiguration
 	Auth        AuthConfiguration
 	Provider    ProviderConfiguration
+	Email       EmailConfiguration
 }
 
 var config *Config
@@ -27,9 +27,10 @@ func Init() *Config {
 		Port:        os.Getenv("APP_PORT"),
 		Domain:      os.Getenv("DOMAIN"),
 		ImgBBApiKey: os.Getenv("IMGBB_API_KEY"),
-		Origins:     GetOrigin(),
+		Origin:      os.Getenv("ORIGIN"),
 		Auth:        GetAuthConfig(),
 		Provider:    GetProviderConfig(),
+		Email:       GetEmailConfig(),
 	}
 
 	return config
@@ -37,21 +38,4 @@ func Init() *Config {
 
 func GetConfig() *Config {
 	return config
-}
-
-func GetOrigin() (origins []string) {
-	originsString := os.Getenv("ORIGINS")
-	if originsString != "" {
-		origins = strings.Split(originsString, ",")
-	}
-
-	for i, origin := range origins {
-		origins[i] = strings.TrimSpace(origin)
-	}
-
-	if len(origins) == 0 {
-		panic("ORIGINS environment variable is not set")
-	}
-
-	return origins
 }

@@ -1,7 +1,7 @@
 package account
 
 type AccountCreateDto struct {
-	Email    string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -10,4 +10,13 @@ type AccountUpdateDto struct {
 	Email    *string `json:"email"`
 	Password *string `json:"password"`
 	Color    *string `json:"color"`
+}
+
+type ForgotPasswordDto struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type ResetPasswordDto struct {
+	Token    string `json:"token" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }

@@ -4,6 +4,7 @@ import (
 	"app/db"
 	model "app/db/models"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -98,6 +99,28 @@ func (*AccountRepository) FindOneByEmailOrUsername(emailOrUsername string, accou
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_EMAIL_OR_USERNAME Failed to find account by email or username")
 		return err
 	}
+	return nil
+}
+
+func (*AccountRepository) FindOneByResetToken(resetToken string, account *model.Account) error {
+	if err := db.GetDB().Where("reset_token = ? AND deleted_at IS NULL", resetToken).Preload("Providers").First(&account).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_RESET_TOKEN Failed to find account by reset token")
+		return err
+	}
+	return nil
+}
+
+func (*AccountRepository) UpdateResetToken(id uuid.UUID, resetToken *string, resetTokenAt *time.Time) error {
+	updates := map[string]interface{}{
+		"reset_token":             resetToken,
+		"password_reset_token_at": resetTokenAt,
+	}
+
+	if err := db.GetDB().Model(&model.Account{}).Where("id = ?", id).Updates(updates).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::UPDATE_RESET_TOKEN Failed to update reset token")
+		return err
+	}
+
 	return nil
 }
 
