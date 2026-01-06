@@ -116,14 +116,16 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	}
 
 	if account.Email != nil {
-		go s.mailService.SendMail(mail.EmailParams{
-			Template: constants.MAIL_TEMPLATE_WELCOME,
-			To:       *account.Email,
-			Subject:  "Welcome to SlotFinder!",
-			Params: map[string]string{
-				"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
-			},
-		})
+		go func() {
+			_ = s.mailService.SendMail(mail.EmailParams{
+				Template: constants.MAIL_TEMPLATE_WELCOME,
+				To:       *account.Email,
+				Subject:  "Welcome to SlotFinder!",
+				Params: map[string]string{
+					"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
+				},
+			})
+		}()
 	}
 
 	return token.AccessToken, nil
@@ -292,15 +294,17 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 	}
 
 	// Send confirmation email
-	go s.mailService.SendMail(mail.EmailParams{
-		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
-		To:       *account.Email,
-		Subject:  "Password reset successful",
-		Params: map[string]string{
-			"Timestamp": time.Now().Format("January 2, 2006 at 15:04 UTC"),
-			"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
-		},
-	})
+	go func() {
+		_ = s.mailService.SendMail(mail.EmailParams{
+			Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
+			To:       *account.Email,
+			Subject:  "Password reset successful",
+			Params: map[string]string{
+				"Timestamp": time.Now().Format("January 2, 2006 at 15:04 UTC"),
+				"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
+			},
+		})
+	}()
 
 	return nil
 }
