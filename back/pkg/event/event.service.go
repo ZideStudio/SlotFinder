@@ -180,14 +180,10 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 		event.Duration = *data.Duration
 		isBreakingSlots = true
 	}
+	var isStatusChanged bool
 	if data.Status != nil {
 		event.Status = *data.Status
-
-		if err := s.slotRepository.DeleteValidatedByEventId(event.Id); err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return err
-			}
-		}
+		isStatusChanged = true
 	}
 
 	// Update event in repository
@@ -195,7 +191,15 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 		return err
 	}
 
-	// If dates are not being updated, no need to remove slots
+	// If status changed, remove validated slot
+	if isStatusChanged {
+		err := s.slotRepository.DeleteValidatedByEventId(event.Id)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+	}
+
+	// If dates are not being updated, return
 	if !isBreakingSlots {
 		return nil
 	}
