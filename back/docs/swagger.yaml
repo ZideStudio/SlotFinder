@@ -160,6 +160,19 @@ definitions:
       code:
         type: string
     type: object
+  lib.PaginationResult-event_EventResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/event.EventResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
   model.Account:
     properties:
       avatarUrl:
@@ -552,15 +565,24 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/event.EventResponse'
-            type: array
+            $ref: '#/definitions/lib.PaginationResult-event_EventResponse'
         "400":
           description: Bad Request
           schema:

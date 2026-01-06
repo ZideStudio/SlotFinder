@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/helpers"
+	"app/commons/lib"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -86,8 +87,10 @@ func (ctl *EventController) Update(c *gin.Context) {
 // @Tags Event
 // @Accept json
 // @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(20)
 // @Security BearerAuth
-// @Success 200 {array} EventResponse
+// @Success 200 {object} lib.PaginationResult[EventResponse]
 // @Failure 400 {object} helpers.ApiError
 // @Router /api/v1/events [get]
 func (ctl *EventController) GetUserEvents(c *gin.Context) {
@@ -97,8 +100,19 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 		return
 	}
 
-	events, err := ctl.eventService.GetUserEvents(user)
-	helpers.HandleJSONResponse(c, events, err)
+	var pagination lib.PaginationQuery
+	if err := c.ShouldBindQuery(&pagination); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	events, total, err := ctl.eventService.GetUserEvents(user, pagination)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	c.JSON(200, lib.GetPaginationResult(events, pagination, total))
 }
 
 // @Summary Get event

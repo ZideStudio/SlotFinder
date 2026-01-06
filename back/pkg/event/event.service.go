@@ -246,25 +246,30 @@ func (s *EventService) getEventResponseFromEvents(eventIds []uuid.UUID) ([]Event
 	return events, nil
 }
 
-func (s *EventService) GetUserEvents(user *guard.Claims) ([]EventResponse, error) {
-	events := []EventResponse{}
+func (s *EventService) GetUserEvents(
+	user *guard.Claims,
+	p lib.PaginationQuery,
+) ([]EventResponse, int64, error) {
+	if p.Page < 1 {
+		p.Page = 1
+	}
+	if p.Limit <= 0 || p.Limit > 100 {
+		p.Limit = 20
+	}
+	offset := (p.Page - 1) * p.Limit
 
-	// Find all account_events for this user
-	var myAccountEvents []model.AccountEvent
-	if err := s.accountEventRepository.FindByAccountId(user.Id, &myAccountEvents); err != nil {
-		return events, err
+	eventIds, total, err := s.accountEventRepository.FindEventIdsByAccountId(user.Id, p.Limit, offset)
+	if err != nil {
+		return nil, 0, err
 	}
 
-	// Collect event IDs the user is associated with
-	eventIds := make([]uuid.UUID, 0, len(myAccountEvents))
-	for _, accountEvent := range myAccountEvents {
-		eventIds = append(eventIds, accountEvent.EventId)
-	}
 	if len(eventIds) == 0 {
-		return events, nil
+		return []EventResponse{}, total, nil
 	}
 
-	return s.getEventResponseFromEvents(eventIds)
+	events, err := s.getEventResponseFromEvents(eventIds)
+
+	return events, total, err
 }
 
 func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventResponse, error) {
