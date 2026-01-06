@@ -73,9 +73,9 @@ func (*RefreshTokenRepository) Revoke(id uuid.UUID) error {
 	now := time.Now()
 	err := db.GetDB().Model(&model.RefreshToken{}).
 		Where("id = ?", id).
-		Updates(map[string]interface{}{
-			"is_revoked": true,
-			"revoked_at": now,
+		Updates(model.RefreshToken{
+			IsRevoked: true,
+			RevokedAt: &now,
 		}).Error
 
 	if err != nil {
@@ -91,9 +91,9 @@ func (*RefreshTokenRepository) RevokeAllForAccount(accountId uuid.UUID) error {
 	now := time.Now()
 	err := db.GetDB().Model(&model.RefreshToken{}).
 		Where("account_id = ? AND is_revoked = ?", accountId, false).
-		Updates(map[string]interface{}{
-			"is_revoked": true,
-			"revoked_at": now,
+		Updates(model.RefreshToken{
+			IsRevoked: true,
+			RevokedAt: &now,
 		}).Error
 
 	if err != nil {
@@ -106,10 +106,8 @@ func (*RefreshTokenRepository) RevokeAllForAccount(accountId uuid.UUID) error {
 
 // DeleteExpired removes expired refresh tokens from the database
 func (*RefreshTokenRepository) DeleteExpired() error {
-	err := db.GetDB().Where("expires_at < ? OR is_revoked = ?", time.Now(), true).
-		Delete(&model.RefreshToken{}).Error
-
-	if err != nil {
+	lastWeek := time.Now().AddDate(0, 0, -7)
+	if err := db.GetDB().Where("expires_at < ? AND is_revoked = ?", lastWeek, true).Delete(&model.RefreshToken{}).Error; err != nil {
 		log.Error().Err(err).Msg("REFRESH_TOKEN_REPOSITORY::DELETE_EXPIRED Failed to delete expired refresh tokens")
 		return err
 	}

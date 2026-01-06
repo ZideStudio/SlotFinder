@@ -3,13 +3,14 @@ package lib
 import (
 	"app/commons/constants"
 	"app/config"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetAccessTokenCookie(c *gin.Context, token string, expiration int) {
-	if expiration == 0 {
-		expiration = constants.ACCESS_TOKEN_EXPIRATION
+	if expiration == 0 { // same as refresh token expiration to keep it saved as long as it can be renewed
+		expiration = int(constants.REFRESH_TOKEN_EXPIRATION / time.Second)
 	}
 
 	c.SetCookie(
@@ -25,7 +26,7 @@ func SetAccessTokenCookie(c *gin.Context, token string, expiration int) {
 
 func SetRefreshTokenCookie(c *gin.Context, token string, expiration int) {
 	if expiration == 0 {
-		expiration = constants.REFRESH_TOKEN_EXPIRATION
+		expiration = int(constants.REFRESH_TOKEN_EXPIRATION / time.Second)
 	}
 
 	c.SetCookie(
