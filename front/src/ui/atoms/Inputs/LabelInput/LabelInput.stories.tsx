@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { LabelInput } from './LabelInput';
 
 const meta = {
-  title: 'Atoms/LabelInput',
+  title: 'Atoms/Inputs/LabelInput',
   component: LabelInput,
   args: {
     inputId: 'input-id',

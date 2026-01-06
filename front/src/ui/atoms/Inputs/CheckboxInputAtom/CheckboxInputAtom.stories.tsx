@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { CheckboxInputAtom } from './CheckboxInputAtom';
 
 const meta = {
-  title: 'Atoms/CheckboxInputAtom',
+  title: 'Atoms/Inputs/CheckboxInputAtom',
   component: CheckboxInputAtom,
   args: {
     className: 'custom-class',
