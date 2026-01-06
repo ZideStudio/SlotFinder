@@ -5,18 +5,29 @@ import (
 	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
+	"context"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthController struct {
 	refreshTokenRepository *repository.RefreshTokenRepository
+	cleanupCtx             context.Context
+	cleanupCancel          context.CancelFunc
 }
 
-func NewAuthController() *AuthController {
-	return &AuthController{
-		refreshTokenRepository: &repository.RefreshTokenRepository{},
+func NewAuthController(ctl *AuthController) *AuthController {
+	if ctl == nil {
+		ctl = &AuthController{
+			refreshTokenRepository: &repository.RefreshTokenRepository{},
+		}
 	}
+
+	ctl.cleanupCtx, ctl.cleanupCancel = context.WithCancel(context.Background())
+	go ctl.cleanRefreshTokens()
+
+	return ctl
 }
 
 // @Summary Status Check
@@ -53,6 +64,21 @@ func (ctl *AuthController) Logout(c *gin.Context) {
 	// Clear cookies
 	lib.SetAccessTokenCookie(c, "", -1)
 	lib.SetRefreshTokenCookie(c, "", -1)
-	
+
 	helpers.HandleJSONResponse(c, nil, nil)
+}
+
+// cleanRefreshTokens avec gestion propre du cycle de vie
+func (ctl *AuthController) cleanRefreshTokens() {
+	ticker := time.NewTicker(24 * time.Hour)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			ctl.refreshTokenRepository.DeleteExpired()
+		case <-ctl.cleanupCtx.Done():
+			return
+		}
+	}
 }
