@@ -2,6 +2,7 @@ package account
 
 import (
 	"app/commons/constants"
+	"app/commons/encryption"
 	"app/commons/guard"
 	"app/commons/lib"
 	"app/config"
@@ -218,6 +219,10 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 		return err
 	}
 	resetToken := hex.EncodeToString(tokenBytes)
+	resetTokenEncrypted, err := encryption.Encrypt(resetToken)
+	if err != nil {
+		return err
+	}
 	expirationTime := time.Now().Add(time.Hour)
 
 	// Update account with reset token
@@ -231,7 +236,7 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 		To:       *account.Email,
 		Subject:  "Reset your password",
 		Params: map[string]string{
-			"ResetUrl":   fmt.Sprintf("%s/reset-password?token=%s", s.config.Origin, resetToken),
+			"ResetUrl":   fmt.Sprintf("%s/reset-password?token=%s", s.config.Origin, resetTokenEncrypted),
 			"ExpiryTime": "1 hour",
 		},
 	}); err != nil {
@@ -252,8 +257,14 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 		return constants.ERR_INVALID_PASSWORD_FORMAT.Err
 	}
 
+	resetTokenDecrypted, err := encryption.Decrypt(dto.Token)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Reset token encrypted:", resetTokenDecrypted)
+
 	var account model.Account
-	if err := s.accountRepository.FindOneByResetToken(dto.Token, &account); err != nil {
+	if err := s.accountRepository.FindOneByResetToken(resetTokenDecrypted, &account); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return constants.ERR_INVALID_RESET_TOKEN.Err
 		}
