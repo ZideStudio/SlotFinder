@@ -1,18 +1,16 @@
-import ErrorIcon from "@material-symbols/svg-400/outlined/error.svg?react";
+import ErrorIcon from '@material-symbols/svg-400/outlined/error.svg?react';
 import './InputErrorMessage.scss';
-import React from "react";
-import { getClassName } from "@Front/utils/getClassName";
+import { ReactNode } from 'react';
+import { getClassName } from '@Front/utils/getClassName';
 
 type InputErrorMessageProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   id?: string;
 };
 
 export const InputErrorMessage = ({ children, className, id }: InputErrorMessageProps) => {
-  const isEmpty = !children || (typeof children === 'string' && children.trim() === '');
-
-  if (isEmpty) {
+  if (!children) {
     return null;
   }
 
@@ -23,10 +21,8 @@ export const InputErrorMessage = ({ children, className, id }: InputErrorMessage
 
   return (
     <div className={parentClassName} role="alert">
-      <ErrorIcon className="input-error__icon" aria-hidden="true" />
-      <span id={id} className="input-error__message">
-        {children}
-      </span>
+      <ErrorIcon className="ds-input-error-message__icon" aria-hidden="true" />
+      <span id={id}>{children}</span>
     </div>
   );
 };
