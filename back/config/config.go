@@ -39,11 +39,3 @@ func Init() *Config {
 func GetConfig() *Config {
 	return config
 }
-
-func getFrontendURL() string {
-	frontendURL := os.Getenv("FRONTEND_URL")
-	if frontendURL == "" {
-		frontendURL = "http://localhost:3000" // Default for development
-	}
-	return frontendURL
-}
