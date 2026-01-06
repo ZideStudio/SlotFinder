@@ -76,7 +76,7 @@ func (ctl *AuthController) cleanRefreshTokens() {
 	for {
 		select {
 		case <-ticker.C:
-			ctl.refreshTokenRepository.DeleteExpired()
+			_ = ctl.refreshTokenRepository.DeleteExpired()
 		case <-ctl.cleanupCtx.Done():
 			return
 		}
