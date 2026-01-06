@@ -47,14 +47,8 @@ export const fetchApi = async <
 
   // Handle 498 status code (expired access token)
   if (response.status === 498) {
-    try {
-      await tokenRefreshManager.refreshToken();
-
-      // Retry the original request after successful refresh
-      response = await makeRequest();
-    } catch (error) {
-      throw error;
-    }
+    await tokenRefreshManager.refreshToken();
+    response = await makeRequest(); // Retry the original request
   }
 
   const content = await response.text();
