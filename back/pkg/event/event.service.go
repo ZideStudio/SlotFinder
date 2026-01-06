@@ -250,15 +250,7 @@ func (s *EventService) GetUserEvents(
 	user *guard.Claims,
 	p lib.PaginationQuery,
 ) ([]EventResponse, int64, error) {
-	if p.Page < 1 {
-		p.Page = 1
-	}
-	if p.Limit <= 0 || p.Limit > 100 {
-		p.Limit = 20
-	}
-	offset := (p.Page - 1) * p.Limit
-
-	eventIds, total, err := s.accountEventRepository.FindEventIdsByAccountId(user.Id, p.Limit, offset)
+	eventIds, total, err := s.accountEventRepository.FindEventIdsByAccountId(user.Id, p.Limit, p.Offset)
 	if err != nil {
 		return nil, 0, err
 	}

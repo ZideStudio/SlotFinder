@@ -101,7 +101,7 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 	}
 
 	var pagination lib.PaginationQuery
-	if err := c.ShouldBindQuery(&pagination); err != nil {
+	if err := lib.ParsePaginationQuery(c, &pagination); err != nil {
 		helpers.HandleJSONResponse(c, nil, err)
 		return
 	}
