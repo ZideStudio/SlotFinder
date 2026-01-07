@@ -39,7 +39,6 @@ export const fetchApi = async <
       method,
       ...(data && { body: JSON.stringify(data) }),
       headers: mergeHeaders,
-      credentials: 'include',
     });
   };
 

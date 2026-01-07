@@ -25,7 +25,6 @@ class TokenRefreshManager {
   private async performRefresh(): Promise<void> {
     const response = await fetch(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, {
       method: 'POST',
-      credentials: 'include',
     });
 
     if (!response.ok) {
