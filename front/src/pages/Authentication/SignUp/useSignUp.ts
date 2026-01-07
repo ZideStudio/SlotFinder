@@ -27,7 +27,7 @@ export const useSignUp = (): UseSignUpApiReturn => {
     },
   });
 
-  const errorCode = useMemo(() => mutation.error?.getErrorCode?.(), [mutation.error]);
+  const errorCode = useMemo(() => mutation.error?.getErrorCode(), [mutation.error]);
 
   return {
     signUp: mutation.mutate,
