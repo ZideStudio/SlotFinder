@@ -2,6 +2,7 @@ import { signUpApi } from "@Front/api/authentication/signUpApi";
 import { useAuthenticationContext } from '@Front/hooks/useAuthenticationContext';
 import type { SignUpErrorCodeType, SignUpFormType, SignUpResponseType } from "@Front/types/Authentication/signUp/signUp.types";
 import type { SignUpErrorResponse } from "@Front/types/Authentication/signUp/SignUpErrorResponse";
+import { DEFAULT_LANGUAGE, isValidLanguage, type Language } from '@Front/i18n/@types';
 import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,14 +19,15 @@ export const useSignUp = (): UseSignUpApiReturn => {
 
   const mutation = useMutation<SignUpResponseType, SignUpErrorResponse, SignUpFormType>({
     mutationFn: ({ username, email, password }: SignUpFormType) => {
-      return signUpApi({ username, email, password, language: i18n.language });
+      const language: Language = isValidLanguage(i18n.language) ? i18n.language : DEFAULT_LANGUAGE;
+      return signUpApi({ username, email, password, language });
     },
     onSuccess: () => {
       checkAuthentication();
     },
   });
 
-  const errorCode = useMemo(() => mutation.error?.getErrorCode(), [mutation.error]);
+  const errorCode = useMemo(() => mutation.error?.getErrorCode?.(), [mutation.error]);
 
   return {
     signUp: mutation.mutate,

@@ -1,10 +1,11 @@
 import type { ErrorResponseCodeType } from '@Front/types/api.types';
+import type { Language } from '@Front/i18n/@types';
 
 export type SignUpRequestBodyType = {
   username: string;
   email: string;
   password: string;
-  language: string;
+  language: Language;
 };
 
 export type SignUpFormType = Omit<SignUpRequestBodyType, "language"> & {
