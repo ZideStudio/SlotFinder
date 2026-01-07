@@ -830,11 +830,23 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "language",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "language": {
+                    "enum": [
+                        "en",
+                        "fr"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.AccountLanguage"
+                        }
+                    ]
                 },
                 "password": {
                     "type": "string"
@@ -849,6 +861,17 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string"
+                },
+                "language": {
+                    "enum": [
+                        "en",
+                        "fr"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.AccountLanguage"
+                        }
+                    ]
                 },
                 "password": {
                     "type": "string"
@@ -909,6 +932,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "constants.AccountLanguage": {
+            "type": "string",
+            "enum": [
+                "en",
+                "fr"
+            ],
+            "x-enum-varnames": [
+                "ACCOUNT_LANGUAGE_EN",
+                "ACCOUNT_LANGUAGE_FR"
+            ]
         },
         "constants.EventStatus": {
             "type": "string",
@@ -1091,6 +1125,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "language": {
+                    "$ref": "#/definitions/constants.AccountLanguage"
                 },
                 "providers": {
                     "type": "array",
