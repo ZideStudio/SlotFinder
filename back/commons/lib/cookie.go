@@ -2,7 +2,6 @@ package lib
 
 import (
 	"app/commons/constants"
-	"app/config"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,13 +13,13 @@ func SetAccessTokenCookie(c *gin.Context, token string, expiration int) {
 	}
 
 	c.SetCookie(
-		"access_token",            // name
-		token,                     // value
-		expiration,                // max age in seconds
-		"/",                       // path
-		config.GetConfig().Domain, // domain
-		true,                      // secure
-		true,                      // httpOnly
+		"access_token", // name
+		token,          // value
+		expiration,     // max age in seconds
+		"/api",         // path
+		"",             // domain (empty = current domain)
+		true,           // secure
+		true,           // httpOnly
 	)
 }
 
@@ -30,12 +29,12 @@ func SetRefreshTokenCookie(c *gin.Context, token string, expiration int) {
 	}
 
 	c.SetCookie(
-		"refresh_token",           // name
-		token,                     // value
-		expiration,                // max age in seconds
-		"/",                       // path
-		config.GetConfig().Domain, // domain
-		true,                      // secure
-		true,                      // httpOnly
+		"refresh_token",        // name
+		token,                  // value
+		expiration,             // max age in seconds
+		"/api/v1/auth/refresh", // path
+		"",                     // domain (empty = current domain)
+		true,                   // secure
+		true,                   // httpOnly
 	)
 }
