@@ -8,7 +8,7 @@ export type SignUpRequestBodyType = {
   language: Language;
 };
 
-export type SignUpFormType = Omit<SignUpRequestBodyType, "language"> & {
+export type SignUpFormType = Omit<SignUpRequestBodyType, 'language'> & {
   confirmPassword: string;
 };
 
