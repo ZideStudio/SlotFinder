@@ -193,7 +193,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 
 	// If status changed, remove validated slot
 	if isStatusChanged {
-		err := s.slotRepository.DeleteValidatedByEventId(event.Id)
+		err := s.slotRepository.DeleteValidatedSlotByEventId(event.Id)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
