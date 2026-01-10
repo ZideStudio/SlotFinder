@@ -14,10 +14,16 @@ definitions:
       password:
         maxLength: 100
         type: string
+      termsAccepted:
+        type: boolean
+      termsVersion:
+        type: string
     required:
     - email
     - language
     - password
+    - termsAccepted
+    - termsVersion
     type: object
   account.AccountUpdateDto:
     properties:
@@ -35,6 +41,10 @@ definitions:
         - fr
       password:
         maxLength: 100
+        type: string
+      termsAccepted:
+        type: boolean
+      termsVersion:
         type: string
       username:
         maxLength: 30
@@ -201,6 +211,10 @@ definitions:
         items:
           $ref: '#/definitions/model.AccountProvider'
         type: array
+      termsAcceptedAt:
+        type: string
+      termsVersion:
+        type: string
       userName:
         type: string
     type: object

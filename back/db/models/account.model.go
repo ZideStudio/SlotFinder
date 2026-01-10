@@ -18,6 +18,8 @@ type Account struct {
 	Color                string                    `gorm:"column:color;size:7" json:"color"`
 	ResetToken           *string                   `gorm:"column:reset_token;size:255;default:null" json:"-"`
 	PasswordResetTokenAt *time.Time                `gorm:"column:password_reset_token_at;default:null" json:"-"`
+	TermsAcceptedAt      *time.Time                `gorm:"column:terms_accepted_at" json:"termsAcceptedAt"`
+	TermsVersion         *string                   `gorm:"column:terms_version;size:10" json:"termsVersion"`
 	Events               []AccountEvent            `gorm:"foreignKey:AccountId;references:Id" json:"events,omitempty"`
 	Providers            []AccountProvider         `gorm:"foreignKey:AccountId;references:Id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"providers,omitempty"`
 	CreatedAt            time.Time                 `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt,omitzero"`
