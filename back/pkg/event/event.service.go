@@ -284,7 +284,7 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (model.E
 		return event, err
 	}
 
-	return event, nil
+	return s.GetEvent(event.Id, user)
 }
 
 func (s *EventService) UpdateProfile(data *EventProfileDto, eventId uuid.UUID, user *guard.Claims) error {
