@@ -126,7 +126,7 @@ definitions:
     type: object
   lib.Pagination-model_Event:
     properties:
-      datas:
+      data:
         items:
           $ref: '#/definitions/model.Event'
         type: array

@@ -215,7 +215,7 @@ func (s *EventService) GetUserEvents(
 		return err
 	}
 	pagination.Total = total
-	pagination.Datas = events
+	pagination.Data = events
 
 	return nil
 }

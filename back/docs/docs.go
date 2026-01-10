@@ -1028,7 +1028,7 @@ const docTemplate = `{
         "lib.Pagination-model_Event": {
             "type": "object",
             "properties": {
-                "datas": {
+                "data": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Event"

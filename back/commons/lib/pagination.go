@@ -8,7 +8,7 @@ import (
 )
 
 type Pagination[T any] struct {
-	Datas  []T   `json:"datas"`
+	Data   []T   `json:"data"`
 	Page   int   `form:"page,default=1" json:"page"`
 	Limit  int   `form:"limit,default=20" json:"limit"`
 	Offset int   `form:"-" json:"-"`
