@@ -48,7 +48,7 @@ func NewAccountService(service *AccountService) *AccountService {
 	}
 }
 
-func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error) {
+func (s *AccountService) CheckUserNameAvailability(userName string, excludeUserId *uuid.UUID) (bool, error) {
 	var account model.Account
 	if err := s.accountRepository.FindOneByUsername(userName, &account); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -56,6 +56,9 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 		}
 
 		return false, err
+	}
+	if excludeUserId != nil && account.Id == *excludeUserId {
+		return true, nil
 	}
 
 	return false, nil
@@ -144,11 +147,8 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	if dto.UserName != nil {
-		if account.UserName != nil && *dto.UserName == *account.UserName {
-			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
-		}
-		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.UserName)
+	if dto.UserName != nil && (account.UserName == nil || *dto.UserName != *account.UserName) {
+		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.UserName, &userId)
 		if err != nil {
 			return account, nil, err
 		}
