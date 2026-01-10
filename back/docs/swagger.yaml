@@ -131,8 +131,12 @@ definitions:
           $ref: '#/definitions/model.Event'
         type: array
       limit:
+        maximum: 50
+        minimum: 1
         type: integer
       page:
+        maximum: 100
+        minimum: 1
         type: integer
       total:
         type: integer

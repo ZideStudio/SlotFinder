@@ -9,8 +9,8 @@ import (
 
 type Pagination[T any] struct {
 	Data   []T   `json:"data"`
-	Page   int   `form:"page,default=1" json:"page"`
-	Limit  int   `form:"limit,default=20" json:"limit"`
+	Page   int   `form:"page,default=1" json:"page" binding:"min=1,max=100"`
+	Limit  int   `form:"limit,default=20" json:"limit" binding:"min=1,max=50"`
 	Offset int   `form:"-" json:"-"`
 	Total  int64 `json:"total"`
 }
@@ -22,13 +22,6 @@ func (p *Pagination[T]) ParseQuery(c *gin.Context) error {
 
 	if err := c.ShouldBindQuery(&p); err != nil {
 		return constants.ERR_INVALID_PAGINATION_PARAMS.Err
-	}
-
-	if p.Page < 1 {
-		return constants.ERR_INVALID_PAGINATION_PAGE.Err
-	}
-	if p.Limit < 1 || p.Limit > 100 {
-		return constants.ERR_INVALID_PAGINATION_LIMIT.Err
 	}
 	p.Offset = (p.Page - 1) * p.Limit
 

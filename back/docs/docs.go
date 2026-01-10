@@ -1035,10 +1035,14 @@ const docTemplate = `{
                     }
                 },
                 "limit": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 50,
+                    "minimum": 1
                 },
                 "page": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
                 },
                 "total": {
                     "type": "integer"
