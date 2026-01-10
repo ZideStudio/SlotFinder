@@ -844,7 +844,9 @@ const docTemplate = `{
             "required": [
                 "email",
                 "language",
-                "password"
+                "password",
+                "termsAccepted",
+                "termsVersion"
             ],
             "properties": {
                 "email": {
@@ -862,6 +864,12 @@ const docTemplate = `{
                     ]
                 },
                 "password": {
+                    "type": "string"
+                },
+                "termsAccepted": {
+                    "type": "boolean"
+                },
+                "termsVersion": {
                     "type": "string"
                 }
             }
@@ -887,6 +895,12 @@ const docTemplate = `{
                     ]
                 },
                 "password": {
+                    "type": "string"
+                },
+                "termsAccepted": {
+                    "type": "boolean"
+                },
+                "termsVersion": {
                     "type": "string"
                 },
                 "username": {
@@ -1115,6 +1129,12 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.AccountProvider"
                     }
+                },
+                "termsAcceptedAt": {
+                    "type": "string"
+                },
+                "termsVersion": {
+                    "type": "string"
                 },
                 "userName": {
                     "type": "string"

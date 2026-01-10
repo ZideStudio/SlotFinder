@@ -11,10 +11,16 @@ definitions:
         - fr
       password:
         type: string
+      termsAccepted:
+        type: boolean
+      termsVersion:
+        type: string
     required:
     - email
     - language
     - password
+    - termsAccepted
+    - termsVersion
     type: object
   account.AccountUpdateDto:
     properties:
@@ -29,6 +35,10 @@ definitions:
         - en
         - fr
       password:
+        type: string
+      termsAccepted:
+        type: boolean
+      termsVersion:
         type: string
       username:
         type: string
@@ -184,6 +194,10 @@ definitions:
         items:
           $ref: '#/definitions/model.AccountProvider'
         type: array
+      termsAcceptedAt:
+        type: string
+      termsVersion:
+        type: string
       userName:
         type: string
     type: object
