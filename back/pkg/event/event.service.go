@@ -9,6 +9,7 @@ import (
 	"app/pkg/signin"
 	"app/pkg/slot"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -40,6 +41,18 @@ func NewEventService(service *EventService) *EventService {
 }
 
 func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.Event, error) {
+	// Data validation
+	data.Name = strings.TrimSpace(data.Name)
+	if len(data.Name) < 3 {
+		return model.Event{}, errors.New("event name must be at least 3 characters long")
+	}
+	if data.Description != nil {
+		*data.Description = strings.TrimSpace(*data.Description)
+		if len(*data.Description) == 0 {
+			data.Description = nil
+		}
+	}
+
 	// Prevent creating events with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
 		return model.Event{}, constants.ERR_EVENT_START_AFTER_END.Err
@@ -155,6 +168,18 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 
 	// Data validation
+	if data.Name != nil {
+		*data.Name = strings.TrimSpace(*data.Name)
+		if len(*data.Name) < 3 {
+			return errors.New("event name must be at least 3 characters long")
+		}
+	}
+	if data.Description != nil {
+		*data.Description = strings.TrimSpace(*data.Description)
+		if len(*data.Description) == 0 {
+			data.Description = nil
+		}
+	}
 	if data.Status != nil && *data.Status != constants.EVENT_STATUS_IN_DECISION {
 		return errors.New("only status 'in_decision' can be set manually")
 	}
