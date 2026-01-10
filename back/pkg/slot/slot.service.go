@@ -122,11 +122,6 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 		return
 	}
 
-	if len(event.Participants) < 2 {
-		log.Debug().Str("eventId", eventId.String()).Msg("Not enough participants to calculate slots")
-		return
-	}
-
 	// Get all availabilities for this event
 	var availabilities []model.Availability
 	if err := s.availabilityRepository.FindByEventId(eventId, &availabilities); err != nil {
@@ -144,6 +139,12 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 				EndsAt:   availability.EndsAt,
 			},
 		)
+	}
+
+	// If less than 2 active users, no slots can be created
+	if len(userAvailabilities) < 2 {
+		log.Debug().Str("eventId", eventId.String()).Msg("Not enough participants to calculate slots")
+		return
 	}
 
 	// Find common available time slots
