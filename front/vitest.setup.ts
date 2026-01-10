@@ -13,6 +13,10 @@ beforeAll(() => {
     useTranslation: vi.fn((resource: string) => ({
       t: (messageId: string, args: Record<string, unknown>) =>
         `${resource}.${messageId}${args ? `::${JSON.stringify(args)}` : ''}`,
+      i18n: {
+        language: 'en',
+        changeLanguage: vi.fn(),
+      },
     })),
     initReactI18next: {
       type: '3rdParty',
