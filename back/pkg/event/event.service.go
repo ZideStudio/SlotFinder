@@ -89,7 +89,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 		return event, err
 	}
 
-	return event, nil
+	return s.GetEvent(event.Id, user)
 }
 
 // SetEventDatesFromDto validates and sets the event dates from the provided DTO values.
