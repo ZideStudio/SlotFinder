@@ -2,7 +2,6 @@ package event
 
 import (
 	"app/commons/constants"
-	model "app/db/models"
 	"time"
 )
 
@@ -12,11 +11,6 @@ type EventCreateDto struct {
 	Duration    int       `json:"duration" binding:"required,min=15,max=30240"`
 	StartsAt    time.Time `json:"startsAt" binding:"required"`
 	EndsAt      time.Time `json:"endsAt" binding:"required"`
-}
-
-type EventResponse struct {
-	model.Event
-	Accounts []model.Account `json:"participants"`
 }
 
 type EventUpdateDto struct {

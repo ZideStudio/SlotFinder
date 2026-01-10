@@ -7,20 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PaginationQuery struct {
-	Page   int `form:"page,default=1"`
-	Limit  int `form:"limit,default=20"`
-	Offset int `form:"-"`
+type Pagination[T any] struct {
+	Datas  []T   `json:"datas"`
+	Page   int   `form:"page,default=1" json:"page"`
+	Limit  int   `form:"limit,default=20" json:"limit"`
+	Offset int   `form:"-" json:"-"`
+	Total  int64 `json:"total"`
 }
 
-type PaginationResult[T any] struct {
-	Data  []T   `json:"data"`
-	Page  int   `json:"page"`
-	Limit int   `json:"limit"`
-	Total int64 `json:"total"`
-}
-
-func ParsePaginationQuery(c *gin.Context, p *PaginationQuery) error {
+func (p *Pagination[T]) ParseQuery(c *gin.Context) error {
 	if c == nil {
 		return errors.New("context is nil")
 	}
@@ -38,13 +33,4 @@ func ParsePaginationQuery(c *gin.Context, p *PaginationQuery) error {
 	p.Offset = (p.Page - 1) * p.Limit
 
 	return nil
-}
-
-func GetPaginationResult[T any](data []T, query PaginationQuery, total int64) PaginationResult[T] {
-	return PaginationResult[T]{
-		Data:  data,
-		Page:  query.Page,
-		Limit: query.Limit,
-		Total: total,
-	}
 }

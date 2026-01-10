@@ -122,8 +122,7 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 		return
 	}
 
-	accountEvents := event.AccountEvents
-	if len(accountEvents) < 2 {
+	if len(event.Participants) < 2 {
 		log.Debug().Str("eventId", eventId.String()).Msg("Not enough participants to calculate slots")
 		return
 	}

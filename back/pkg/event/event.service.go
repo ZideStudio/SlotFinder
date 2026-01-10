@@ -39,22 +39,22 @@ func NewEventService(service *EventService) *EventService {
 	}
 }
 
-func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventResponse, error) {
+func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.Event, error) {
 	// Prevent creating events with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
-		return EventResponse{}, constants.ERR_EVENT_START_AFTER_END.Err
+		return model.Event{}, constants.ERR_EVENT_START_AFTER_END.Err
 	}
 
 	// Prevent creating events in the past
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	if data.StartsAt.Before(now) {
-		return EventResponse{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
+		return model.Event{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
 	}
 
 	// Prevent creating events with duration less than 1 day
 	oneDayAfterStart := data.StartsAt.Add(24 * time.Hour)
 	if data.EndsAt.Before(oneDayAfterStart) {
-		return EventResponse{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
+		return model.Event{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
 	}
 
 	// Create event
@@ -72,7 +72,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 		Status: constants.EVENT_STATUS_IN_DECISION,
 	}
 	if err := s.eventRepository.Create(&event); err != nil {
-		return EventResponse{}, err
+		return event, err
 	}
 
 	// Create account_event relation
@@ -82,17 +82,14 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventRe
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
 		_ = s.eventRepository.Delete(event.Id)
-		return EventResponse{}, err
+		return event, err
 	}
 	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
 		_ = s.eventRepository.Delete(event.Id)
-		return EventResponse{}, err
+		return event, err
 	}
 
-	return EventResponse{
-		Event:    event,
-		Accounts: []model.Account{accountEvent.Account},
-	}, nil
+	return event, nil
 }
 
 // SetEventDatesFromDto validates and sets the event dates from the provided DTO values.
@@ -209,78 +206,35 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	return nil
 }
 
-func (s *EventService) getEventResponseFromEvents(eventIds []uuid.UUID) ([]EventResponse, error) {
-	// Find all account_events for these events to get all accounts
-	var allAccountEvents []model.AccountEvent
-	if err := s.accountEventRepository.FindByIds(eventIds, &allAccountEvents); err != nil {
-		return nil, err
-	}
-
-	// Group accounts by event ID
-	type eventGroup struct {
-		event    model.Event
-		accounts []model.Account
-	}
-	eventMap := make(map[uuid.UUID]*eventGroup)
-	for _, ae := range allAccountEvents {
-		eg, ok := eventMap[ae.EventId]
-		if !ok {
-			eg = &eventGroup{
-				event: ae.Event,
-			}
-			eventMap[ae.EventId] = eg
-		}
-
-		eg.accounts = append(eg.accounts, ae.Account)
-	}
-
-	// Build final event response
-	events := make([]EventResponse, 0, len(eventMap))
-	for _, eg := range eventMap {
-		events = append(events, EventResponse{
-			Event:    eg.event,
-			Accounts: eg.accounts,
-		})
-	}
-
-	return events, nil
-}
-
 func (s *EventService) GetUserEvents(
 	user *guard.Claims,
-	p lib.PaginationQuery,
-) ([]EventResponse, int64, error) {
-	eventIds, total, err := s.accountEventRepository.FindEventIdsByAccountId(user.Id, p.Limit, p.Offset)
+	pagination *lib.Pagination[model.Event],
+) error {
+	events, total, err := s.eventRepository.FindEventsByAccountId(user.Id, pagination.Limit, pagination.Offset)
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
+	pagination.Total = total
+	pagination.Datas = events
 
-	if len(eventIds) == 0 {
-		return []EventResponse{}, total, nil
-	}
-
-	events, err := s.getEventResponseFromEvents(eventIds)
-
-	return events, total, err
+	return nil
 }
 
-func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventResponse, error) {
+func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (model.Event, error) {
 	// Get event
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return EventResponse{}, constants.ERR_EVENT_NOT_FOUND.Err
+			return event, constants.ERR_EVENT_NOT_FOUND.Err
 		}
 
-		return EventResponse{}, err
+		return event, err
 	}
 
 	// If no user, return event basic info
 	if user == nil {
-		return EventResponse{
-			Event:    event,
-			Accounts: nil,
-		}, nil
+		event.Participants = []model.Account{}
+		return event, nil
 	}
 
 	// Check if user already joined the event
@@ -288,36 +242,26 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventRes
 	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
 	notJoined := errors.Is(err, gorm.ErrRecordNotFound)
 	if err != nil && !notJoined {
-		return EventResponse{}, err
+		return event, err
 	}
 	if notJoined {
-		return EventResponse{
-			Event:    event,
-			Accounts: nil,
-		}, nil
+		event.Participants = []model.Account{}
+		return event, nil
 	}
 
 	// Return event info
-	eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
-	if err != nil {
-		return EventResponse{}, err
-	}
-	if len(eventResponse) == 0 {
-		return EventResponse{}, errors.New("empty event response")
-	}
-
-	return eventResponse[0], nil
+	return event, nil
 }
 
-func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventResponse, error) {
+func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (model.Event, error) {
 	// Get event
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return EventResponse{}, constants.ERR_EVENT_NOT_FOUND.Err
+			return event, constants.ERR_EVENT_NOT_FOUND.Err
 		}
 
-		return EventResponse{}, err
+		return event, err
 	}
 
 	// Check if user already joined the event
@@ -325,10 +269,10 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventRe
 	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
 	alreadyJoined := err == nil
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return EventResponse{}, err
+		return event, err
 	}
 	if alreadyJoined {
-		return EventResponse{}, constants.ERR_EVENT_ALREADY_JOINED.Err
+		return event, constants.ERR_EVENT_ALREADY_JOINED.Err
 	}
 
 	// Create account_event relation
@@ -337,18 +281,10 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventRe
 		EventId:   event.Id,
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
-		return EventResponse{}, err
+		return event, err
 	}
 
-	eventResponse, err := s.getEventResponseFromEvents([]uuid.UUID{event.Id})
-	if err != nil {
-		return EventResponse{}, err
-	}
-	if len(eventResponse) == 0 {
-		return EventResponse{}, errors.New("empty event response")
-	}
-
-	return eventResponse[0], nil
+	return event, nil
 }
 
 func (s *EventService) UpdateProfile(data *EventProfileDto, eventId uuid.UUID, user *guard.Claims) error {

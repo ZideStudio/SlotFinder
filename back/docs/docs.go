@@ -467,7 +467,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/lib.PaginationResult-event_EventResponse"
+                            "$ref": "#/definitions/lib.Pagination-model_Event"
                         }
                     },
                     "400": {
@@ -546,7 +546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/event.EventResponse"
+                            "$ref": "#/definitions/model.Event"
                         }
                     },
                     "400": {
@@ -985,62 +985,6 @@ const docTemplate = `{
                 }
             }
         },
-        "event.EventResponse": {
-            "type": "object",
-            "properties": {
-                "availabilities": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Availability"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "duration": {
-                    "description": "In minutes",
-                    "type": "integer"
-                },
-                "endsAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner": {
-                    "description": "Relations",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    ]
-                },
-                "participants": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Account"
-                    }
-                },
-                "slots": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Slot"
-                    }
-                },
-                "startsAt": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/constants.EventStatus"
-                }
-            }
-        },
         "event.EventUpdateDto": {
             "type": "object",
             "properties": {
@@ -1081,13 +1025,13 @@ const docTemplate = `{
                 }
             }
         },
-        "lib.PaginationResult-event_EventResponse": {
+        "lib.Pagination-model_Event": {
             "type": "object",
             "properties": {
-                "data": {
+                "datas": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/event.EventResponse"
+                        "$ref": "#/definitions/model.Event"
                     }
                 },
                 "limit": {
@@ -1215,6 +1159,13 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.Account"
                         }
                     ]
+                },
+                "participants": {
+                    "description": "Computed field not stored in DB",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Account"
+                    }
                 },
                 "slots": {
                     "type": "array",
