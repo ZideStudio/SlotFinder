@@ -3,7 +3,6 @@ import { server } from '@Mocks/server';
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from 'vitest-axe/matchers';
-import { DEFAULT_LANGUAGE } from '@Front/i18n/@types';
 
 expect.extend(matchers);
 
@@ -14,9 +13,6 @@ beforeAll(() => {
     useTranslation: vi.fn((resource: string) => ({
       t: (messageId: string, args: Record<string, unknown>) =>
         `${resource}.${messageId}${args ? `::${JSON.stringify(args)}` : ''}`,
-      i18n: {
-        language: DEFAULT_LANGUAGE,
-      },
     })),
     initReactI18next: {
       type: '3rdParty',
