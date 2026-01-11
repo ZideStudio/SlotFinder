@@ -15,7 +15,6 @@ beforeAll(() => {
         `${resource}.${messageId}${args ? `::${JSON.stringify(args)}` : ''}`,
       i18n: {
         language: 'en',
-        changeLanguage: vi.fn(),
       },
     })),
     initReactI18next: {
