@@ -72,7 +72,7 @@ func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uui
 	}
 
 	// Check if event is ended
-	if event.IsLocked() {
+	if err := event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
 		return constants.ERR_EVENT_ENDED.Err
 	}
 
@@ -287,7 +287,7 @@ func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claim
 	}
 
 	// Check if event is ended
-	if availability.Event.HasEnded() {
+	if err := availability.Event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
 		return constants.ERR_EVENT_ENDED.Err
 	}
 

@@ -72,20 +72,6 @@ func (e *Event) IsOwner(userId *uuid.UUID) bool {
 	return e.OwnerId == *userId
 }
 
-// checks if the event has already ended
-func (e *Event) HasEnded() bool {
-	return time.Now().After(e.EndsAt)
-}
-
-// checks if the event is locked for modifications based on its status and end time
-func (e *Event) IsLocked() bool {
-	if e.Status != constants.EVENT_STATUS_IN_DECISION {
-		return true
-	}
-
-	return e.HasEnded()
-}
-
 // GetValidatedSlot returns the validated slot for the event
 func (e *Event) GetValidatedSlot() *Slot {
 	if len(e.Slots) == 0 {
@@ -99,4 +85,30 @@ func (e *Event) GetValidatedSlot() *Slot {
 	}
 
 	return nil
+}
+
+// CheckAndUpdateFinishedStatus checks if the event is in decision status, and updates the status to finished if needed
+func (e *Event) CheckAndUpdateFinishedStatus(updateFunc func(*Event) error) error {
+	slot := e.GetValidatedSlot()
+
+	// Event is still in decision
+	now := time.Now()
+	isEventPassed := now.After(e.EndsAt)
+	isValidatedSlotPassed := slot != nil && now.After(slot.EndsAt)
+	if e.Status != constants.EVENT_STATUS_FINISHED && !isEventPassed && !isValidatedSlotPassed {
+		return nil
+	}
+
+	// If event is already finished
+	if e.Status == constants.EVENT_STATUS_FINISHED {
+		return constants.ERR_EVENT_ENDED.Err
+	}
+
+	// Update event status to finished
+	e.Status = constants.EVENT_STATUS_FINISHED
+	if err := updateFunc(e); err != nil {
+		return err
+	}
+
+	return constants.ERR_EVENT_ENDED.Err
 }

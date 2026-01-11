@@ -286,6 +286,11 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (model.E
 		return event, constants.ERR_EVENT_ALREADY_JOINED.Err
 	}
 
+	// Check and update event status if needed
+	if err := event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
+		return event, err
+	}
+
 	// Create account_event relation
 	accountEvent = model.AccountEvent{
 		AccountId: user.Id,
