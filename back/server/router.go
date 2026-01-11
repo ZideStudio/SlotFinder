@@ -51,9 +51,10 @@ func NewRouter() *gin.Engine {
 		{
 			signinRouter := signin.NewSigninController(nil)
 			providerRouter := provider.NewProviderController(nil)
-			authRouter := auth.NewAuthController()
+			authRouter := auth.NewAuthController(nil)
 
 			authGroup.POST("/signin", signinRouter.Signin)
+			authGroup.POST("/refresh", signinRouter.Refresh)
 
 			authGroup.Use(guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true})).GET("/:provider/url", providerRouter.ProviderUrl)
 			authGroup.GET("/:provider/callback", providerRouter.ProviderCallback)

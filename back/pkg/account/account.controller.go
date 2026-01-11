@@ -38,13 +38,14 @@ func (ctl *AccountController) Create(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := ctl.accountService.Create(&data)
+	tokens, err := ctl.accountService.Create(&data)
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, err)
 		return
 	}
 
-	lib.SetAccessTokenCookie(c, accessToken, 0)
+	lib.SetAccessTokenCookie(c, tokens.AccessToken, 0)
+	lib.SetRefreshTokenCookie(c, tokens.RefreshToken, 0)
 
 	helpers.HandleJSONResponse(c, nil, err)
 }
@@ -100,9 +101,10 @@ func (ctl *AccountController) Update(c *gin.Context) {
 		return
 	}
 
-	account, accessToken, err := ctl.accountService.Update(&data, user.Id)
-	if accessToken != nil {
-		lib.SetAccessTokenCookie(c, *accessToken, 0)
+	account, tokens, err := ctl.accountService.Update(&data, user.Id)
+	if tokens != nil {
+		lib.SetAccessTokenCookie(c, tokens.AccessToken, 0)
+		lib.SetRefreshTokenCookie(c, tokens.RefreshToken, 0)
 	}
 
 	helpers.HandleJSONResponse(c, account, err)

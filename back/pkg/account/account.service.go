@@ -25,12 +25,13 @@ import (
 )
 
 type AccountService struct {
-	accountRepository     *repository.AccountRepository
-	avatarService         *AvatarService
-	signinService         *signin.SigninService
-	mailService           *mail.MailService
-	config                *config.Config
-	passwordResetCooldown *cache.Cache
+	accountRepository      *repository.AccountRepository
+	avatarService          *AvatarService
+	signinService          *signin.SigninService
+	mailService            *mail.MailService
+	config                 *config.Config
+	passwordResetCooldown  *cache.Cache
+	refreshTokenRepository *repository.RefreshTokenRepository
 }
 
 func NewAccountService(service *AccountService) *AccountService {
@@ -39,12 +40,13 @@ func NewAccountService(service *AccountService) *AccountService {
 	}
 
 	return &AccountService{
-		accountRepository:     &repository.AccountRepository{},
-		avatarService:         NewAvatarService(),
-		signinService:         signin.NewSigninService(nil),
-		mailService:           mail.NewMailService(nil),
-		config:                config.GetConfig(),
-		passwordResetCooldown: cache.New(10*time.Minute, 15*time.Minute),
+		accountRepository:      &repository.AccountRepository{},
+		avatarService:          NewAvatarService(),
+		signinService:          signin.NewSigninService(nil),
+		mailService:            mail.NewMailService(nil),
+		config:                 config.GetConfig(),
+		passwordResetCooldown:  cache.New(10*time.Minute, 15*time.Minute),
+		refreshTokenRepository: &repository.RefreshTokenRepository{},
 	}
 }
 
@@ -61,23 +63,24 @@ func (s *AccountService) CheckUserNameAvailability(userName string) (bool, error
 	return false, nil
 }
 
-func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
+func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error) {
+	var tokens AccountTokensDto
 	// Validate input
 	if !lib.IsValidEmail(data.Email) {
-		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
+		return tokens, constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
 	if !lib.IsValidPassword(data.Password) {
-		return "", constants.ERR_INVALID_PASSWORD_FORMAT.Err
+		return tokens, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 	}
 
 	// Check if email already exists
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", err
+		return tokens, err
 	}
 	if existingAccount.Id != uuid.Nil {
-		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
+		return tokens, constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
 	// Choose a random color
@@ -91,7 +94,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Color:    string(color),
 		Password: data.Password,
 	}, &account); err != nil {
-		return "", err
+		return tokens, err
 	}
 
 	// Update avatar
@@ -99,7 +102,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Id:        account.Id,
 		AvatarUrl: s.avatarService.GetGravatarURL(account.Id.String()),
 	}); err != nil {
-		return "", err
+		return tokens, err
 	}
 
 	// Generate token
@@ -109,10 +112,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Email:    account.Email,
 	}
 
-	token, err := s.signinService.GenerateToken(claims)
+	token, err := s.signinService.GenerateTokens(claims)
 	if err != nil {
 		_ = s.accountRepository.Delete(account.Id)
-		return "", err
+		return tokens, err
 	}
 
 	if account.Email != nil {
@@ -128,7 +131,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		}()
 	}
 
-	return token.AccessToken, nil
+	tokens.AccessToken = token.AccessToken
+	tokens.RefreshToken = token.RefreshToken
+
+	return tokens, nil
 }
 
 func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err error) {
@@ -139,10 +145,12 @@ func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err err
 	return account, nil
 }
 
-func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, accessToken *string, err error) {
+func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, tokens *AccountTokensDto, err error) {
 	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
 		return account, nil, err
 	}
+
+	passwordChanged := false
 
 	if dto.UserName != nil {
 		if account.UserName != nil && *dto.UserName == *account.UserName {
@@ -165,6 +173,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 			return account, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
+		passwordChanged = true
 	}
 	if dto.Color != nil {
 		if !lib.IsHexa(*dto.Color) {
@@ -177,19 +186,28 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	if dto.UserName != nil {
+	// Generate new tokens if username was set OR password was changed
+	if dto.UserName != nil || passwordChanged {
+		// If password changed, revoke all existing refresh tokens to force re-login on all devices
+		if passwordChanged {
+			_ = s.refreshTokenRepository.RevokeAllForAccount(userId)
+		}
+
 		claims := &guard.Claims{
 			Id:       account.Id,
 			Username: account.UserName,
 			Email:    account.Email,
 		}
 
-		token, err := s.signinService.GenerateToken(claims)
+		token, err := s.signinService.GenerateTokens(claims)
 		if err != nil {
 			_ = s.accountRepository.Delete(account.Id)
 			return account, nil, err
 		}
-		accessToken = &token.AccessToken
+		tokens = &AccountTokensDto{
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+		}
 	}
 
 	me, err := s.GetMe(userId)
@@ -197,7 +215,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	return me, accessToken, nil
+	return me, tokens, nil
 }
 
 // ForgotPassword generates a reset token and sends reset email
