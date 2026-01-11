@@ -111,9 +111,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 
 	// Generate token
 	claims := &guard.Claims{
-		Id:       account.Id,
-		Username: account.UserName,
-		Email:    account.Email,
+		Id:            account.Id,
+		Username:      account.UserName,
+		Email:         account.Email,
+		TermsAccepted: true,
 	}
 
 	token, err := s.signinService.GenerateToken(claims)
