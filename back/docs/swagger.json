@@ -836,7 +836,9 @@
             "required": [
                 "email",
                 "language",
-                "password"
+                "password",
+                "termsAccepted",
+                "termsVersion"
             ],
             "properties": {
                 "email": {
@@ -854,6 +856,12 @@
                     ]
                 },
                 "password": {
+                    "type": "string"
+                },
+                "termsAccepted": {
+                    "type": "boolean"
+                },
+                "termsVersion": {
                     "type": "string"
                 }
             }
@@ -879,6 +887,12 @@
                     ]
                 },
                 "password": {
+                    "type": "string"
+                },
+                "termsAccepted": {
+                    "type": "boolean"
+                },
+                "termsVersion": {
                     "type": "string"
                 },
                 "username": {
@@ -1107,6 +1121,12 @@
                     "items": {
                         "$ref": "#/definitions/model.AccountProvider"
                     }
+                },
+                "termsAcceptedAt": {
+                    "type": "string"
+                },
+                "termsVersion": {
+                    "type": "string"
                 },
                 "userName": {
                     "type": "string"
