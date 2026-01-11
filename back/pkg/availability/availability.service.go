@@ -71,8 +71,11 @@ func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uui
 		}
 	}
 
-	// Check if event is ended
-	if err := event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
+	// Check if event is still in decision
+	if hasStatus, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION}); !hasStatus || err != nil {
+		if err != nil {
+			return err
+		}
 		return constants.ERR_EVENT_ENDED.Err
 	}
 
@@ -287,7 +290,10 @@ func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claim
 	}
 
 	// Check if event is ended
-	if err := availability.Event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
+	if hasStatus, err := availability.Event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION}); !hasStatus || err != nil {
+		if err != nil {
+			return err
+		}
 		return constants.ERR_EVENT_ENDED.Err
 	}
 

@@ -55,7 +55,10 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	}
 
 	// Check if event is locked
-	if err := selectedSlot.Event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
+	if hasStatus, err := selectedSlot.Event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION}); !hasStatus || err != nil {
+		if err != nil {
+			return model.Slot{}, err
+		}
 		return model.Slot{}, constants.ERR_EVENT_ENDED.Err
 	}
 
@@ -111,8 +114,12 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 	}
 
 	// If event is finished, do not recalculate slots
-	if err := event.CheckAndUpdateFinishedStatus(s.eventRepository.Updates); err != nil {
-		log.Debug().Str("eventId", eventId.String()).Msg("Event is locked, skipping slot recalculation")
+	if hasStatus, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION}); !hasStatus || err != nil {
+		if err != nil {
+			log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to check event status")
+		} else {
+			log.Debug().Str("eventId", eventId.String()).Msg("Event is locked, skipping slot recalculation")
+		}
 		return
 	}
 

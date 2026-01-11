@@ -2,6 +2,7 @@ package model
 
 import (
 	"app/commons/constants"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -87,8 +88,18 @@ func (e *Event) GetValidatedSlot() *Slot {
 	return nil
 }
 
-// CheckAndUpdateFinishedStatus checks if the event is in decision status, and updates the status to finished if needed
-func (e *Event) CheckAndUpdateFinishedStatus(updateFunc func(*Event) error) error {
+// HasOneOfStatuses checks if the event status is one of the required statuses
+func (e *Event) HasOneOfStatuses(requireOneOfStatuses *[]constants.EventStatus) bool {
+	if requireOneOfStatuses == nil {
+		return false
+	}
+
+	return slices.Contains(*requireOneOfStatuses, e.Status)
+}
+
+// CheckAndAutoUpdateStatus checks if the event is in decision status, and updates the status to finished if needed
+// If requireOneOfStatuses is provided, it will return whether the event status is one of the required statuses
+func (e *Event) CheckAndAutoUpdateStatus(updateFunc func(*Event) error, requireOneOfStatuses *[]constants.EventStatus) (hasStatus bool, err error) {
 	slot := e.GetValidatedSlot()
 
 	// Event is still in decision
@@ -96,19 +107,16 @@ func (e *Event) CheckAndUpdateFinishedStatus(updateFunc func(*Event) error) erro
 	isEventPassed := now.After(e.EndsAt)
 	isValidatedSlotPassed := slot != nil && now.After(slot.EndsAt)
 	if e.Status != constants.EVENT_STATUS_FINISHED && !isEventPassed && !isValidatedSlotPassed {
-		return nil
-	}
-
-	// If event is already finished
-	if e.Status == constants.EVENT_STATUS_FINISHED {
-		return constants.ERR_EVENT_ENDED.Err
+		return e.HasOneOfStatuses(requireOneOfStatuses), nil
 	}
 
 	// Update event status to finished
-	e.Status = constants.EVENT_STATUS_FINISHED
-	if err := updateFunc(e); err != nil {
-		return err
+	if e.Status != constants.EVENT_STATUS_FINISHED {
+		e.Status = constants.EVENT_STATUS_FINISHED
+		if err := updateFunc(e); err != nil {
+			return false, err
+		}
 	}
 
-	return constants.ERR_EVENT_ENDED.Err
+	return e.HasOneOfStatuses(requireOneOfStatuses), nil
 }
