@@ -43,8 +43,8 @@ func NewEventService(service *EventService) *EventService {
 func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.Event, error) {
 	// Data validation
 	data.Name = strings.TrimSpace(data.Name)
-	if len(data.Name) < 3 {
-		return model.Event{}, errors.New("event name must be at least 3 characters long")
+	if len(data.Name) < 5 {
+		return model.Event{}, errors.New("event name must be at least 5 characters long")
 	}
 	if data.Description != nil {
 		*data.Description = strings.TrimSpace(*data.Description)
@@ -170,8 +170,8 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	// Data validation
 	if data.Name != nil {
 		*data.Name = strings.TrimSpace(*data.Name)
-		if len(*data.Name) < 3 {
-			return errors.New("event name must be at least 3 characters long")
+		if len(*data.Name) < 5 {
+			return errors.New("event name must be at least 5 characters long")
 		}
 	}
 	if data.Description != nil {
