@@ -64,8 +64,8 @@ func ParseToken(jwtToken string) (*Claims, error) {
 }
 
 type AuthCheckParams struct {
-	RequireAuthentication   bool
-	RequireValidatedAccount bool
+	RequireAuthentication  bool
+	RequireCompleteProfile bool
 }
 
 // Set params to nil to enable all checks
@@ -99,7 +99,7 @@ func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
 			return
 		}
 
-		if params.RequireValidatedAccount {
+		if params.RequireCompleteProfile {
 			if claims.Username == nil {
 				helpers.HandleJSONResponse(c, nil, constants.ERR_USERNAME_MISSING.Err)
 				return
