@@ -447,14 +447,27 @@ const docTemplate = `{
                     "Event"
                 ],
                 "summary": "Get user events",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/event.EventResponse"
-                            }
+                            "$ref": "#/definitions/lib.Pagination-model_Event"
                         }
                     },
                     "400": {
@@ -533,7 +546,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/event.EventResponse"
+                            "$ref": "#/definitions/model.Event"
                         }
                     },
                     "400": {
@@ -972,62 +985,6 @@ const docTemplate = `{
                 }
             }
         },
-        "event.EventResponse": {
-            "type": "object",
-            "properties": {
-                "availabilities": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Availability"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "duration": {
-                    "description": "In minutes",
-                    "type": "integer"
-                },
-                "endsAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner": {
-                    "description": "Relations",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    ]
-                },
-                "participants": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Account"
-                    }
-                },
-                "slots": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Slot"
-                    }
-                },
-                "startsAt": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/constants.EventStatus"
-                }
-            }
-        },
         "event.EventUpdateDto": {
             "type": "object",
             "properties": {
@@ -1065,6 +1022,30 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
+                }
+            }
+        },
+        "lib.Pagination-model_Event": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Event"
+                    }
+                },
+                "limit": {
+                    "type": "integer",
+                    "maximum": 50,
+                    "minimum": 1
+                },
+                "page": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -1182,6 +1163,13 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.Account"
                         }
                     ]
+                },
+                "participants": {
+                    "description": "Computed field not stored in DB",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Account"
+                    }
                 },
                 "slots": {
                     "type": "array",

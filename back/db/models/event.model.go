@@ -23,6 +23,9 @@ type Event struct {
 	AccountEvents  []AccountEvent `gorm:"foreignKey:EventId;references:Id" json:"-"`
 	Availabilities []Availability `gorm:"foreignKey:EventId;references:Id" json:"availabilities"`
 	Slots          []Slot         `gorm:"foreignKey:EventId;references:Id" json:"slots"`
+
+	// Computed field not stored in DB
+	Participants []Account `gorm:"-" json:"participants"`
 }
 
 func (Event) TableName() string {

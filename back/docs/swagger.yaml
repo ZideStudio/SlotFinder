@@ -99,42 +99,6 @@ definitions:
       color:
         type: string
     type: object
-  event.EventResponse:
-    properties:
-      availabilities:
-        items:
-          $ref: '#/definitions/model.Availability'
-        type: array
-      createdAt:
-        type: string
-      description:
-        type: string
-      duration:
-        description: In minutes
-        type: integer
-      endsAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      owner:
-        allOf:
-        - $ref: '#/definitions/model.Account'
-        description: Relations
-      participants:
-        items:
-          $ref: '#/definitions/model.Account'
-        type: array
-      slots:
-        items:
-          $ref: '#/definitions/model.Slot'
-        type: array
-      startsAt:
-        type: string
-      status:
-        $ref: '#/definitions/constants.EventStatus'
-    type: object
   event.EventUpdateDto:
     properties:
       description:
@@ -159,6 +123,23 @@ definitions:
     properties:
       code:
         type: string
+    type: object
+  lib.Pagination-model_Event:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Event'
+        type: array
+      limit:
+        maximum: 50
+        minimum: 1
+        type: integer
+      page:
+        maximum: 100
+        minimum: 1
+        type: integer
+      total:
+        type: integer
     type: object
   model.Account:
     properties:
@@ -233,6 +214,11 @@ definitions:
         allOf:
         - $ref: '#/definitions/model.Account'
         description: Relations
+      participants:
+        description: Computed field not stored in DB
+        items:
+          $ref: '#/definitions/model.Account'
+        type: array
       slots:
         items:
           $ref: '#/definitions/model.Slot'
@@ -552,15 +538,24 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/event.EventResponse'
-            type: array
+            $ref: '#/definitions/lib.Pagination-model_Event'
         "400":
           description: Bad Request
           schema:
@@ -612,7 +607,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/event.EventResponse'
+            $ref: '#/definitions/model.Event'
         "400":
           description: Bad Request
           schema:
