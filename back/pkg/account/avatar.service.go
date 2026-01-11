@@ -2,6 +2,8 @@ package account
 
 import (
 	"app/config"
+	model "app/db/models"
+	"app/db/repository"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
@@ -13,14 +15,23 @@ import (
 	"path/filepath"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/google/uuid"
 
 	"github.com/rs/zerolog/log"
 )
 
-type AvatarService struct{}
+type AvatarService struct {
+	accountRepository *repository.AccountRepository
+}
 
-func NewAvatarService() *AvatarService {
-	return &AvatarService{}
+func NewAvatarService(service *AvatarService) *AvatarService {
+	if service != nil {
+		return service
+	}
+
+	return &AvatarService{
+		accountRepository: &repository.AccountRepository{},
+	}
 }
 
 const maxSize = 32 * 1024 * 1024 // 32 MB
@@ -72,25 +83,34 @@ func uploadToImgbb(file io.Reader, fileName string) (string, error) {
 	return imgbbResp.Data.URL, nil
 }
 
-func (*AvatarService) UploadAvatar(imgURL, fileName string) (string, error) {
-	// Download the image from the URL
-	resp, err := http.Get(imgURL)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to download image")
-		return "", err
+// UploadAvatar uploads an avatar image either from a URL or from raw bytes.
+func (*AvatarService) UploadAvatar(imgUrl *string, imgBytes []byte, fileName string) (string, error) {
+	if imgUrl == nil && imgBytes == nil {
+		return "", fmt.Errorf("no image provided")
 	}
-	defer resp.Body.Close()
 
-	// Read the image data
-	imgData, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to read image data")
-		return "", err
+	if imgUrl != nil {
+		// Download the image from the URL
+		resp, err := http.Get(*imgUrl)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to download image")
+			return "", err
+		}
+		defer resp.Body.Close()
+
+		// Read the image data
+		imgData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to read image data")
+			return "", err
+		}
+
+		imgBytes = imgData
 	}
 
 	var fileReader io.Reader
-	if len(imgData) > maxSize {
-		img, _, err := image.Decode(bytes.NewReader(imgData))
+	if len(imgBytes) > maxSize {
+		img, _, err := image.Decode(bytes.NewReader(imgBytes))
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to decode image for compression")
 			return "", err
@@ -103,7 +123,7 @@ func (*AvatarService) UploadAvatar(imgURL, fileName string) (string, error) {
 		}
 		fileReader = compressed
 	} else {
-		fileReader = bytes.NewReader(imgData)
+		fileReader = bytes.NewReader(imgBytes)
 	}
 
 	// Upload to imgbb
@@ -121,4 +141,20 @@ func (*AvatarService) GetGravatarURL(username string) string {
 	hashStr := hex.EncodeToString(hash[:])
 
 	return fmt.Sprintf("https://www.gravatar.com/avatar/%s?d=retro", hashStr)
+}
+
+func (s *AvatarService) UploadUserAvatar(imgBytes []byte, userId uuid.UUID) error {
+	uploadedAvatarUrl, err := s.UploadAvatar(nil, imgBytes, userId.String())
+	if err != nil {
+		return fmt.Errorf("error uploading avatar: %w", err)
+	}
+
+	if err := s.accountRepository.Updates(model.Account{
+		Id:        userId,
+		AvatarUrl: uploadedAvatarUrl,
+	}); err != nil {
+		return fmt.Errorf("error updating avatar on account: %w", err)
+	}
+
+	return nil
 }

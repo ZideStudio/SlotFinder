@@ -37,7 +37,7 @@ func NewProviderService(service *ProviderService) *ProviderService {
 		accountRepository:          &repository.AccountRepository{},
 		signinService:              signin.NewSigninService(nil),
 		accountService:             account.NewAccountService(nil),
-		avatarService:              account.NewAvatarService(),
+		avatarService:              account.NewAvatarService(nil),
 		config:                     config.GetConfig(),
 	}
 }
@@ -224,7 +224,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		// Update account avatar
 		avatarUrl := ""
 		if providerAccount.AvatarUrl != nil {
-			uploadedAvatarUrl, err := s.avatarService.UploadAvatar(*providerAccount.AvatarUrl, account.Id.String())
+			uploadedAvatarUrl, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil, account.Id.String())
 			if err == nil {
 				avatarUrl = uploadedAvatarUrl
 			}
