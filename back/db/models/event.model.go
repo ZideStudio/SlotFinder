@@ -97,8 +97,8 @@ func (e *Event) HasOneOfStatuses(requireOneOfStatuses *[]constants.EventStatus) 
 	return slices.Contains(*requireOneOfStatuses, e.Status)
 }
 
-// CheckAndAutoUpdateStatus checks if the event is in decision status, and updates the status to finished if needed
-// If requireOneOfStatuses is provided, it will return whether the event status is one of the required statuses
+// CheckAndAutoUpdateStatus checks whether the event or its validated slot has ended, updates the status to FINISHED if needed,
+// and then returns whether the (possibly updated) event status is one of the required statuses when requireOneOfStatuses is provided.
 func (e *Event) CheckAndAutoUpdateStatus(updateFunc func(*Event) error, requireOneOfStatuses *[]constants.EventStatus) (hasStatus bool, err error) {
 	slot := e.GetValidatedSlot()
 
