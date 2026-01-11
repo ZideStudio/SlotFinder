@@ -11,7 +11,7 @@ export class ErrorResponse<ErrorCodeType extends string> extends Error {
         return parsed.code;
       }
     } catch {
-      // ignore
+      // Ignore
     }
     return 'SERVER_ERROR';
   }

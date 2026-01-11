@@ -1,6 +1,6 @@
 import ErrorIcon from '@material-symbols/svg-400/outlined/error.svg?react';
 import './InputErrorMessage.scss';
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { getClassName } from '@Front/utils/getClassName';
 
 type InputErrorMessageProps = {

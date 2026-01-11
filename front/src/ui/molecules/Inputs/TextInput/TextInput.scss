@@ -1,0 +1,7 @@
+@use '../../../../utils/sass/mixins/px-to-rem';
+
+.ds-text-input {
+  display: flex;
+  flex-direction: column;
+  row-gap: px-to-rem.rem(8);
+}
