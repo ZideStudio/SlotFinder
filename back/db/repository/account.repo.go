@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"app/commons/constants"
 	"app/db"
 	model "app/db/models"
 	"errors"
@@ -18,6 +19,7 @@ type AccountCreateDto struct {
 	UserName  *string
 	Email     *string
 	Color     string
+	Language  constants.AccountLanguage
 	Password  string
 	AvatarUrl string
 	Providers []model.AccountProvider
@@ -29,6 +31,7 @@ func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) 
 		UserName:  data.UserName,
 		Email:     data.Email,
 		Color:     data.Color,
+		Language:  data.Language,
 		AvatarUrl: data.AvatarUrl,
 		Providers: data.Providers,
 	}

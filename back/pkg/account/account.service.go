@@ -90,6 +90,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		Email:    &data.Email,
 		Color:    string(color),
 		Password: data.Password,
+		Language: data.Language,
 	}, &account); err != nil {
 		return "", err
 	}
@@ -165,6 +166,9 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 			return account, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
+	}
+	if dto.Language != nil {
+		account.Language = *dto.Language
 	}
 	if dto.Color != nil {
 		if !lib.IsHexa(*dto.Color) {

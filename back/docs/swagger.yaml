@@ -3,10 +3,17 @@ definitions:
     properties:
       email:
         type: string
+      language:
+        allOf:
+        - $ref: '#/definitions/constants.AccountLanguage'
+        enum:
+        - en
+        - fr
       password:
         type: string
     required:
     - email
+    - language
     - password
     type: object
   account.AccountUpdateDto:
@@ -15,6 +22,12 @@ definitions:
         type: string
       email:
         type: string
+      language:
+        allOf:
+        - $ref: '#/definitions/constants.AccountLanguage'
+        enum:
+        - en
+        - fr
       password:
         type: string
       username:
@@ -54,6 +67,14 @@ definitions:
       startsAt:
         type: string
     type: object
+  constants.AccountLanguage:
+    enum:
+    - en
+    - fr
+    type: string
+    x-enum-varnames:
+    - ACCOUNT_LANGUAGE_EN
+    - ACCOUNT_LANGUAGE_FR
   constants.EventStatus:
     enum:
     - IN_DECISION
@@ -157,6 +178,8 @@ definitions:
         type: array
       id:
         type: string
+      language:
+        $ref: '#/definitions/constants.AccountLanguage'
       providers:
         items:
           $ref: '#/definitions/model.AccountProvider'

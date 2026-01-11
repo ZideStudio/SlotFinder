@@ -3,8 +3,8 @@ import { SignUpErrorResponse } from "@Front/types/Authentication/signUp/SignUpEr
 import { METHODS } from "../constant";
 import { fetchApi } from "../fetchApi";
 
-export const signUpApi = ({ username, email, password }: SignUpRequestBodyType): Promise<SignUpResponseType> => {
-  const body: SignUpRequestBodyType = { username, email, password };
+export const signUpApi = ({ username, email, password, language }: SignUpRequestBodyType): Promise<SignUpResponseType> => {
+  const body: SignUpRequestBodyType = { username, email, password, language };
 
   return fetchApi<SignUpResponseType, SignUpErrorCodeType>({
     path: `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,

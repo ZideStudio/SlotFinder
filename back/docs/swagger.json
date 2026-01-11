@@ -835,11 +835,23 @@
             "type": "object",
             "required": [
                 "email",
+                "language",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "language": {
+                    "enum": [
+                        "en",
+                        "fr"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.AccountLanguage"
+                        }
+                    ]
                 },
                 "password": {
                     "type": "string"
@@ -854,6 +866,17 @@
                 },
                 "email": {
                     "type": "string"
+                },
+                "language": {
+                    "enum": [
+                        "en",
+                        "fr"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.AccountLanguage"
+                        }
+                    ]
                 },
                 "password": {
                     "type": "string"
@@ -914,6 +937,17 @@
                     "type": "string"
                 }
             }
+        },
+        "constants.AccountLanguage": {
+            "type": "string",
+            "enum": [
+                "en",
+                "fr"
+            ],
+            "x-enum-varnames": [
+                "ACCOUNT_LANGUAGE_EN",
+                "ACCOUNT_LANGUAGE_FR"
+            ]
         },
         "constants.EventStatus": {
             "type": "string",
@@ -1064,6 +1098,9 @@
                 },
                 "id": {
                     "type": "string"
+                },
+                "language": {
+                    "$ref": "#/definitions/constants.AccountLanguage"
                 },
                 "providers": {
                     "type": "array",
