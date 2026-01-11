@@ -63,7 +63,7 @@
     "jsdom": "^27.4.0",
     "monocart-coverage-reports": "^2.12.9",
     "msw": "^2.12.7",
-    "oxlint": "^1.36.0",
+    "oxlint": "^1.38.0",
     "prettier": "^3.7.4",
     "prettier-plugin-sh": "^0.18.0",
     "remark-gfm": "^4.0.1",
