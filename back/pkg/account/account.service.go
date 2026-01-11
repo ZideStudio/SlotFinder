@@ -93,10 +93,11 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
-		Email:    &data.Email,
-		Color:    string(color),
-		Password: data.Password,
-		Language: data.Language,
+		Email:        &data.Email,
+		Color:        string(color),
+		Password:     data.Password,
+		Language:     data.Language,
+		TermsVersion: &data.TermsVersion,
 	}, &account); err != nil {
 		return "", err
 	}
