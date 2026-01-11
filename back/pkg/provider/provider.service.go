@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	mathrand "math/rand"
 	"net/url"
 
 	"github.com/google/uuid"
@@ -232,27 +233,32 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			providerAccountResponse.Account.UserName = nil
 		}
 
-		// Create account
-		var account model.Account
-		if err := s.accountRepository.Create(*providerAccountResponse.Account, &account); err != nil {
-			return tokenResponse, fmt.Errorf("error creating account: %w", err)
-		}
-
-		// Update account avatar
+		// Setup avatar
+		accountId := uuid.New()
 		avatarUrl := ""
 		if providerAccount.AvatarUrl != nil {
-			uploadedAvatarUrl, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil, account.Id.String())
+			uploadedAvatarUrl, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil, accountId.String())
 			if err == nil {
 				avatarUrl = uploadedAvatarUrl
 			}
 		}
 		if avatarUrl == "" {
-			avatarUrl = s.avatarService.GetGravatarURL(account.Id.String())
+			avatarUrl = s.avatarService.GetGravatarURL(accountId.String())
 		}
-		if err := s.accountRepository.Updates(model.Account{
-			Id:        account.Id,
+
+		// Choose a random color
+		colors := constants.COLORS
+		color := colors[mathrand.Intn(len(colors))]
+
+		// Create account
+		var account model.Account
+		if err := s.accountRepository.Create(repository.AccountCreateDto{
+			Id:        accountId,
+			UserName:  providerAccountResponse.Account.UserName,
+			Color:     string(color),
 			AvatarUrl: avatarUrl,
-		}); err != nil {
+			Providers: providerAccountResponse.Account.Providers,
+		}, &account); err != nil {
 			return tokenResponse, fmt.Errorf("error creating account: %w", err)
 		}
 

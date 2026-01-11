@@ -92,21 +92,16 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 
 	// Create account
 	var account model.Account
+	accountId := uuid.New()
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
+		Id:           accountId,
 		Email:        &data.Email,
 		Color:        string(color),
 		Password:     data.Password,
 		Language:     data.Language,
 		TermsVersion: &data.TermsVersion,
+		AvatarUrl:    s.avatarService.GetGravatarURL(accountId.String()),
 	}, &account); err != nil {
-		return "", err
-	}
-
-	// Update avatar
-	if err := s.accountRepository.Updates(model.Account{
-		Id:        account.Id,
-		AvatarUrl: s.avatarService.GetGravatarURL(account.Id.String()),
-	}); err != nil {
 		return "", err
 	}
 
