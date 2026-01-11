@@ -50,15 +50,12 @@ func NewAccountService(service *AccountService) *AccountService {
 
 func (s *AccountService) CheckUserNameAvailability(userName string, excludeUserId *uuid.UUID) (bool, error) {
 	var account model.Account
-	if err := s.accountRepository.FindOneByUsername(userName, &account); err != nil {
+	if err := s.accountRepository.FindOneByUsername(userName, &account, excludeUserId); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return true, nil
 		}
 
 		return false, err
-	}
-	if excludeUserId != nil && account.Id == *excludeUserId {
-		return true, nil
 	}
 
 	return false, nil

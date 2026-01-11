@@ -78,8 +78,14 @@ func (*AccountRepository) FindOneById(id uuid.UUID, account *model.Account) erro
 	return nil
 }
 
-func (*AccountRepository) FindOneByUsername(username string, account *model.Account) error {
-	if err := db.GetDB().Where("LOWER(username) = LOWER(?) AND deleted_at IS NULL", username).Preload("Providers").First(&account).Error; err != nil {
+func (*AccountRepository) FindOneByUsername(username string, account *model.Account, excludeId *uuid.UUID) error {
+	query := db.GetDB().Where("LOWER(username) = LOWER(?) AND deleted_at IS NULL", username)
+
+	if excludeId != nil {
+		query = query.Where("id != ?", excludeId.String())
+	}
+
+	if err := query.Preload("Providers").First(&account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_USERNAME Failed to find account by username")
 		return err
 	}
