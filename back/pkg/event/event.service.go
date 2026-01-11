@@ -228,6 +228,13 @@ func (s *EventService) GetUserEvents(
 	pagination.Total = total
 	pagination.Data = events
 
+	for i := range pagination.Data {
+		// Update event status if needed
+		if _, err := pagination.Data[i].CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -239,6 +246,11 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (model.Ev
 			return event, constants.ERR_EVENT_NOT_FOUND.Err
 		}
 
+		return event, err
+	}
+
+	// Update event status if needed
+	if _, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
 		return event, err
 	}
 
