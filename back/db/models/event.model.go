@@ -2,6 +2,7 @@ package model
 
 import (
 	"app/commons/constants"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -72,20 +73,6 @@ func (e *Event) IsOwner(userId *uuid.UUID) bool {
 	return e.OwnerId == *userId
 }
 
-// checks if the event has already ended
-func (e *Event) HasEnded() bool {
-	return time.Now().After(e.EndsAt)
-}
-
-// checks if the event is locked for modifications based on its status and end time
-func (e *Event) IsLocked() bool {
-	if e.Status != constants.EVENT_STATUS_IN_DECISION {
-		return true
-	}
-
-	return e.HasEnded()
-}
-
 // GetValidatedSlot returns the validated slot for the event
 func (e *Event) GetValidatedSlot() *Slot {
 	if len(e.Slots) == 0 {
@@ -99,4 +86,37 @@ func (e *Event) GetValidatedSlot() *Slot {
 	}
 
 	return nil
+}
+
+// HasOneOfStatuses checks if the event status is one of the required statuses
+func (e *Event) HasOneOfStatuses(requireOneOfStatuses *[]constants.EventStatus) bool {
+	if requireOneOfStatuses == nil {
+		return false
+	}
+
+	return slices.Contains(*requireOneOfStatuses, e.Status)
+}
+
+// CheckAndAutoUpdateStatus checks whether the event or its validated slot has ended, updates the status to FINISHED if needed,
+// and then returns whether the (possibly updated) event status is one of the required statuses when requireOneOfStatuses is provided.
+func (e *Event) CheckAndAutoUpdateStatus(updateFunc func(*Event) error, requireOneOfStatuses *[]constants.EventStatus) (hasStatus bool, err error) {
+	slot := e.GetValidatedSlot()
+
+	// Event is still in decision
+	now := time.Now()
+	isEventPassed := now.After(e.EndsAt)
+	isValidatedSlotPassed := slot != nil && now.After(slot.EndsAt)
+	if e.Status != constants.EVENT_STATUS_FINISHED && !isEventPassed && !isValidatedSlotPassed {
+		return e.HasOneOfStatuses(requireOneOfStatuses), nil
+	}
+
+	// Update event status to finished
+	if e.Status != constants.EVENT_STATUS_FINISHED {
+		e.Status = constants.EVENT_STATUS_FINISHED
+		if err := updateFunc(e); err != nil {
+			return false, err
+		}
+	}
+
+	return e.HasOneOfStatuses(requireOneOfStatuses), nil
 }
