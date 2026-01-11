@@ -207,7 +207,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		}
 
 		// Check if username is available
-		isUsernameAvailable, err := s.accountService.CheckUserNameAvailability(*providerAccountResponse.Account.UserName)
+		isUsernameAvailable, err := s.accountService.CheckUserNameAvailability(*providerAccountResponse.Account.UserName, nil)
 		if err != nil {
 			return tokenResponse, err
 		}
