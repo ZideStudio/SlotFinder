@@ -2,6 +2,8 @@ definitions:
   account.AccountCreateDto:
     properties:
       email:
+        maxLength: 320
+        minLength: 6
         type: string
       language:
         allOf:
@@ -10,6 +12,7 @@ definitions:
         - en
         - fr
       password:
+        maxLength: 100
         type: string
     required:
     - email
@@ -21,6 +24,8 @@ definitions:
       color:
         type: string
       email:
+        maxLength: 320
+        minLength: 6
         type: string
       language:
         allOf:
@@ -29,13 +34,18 @@ definitions:
         - en
         - fr
       password:
+        maxLength: 100
         type: string
       username:
+        maxLength: 30
+        minLength: 3
         type: string
     type: object
   account.ForgotPasswordDto:
     properties:
       email:
+        maxLength: 320
+        minLength: 6
         type: string
     required:
     - email
@@ -43,6 +53,7 @@ definitions:
   account.ResetPasswordDto:
     properties:
       password:
+        maxLength: 100
         type: string
       token:
         type: string
@@ -98,6 +109,7 @@ definitions:
   event.EventCreateDto:
     properties:
       description:
+        maxLength: 500
         type: string
       duration:
         maximum: 30240
@@ -106,6 +118,8 @@ definitions:
       endsAt:
         type: string
       name:
+        maxLength: 100
+        minLength: 5
         type: string
       startsAt:
         type: string
@@ -123,6 +137,7 @@ definitions:
   event.EventUpdateDto:
     properties:
       description:
+        maxLength: 500
         type: string
       duration:
         maximum: 30240
@@ -131,6 +146,8 @@ definitions:
       endsAt:
         type: string
       name:
+        maxLength: 100
+        minLength: 5
         type: string
       startsAt:
         type: string
@@ -265,8 +282,11 @@ definitions:
   signin.SigninDto:
     properties:
       identifier:
+        maxLength: 320
+        minLength: 3
         type: string
       password:
+        maxLength: 100
         type: string
     required:
     - identifier

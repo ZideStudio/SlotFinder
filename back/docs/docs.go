@@ -848,7 +848,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 320,
+                    "minLength": 6
                 },
                 "language": {
                     "enum": [
@@ -862,7 +864,8 @@ const docTemplate = `{
                     ]
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 }
             }
         },
@@ -873,7 +876,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 320,
+                    "minLength": 6
                 },
                 "language": {
                     "enum": [
@@ -887,10 +892,13 @@ const docTemplate = `{
                     ]
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 3
                 }
             }
         },
@@ -901,7 +909,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 320,
+                    "minLength": 6
                 }
             }
         },
@@ -913,7 +923,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "token": {
                     "type": "string"
@@ -993,7 +1004,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 500
                 },
                 "duration": {
                     "type": "integer",
@@ -1004,7 +1016,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 5
                 },
                 "startsAt": {
                     "type": "string"
@@ -1023,7 +1037,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 500
                 },
                 "duration": {
                     "type": "integer",
@@ -1034,7 +1049,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 5
                 },
                 "startsAt": {
                     "type": "string"
@@ -1247,10 +1264,13 @@ const docTemplate = `{
             ],
             "properties": {
                 "identifier": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 320,
+                    "minLength": 3
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 }
             }
         },

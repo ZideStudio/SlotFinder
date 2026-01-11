@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	mathrand "math/rand"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -146,6 +147,13 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 
 	if dto.UserName != nil && (account.UserName == nil || *dto.UserName != *account.UserName) {
+		*dto.UserName = strings.TrimSpace(*dto.UserName)
+		if len(*dto.UserName) < 3 {
+			return account, nil, errors.New("username must be at least 3 characters long")
+		}
+		if account.UserName != nil && *dto.UserName == *account.UserName {
+			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
+		}
 		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.UserName, &userId)
 		if err != nil {
 			return account, nil, err
