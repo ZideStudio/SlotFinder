@@ -37,6 +37,10 @@ func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) 
 		Providers:    data.Providers,
 		TermsVersion: data.TermsVersion,
 	}
+	if account.TermsVersion != nil {
+		now := time.Now().UTC()
+		account.TermsAcceptedAt = &now
+	}
 
 	if data.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
