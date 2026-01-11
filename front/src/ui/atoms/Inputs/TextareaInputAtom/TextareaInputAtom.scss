@@ -1,5 +1,8 @@
 @use '../../../../assets/css/inputs' as *;
 
-.ds-text-input-atom {
+.ds-textarea-input-atom {
   @extend %input-base;
+
+  min-height: 3rem;
+  resize: vertical;
 }
