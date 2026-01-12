@@ -143,30 +143,30 @@ func (ctl *AccountController) UploadAvatar(c *gin.Context) {
 
 	fileHeader, err := c.FormFile("image")
 	if err != nil {
-		c.JSON(400, gin.H{"error": "missing image"})
+		helpers.HandleJSONResponse(c, nil, errors.New("missing image"))
 		return
 	}
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		c.JSON(500, gin.H{"error": "unable to open image"})
+		helpers.HandleJSONResponse(c, nil, errors.New("unable to open image"))
 		return
 	}
 	defer file.Close()
 
 	imageBytes, err := io.ReadAll(file)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "failed to read image"})
+		helpers.HandleJSONResponse(c, nil, errors.New("failed to read image"))
 		return
 	}
 
 	_, format, err := image.DecodeConfig(bytes.NewReader(imageBytes))
 	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid image file"})
+		helpers.HandleJSONResponse(c, nil, errors.New("invalid image file"))
 		return
 	}
 	if slices.Contains(constants.ALLOWED_PICTURE_FORMATS, constants.PictureFormat(format)) == false {
-		c.JSON(400, gin.H{"error": "unsupported format"})
+		helpers.HandleJSONResponse(c, nil, errors.New("unsupported format"))
 		return
 	}
 
