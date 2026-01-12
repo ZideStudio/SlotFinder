@@ -170,9 +170,9 @@ func (ctl *AccountController) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	ctl.avatarService.UploadUserAvatar(imageBytes, user.Id)
+	err = ctl.avatarService.UploadUserAvatar(imageBytes, user.Id)
 
-	helpers.HandleJSONResponse(c, nil, nil)
+	helpers.HandleJSONResponse(c, nil, err)
 }
 
 // @Summary Forgot Password
