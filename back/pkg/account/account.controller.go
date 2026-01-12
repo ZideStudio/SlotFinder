@@ -7,7 +7,6 @@ import (
 	"app/commons/lib"
 	"bytes"
 	"errors"
-	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -161,7 +160,6 @@ func (ctl *AccountController) UploadAvatar(c *gin.Context) {
 
 	_, format, err := image.DecodeConfig(bytes.NewReader(imageBytes))
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(400, gin.H{"error": "invalid image file"})
 		return
 	}
