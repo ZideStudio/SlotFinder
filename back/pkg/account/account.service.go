@@ -264,7 +264,6 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Reset token encrypted:", resetTokenDecrypted)
 
 	var account model.Account
 	if err := s.accountRepository.FindOneByResetToken(resetTokenDecrypted, &account); err != nil {

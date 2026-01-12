@@ -6,8 +6,10 @@ import (
 	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/mail"
 	"app/pkg/signin"
 	"app/pkg/slot"
+
 	"errors"
 	"time"
 
@@ -22,6 +24,7 @@ type EventService struct {
 	slotRepository         *repository.SlotRepository
 	slotService            *slot.SlotService
 	signinService          *signin.SigninService
+	mailService            *mail.MailService
 }
 
 func NewEventService(service *EventService) *EventService {
@@ -36,6 +39,7 @@ func NewEventService(service *EventService) *EventService {
 		slotRepository:         &repository.SlotRepository{},
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
+		mailService:            mail.NewMailService(nil),
 	}
 }
 
@@ -178,7 +182,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 		isBreakingSlots = true
 	}
 	var isStatusChanged bool
-	if data.Status != nil {
+	if data.Status != nil && event.Status != *data.Status {
 		event.Status = *data.Status
 		isStatusChanged = true
 	}
@@ -190,9 +194,16 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 
 	// If status changed, remove validated slot
 	if isStatusChanged {
+		oldSlot := event.GetValidatedSlot()
+
 		err := s.slotRepository.DeleteValidatedSlotByEventId(event.Id)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
+		}
+
+		// Send cancellation emails
+		if oldSlot != nil {
+			go s.mailService.SendEventNotificationEmails(constants.MAIL_TEMPLATE_EVENT_CANCELLATION, &event, oldSlot)
 		}
 	}
 

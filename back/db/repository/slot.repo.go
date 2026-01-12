@@ -11,7 +11,7 @@ import (
 type SlotRepository struct{}
 
 func (*SlotRepository) Create(slot *model.Slot) error {
-	if err := db.GetDB().Create(&slot).Error; err != nil {
+	if err := db.GetDB().Create(&slot).First(&slot).Error; err != nil {
 		log.Error().Err(err).Msg("SLOT_REPOSITORY::CREATE Failed to create slot")
 		return err
 	}
@@ -29,7 +29,7 @@ func (*SlotRepository) Updates(slot *model.Slot) error {
 }
 
 func (*SlotRepository) FindOneById(slotId uuid.UUID, slot *model.Slot) error {
-	if err := db.GetDB().Where("id = ?", slotId.String()).Preload("Event").Preload("Event.AccountEvents").First(slot).Error; err != nil {
+	if err := db.GetDB().Where("id = ?", slotId.String()).Preload("Event").Preload("Event.Owner").Preload("Event.AccountEvents").Preload("Event.AccountEvents.Account").First(slot).Error; err != nil {
 		log.Error().Err(err).Str("slotId", slotId.String()).Msg("SLOT_REPOSITORY::FIND_ONE_BY_ID Failed to find slot by id")
 		return err
 	}

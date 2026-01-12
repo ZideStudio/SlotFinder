@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/mail"
 	"app/pkg/sse"
 	"sort"
 	"sync"
@@ -19,6 +20,7 @@ type SlotService struct {
 	availabilityRepository *repository.AvailabilityRepository
 	accountEventRepository *repository.AccountEventRepository
 	sseService             *sse.SSEService
+	mailService            *mail.MailService
 	loadSlotsMutexes       sync.Map // Map of eventId to *sync.Mutex for preventing concurrent LoadSlots
 }
 
@@ -33,6 +35,7 @@ func NewSlotService(service *SlotService) *SlotService {
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
 		accountEventRepository: &repository.AccountEventRepository{},
 		sseService:             sse.GetSSEService(),
+		mailService:            mail.NewMailService(nil),
 		loadSlotsMutexes:       sync.Map{},
 	}
 }
@@ -91,6 +94,9 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	if err := s.eventRepository.Updates(&event); err != nil {
 		return model.Slot{}, err
 	}
+
+	// Send event confirmation emails
+	go s.mailService.SendEventNotificationEmails(constants.MAIL_TEMPLATE_EVENT_CONFIRMATION, &event, &slot)
 
 	return slot, nil
 }

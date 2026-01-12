@@ -1,0 +1,451 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Event Confirmed - SlotFinder</title>
+    </head>
+    <body
+        style="
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, Helvetica, sans-serif;
+        "
+    >
+        <!-- Outer table for email width and background -->
+        <table
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="100%"
+            style="background-color: #f4f4f4"
+        >
+            <tr>
+                <td align="center" style="padding: 20px 0">
+                    <!-- Main email container -->
+                    <table
+                        border="0"
+                        cellpadding="0"
+                        cellspacing="0"
+                        width="600"
+                        style="
+                            background-color: #ffffff;
+                            max-width: 600px;
+                            border-radius: 8px;
+                        "
+                    >
+                        <!-- Header -->
+                        <tr>
+                            <td
+                                align="center"
+                                style="padding: 30px 30px 20px 30px"
+                            >
+                                <table
+                                    border="0"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                >
+                                    <tr>
+                                        <td style="padding-bottom: 10px">
+                                            <img
+                                                src="{{.Origin}}/assets/logo.png"
+                                                alt="SlotFinder Logo"
+                                                width="100"
+                                                style="
+                                                    display: block;
+                                                    border: 0;
+                                                "
+                                            />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Title -->
+                        <tr>
+                            <td
+                                align="center"
+                                style="padding: 0 30px 20px 30px"
+                            >
+                                <h1
+                                    style="
+                                        margin: 0;
+                                        font-size: 28px;
+                                        color: #e72385;
+                                        text-align: center;
+                                        font-family:
+                                            Arial, Helvetica, sans-serif;
+                                    "
+                                >
+                                    Event Confirmed!
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 0 30px">
+                                <table
+                                    border="0"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    width="100%"
+                                >
+                                    <tr>
+                                        <td
+                                            style="
+                                                font-size: 16px;
+                                                line-height: 1.6;
+                                                color: #333333;
+                                                font-family:
+                                                    Arial, Helvetica, sans-serif;
+                                            "
+                                        >
+                                            <p style="margin: 0 0 16px 0">
+                                                Hello {{.Username}},
+                                            </p>
+
+                                            {{if eq .IsOwner "true"}}
+                                            <p style="margin: 0 0 20px 0">
+                                                Great news! Your event
+                                                "{{.EventName}}" has been
+                                                successfully confirmed and
+                                                scheduled. Here are the details:
+                                            </p>
+                                            {{else}}
+                                            <p style="margin: 0 0 20px 0">
+                                                Great news! The event
+                                                "{{.EventName}}" has been
+                                                scheduled. Here are the details:
+                                            </p>
+                                            {{end}}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Event Details Box -->
+                                    <tr>
+                                        <td
+                                            style="
+                                                padding: 20px;
+                                                background-color: #f8f9fa;
+                                                border: 1px solid #dee2e6;
+                                                border-radius: 6px;
+                                                margin: 20px 0;
+                                            "
+                                        >
+                                            <!-- Event Name -->
+                                            <p
+                                                style="
+                                                    margin: 0 0 15px 0;
+                                                    font-size: 18px;
+                                                    font-weight: bold;
+                                                    color: #e72385;
+                                                    font-family:
+                                                        Arial, Helvetica,
+                                                        sans-serif;
+                                                "
+                                            >
+                                                {{.EventName}}
+                                            </p>
+
+                                            <!-- Description -->
+                                            {{if .EventDescription}}
+                                            <p
+                                                style="
+                                                    margin: 0 0 15px 0;
+                                                    font-size: 14px;
+                                                    color: #666666;
+                                                    font-family:
+                                                        Arial, Helvetica,
+                                                        sans-serif;
+                                                "
+                                            >
+                                                {{.EventDescription}}
+                                            </p>
+                                            {{end}}
+
+                                            <!-- Organizer -->
+                                            <p
+                                                style="
+                                                    margin: 0 0 15px 0;
+                                                    font-size: 14px;
+                                                    color: #666666;
+                                                    font-family:
+                                                        Arial, Helvetica,
+                                                        sans-serif;
+                                                "
+                                            >
+                                                <strong>Organized by:</strong>
+                                                {{.Owner}}
+                                            </p>
+
+                                            <!-- Date Range (if provided) -->
+                                            {{if .DateRangeStart}}
+                                            <div style="margin-bottom: 15px">
+                                                <p
+                                                    style="
+                                                        margin: 0 0 5px 0;
+                                                        font-size: 14px;
+                                                        color: #666666;
+                                                        font-family:
+                                                            Arial, Helvetica,
+                                                            sans-serif;
+                                                    "
+                                                >
+                                                    <strong
+                                                        >📅 Event
+                                                        Period:</strong
+                                                    >
+                                                </p>
+                                                <p
+                                                    style="
+                                                        margin: 0 0 2px 20px;
+                                                        font-size: 16px;
+                                                        color: #333333;
+                                                        font-family:
+                                                            Arial, Helvetica,
+                                                            sans-serif;
+                                                    "
+                                                >
+                                                    From: {{.DateRangeStart}}
+                                                </p>
+                                                <p
+                                                    style="
+                                                        margin: 0 0 0 20px;
+                                                        font-size: 16px;
+                                                        color: #333333;
+                                                        font-family:
+                                                            Arial, Helvetica,
+                                                            sans-serif;
+                                                    "
+                                                >
+                                                    To: {{.DateRangeEnd}}
+                                                </p>
+                                            </div>
+                                            {{end}}
+
+                                            <!-- Single Date with Time (if provided) -->
+                                            {{if .FormattedDateTime}}
+                                            <div style="margin-bottom: 15px">
+                                                <p
+                                                    style="
+                                                        margin: 0 0 5px 0;
+                                                        font-size: 14px;
+                                                        color: #666666;
+                                                        font-family:
+                                                            Arial, Helvetica,
+                                                            sans-serif;
+                                                    "
+                                                >
+                                                    <strong>📅 When:</strong>
+                                                </p>
+                                                <p
+                                                    style="
+                                                        margin: 0 0 0 20px;
+                                                        font-size: 16px;
+                                                        color: #333333;
+                                                        font-family:
+                                                            Arial, Helvetica,
+                                                            sans-serif;
+                                                        font-weight: bold;
+                                                    "
+                                                >
+                                                    {{.FormattedDateTime}}
+                                                </p>
+                                            </div>
+                                            {{end}}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Button Container (if EventUrl is provided) -->
+                                    {{if .EventUrl}}
+                                    <tr>
+                                        <td
+                                            align="center"
+                                            style="padding: 20px 0"
+                                        >
+                                            <table
+                                                border="0"
+                                                cellpadding="0"
+                                                cellspacing="0"
+                                            >
+                                                <tr>
+                                                    <td align="center">
+                                                        <a
+                                                            href="{{.EventUrl}}"
+                                                            style="
+                                                                background-color: #e72385;
+                                                                color: #ffffff;
+                                                                text-decoration: none;
+                                                                padding: 15px
+                                                                    30px;
+                                                                font-size: 16px;
+                                                                font-weight: bold;
+                                                                font-family:
+                                                                    Arial,
+                                                                    Helvetica,
+                                                                    sans-serif;
+                                                                display: inline-block;
+                                                                border-radius: 5px;
+                                                            "
+                                                        >
+                                                            View Event Details
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    {{end}}
+
+                                    <!-- Spacer -->
+                                    <tr>
+                                        <td
+                                            height="20"
+                                            style="
+                                                line-height: 20px;
+                                                font-size: 0;
+                                            "
+                                        >
+                                            &nbsp;
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding: 20px 0 20px 0">
+                                            <p
+                                                style="
+                                                    margin: 0 0 15px 0;
+                                                    font-size: 16px;
+                                                    color: #333333;
+                                                    font-family:
+                                                        Arial, Helvetica,
+                                                        sans-serif;
+                                                "
+                                            >
+                                                <strong
+                                                    >Need to make
+                                                    changes?</strong
+                                                >
+                                            </p>
+                                            {{if eq .IsOwner "true"}}
+                                            <p
+                                                style="
+                                                    margin: 0;
+                                                    font-size: 16px;
+                                                    color: #333333;
+                                                    font-family:
+                                                        Arial, Helvetica,
+                                                        sans-serif;
+                                                "
+                                            >
+                                                As the event organizer, you can
+                                                cancel the validated slot in the
+                                                event settings if needed. This
+                                                will allow all participants to
+                                                modify their availability again
+                                                and a new slot selection process
+                                                will begin.
+                                            </p>
+                                            {{else}}
+                                            <p
+                                                style="
+                                                    margin: 0;
+                                                    font-size: 16px;
+                                                    color: #333333;
+                                                    font-family:
+                                                        Arial, Helvetica,
+                                                        sans-serif;
+                                                "
+                                            >
+                                                If you need to modify your
+                                                availability, you'll need to ask
+                                                the event organizer to cancel
+                                                the validated slot first. Once
+                                                cancelled, you'll be able to
+                                                update your availability and
+                                                participate in a new slot
+                                                selection process.
+                                            </p>
+                                            {{end}}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td
+                                style="
+                                    padding: 20px;
+                                    border-top: 1px solid #eeeeee;
+                                "
+                            >
+                                <table
+                                    border="0"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    width="100%"
+                                >
+                                    <tr>
+                                        <td
+                                            align="center"
+                                            style="
+                                                font-size: 14px;
+                                                color: #666666;
+                                                font-family:
+                                                    Arial, Helvetica, sans-serif;
+                                            "
+                                        >
+                                            <p style="margin: 0 0 10px 0">
+                                                <strong
+                                                    >The SlotFinder Team</strong
+                                                >
+                                            </p>
+
+                                            <hr
+                                                style="
+                                                    border: none;
+                                                    border-top: 1px solid
+                                                        #eeeeee;
+                                                    margin: 15px 0;
+                                                "
+                                            />
+
+                                            <p
+                                                style="
+                                                    margin: 0 0 5px 0;
+                                                    font-size: 12px;
+                                                    color: #999999;
+                                                "
+                                            >
+                                                If you have any questions,
+                                                contact us at
+                                                support@slotfinder.com
+                                            </p>
+
+                                            <p
+                                                style="
+                                                    margin: 0;
+                                                    font-size: 12px;
+                                                    color: #999999;
+                                                "
+                                            >
+                                                This is an automated message,
+                                                please do not reply to this
+                                                email.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>
