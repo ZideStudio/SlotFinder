@@ -17,6 +17,7 @@ func MaxUploadSizeMiddleware(limit int64) gin.HandlerFunc {
 		)
 
 		if err := c.Request.ParseMultipartForm(limit); err != nil {
+			c.Abort()
 			helpers.HandleJSONResponse(c, nil, errors.New("file too large"))
 			return
 		}
