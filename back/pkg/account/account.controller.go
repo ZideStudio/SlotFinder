@@ -13,6 +13,8 @@ import (
 	"io"
 	"slices"
 
+	_ "golang.org/x/image/webp"
+
 	"github.com/gin-gonic/gin"
 )
 
