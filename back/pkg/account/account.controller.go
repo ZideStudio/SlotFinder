@@ -165,7 +165,7 @@ func (ctl *AccountController) UploadAvatar(c *gin.Context) {
 		helpers.HandleJSONResponse(c, nil, errors.New("invalid image file"))
 		return
 	}
-	if slices.Contains(constants.ALLOWED_PICTURE_FORMATS, constants.PictureFormat(format)) == false {
+	if !slices.Contains(constants.ALLOWED_PICTURE_FORMATS, constants.PictureFormat(format)) {
 		helpers.HandleJSONResponse(c, nil, errors.New("unsupported format"))
 		return
 	}
