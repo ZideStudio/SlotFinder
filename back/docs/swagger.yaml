@@ -365,6 +365,35 @@ paths:
       summary: Create an account
       tags:
       - Account
+  /api/v1/account/avatar:
+    patch:
+      consumes:
+      - multipart/form-data
+      description: UploadAvatar the avatar image of the current user
+      parameters:
+      - description: Avatar image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - AccessTokenCookie: []
+      summary: Upload Avatar
+      tags:
+      - Account
   /api/v1/account/forgot-password:
     post:
       consumes:

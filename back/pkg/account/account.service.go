@@ -41,7 +41,7 @@ func NewAccountService(service *AccountService) *AccountService {
 
 	return &AccountService{
 		accountRepository:     &repository.AccountRepository{},
-		avatarService:         NewAvatarService(),
+		avatarService:         NewAvatarService(nil),
 		signinService:         signin.NewSigninService(nil),
 		mailService:           mail.NewMailService(nil),
 		config:                config.GetConfig(),

@@ -1,16 +1,26 @@
 package account
 
 import (
+	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/helpers"
 	"app/commons/lib"
+	"bytes"
 	"errors"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
+	"slices"
+
+	_ "golang.org/x/image/webp"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AccountController struct {
 	accountService *AccountService
+	avatarService  *AvatarService
 }
 
 func NewAccountController(ctl *AccountController) *AccountController {
@@ -20,6 +30,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 
 	return &AccountController{
 		accountService: NewAccountService(nil),
+		avatarService:  NewAvatarService(nil),
 	}
 }
 
@@ -106,6 +117,62 @@ func (ctl *AccountController) Update(c *gin.Context) {
 	}
 
 	helpers.HandleJSONResponse(c, account, err)
+}
+
+// @Summary Upload Avatar
+// @Description UploadAvatar the avatar image of the current user
+// @Tags Account
+// @Accept multipart/form-data
+// @Produce json
+// @Param image formData file true "Avatar image file"
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Failure 500 {object} helpers.ApiError
+// @Router /api/v1/account/avatar [patch]
+// @security AccessTokenCookie
+func (ctl *AccountController) UploadAvatar(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+	if user == nil {
+		helpers.HandleJSONResponse(c, nil, errors.New("user not found"))
+		return
+	}
+
+	fileHeader, err := c.FormFile("image")
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, errors.New("missing image"))
+		return
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, errors.New("unable to open image"))
+		return
+	}
+	defer file.Close()
+
+	imageBytes, err := io.ReadAll(file)
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, errors.New("failed to read image"))
+		return
+	}
+
+	_, format, err := image.DecodeConfig(bytes.NewReader(imageBytes))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, errors.New("invalid image file"))
+		return
+	}
+	if !slices.Contains(constants.ALLOWED_PICTURE_FORMATS, constants.PictureFormat(format)) {
+		helpers.HandleJSONResponse(c, nil, errors.New("unsupported format"))
+		return
+	}
+
+	err = ctl.avatarService.UploadUserAvatar(imageBytes, user.Id)
+
+	helpers.HandleJSONResponse(c, nil, err)
 }
 
 // @Summary Forgot Password
