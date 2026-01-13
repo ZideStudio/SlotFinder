@@ -17,9 +17,10 @@ import (
 )
 
 type Claims struct {
-	Id       uuid.UUID `json:"id"`
-	Username *string   `json:"username"`
-	Email    *string   `json:"email"`
+	Id            uuid.UUID `json:"id"`
+	Username      *string   `json:"username"`
+	Email         *string   `json:"email"`
+	TermsAccepted bool      `json:"termsAccepted"`
 	jwt.RegisteredClaims
 }
 
@@ -63,8 +64,8 @@ func ParseToken(jwtToken string) (*Claims, error) {
 }
 
 type AuthCheckParams struct {
-	RequireAuthentication bool
-	RequireUsername       bool
+	RequireAuthentication  bool
+	RequireCompleteProfile bool
 }
 
 // Set params to nil to enable all checks
@@ -98,9 +99,16 @@ func AuthCheck(params *AuthCheckParams) gin.HandlerFunc {
 			return
 		}
 
-		if params.RequireUsername && claims.Username == nil {
-			helpers.HandleJSONResponse(c, nil, constants.ERR_USERNAME_MISSING.Err)
-			return
+		if params.RequireCompleteProfile {
+			if claims.Username == nil {
+				helpers.HandleJSONResponse(c, nil, constants.ERR_USERNAME_MISSING.Err)
+				return
+			}
+
+			if !claims.TermsAccepted {
+				helpers.HandleJSONResponse(c, nil, constants.ERR_TERMS_NOT_ACCEPTED.Err)
+				return
+			}
 		}
 
 		c.Set("user", claims)

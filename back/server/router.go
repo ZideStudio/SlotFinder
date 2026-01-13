@@ -41,7 +41,7 @@ func NewRouter() *gin.Engine {
 
 			accountGroup.POST("", accountRouter.Create)
 			accountGroup.GET("/me", guard.AuthCheck(nil), accountRouter.GetMe)
-			accountGroup.PATCH("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireUsername: false}), accountRouter.Update)
+			accountGroup.PATCH("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireCompleteProfile: false}), accountRouter.Update)
 			accountGroup.PATCH("/avatar", guard.AuthCheck(nil), guard.MaxUploadSizeMiddleware(10<<20), accountRouter.UploadAvatar)
 			accountGroup.POST("/forgot-password", accountRouter.ForgotPassword)
 			accountGroup.POST("/reset-password", accountRouter.ResetPassword)
@@ -56,7 +56,7 @@ func NewRouter() *gin.Engine {
 
 			authGroup.POST("/signin", signinRouter.Signin)
 
-			authGroup.Use(guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true})).GET("/:provider/url", providerRouter.ProviderUrl)
+			authGroup.Use(guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireCompleteProfile: true})).GET("/:provider/url", providerRouter.ProviderUrl)
 			authGroup.GET("/:provider/callback", providerRouter.ProviderCallback)
 
 			authGroup.Use(guard.AuthCheck(nil)).GET("/status", authRouter.Status)
@@ -83,7 +83,7 @@ func NewRouter() *gin.Engine {
 
 			specificEventGroup := eventGroup.Group("/:eventId")
 			{
-				specificEventGroup.GET("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireUsername: true}), eventRouter.GetEvent)
+				specificEventGroup.GET("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireCompleteProfile: true}), eventRouter.GetEvent)
 				specificEventGroup.POST("/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 				specificEventGroup.PATCH("/profile", guard.AuthCheck(nil), eventRouter.UpdateProfile)
 			}

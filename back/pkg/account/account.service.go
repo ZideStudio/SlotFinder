@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	mathrand "math/rand"
+	"slices"
 	"strings"
 	"time"
 
@@ -64,6 +65,10 @@ func (s *AccountService) CheckUserNameAvailability(userName string, excludeUserI
 
 func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	// Validate input
+	if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(data.TermsVersion)) {
+		return "", errors.New("invalid terms version")
+	}
+
 	if !lib.IsValidEmail(data.Email) {
 		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
@@ -88,10 +93,11 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	// Create account
 	var account model.Account
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
-		Email:    &data.Email,
-		Color:    string(color),
-		Password: data.Password,
-		Language: data.Language,
+		Email:        &data.Email,
+		Color:        string(color),
+		Password:     data.Password,
+		Language:     data.Language,
+		TermsVersion: &data.TermsVersion,
 	}, &account); err != nil {
 		return "", err
 	}
@@ -106,9 +112,10 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 
 	// Generate token
 	claims := &guard.Claims{
-		Id:       account.Id,
-		Username: account.UserName,
-		Email:    account.Email,
+		Id:            account.Id,
+		Username:      account.UserName,
+		Email:         account.Email,
+		TermsAccepted: true,
 	}
 
 	token, err := s.signinService.GenerateToken(claims)
@@ -181,16 +188,28 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		}
 		account.Color = *dto.Color
 	}
+	termsUpdated := false
+	if dto.TermsAccepted != nil && dto.TermsVersion != nil && (account.TermsVersion == nil || *account.TermsVersion != *dto.TermsVersion) {
+		if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(*dto.TermsVersion)) {
+			return account, nil, errors.New("invalid terms version")
+		}
+		now := time.Now()
+		account.TermsAcceptedAt = &now
+		account.TermsVersion = dto.TermsVersion
+		termsUpdated = true
+	}
 
 	if err := s.accountRepository.Updates(account); err != nil {
 		return account, nil, err
 	}
 
-	if dto.UserName != nil {
+	if dto.UserName != nil || termsUpdated {
+		termsAccepted := account.TermsAcceptedAt != nil
 		claims := &guard.Claims{
-			Id:       account.Id,
-			Username: account.UserName,
-			Email:    account.Email,
+			Id:            account.Id,
+			Username:      account.UserName,
+			Email:         account.Email,
+			TermsAccepted: termsAccepted,
 		}
 
 		token, err := s.signinService.GenerateToken(claims)

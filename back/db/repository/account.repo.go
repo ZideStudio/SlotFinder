@@ -16,24 +16,30 @@ import (
 type AccountRepository struct{}
 
 type AccountCreateDto struct {
-	UserName  *string
-	Email     *string
-	Color     string
-	Language  constants.AccountLanguage
-	Password  string
-	AvatarUrl string
-	Providers []model.AccountProvider
+	UserName     *string
+	Email        *string
+	Color        string
+	Language     constants.AccountLanguage
+	Password     string
+	AvatarUrl    string
+	TermsVersion *string
+	Providers    []model.AccountProvider
 }
 
 func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) error {
 	*account = model.Account{
-		Id:        uuid.New(),
-		UserName:  data.UserName,
-		Email:     data.Email,
-		Color:     data.Color,
-		Language:  data.Language,
-		AvatarUrl: data.AvatarUrl,
-		Providers: data.Providers,
+		Id:           uuid.New(),
+		UserName:     data.UserName,
+		Email:        data.Email,
+		Color:        data.Color,
+		Language:     data.Language,
+		AvatarUrl:    data.AvatarUrl,
+		Providers:    data.Providers,
+		TermsVersion: data.TermsVersion,
+	}
+	if account.TermsVersion != nil {
+		now := time.Now().UTC()
+		account.TermsAcceptedAt = &now
 	}
 
 	if data.Password != "" {
