@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 
-import { LinkAtom } from './LinkAtom';
+import { Link } from './Link';
 
 const meta = {
-  title: 'Atoms/Links/LinkAtom',
-  component: LinkAtom,
+  title: 'Atoms/Link',
+  component: Link,
   args: {
     href: 'https://react.dev',
     children: 'Lien par défaut',
@@ -19,14 +19,7 @@ const meta = {
       table: { disable: true },
     },
   },
-  decorators: [
-    Story => (
-      <div style={{ padding: '16px' }}>
-        <Story />
-      </div>
-    ),
-  ],
-} satisfies Meta<typeof LinkAtom>;
+} satisfies Meta<typeof Link>;
 
 export default meta;
 

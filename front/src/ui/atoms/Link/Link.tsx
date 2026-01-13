@@ -1,17 +1,18 @@
 import { getClassName } from '@Front/utils/getClassName';
-import React, { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef } from 'react';
+import './Link.scss';
 
-type LinkAtomProps = ComponentPropsWithRef<'a'> & {
+type LinkProps = ComponentPropsWithRef<'a'> & {
   openInNewTab?: boolean;
 };
 
-export const LinkAtom = ({
+export const Link = ({
   className,
   openInNewTab = false,
   ...props
-}: LinkAtomProps) => {
+}: LinkProps) => {
   const parentClassName = getClassName({
-    defaultClassName: 'ds-link-atom',
+    defaultClassName: 'ds-link',
     className,
   });
 

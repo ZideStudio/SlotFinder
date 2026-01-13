@@ -1,22 +1,22 @@
 import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as LinkAtomStories from './LinkAtom.stories';
+import * as LinkStories from './Link.stories';
 
-<Meta of={LinkAtomStories} />
+<Meta of={LinkStories} />
 
-# LinkAtom
+# Link
 
 A reusable, accessible link atom for navigation and external resources.
 
 ## Usage
 
 ```tsx
-<LinkAtom href="https://react.dev">
+<Link href="https://react.dev">
   React documentation
-</LinkAtom>
+</Link>
 
-<LinkAtom href="https://react.dev" openInNewTab>
+<Link href="https://react.dev" openInNewTab>
   React documentation (new tab)
-</LinkAtom>
+</Link>
 ```
 
 ## Props
@@ -105,16 +105,17 @@ A reusable, accessible link atom for navigation and external resources.
 ## Example
 
 ```tsx
-<LinkAtom href="/home">
+<Link href="/home">
   Internal navigation
-</LinkAtom>
+</Link>
 
-<LinkAtom href="https://external-site.com" openInNewTab>
+<Link href="https://external-site.com" openInNewTab>
   External website
-</LinkAtom>
+</Link>
 
 ```
 
 ## Playground
 
-<Canvas of={LinkAtomStories.Default} sourceState="shown" /> <Controls of={LinkAtomStories.Default} />
+<Canvas of={LinkStories.Default} sourceState="shown" /> 
+<Controls of={LinkStories.Default} />

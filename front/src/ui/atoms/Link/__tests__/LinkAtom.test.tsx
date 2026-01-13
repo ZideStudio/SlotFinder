@@ -1,4 +1,5 @@
-import { LinkAtom } from "../LinkAtom";
+import { LinkAtom } from "../Link";
+import { render, screen } from "@testing-library/react";
 
 describe("LinkAtom", () => {
   it("should render a link with required href and children props", () => {
@@ -29,4 +30,4 @@ describe("LinkAtom", () => {
     const link = screen.getByRole("link", { name: "Custom Class Link" });
     expect(link).toHaveClass("ds-link-atom custom-class");
   });
-});import { render, screen } from "@testing-library/react";
+});
