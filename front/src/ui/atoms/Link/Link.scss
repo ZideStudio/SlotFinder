@@ -2,22 +2,22 @@
 @use '../../../utils/sass/mixins/responsive';
 
 .ds-link {
-  text-decoration: none;
   font-size: px-to-rem.rem(14);
+  text-decoration: none;
   color: var(--color-primary, #1a73e8);
   cursor: pointer;
 
-   @include responsive.media-exceeds-width('desktop-small') {
+  @include responsive.media-exceeds-width('desktop-small') {
     font-size: px-to-rem.rem(16);
   }
 
   &:hover {
     text-decoration: underline;
-     color: var(--color-primary-dark, #1a73e8);
+    color: var(--color-primary-dark, #1a73e8);
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-primary-dark, #1a73e8);
     outline-offset: 2px;
-  } 
+  }
 }
