@@ -7,7 +7,7 @@ describe('Link', () => {
     const link = screen.getByRole('link', { name: 'Example Link' });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', 'https://example.com');
-    expect(link).toHaveClass('ds-link-atom');
+    expect(link).toHaveClass('ds-link');
   });
 
   it('should open link in a new tab when openInNewTab is true', () => {
