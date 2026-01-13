@@ -6,11 +6,7 @@ type LinkProps = ComponentPropsWithRef<'a'> & {
   openInNewTab?: boolean;
 };
 
-export const Link = ({
-  className,
-  openInNewTab = false,
-  ...props
-}: LinkProps) => {
+export const Link = ({ className, openInNewTab = false, children, ...props }: LinkProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-link',
     className,
@@ -22,7 +18,8 @@ export const Link = ({
       target={openInNewTab ? '_blank' : undefined}
       rel={openInNewTab ? 'noopener noreferrer' : undefined}
       {...props}
-    />
+    >
+      {children}
+    </a>
   );
 };
-    
