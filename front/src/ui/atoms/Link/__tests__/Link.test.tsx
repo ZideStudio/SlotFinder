@@ -30,4 +30,21 @@ describe('Link', () => {
     const link = screen.getByRole('link', { name: 'Custom Class Link' });
     expect(link).toHaveClass('ds-link custom-class');
   });
+
+  it('should not have target and rel attributes when openInNewTab is false', () => {
+    render(<Link href="https://example.com">Same Tab Link</Link>);
+    const link = screen.getByRole('link', { name: 'Same Tab Link' });
+    expect(link).not.toHaveAttribute('target');
+    expect(link).not.toHaveAttribute('rel');
+  });
+
+  it('should render children correctly', () => {
+    render(
+      <Link href="https://example.com">
+        <span>Child Element</span>
+      </Link>,
+    );
+    const childElement = screen.getByText('Child Element');
+    expect(childElement).toBeInTheDocument();
+  });
 });
