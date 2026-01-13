@@ -10,6 +10,7 @@ import (
 type GithubUserNameInfo struct {
 	Id        int32  `json:"id"`
 	Name      string `json:"login"`
+	Email     string `json:"email"`
 	AvatarUrl string `json:"avatar_url"`
 }
 
@@ -60,5 +61,6 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 		Id:        fmt.Sprintf("%d", userNameInfo.Id),
 		Username:  userNameInfo.Name,
 		AvatarUrl: &userNameInfo.AvatarUrl,
+		Email:     &userNameInfo.Email,
 	}, nil
 }

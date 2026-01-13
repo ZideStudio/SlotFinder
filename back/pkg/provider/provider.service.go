@@ -8,6 +8,7 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/account"
+	"app/pkg/mail"
 	"app/pkg/signin"
 	"encoding/json"
 	"errors"
@@ -24,6 +25,7 @@ type ProviderService struct {
 	signinService              *signin.SigninService
 	accountService             *account.AccountService
 	avatarService              *account.AvatarService
+	mailService                *mail.MailService
 	config                     *config.Config
 }
 
@@ -38,12 +40,13 @@ func NewProviderService(service *ProviderService) *ProviderService {
 		signinService:              signin.NewSigninService(nil),
 		accountService:             account.NewAccountService(nil),
 		avatarService:              account.NewAvatarService(nil),
+		mailService:                mail.NewMailService(nil),
 		config:                     config.GetConfig(),
 	}
 }
 
 var (
-	PROVIDER_DISCORD_URL = "https://discord.com/oauth2/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=identify&state=%s"
+	PROVIDER_DISCORD_URL = "https://discord.com/oauth2/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=identify+email&state=%s"
 	PROVIDER_GOOGLE_URL  = "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=openid%%20email%%20profile&state=%s"
 	PROVIDER_GITHUB_URL  = "https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email&state=%s"
 )
@@ -96,6 +99,7 @@ func (s *ProviderService) GetProviderUrl(providerEntry, returnUrl string, user *
 type ProviderAccount struct {
 	Id        string
 	Username  string
+	Email     *string
 	AvatarUrl *string
 }
 
@@ -150,6 +154,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 
 	providerAccountResponse.Account = &repository.AccountCreateDto{
 		UserName: &providerUser.ProviderAccount.Username,
+		Email:    providerUser.ProviderAccount.Email,
 		Providers: []model.AccountProvider{
 			{
 				Provider: providerUser.Provider,
@@ -201,9 +206,21 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 	}
 
 	if providerAccountResponse.Account != nil { // New account
-		// Ensure username is provided
+		// Ensure username and email is provided
 		if providerAccountResponse.Account.UserName == nil || *providerAccountResponse.Account.UserName == "" {
 			return tokenResponse, errors.New("username should be provided by provider")
+		}
+		if providerAccountResponse.Account.Email == nil || *providerAccountResponse.Account.Email == "" {
+			return tokenResponse, errors.New("email should be provided by provider")
+		}
+
+		// Check if email already exists
+		var existingAccount model.Account
+		if err := s.accountRepository.FindOneByEmail(*providerAccountResponse.Account.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return tokenResponse, err
+		}
+		if existingAccount.Id != uuid.Nil {
+			return tokenResponse, constants.ERR_EMAIL_ALREADY_EXISTS.Err
 		}
 
 		// Check if username is available
@@ -248,6 +265,18 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		if err != nil {
 			_ = s.accountRepository.Delete(account.Id)
 			return tokenResponse, err
+		}
+
+		// Send welcome email
+		if providerAccountResponse.Account.Email != nil {
+			go s.mailService.SendMail(mail.EmailParams{
+				Template: constants.MAIL_TEMPLATE_WELCOME,
+				To:       *account.Email,
+				Subject:  "Welcome to SlotFinder!",
+				Params: map[string]string{
+					"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
+				},
+			})
 		}
 
 		return token, nil
