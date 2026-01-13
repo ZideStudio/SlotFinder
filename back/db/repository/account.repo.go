@@ -16,6 +16,7 @@ import (
 type AccountRepository struct{}
 
 type AccountCreateDto struct {
+	Id           uuid.UUID
 	UserName     *string
 	Email        *string
 	Color        string
@@ -28,7 +29,7 @@ type AccountCreateDto struct {
 
 func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) error {
 	*account = model.Account{
-		Id:           uuid.New(),
+		Id:           data.Id,
 		UserName:     data.UserName,
 		Email:        data.Email,
 		Color:        data.Color,
