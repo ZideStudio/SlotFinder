@@ -1,0 +1,14 @@
+.ds-link-atom {
+  color: var(--color-primary-50, #1a73e8);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-50, #1a73e8);
+    outline-offset: 2px;
+  }
+}

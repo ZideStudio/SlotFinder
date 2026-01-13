@@ -1,0 +1,120 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as LinkAtomStories from './LinkAtom.stories';
+
+<Meta of={LinkAtomStories} />
+
+# LinkAtom
+
+A reusable, accessible link atom for navigation and external resources.
+
+## Usage
+
+```tsx
+<LinkAtom href="https://react.dev">
+  React documentation
+</LinkAtom>
+
+<LinkAtom href="https://react.dev" openInNewTab>
+  React documentation (new tab)
+</LinkAtom>
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th> <th>Type</th> <th>Required</th> <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>href</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>URL or path the link points to</td>
+    </tr>
+    <tr>
+      <td>
+        <code>openInNewTab</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>No</td>
+      <td>
+        Opens the link in a new browser tab using <code>target="_blank"</code> and
+        <code>rel="noopener noreferrer"</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td> <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Content displayed inside the link</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>anchor props (HTMLAnchor)</code>
+      </td>
+      <td>No</td> <td> All standard anchor props (e.g. onClick, target, rel, aria-*) </td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibilty
+
+- Follows WCAG 2.2 AA and RGAA 4 guidelines.
+
+- Fully keyboard accessible.
+
+- Visible focus state when navigating with keyboard.
+
+- Uses secure defaults when opening links in a new tab.
+
+## Security
+
+- Automatically applies <code>rel="noopener noreferrer"</code> when <code>openInNewTab</code> is enabled.
+
+- Prevents tab-nabbing vulnerabilities.
+
+## Example
+
+```tsx
+<LinkAtom href="/home">
+  Internal navigation
+</LinkAtom>
+
+<LinkAtom href="https://external-site.com" openInNewTab>
+  External website
+</LinkAtom>
+
+```
+
+## Playground
+
+<Canvas of={LinkAtomStories.Default} sourceState="shown" /> <Controls of={LinkAtomStories.Default} />
