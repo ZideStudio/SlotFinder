@@ -10,6 +10,7 @@ import (
 type DiscordUserInfo struct {
 	Id       string `json:"id"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Avatar   string `json:"avatar"`
 }
 
@@ -62,5 +63,6 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 		Id:        userInfo.Id,
 		Username:  userInfo.Username,
 		AvatarUrl: &pictureUrl,
+		Email:     &userInfo.Email,
 	}, nil
 }
