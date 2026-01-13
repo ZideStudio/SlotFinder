@@ -1,0 +1,52 @@
+@use '../../../../assets/css/inputs' as *;
+
+.ds-select-input-atom {
+    --select-atom-color: var(--color-primary);
+    --select-atom-shadow-size: 1px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+  &__required {
+    color: #c00;
+    margin-left: 4px;
+  }
+
+  &__select {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-color);
+    background: #fff;
+    color: #111;
+    font-size: 1rem;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+      --select-atom-shadow-color: var(--color-primary-50);
+      --select-atom-shadow-size: 2px;
+    }
+  }
+
+  &:hover:not(:focus):not([aria-invalid='true']) {
+    --select-atom-shadow-color: var(--color-primary-light-50);
+    --select-atom-shadow-size: 2px;
+  }
+
+  &:not(:focus):not([aria-invalid='true']):not(:placeholder-shown) {
+    --select-atom-shadow-color: var(--color-primary-50);
+  }
+
+  &[aria-invalid='true'] {
+    --select-atom-shadow-color: var(--color-error);
+    --select-atom-shadow-size: 2px;
+
+    &:hover,
+    &:focus {
+      --select-atom-shadow-size: 3px;
+    }
+  }
+
+}
