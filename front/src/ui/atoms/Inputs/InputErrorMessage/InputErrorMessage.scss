@@ -1,4 +1,4 @@
-@use '../../../../utils/sass/mixins/px-to-rem';
+@use '../../../../utils/sass/mixins/helpers';
 @use '../../../../utils/sass/mixins/responsive';
 
 .ds-input-error-message {
@@ -6,21 +6,21 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--color-error);
-  font-size: px-to-rem.rem(14);
+  font-size: helpers.px-to-rem(14);
 
   @include responsive.media-exceeds-width('desktop-small') {
-    font-size: px-to-rem.rem(16);
+    font-size: helpers.px-to-rem(16);
   }
 
   &__icon {
-    width: px-to-rem.rem(16);
-    height: px-to-rem.rem(16);
+    width: helpers.px-to-rem(16);
+    height: helpers.px-to-rem(16);
     flex-shrink: 0;
     fill: var(--color-error);
 
     @include responsive.media-exceeds-width('desktop-small') {
-      width: px-to-rem.rem(20);
-      height: px-to-rem.rem(20);
+      width: helpers.px-to-rem(20);
+      height: helpers.px-to-rem(20);
     }
   }
 }
