@@ -1,0 +1,82 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as TagStories from './Tag.stories';
+
+<Meta of={TagStories} />
+
+# Tag
+
+A reusable, accessible tag atom for Ui elements.
+
+## Usage
+
+```tsx
+<Tag>Tag text</Tag>
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>variant</code>
+      </td>
+      <td>
+        <code>'success' | 'warning' | 'error'</code>
+      </td>
+      <td>No</td>
+      <td>The variant style between default(variant props = null) | success | warning | error</td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>Yes</td>
+      <td>Tag content (text or elements)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- The title display the children text.
+
+## Example
+
+```tsx
+<Tag>Tag text</Tag>
+```
+
+## Long text behavior
+
+When the content is too long, the tag will be truncated with an ellipsis and the full text will be available on hover via the `title` attribute.
+
+<Canvas of={TagStories.Ellipsis} />
+
+## Playground
+
+<Canvas of={TagStories.Default} />
+<Canvas of={TagStories.Success} />
+<Canvas of={TagStories.Warning} />
+<Canvas of={TagStories.Error} />

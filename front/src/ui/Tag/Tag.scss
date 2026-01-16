@@ -1,0 +1,58 @@
+.ds-tag {
+  display: inline-flex;
+  max-width: 150px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+
+  &__content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* =========================
+     VARIANTS (COULEURS)
+     ========================= */
+
+  &--default {
+    --tag-color: var(--color-primary);
+
+    color: white;
+  }
+
+  &--success {
+    --tag-color: var(--color-success);
+
+    color: white;
+  }
+
+  &--warning {
+    --tag-color: var(--color-warning);
+
+    color: black;
+  }
+
+  &--error {
+    --tag-color: var(--color-error);
+
+    color: white;
+  }
+
+  /* =========================
+     APPEARANCES
+     ========================= */
+
+  &--filled {
+    border-color: var(--tag-color);
+    background-color: var(--tag-color);
+  }
+
+  &--outlined {
+    border-color: var(--tag-color);
+    color: black;
+    background-color: transparent;
+  }
+}
