@@ -19,25 +19,21 @@
 
   &--default {
     --tag-color: var(--color-primary);
-
     color: white;
   }
 
-  &--success {
-    --tag-color: var(--color-success);
-
+  &--inDecision {
+    --tag-color: var(--color-blue);
     color: white;
   }
 
-  &--warning {
-    --tag-color: var(--color-warning);
-
+  &--comingSoon {
+    --tag-color: var(--color-primary-light);
     color: black;
   }
 
-  &--error {
-    --tag-color: var(--color-error);
-
+  &--finished {
+    --tag-color: var(--color-success);
     color: white;
   }
 
