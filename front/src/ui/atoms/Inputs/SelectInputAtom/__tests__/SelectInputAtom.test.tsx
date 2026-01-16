@@ -9,9 +9,7 @@ describe('SelectInputAtom', () => {
   ];
 
   it('renders select with placeholder and options', () => {
-    render(
-      <SelectInputAtom id="test" name="test" options={options} placeholder="Select..." />
-    );
+    render(<SelectInputAtom id="test" name="test" options={options} placeholder="Select..." />);
 
     const select = screen.getByRole('combobox');
     expect(select).toBeInTheDocument();
@@ -33,9 +31,7 @@ describe('SelectInputAtom', () => {
   });
 
   it('applies className via getClassName', () => {
-    render(
-      <SelectInputAtom id="test2" name="test2" options={options} className="custom" />
-    );
+    render(<SelectInputAtom id="test2" name="test2" options={options} className="custom" />);
 
     const wrapper = document.querySelector('.ds-select-input-atom.custom');
     expect(wrapper).toBeInTheDocument();
