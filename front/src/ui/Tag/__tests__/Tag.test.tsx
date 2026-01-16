@@ -23,63 +23,63 @@ describe('Tag', () => {
     expect(parentTag).toHaveClass('ds-tag--outlined');
   });
 
-  it('should render tag component with filled success style', () => {
-    render(<Tag variant="success">Text</Tag>);
+  it('should render tag component with filled in decision style', () => {
+    render(<Tag variant="inDecision">Text</Tag>);
     const tag = screen.getByText('Text').parentElement;
     expect(tag).toBeInTheDocument();
-    expect(tag).toHaveClass('ds-tag--success');
+    expect(tag).toHaveClass('ds-tag--inDecision');
     expect(tag).toHaveClass('ds-tag--filled');
   });
 
-  it('should render tag component with outlined success style', () => {
+  it('should render tag component with outlined in decision style', () => {
     render(
-      <Tag variant="success" appearance="outlined">
+      <Tag variant="inDecision" appearance="outlined">
         Text
       </Tag>,
     );
     const tag = screen.getByText('Text').parentElement;
     expect(tag).toBeInTheDocument();
-    expect(tag).toHaveClass('ds-tag--success');
+    expect(tag).toHaveClass('ds-tag--inDecision');
     expect(tag).toHaveClass('ds-tag--outlined');
   });
 
-  it('should render tag component with filled warning style', () => {
-    render(<Tag variant="warning">Text</Tag>);
+  it('should render tag component with filled coming soon style', () => {
+    render(<Tag variant="comingSoon">Text</Tag>);
     const tag = screen.getByText('Text').parentElement;
     expect(tag).toBeInTheDocument();
-    expect(tag).toHaveClass('ds-tag--warning');
+    expect(tag).toHaveClass('ds-tag--comingSoon');
     expect(tag).toHaveClass('ds-tag--filled');
   });
 
-  it('should render tag component with outlined warning style', () => {
+  it('should render tag component with outlined coming soon style', () => {
     render(
-      <Tag variant="warning" appearance="outlined">
+      <Tag variant="comingSoon" appearance="outlined">
         Text
       </Tag>,
     );
     const tag = screen.getByText('Text').parentElement;
     expect(tag).toBeInTheDocument();
-    expect(tag).toHaveClass('ds-tag--warning');
+    expect(tag).toHaveClass('ds-tag--comingSoon');
     expect(tag).toHaveClass('ds-tag--outlined');
   });
 
-  it('should render tag component with filled error style', () => {
-    render(<Tag variant="error">Text</Tag>);
+  it('should render tag component with filled finished style', () => {
+    render(<Tag variant="finished">Text</Tag>);
     const tag = screen.getByText('Text').parentElement;
     expect(tag).toBeInTheDocument();
-    expect(tag).toHaveClass('ds-tag--error');
+    expect(tag).toHaveClass('ds-tag--finished');
     expect(tag).toHaveClass('ds-tag--filled');
   });
 
-  it('should render tag component with outlined error style', () => {
+  it('should render tag component with outlined finished style', () => {
     render(
-      <Tag variant="error" appearance="outlined">
+      <Tag variant="finished" appearance="outlined">
         Text
       </Tag>,
     );
     const tag = screen.getByText('Text').parentElement;
     expect(tag).toBeInTheDocument();
-    expect(tag).toHaveClass('ds-tag--error');
+    expect(tag).toHaveClass('ds-tag--finished');
     expect(tag).toHaveClass('ds-tag--outlined');
   });
 });

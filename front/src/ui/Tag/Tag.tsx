@@ -2,7 +2,7 @@ import { getClassName } from '@Front/utils/getClassName';
 import './Tag.scss';
 import { type ReactNode } from 'react';
 
-export type TagVariant ='default' |'success' | 'warning' | 'error';
+export type TagVariant ='default' |'inDecision' | 'comingSoon' | 'finished';
 export type TagAppearance = 'filled' | 'outlined';
 
 export type TagProps = {

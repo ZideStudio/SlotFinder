@@ -24,34 +24,34 @@ export const Default: StoryObj<typeof meta> = {
   ),
 };
 
-export const Success: StoryObj<typeof meta> = {
+export const InDecision: StoryObj<typeof meta> = {
   render: () => (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Tag variant="success">Success filled</Tag>
-      <Tag variant="success" appearance="outlined">
-        Success outlined
+      <Tag variant="inDecision">In decision</Tag>
+      <Tag variant="inDecision" appearance="outlined">
+        In decision
       </Tag>
     </div>
   ),
 };
 
-export const Warning: StoryObj<typeof meta> = {
+export const ComingSoon: StoryObj<typeof meta> = {
   render: () => (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Tag variant="warning">Warning filled</Tag>
-      <Tag variant="warning" appearance="outlined">
-        Warning outlined
+      <Tag variant="comingSoon">Coming soon</Tag>
+      <Tag variant="comingSoon" appearance="outlined">
+        Coming soon
       </Tag>
     </div>
   ),
 };
 
-export const Error: StoryObj<typeof meta> = {
+export const Finished: StoryObj<typeof meta> = {
   render: () => (
     <div style={{ display: 'flex', gap: 12 }}>
-      <Tag variant="error">Error filled</Tag>
-      <Tag variant="error" appearance="outlined">
-        Error outlined
+      <Tag variant="finished">Finished</Tag>
+      <Tag variant="finished" appearance="outlined">
+        Finished
       </Tag>
     </div>
   ),

@@ -30,10 +30,10 @@ A reusable, accessible tag atom for Ui elements.
         <code>variant</code>
       </td>
       <td>
-        <code>'success' | 'warning' | 'error'</code>
+        <code>'inDecision' | 'comingSoon' | 'finished'</code>
       </td>
       <td>No</td>
-      <td>The variant style between default(variant props = null) | success | warning | error</td>
+      <td>The variant style between default(variant props = undefined) | inDecision | comingSoon | finished</td>
     </tr>
     <tr>
       <td>
@@ -77,6 +77,6 @@ When the content is too long, the tag will be truncated with an ellipsis and the
 ## Playground
 
 <Canvas of={TagStories.Default} />
-<Canvas of={TagStories.Success} />
-<Canvas of={TagStories.Warning} />
-<Canvas of={TagStories.Error} />
+<Canvas of={TagStories.InDecision} />
+<Canvas of={TagStories.ComingSoon} />
+<Canvas of={TagStories.Finished} />
