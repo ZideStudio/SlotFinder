@@ -1,23 +1,20 @@
 // Singleton for managing token refresh to prevent multiple simultaneous refresh calls
 class TokenRefreshManager {
-  private isRefreshing = false;
   private refreshPromise: Promise<void> | null = null;
 
   public async refreshToken(): Promise<void> {
     // If already refreshing, wait for that operation to complete
-    if (this.isRefreshing && this.refreshPromise) {
+    if (this.refreshPromise) {
       await this.refreshPromise;
       return;
     }
 
     // Start a new refresh operation
-    this.isRefreshing = true;
     this.refreshPromise = this.performRefresh();
 
     try {
       await this.refreshPromise;
     } finally {
-      this.isRefreshing = false;
       this.refreshPromise = null;
     }
   }
