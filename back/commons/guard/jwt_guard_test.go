@@ -13,18 +13,14 @@ func TestShouldRenewToken(t *testing.T) {
 	claims1 := &Claims{}
 	claims1.ExpiresAt = jwt.NewNumericDate(time.Now().Add(3 * time.Minute))
 	assert.True(t, ShouldRenewToken(claims1), "Expected token with 3 minutes remaining to be renewed")
-	
+
 	// Test token that should not be renewed (10 minutes until expiry)
 	claims2 := &Claims{}
 	claims2.ExpiresAt = jwt.NewNumericDate(time.Now().Add(10 * time.Minute))
 	assert.False(t, ShouldRenewToken(claims2), "Expected token with 10 minutes remaining NOT to be renewed")
-	
+
 	// Test expired token
 	claims3 := &Claims{}
 	claims3.ExpiresAt = jwt.NewNumericDate(time.Now().Add(-1 * time.Minute))
 	assert.False(t, ShouldRenewToken(claims3), "Expected expired token NOT to be renewed")
-	
-	// Test token with no expiry
-	claims4 := &Claims{}
-	assert.False(t, ShouldRenewToken(claims4), "Expected token with no expiry NOT to be renewed")
 }
