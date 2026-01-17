@@ -64,11 +64,7 @@ describe('TokenRefreshManager', () => {
     });
 
     it('should handle multiple simultaneous refresh requests without duplicate API calls', async () => {
-      mockFetch.mockImplementation(() =>
-        new Promise(resolve =>
-          setTimeout(() => resolve({ ok: true }), 100)
-        )
-      );
+      mockFetch.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ ok: true }), 100)));
 
       const refreshPromises = [
         tokenRefreshManager.refreshToken(),
