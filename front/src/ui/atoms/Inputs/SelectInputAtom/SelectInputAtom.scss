@@ -1,8 +1,8 @@
-@use '../../../../assets/css/inputs' as *;
-
 .ds-select-input-atom {
   --select-atom-color: var(--color-primary);
+  --select-atom-shadow-color: var(--select-atom-color);
   --select-atom-shadow-size: 1px;
+  --select-atom-border-color: transparent;
 
   display: flex;
   flex-direction: column;
@@ -15,12 +15,12 @@
 
   &__select {
     padding: 8px 10px;
-    border: none;
+    border: 1px solid var(--select-atom-border-color);
     border-radius: 4px;
     font-size: 1rem;
     color: #111;
     background: #fff;
-    box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-color);
+    box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-shadow-color);
     outline: none;
     transition:
       border-color 120ms ease,
@@ -31,6 +31,16 @@
       --select-atom-shadow-color: var(--color-primary-50);
       --select-atom-shadow-size: 2px;
     }
+
+    &[aria-invalid='true'] {
+      --select-atom-shadow-color: var(--color-error);
+      --select-atom-border-color: var(--color-error);
+
+      &:hover,
+      &:focus {
+        --select-atom-shadow-size: 2px;
+      }
+    }
   }
 
   &:hover:not(:focus):not([aria-invalid='true']) {
@@ -40,15 +50,5 @@
 
   &:not(:focus):not([aria-invalid='true']):not(:placeholder-shown) {
     --select-atom-shadow-color: var(--color-primary-50);
-  }
-
-  &[aria-invalid='true'] {
-    --select-atom-shadow-color: var(--color-error);
-    --select-atom-shadow-size: 2px;
-
-    &:hover,
-    &:focus {
-      --select-atom-shadow-size: 3px;
-    }
   }
 }

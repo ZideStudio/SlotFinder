@@ -22,8 +22,6 @@ const meta = {
     'aria-invalid': {
       control: { type: 'boolean' },
     },
-    options: { table: { disable: true } },
-    onChange: { action: true, table: { disable: true } },
   },
   decorators: [
     Story => (
