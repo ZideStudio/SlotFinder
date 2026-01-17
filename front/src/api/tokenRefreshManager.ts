@@ -29,7 +29,7 @@ class TokenRefreshManager {
 
     if (!response.ok) {
       // On refresh failure, redirect to home page
-      window.location.href = '/';
+      globalThis.location.reload();
       throw new Error('Token refresh failed');
     }
   }
