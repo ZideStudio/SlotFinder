@@ -44,8 +44,9 @@ export const fetchApi = async <
 
   let response = await makeRequest();
 
-  // Handle 498 status code (expired access token)
-  if (response.status === 498) {
+  // Handle 498 status code from api (expired access token)
+  const apiUrlFull = `${import.meta.env.FRONT_DOMAIN}${import.meta.env.FRONT_BACKEND_URL}`;
+  if (response.status === 498 && response.url.startsWith(apiUrlFull)) {
     await tokenRefreshManager.refreshToken();
     response = await makeRequest(); // Retry the original request
   }
