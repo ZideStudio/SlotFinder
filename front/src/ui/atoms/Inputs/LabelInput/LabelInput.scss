@@ -1,10 +1,15 @@
-@use '../../../../utils/sass/mixins/px-to-rem';
+@use '../../../../utils/sass/mixins/helpers';
+@use '../../../../utils/sass/mixins/responsive';
 
 .ds-label-input {
   display: flex;
-  column-gap: px-to-rem.rem(4);
-  font-size: px-to-rem.rem(18);
+  column-gap: helpers.px-to-rem(4);
+  font-size: helpers.px-to-rem(16);
   font-weight: 600;
+
+  @include responsive.media-exceeds-width('desktop-small') {
+    font-size: helpers.px-to-rem(18);
+  }
 
   span {
     font-weight: normal;

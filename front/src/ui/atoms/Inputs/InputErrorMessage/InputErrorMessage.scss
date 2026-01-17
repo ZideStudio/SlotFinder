@@ -1,13 +1,26 @@
+@use '../../../../utils/sass/mixins/helpers';
+@use '../../../../utils/sass/mixins/responsive';
+
 .ds-input-error-message {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: var(--color-error);
+  font-size: helpers.px-to-rem(14);
+
+  @include responsive.media-exceeds-width('desktop-small') {
+    font-size: helpers.px-to-rem(16);
+  }
 
   &__icon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: helpers.px-to-rem(16);
+    height: helpers.px-to-rem(16);
     flex-shrink: 0;
     fill: var(--color-error);
+
+    @include responsive.media-exceeds-width('desktop-small') {
+      width: helpers.px-to-rem(20);
+      height: helpers.px-to-rem(20);
+    }
   }
 }
