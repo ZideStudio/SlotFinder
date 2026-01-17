@@ -19,7 +19,11 @@ cd mon-projet
 2. Install dependencies.
 
 ```bash
+# Install project dependencies
 npm install
+
+# Install playwright to be able to launch Vitest Browser tests
+npx playwright install
 ```
 
 In the project directory, you can run the following commands:
