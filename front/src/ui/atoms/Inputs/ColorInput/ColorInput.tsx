@@ -1,4 +1,4 @@
-import { ComponentPropsWithRef, useEffect, useId, useState } from 'react';
+import { type ComponentPropsWithRef, useEffect, useId, useState } from 'react';
 import './ColorInput.scss';
 import { getClassName } from '@Front/utils/getClassName';
 import { getContrastTextColor } from '@Front/utils/getContrastTextColor';
