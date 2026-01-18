@@ -1,0 +1,7 @@
+@use '../../../../utils/sass/mixins/helpers';
+
+.ds-text-input {
+  display: flex;
+  flex-direction: column;
+  row-gap: helpers.px-to-rem(8);
+}
