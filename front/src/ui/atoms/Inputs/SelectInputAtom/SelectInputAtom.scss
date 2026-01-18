@@ -1,23 +1,31 @@
+@use '../../../../utils/sass/mixins/helpers';
+@use '../../../../utils/sass/mixins/responsive';
+
 .ds-select-input-atom {
   --select-atom-color: var(--color-primary);
   --select-atom-shadow-color: var(--select-atom-color);
-  --select-atom-shadow-size: 1px;
+  --select-atom-shadow-size: #{helpers.px-to-rem(1)};
   --select-atom-border-color: transparent;
 
   display: flex;
+  width: 100%;
   flex-direction: column;
-  gap: 6px;
+  gap: helpers.px-to-rem(6);
 
   &__required {
-    margin-left: 4px;
+    margin-left: helpers.px-to-rem(4);
     color: #c00;
   }
 
   &__select {
-    padding: 8px 10px;
-    border: 1px solid var(--select-atom-border-color);
-    border-radius: 4px;
+    width: 100%;
+    padding: helpers.px-to-rem(8) helpers.px-to-rem(10);
+    border: helpers.px-to-rem(1) solid var(--select-atom-border-color);
+    border-radius: helpers.px-to-rem(4);
+    overflow: hidden;
     font-size: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: #111;
     background: #fff;
     box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-shadow-color);
@@ -26,10 +34,31 @@
       border-color 120ms ease,
       box-shadow 120ms ease;
     cursor: pointer;
+    appearance: base-select;
+
+    &::picker(select) {
+      padding: helpers.px-to-rem(4);
+      border: helpers.px-to-rem(1) solid var(--color-primary-50);
+      border-radius: helpers.px-to-rem(4);
+      background-color: #fff;
+      appearance: base-select;
+    }
+
+    option {
+      display: block;
+      min-height: auto;
+      padding: helpers.px-to-rem(8);
+      white-space: normal;
+      overflow-wrap: break-word;
+
+      &:hover {
+        background-color: var(--color-primary-light-50);
+      }
+    }
 
     &:focus {
       --select-atom-shadow-color: var(--color-primary-50);
-      --select-atom-shadow-size: 2px;
+      --select-atom-shadow-size: #{helpers.px-to-rem(2)};
     }
 
     &[aria-invalid='true'] {
@@ -38,14 +67,18 @@
 
       &:hover,
       &:focus {
-        --select-atom-shadow-size: 2px;
+        --select-atom-shadow-size: #{helpers.px-to-rem(2)};
       }
+    }
+
+    @include responsive.media-less-than-width('tablet') {
+      font-size: helpers.px-to-rem(14);
     }
   }
 
   &:hover:not(:focus):not([aria-invalid='true']) {
     --select-atom-shadow-color: var(--color-primary-light-50);
-    --select-atom-shadow-size: 2px;
+    --select-atom-shadow-size: #{helpers.px-to-rem(2)};
   }
 
   &:not(:focus):not([aria-invalid='true']):not(:placeholder-shown) {
