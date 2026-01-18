@@ -7,73 +7,75 @@
   --select-atom-shadow-size: #{helpers.px-to-rem(1)};
   --select-atom-border-color: transparent;
 
-  display: flex;
   width: 100%;
-  flex-direction: column;
-  gap: helpers.px-to-rem(6);
+  padding: helpers.px-to-rem(8) helpers.px-to-rem(10);
+  border: helpers.px-to-rem(1) solid var(--select-atom-border-color);
+  border-radius: helpers.px-to-rem(4);
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+  box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-shadow-color);
+  outline: none;
+  transition:
+    border-color 400ms ease,
+    box-shadow 400ms ease;
+  cursor: pointer;
+  appearance: base-select;
 
-  &__required {
-    margin-left: helpers.px-to-rem(4);
-    color: #c00;
+  &::picker(select) {
+    max-width: helpers.px-to-rem(300);
+    padding: helpers.px-to-rem(4);
+    border: helpers.px-to-rem(1) solid var(--color-primary-50);
+    border-radius: helpers.px-to-rem(4);
+    overflow-x: hidden;
+    background-color: transparent;
+    appearance: base-select;
   }
 
-  &__select {
-    width: 100%;
-    padding: helpers.px-to-rem(8) helpers.px-to-rem(10);
-    border: helpers.px-to-rem(1) solid var(--select-atom-border-color);
-    border-radius: helpers.px-to-rem(4);
-    overflow: hidden;
-    font-size: 1rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #111;
-    background: #fff;
-    box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-shadow-color);
-    outline: none;
-    transition:
-      border-color 120ms ease,
-      box-shadow 120ms ease;
-    cursor: pointer;
-    appearance: base-select;
+  &::picker-icon {
+    width: helpers.px-to-rem(20);
+    height: helpers.px-to-rem(20);
+    color: var(--select-atom-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: '';
+  }
 
-    &::picker(select) {
-      padding: helpers.px-to-rem(4);
-      border: helpers.px-to-rem(1) solid var(--color-primary-50);
-      border-radius: helpers.px-to-rem(4);
-      background-color: #fff;
-      appearance: base-select;
+  &:open::picker-icon {
+    transform: rotate(180deg);
+    transition: transform 400ms ease;
+  }
+
+  option {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      background-color: var(--color-primary-light-50);
     }
+  }
 
-    option {
-      display: block;
-      min-height: auto;
-      padding: helpers.px-to-rem(8);
-      white-space: normal;
-      overflow-wrap: break-word;
+  &:focus {
+    --select-atom-shadow-color: var(--color-primary-50);
+    --select-atom-shadow-size: #{helpers.px-to-rem(2)};
+  }
 
-      &:hover {
-        background-color: var(--color-primary-light-50);
-      }
-    }
+  &[aria-invalid='true'] {
+    --select-atom-shadow-color: var(--color-error);
+    --select-atom-border-color: var(--color-error);
 
+    &:hover,
     &:focus {
-      --select-atom-shadow-color: var(--color-primary-50);
       --select-atom-shadow-size: #{helpers.px-to-rem(2)};
     }
+  }
 
-    &[aria-invalid='true'] {
-      --select-atom-shadow-color: var(--color-error);
-      --select-atom-border-color: var(--color-error);
-
-      &:hover,
-      &:focus {
-        --select-atom-shadow-size: #{helpers.px-to-rem(2)};
-      }
-    }
-
-    @include responsive.media-less-than-width('tablet') {
-      font-size: helpers.px-to-rem(14);
-    }
+  @include responsive.media-less-than-width('tablet') {
+    font-size: helpers.px-to-rem(14);
   }
 
   &:hover:not(:focus):not([aria-invalid='true']) {

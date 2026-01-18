@@ -16,7 +16,7 @@ describe('SelectInputAtom', () => {
     expect(select).toHaveAttribute('id', 'test');
     expect(select).toHaveAttribute('name', 'test');
 
-    const placeholder = screen.getByText('Select...');
+    const placeholder = screen.getByRole('option', { name: 'Select...' });
     expect(placeholder).toBeInTheDocument();
     expect(placeholder).toHaveAttribute('value', '');
     expect(placeholder).toBeDisabled();
@@ -24,16 +24,27 @@ describe('SelectInputAtom', () => {
 
     const renderedOptions = screen.getAllByRole('option');
     expect(renderedOptions).toHaveLength(options.length + 1);
+  });
 
-    const disabledOpt = screen.getByText('Two');
-    expect(disabledOpt).toBeInTheDocument();
-    expect(disabledOpt).toBeDisabled();
+  it('renders select with options', () => {
+    render(<SelectInputAtom id="test2" name="test2" options={options} />);
+
+    options.forEach(option => {
+      const optionElement = screen.getByRole('option', { name: option.label });
+      expect(optionElement).toBeInTheDocument();
+      expect(optionElement).toHaveAttribute('value', option.value);
+      if (option.disabled) {
+        expect(optionElement).toBeDisabled();
+      }
+    });
   });
 
   it('applies className via getClassName', () => {
     render(<SelectInputAtom id="test2" name="test2" options={options} className="custom" />);
 
-    const wrapper = document.querySelector('.ds-select-input-atom.custom');
+    const wrapper = screen.getByRole('combobox');
+    expect(wrapper).toHaveClass('ds-select-input-atom');
+    expect(wrapper).toHaveClass('custom');
     expect(wrapper).toBeInTheDocument();
   });
 });

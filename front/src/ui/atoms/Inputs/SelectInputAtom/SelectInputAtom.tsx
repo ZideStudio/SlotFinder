@@ -9,12 +9,10 @@ type Option = {
   disabled?: boolean;
 };
 
-type SelectInputAtomProps = Omit<ComponentPropsWithRef<'select'>, 'name'> & {
-  id: string;
+type SelectInputAtomProps = Omit<ComponentPropsWithRef<'select'>, 'name' | 'id' | 'className' | 'required'> & {
+  id?: string;
   name: string;
   options: Option[];
-  error?: string;
-  required?: boolean;
   className?: string;
   placeholder?: string;
 };
@@ -23,8 +21,6 @@ export const SelectInputAtom = ({
   id,
   name,
   options,
-  error,
-  required,
   className,
   placeholder,
   ...props
@@ -35,10 +31,9 @@ export const SelectInputAtom = ({
   });
 
   return (
-    <div className={parentClassName}>
-      <select id={id} name={name} className="ds-select-input-atom__select" {...props}>
+      <select id={id} name={name} className={parentClassName} defaultValue={placeholder ? '' : undefined} {...props}>
         {placeholder && (
-          <option value="" disabled selected>
+          <option value="" disabled>
             {placeholder}
           </option>
         )}
@@ -48,6 +43,5 @@ export const SelectInputAtom = ({
           </option>
         ))}
       </select>
-    </div>
   );
 };
