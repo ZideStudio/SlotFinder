@@ -3,7 +3,7 @@ import {
   postTokenRefresh200,
   postTokenRefresh400,
   postTokenRefreshNetworkError,
-  postTokenRefreshSlowResponse
+  postTokenRefreshSlowResponse,
 } from '@Mocks/handlers/tokenRefreshHandlers';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { tokenRefreshManager } from '../tokenRefreshManager';
