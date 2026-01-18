@@ -1,0 +1,17 @@
+{
+  "title": "Bienvenue sur SlotFinder !",
+  "greeting": "Bonjour,",
+  "welcomeMessage": "Bienvenue sur SlotFinder ! Merci de rejoindre notre communauté. Nous sommes ravis de vous accueillir, vous et vos amis.",
+  "whatsNext": "Et maintenant ?",
+  "steps": {
+    "createEvent": "Commencez par créer votre premier événement",
+    "inviteParticipants": "Invitez les participants à partager leurs disponibilités",
+    "chooseTimeSlot": "Choisissez le créneau parfait pour tout le monde"
+  },
+  "getStartedMessage": "Prêt à commencer ? Cliquez sur le bouton ci-dessous pour accéder à votre tableau de bord et créer votre premier événement.",
+  "buttonText": "Commencer",
+  "footerGreeting": "Merci encore de nous avoir rejoint !",
+  "footerSignature": "L'équipe SlotFinder",
+  "footerNote": "Vous recevez cet email car vous avez créé un compte sur SlotFinder.",
+  "footerUnsubscribe": "Si vous ne souhaitez plus recevoir ces emails, vous pouvez vous désabonner à tout moment."
+}

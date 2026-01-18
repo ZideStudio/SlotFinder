@@ -5,8 +5,10 @@ import (
 	"app/config"
 	"bytes"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"maps"
 	"net/smtp"
 	"strings"
 	"time"
@@ -18,9 +20,13 @@ import (
 //go:embed templates/*.html
 var templateFS embed.FS
 
+//go:embed locales/*/*.json
+var localeFS embed.FS
+
 type MailService struct {
-	Config    config.Config
-	templates map[constants.MailTemplate]*template.Template
+	Config       config.Config
+	templates    map[constants.MailTemplate]*template.Template
+	translations map[string]map[constants.MailTemplate]map[string]any
 }
 
 func NewMailService(service *MailService) *MailService {
@@ -29,13 +35,19 @@ func NewMailService(service *MailService) *MailService {
 	}
 
 	mailService := &MailService{
-		Config:    *config.GetConfig(),
-		templates: make(map[constants.MailTemplate]*template.Template),
+		Config:       *config.GetConfig(),
+		templates:    make(map[constants.MailTemplate]*template.Template),
+		translations: make(map[string]map[constants.MailTemplate]map[string]interface{}),
 	}
 
 	// Load all email templates
 	if err := mailService.loadTemplates(); err != nil {
 		log.Error().Err(err).Msg("MAIL_SERVICE::NEW Failed to load email templates")
+	}
+
+	// Load all translations
+	if err := mailService.loadTranslations(); err != nil {
+		log.Error().Err(err).Msg("MAIL_SERVICE::NEW Failed to load translations")
 	}
 
 	return mailService
@@ -46,6 +58,7 @@ type EmailParams struct {
 	To       string
 	Subject  string
 	Params   map[string]string
+	Language constants.AccountLanguage
 }
 
 // loadTemplates loads all HTML templates from the templates directory
@@ -82,15 +95,109 @@ func (s *MailService) loadTemplates() error {
 	return nil
 }
 
-// renderTemplate renders the email template with the provided parameters
-func (s *MailService) renderTemplate(templateName constants.MailTemplate, params map[string]string) (string, error) {
+// loadTranslations loads all translation files from the locales directory
+func (s *MailService) loadTranslations() error {
+	// Read language directories
+	languageDirs, err := localeFS.ReadDir("locales")
+	if err != nil {
+		log.Error().Err(err).Msg("MAIL_SERVICE::LOAD_TRANSLATIONS Failed to read locales directory")
+		return fmt.Errorf("failed to read locales directory: %w", err)
+	}
+
+	for _, langDir := range languageDirs {
+		if !langDir.IsDir() {
+			continue
+		}
+
+		language := langDir.Name()
+		languagePath := "locales/" + language
+
+		// Read translation files in this language directory
+		translationFiles, err := localeFS.ReadDir(languagePath)
+		if err != nil {
+			log.Error().Err(err).Str("language", language).Msg("MAIL_SERVICE::LOAD_TRANSLATIONS Failed to read language directory")
+			continue
+		}
+
+		for _, file := range translationFiles {
+			if !strings.HasSuffix(file.Name(), ".json") {
+				continue
+			}
+
+			templateName := strings.TrimSuffix(file.Name(), ".json")
+			translationPath := languagePath + "/" + file.Name()
+
+			translationContent, err := localeFS.ReadFile(translationPath)
+			if err != nil {
+				log.Error().Err(err).Str("file", translationPath).Msg("MAIL_SERVICE::LOAD_TRANSLATIONS Failed to read translation file")
+				continue
+			}
+
+			var translations map[string]any
+			if err := json.Unmarshal(translationContent, &translations); err != nil {
+				log.Error().Err(err).Str("file", translationPath).Msg("MAIL_SERVICE::LOAD_TRANSLATIONS Failed to parse translation file")
+				continue
+			}
+
+			// Initialize nested maps if they don't exist
+			if s.translations[language] == nil {
+				s.translations[language] = make(map[constants.MailTemplate]map[string]any)
+			}
+
+			s.translations[language][constants.MailTemplate(templateName)] = translations
+		}
+	}
+
+	return nil
+}
+
+// getTranslations returns translations for a specific template and language
+func (s *MailService) getTranslations(templateName constants.MailTemplate, language constants.AccountLanguage) map[string]any {
+	if langTranslations, exists := s.translations[string(language)]; exists {
+		if templateTranslations, exists := langTranslations[templateName]; exists {
+			return templateTranslations
+		}
+	}
+
+	// Fallback to English if translation not found
+	if langTranslations, exists := s.translations[string(constants.ACCOUNT_LANGUAGE_EN)]; exists {
+		if templateTranslations, exists := langTranslations[templateName]; exists {
+			log.Warn().
+				Str("template", string(templateName)).
+				Str("requested_language", string(language)).
+				Msg("MAIL_SERVICE::GET_TRANSLATIONS Translation not found, falling back to English")
+			return templateTranslations
+		}
+	}
+
+	log.Error().
+		Str("template", string(templateName)).
+		Str("language", string(language)).
+		Msg("MAIL_SERVICE::GET_TRANSLATIONS No translations found")
+	return make(map[string]any)
+}
+
+// renderTemplate renders the email template with the provided parameters and translations
+func (s *MailService) renderTemplate(templateName constants.MailTemplate, params map[string]string, language constants.AccountLanguage) (string, error) {
 	tmpl, exists := s.templates[templateName]
 	if !exists {
 		return "", fmt.Errorf("template '%s' not found", templateName)
 	}
 
+	// Get translations for the template and language
+	translations := s.getTranslations(templateName, language)
+
+	// Add translations
+	templateData := make(map[string]any)
+	maps.Copy(templateData, translations)
+
+	// Add custom params (override case)
+	for key, value := range params {
+		templateData[key] = value
+	}
+
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, params); err != nil {
+	if err := tmpl.Execute(&buf, templateData); err != nil {
 		return "", fmt.Errorf("failed to execute template '%s': %w", templateName, err)
 	}
 
@@ -141,19 +248,25 @@ func (s *MailService) SendMail(params EmailParams) error {
 		return fmt.Errorf("email subject is required")
 	}
 
+	// Set default language if not provided
+	if params.Language == "" {
+		params.Language = constants.ACCOUNT_LANGUAGE_EN
+	}
+
 	// Ensure params map is not nil
 	if params.Params == nil {
 		params.Params = make(map[string]string)
 	}
 	params.Params["Origin"] = s.Config.Origin
 
-	// Render the email template
-	htmlBody, err := s.renderTemplate(params.Template, params.Params)
+	// Render the email template with translations
+	htmlBody, err := s.renderTemplate(params.Template, params.Params, params.Language)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("template", string(params.Template)).
 			Str("to", params.To).
+			Str("language", string(params.Language)).
 			Msg("MAIL_SERVICE::SEND_MAIL Failed to render email template")
 		return fmt.Errorf("failed to render email template: %w", err)
 	}
@@ -184,6 +297,7 @@ func (s *MailService) SendMail(params EmailParams) error {
 			Str("template", string(params.Template)).
 			Str("to", params.To).
 			Str("subject", params.Subject).
+			Str("language", string(params.Language)).
 			Msg("MAIL_SERVICE::SEND_MAIL Failed to send email")
 		return fmt.Errorf("failed to send email: %w", err)
 	}
