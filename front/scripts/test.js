@@ -3,7 +3,11 @@ import concurrently from 'concurrently';
 
 const args = process.argv.slice(2);
 
-let commands = ['npm:test:unit'];
+let commands = [
+  'npm:test:unit',
+  // TODO: Enable e2e tests when one test is implemented
+  // 'npm:test:browser'
+];
 
 if (args.includes('--coverage')) {
   commands = commands.map(command => `${command} -- --coverage`);

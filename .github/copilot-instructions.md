@@ -18,13 +18,15 @@ It is **EXTREMELY important that you follow the instructions in the rule files v
 
 **IMPORTANT:** Always follow these steps when implementing new features or making changes:
 
-1. **Instruction Selection**: Consult any relevant instruction files listed in `.github/instructions/` and start by listing which rule files have been used to guide the implementation (e.g., `Instructions used: [a11y.instructions.md, vitest.instructions.md]`).
+1. **Instruction Selection**: Consult any relevant instruction files listed in `.github/instructions/` and start by listing which rule files have been used to guide the implementation (e.g., `Instructions used: [a11y.instructions.md, vitest.instructions.md, vitest-browser.instructions.md]`).
 
 2. **Prompt Execution**: If the user requests execution of a specific prompt from `.github/prompts/`, read the prompt file and execute EXCLUSIVELY what it contains. Start by indicating which prompt is being used (e.g., `Prompt used: [open_pull_request.prompt.md]`).
 
 3. **Error Resolution**: Fix any compiler warnings and errors after each file modification using the `get_errors` tool.
 
-4. **Test Execution**: Always run tests via the command `npm run test` to ensure code quality and functionality.
+4. **Test Execution**: 
+   - For unit tests: Run via the command `npm run test` to ensure code quality and functionality.
+   - For browser tests: Run `npm run test:browser` to verify visual regression tests pass.
 
 5. **Code Quality**: Ensure all changes follow the established coding standards and accessibility guidelines.
 
