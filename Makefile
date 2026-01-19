@@ -5,6 +5,8 @@ all: start
 
 # Start development environment
 start:
+	@echo "Installing front-end dependencies..."
+	@cd front && npm install > /dev/null 2>&1 || { echo "npm install failed"; exit 1; }
 	docker compose -f docker-compose.dev.yml up -d
 	@echo "\n🚀 Development environment started!"
 	@echo "📱 Front: https://localhost"
@@ -16,6 +18,8 @@ start:
 
 # Build and start development environment
 build-start:
+	@echo "Installing front-end dependencies..."
+	@cd front && npm install > /dev/null 2>&1 || { echo "npm install failed"; exit 1; }
 	docker compose -f docker-compose.dev.yml up -d --build
 	@echo "\n🚀 Development environment built and started!"
 	@echo "📱 Front: https://localhost"
