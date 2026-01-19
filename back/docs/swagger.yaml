@@ -310,6 +310,8 @@ definitions:
     properties:
       access_token:
         type: string
+      refresh_token:
+        type: string
     type: object
   slot.ConfirmSlotDto:
     properties:
@@ -521,6 +523,23 @@ paths:
       security:
       - AccessTokenCookie: []
       summary: Logout
+      tags:
+      - Authentication
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Refresh access token
       tags:
       - Authentication
   /api/v1/auth/signin:
