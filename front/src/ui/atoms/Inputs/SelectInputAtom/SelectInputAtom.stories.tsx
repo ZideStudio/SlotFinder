@@ -22,7 +22,7 @@ const meta = {
     'aria-invalid': {
       control: { type: 'boolean' },
     },
-    onChange: { action: true, table: { disable: true }},
+    onChange: { action: true, table: { disable: true } },
   },
   decorators: [
     Story => (

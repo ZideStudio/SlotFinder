@@ -38,7 +38,7 @@ describe('SelectInputAtom', () => {
 
   it('renders select with disabled option', () => {
     render(<SelectInputAtom id="test3" name="test3" options={options} />);
-    
+
     const disabledOption = screen.getByRole('option', { name: 'Two' });
     expect(disabledOption).toBeDisabled();
   });
