@@ -1,28 +1,24 @@
-import { server } from '@Mocks/server';
 import {
   postTokenRefresh200,
   postTokenRefresh400,
   postTokenRefreshNetworkError,
   postTokenRefreshSlowResponse,
 } from '@Mocks/handlers/tokenRefreshHandlers';
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { server } from '@Mocks/server';
+import { describe, expect, it, vi } from 'vitest';
 import { tokenRefreshManager } from '../tokenRefreshManager';
 
-const mockLocationReload = vi.fn();
-
 describe('TokenRefreshManager', () => {
-  beforeEach(() => {
-    Object.defineProperty(globalThis, 'location', {
-      value: {
-        reload: mockLocationReload,
-      },
-      writable: true,
-    });
-  });
+  const mockLocationReload = vi.fn();
+
+  const originalLocation = globalThis.location;
+  vi.spyOn(globalThis, 'location', 'get').mockImplementation(() => ({
+    ...originalLocation,
+    reload: mockLocationReload,
+  }));
 
   afterEach(() => {
-    vi.resetAllMocks();
-    server.resetHandlers();
+    vi.clearAllMocks();
   });
 
   describe('refreshToken', () => {
