@@ -12,10 +12,10 @@
   border: helpers.px-to-rem(1) solid var(--select-atom-border-color);
   border-radius: helpers.px-to-rem(4);
   overflow: hidden;
-  font-size: 1rem;
+  font-size: helpers.px-to-rem(14);
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: transparent;
+  background: var(--color-grey-100);
   box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-shadow-color);
   outline: none;
   transition:
@@ -30,7 +30,7 @@
     border: helpers.px-to-rem(1) solid var(--color-primary-50);
     border-radius: helpers.px-to-rem(4);
     overflow-x: hidden;
-    background-color: transparent;
+    background-color: var(--color-white);
     appearance: base-select;
   }
 
@@ -74,8 +74,8 @@
     }
   }
 
-  @include responsive.media-less-than-width('tablet') {
-    font-size: helpers.px-to-rem(14);
+  @include responsive.media-exceeds-width('desktop-small') {
+    font-size: helpers.px-to-rem(16);
   }
 
   &:hover:not(:focus):not([aria-invalid='true']) {

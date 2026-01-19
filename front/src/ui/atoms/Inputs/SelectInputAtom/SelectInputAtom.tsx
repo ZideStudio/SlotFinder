@@ -1,5 +1,5 @@
 import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef, OptionHTMLAttributes } from 'react';
 
 import './SelectInputAtom.scss';
 
@@ -7,10 +7,9 @@ type Option = {
   label: string;
   value: string | number;
   disabled?: boolean;
-};
+} & OptionHTMLAttributes<HTMLOptionElement>;
 
-type SelectInputAtomProps = Omit<ComponentPropsWithRef<'select'>, 'name' | 'id' | 'className' | 'required'> & {
-  id?: string;
+type SelectInputAtomProps = Omit<ComponentPropsWithRef<'select'>, 'name' | 'className'> & {
   name: string;
   options: Option[];
   className?: string;
@@ -18,7 +17,6 @@ type SelectInputAtomProps = Omit<ComponentPropsWithRef<'select'>, 'name' | 'id' 
 };
 
 export const SelectInputAtom = ({
-  id,
   name,
   options,
   className,
@@ -31,7 +29,7 @@ export const SelectInputAtom = ({
   });
 
   return (
-      <select id={id} name={name} className={parentClassName} defaultValue={placeholder ? '' : undefined} {...props}>
+      <select name={name} className={parentClassName} defaultValue={placeholder ? '' : undefined} {...props}>
         {placeholder && (
           <option value="" disabled>
             {placeholder}

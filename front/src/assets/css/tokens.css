@@ -14,6 +14,8 @@
   --color-accent-dark: hsl(330deg 80% 30%); /* Dark Raspberry */
   --color-accent-soft: hsl(330deg 80% 96%); /* Soft Pink Background */
 
+  --color-white: hsl(0deg 0% 100%); /* Pure White */
+
   --color-grey-100: hsl(280deg 25% 98%); /* Very Light Grey */
   --color-grey-200: hsl(270deg 20% 92%); /* Light Grey */
   --color-grey-300: hsl(270deg 15% 85%); /* Medium Grey */

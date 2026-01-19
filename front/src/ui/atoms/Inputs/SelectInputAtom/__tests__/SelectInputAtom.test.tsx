@@ -33,10 +33,14 @@ describe('SelectInputAtom', () => {
       const optionElement = screen.getByRole('option', { name: option.label });
       expect(optionElement).toBeInTheDocument();
       expect(optionElement).toHaveAttribute('value', option.value);
-      if (option.disabled) {
-        expect(optionElement).toBeDisabled();
-      }
     });
+  });
+
+  it('renders select with disabled option', () => {
+    render(<SelectInputAtom id="test3" name="test3" options={options} />);
+    
+    const disabledOption = screen.getByRole('option', { name: 'Two' });
+    expect(disabledOption).toBeDisabled();
   });
 
   it('applies className via getClassName', () => {
