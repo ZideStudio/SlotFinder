@@ -35,9 +35,9 @@ export const SelectInputAtom = ({
             {placeholder}
           </option>
         )}
-        {options.map(opt => (
-          <option key={String(opt.value)} value={opt.value} disabled={opt.disabled}>
-            {opt.label}
+        {options.map(option => (
+          <option key={String(option.value)} {...option} >
+            {option.label}
           </option>
         ))}
       </select>
