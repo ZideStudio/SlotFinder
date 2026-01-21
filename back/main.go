@@ -40,7 +40,7 @@ func main() {
 	config := config.Init()
 	db.Init()
 
-	log.Info().Msg(fmt.Sprintf("Server started on %s:%s", config.Host, config.Port))
+	log.Info().Msg(fmt.Sprintf("Server startedddd on %s:%s", config.Host, config.Port))
 
 	server.Init()
 }
