@@ -1,3 +1,4 @@
+import { test } from '@Front/ui/utils/test';
 import { getClassName } from '@Front/utils/getClassName';
 import type { ComponentPropsWithRef } from 'react';
 import './Link.scss';
@@ -11,6 +12,8 @@ export const Link = ({ className, openInNewTab = false, children, ...props }: Li
     defaultClassName: 'ds-link',
     className,
   });
+
+  test();
 
   return (
     <a
