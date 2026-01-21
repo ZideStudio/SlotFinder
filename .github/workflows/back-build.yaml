@@ -12,6 +12,7 @@ on:
       - ".github/actions/setup-go/**"
       - "Makefile"
   workflow_dispatch:
+  merge_group:
 
 env:
   HUSKY: 0

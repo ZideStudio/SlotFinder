@@ -12,6 +12,7 @@ on:
       - '.github/actions/setup-node/**'
       - 'Makefile'
   workflow_dispatch:
+  merge_group:
 
 env:
   FRONT_FOLDER: ./front
