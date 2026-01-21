@@ -3,6 +3,7 @@ name: PR Title Check
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+  merge_group:
 
 jobs:
   check-pr-title:
@@ -11,7 +12,12 @@ jobs:
     permissions:
       pull-requests: read
     steps:
+      - name: Skip validation for merge group
+        if: github.event_name == 'merge_group'
+        run: echo "Skipping PR title validation for merge group"
+
       - name: Validate PR title follows Conventional Commits
+        if: github.event_name != 'merge_group'
         uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
