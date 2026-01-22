@@ -35,10 +35,8 @@ export const SelectInputAtom = ({
             {placeholder}
           </option>
         )}
-        {options.map(option => (
-          <option key={String(option.value)} {...option} >
-            {option.label}
-          </option>
+        {options.map((option) => (
+          <option key={String(option?.value)} label={option.label} value={option.value} disabled={option.disabled} />
         ))}
       </select>
   );
