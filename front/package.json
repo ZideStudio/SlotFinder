@@ -49,7 +49,7 @@
     "@rsbuild/core": "^1.7.2",
     "@rsbuild/plugin-react": "^1.4.3",
     "@rsbuild/plugin-sass": "^1.4.1",
-    "@rsbuild/plugin-svgr": "^1.2.3",
+    "@rsbuild/plugin-svgr": "^1.2.4",
     "@storybook/addon-a11y": "^10.1.11",
     "@storybook/addon-docs": "^10.1.11",
     "@storybook/addon-onboarding": "^10.1.11",
