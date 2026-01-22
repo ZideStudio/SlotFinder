@@ -1,0 +1,99 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as SelectInputAtomStories from './SelectInputAtom.stories';
+
+<Meta of={SelectInputAtomStories} />
+
+# SelectInputAtom
+
+A reusable, accessible select input atom.
+
+## Usage
+
+```tsx
+<SelectInputAtom
+  id="my-select"
+  name="my-select"
+  placeholder="Choose one"
+  options={[
+    { label: 'Option A', value: 'A' },
+    { label: 'Option B', value: 'B' },
+  ]}
+/>
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>id</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Yes</td>
+      <td>ID of the input element</td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input name attribute for form identification</td>
+    </tr>
+    <tr>
+      <td>
+        <code>options</code>
+      </td>
+      <td>
+        <code>Array&lt;&#123; label: string; value: string | number; &#125;&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Options to select with a label and a value</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>No</td>
+      <td>All standard input props (e.g. value, onChange, placeholder)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Renders a label associated with the select via htmlFor.
+- Sets aria-invalid when error is present.
+
+<Canvas of={SelectInputAtomStories.Default} sourceState="shown" />
+<Controls of={SelectInputAtomStories.Default} />
