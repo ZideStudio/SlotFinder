@@ -16,28 +16,24 @@ type SelectInputAtomProps = Omit<ComponentPropsWithRef<'select'>, 'name' | 'clas
   placeholder?: string;
 };
 
-export const SelectInputAtom = ({
-  name,
-  options,
-  className,
-  placeholder,
-  ...props
-}: SelectInputAtomProps) => {
+export const SelectInputAtom = ({ name, options, className, placeholder, ...props }: SelectInputAtomProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-select-input-atom',
     className,
   });
 
   return (
-      <select name={name} className={parentClassName} defaultValue={placeholder ? '' : undefined} {...props}>
-        {placeholder && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((option) => (
-          <option key={String(option?.value)} label={option.label} value={option.value} disabled={option.disabled} />
-        ))}
-      </select>
+    <select name={name} className={parentClassName} defaultValue={placeholder ? '' : undefined} {...props}>
+      {placeholder && (
+        <option value="" disabled>
+          {placeholder}
+        </option>
+      )}
+      {options.map(({ label, value, ...optionProps }) => (
+        <option key={String(value)} value={value} {...optionProps}>
+          {label}
+        </option>
+      ))}
+    </select>
   );
 };
