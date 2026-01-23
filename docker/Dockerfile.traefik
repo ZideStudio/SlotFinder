@@ -1,4 +1,4 @@
-FROM traefik:v3.6.6
+FROM traefik:v3.6.7
 
 # Install openssl for certificate generation
 RUN apk add --no-cache openssl
