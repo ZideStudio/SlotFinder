@@ -12,14 +12,14 @@
   gap: helpers.px-to-rem(8);
   font-weight: 600;
   transition:
-  border-color 0.1s ease,
-  filter 0.1s ease;
+    border-color 0.1s ease,
+    filter 0.1s ease;
   cursor: pointer;
 
   &:hover {
+    border-width: helpers.px-to-rem(2);
     border-color: var(--color-black);
     filter: brightness(0.95);
-    border-width: helpers.px-to-rem(2);
   }
 
   &:focus-within {
@@ -56,8 +56,8 @@
     position: absolute;
     width: 0;
     height: 0;
+    overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    overflow: hidden;
   }
 }
