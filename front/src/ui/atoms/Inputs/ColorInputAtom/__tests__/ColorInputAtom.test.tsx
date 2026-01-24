@@ -25,4 +25,36 @@ describe('ColorInput', () => {
     expect(screen.getByText('#00ff00')).toBeInTheDocument();
     expect(input).toHaveValue('#00ff00');
   });
+
+  it('applies extra props to the input', () => {
+    render(<ColorInputAtom name="color" disabled />);
+
+    const input = screen.getByLabelText('#FF0000');
+
+    expect(input).toBeDisabled();
+  });
+
+  it('forwards required prop to the input', () => {
+    render(<ColorInputAtom name="color" />);
+
+    const input = screen.getByLabelText('#FF0000');
+
+    expect(input).toHaveProperty('required');
+  });
+
+  it('forwards data attributes to the input', () => {
+    render(<ColorInputAtom name="color" data-testid="color-input" />);
+
+    const input = screen.getByTestId('color-input');
+
+    expect(input).toBeInTheDocument();
+  });
+
+  it('forwards aria attributes to the input', () => {
+    render(<ColorInputAtom name="color" aria-label="color picker" />);
+
+    const input = screen.getByLabelText('color picker');
+
+    expect(input).toBeInTheDocument();
+  });
 });
