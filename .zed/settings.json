@@ -1,0 +1,60 @@
+{
+    "lsp": {
+        "gopls": {
+            "binary": {
+                "path": "/go/bin/gopls"
+            },
+            "settings": {
+                "gopls": {
+                    "buildFlags": [],
+                    "env": {
+                        "GOPATH": "/go",
+                        "GOROOT": "/usr/local/go"
+                    },
+                    "directoryFilters": [
+                        "-node_modules",
+                        "-front/node_modules"
+                    ],
+                    "formatting.gofumpt": true,
+                    "ui.completion.usePlaceholders": true,
+                    "ui.diagnostic.analyses": {
+                        "fieldalignment": false,
+                        "shadow": true,
+                        "unusedparams": true,
+                        "unusedwrite": true
+                    },
+                    "ui.navigation.importShortcut": "Both",
+                    "ui.semanticTokens": true
+                }
+            }
+        }
+    },
+    "languages": {
+        "Go": {
+            "format_on_save": "on",
+            "formatter": "language_server"
+        },
+        "TypeScript": {
+            "formatter": {
+                "external": {
+                    "command": "/workspace/front/node_modules/.bin/prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--config",
+                        "front/.prettierrc",
+                        "--plugin-search-dir=/workspace/front"
+                    ]
+                }
+            }
+        },
+        "TSX": {
+            "formatter": "prettier",
+            "format_on_save": "on"
+        },
+        "JavaScript": {
+            "formatter": "prettier",
+            "format_on_save": "on"
+        }
+    }
+}
