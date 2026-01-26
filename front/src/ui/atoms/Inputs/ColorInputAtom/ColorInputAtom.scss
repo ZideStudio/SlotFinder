@@ -4,7 +4,7 @@
 .ds-color-input {
   display: flex;
   width: 100%;
-  max-width: helpers.px-to-rem(120);
+  max-width: helpers.px-to-rem(300);
   padding: helpers.px-to-rem(6) helpers.px-to-rem(12);
   border: 1px solid var(--color-grey-900);
   border-radius: helpers.px-to-rem(10);
@@ -12,13 +12,11 @@
   gap: helpers.px-to-rem(8);
   font-weight: 600;
   transition:
-    border-color 0.1s ease,
-    filter 0.1s ease;
+    border-color 0.3s ease,
+    filter 0.3s ease;
   cursor: pointer;
 
   &:hover {
-    border-width: helpers.px-to-rem(2);
-    border-color: var(--color-black);
     filter: brightness(0.95);
   }
 

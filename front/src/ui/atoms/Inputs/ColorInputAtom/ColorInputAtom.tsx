@@ -7,12 +7,13 @@ import './ColorInputAtom.scss';
 
 type ColorInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name' | 'type'> & {
   name: string;
+  description: string;
 };
 
-export const ColorInputAtom = ({ id, className, onChange, ...props }: ColorInputAtomProps) => {
+export const ColorInputAtom = ({ id, className, description, onChange, ...props }: ColorInputAtomProps) => {
   const generatedId = useId();
   const inputId = id || generatedId;
-  const [value, setValue] = useState('#FF0000');
+  const [value, setValue] = useState('#FFFFFF');
   const contentColor = getContrastTextColor(value);
 
   const parentClassName = getClassName({
@@ -23,7 +24,7 @@ export const ColorInputAtom = ({ id, className, onChange, ...props }: ColorInput
   return (
     <label htmlFor={inputId} className={parentClassName} style={{ backgroundColor: value, color: contentColor }}>
       <PaletteIcon className="ds-color-input__icon" style={{ fill: contentColor }} aria-hidden="true" />
-      <span className="ds-color-input__value">{value}</span>
+      <span className="ds-color-input__value">{description}</span>
 
       <input
         id={inputId}
@@ -31,9 +32,9 @@ export const ColorInputAtom = ({ id, className, onChange, ...props }: ColorInput
         value={value}
         className="ds-color-input__input"
         {...props}
-        onChange={e => {
-          setValue(e.target.value);
-          onChange?.(e);
+        onChange={event => {
+          setValue(event.target.value);
+          onChange?.(event);
         }}
       />
     </label>

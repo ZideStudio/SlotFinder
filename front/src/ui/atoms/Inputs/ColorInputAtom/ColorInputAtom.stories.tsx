@@ -11,12 +11,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { name: 'colorInput' },
+  args: { name: 'colorInput', description: 'Choisir une couleur' },
 };
 
 export const Error: Story = {
   args: {
     name: 'ErrorColorInput',
     'aria-invalid': 'true',
+    description: 'Erreur de couleur',
   },
 };
