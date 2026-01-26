@@ -17,7 +17,7 @@ export default meta;
 
 export const Filled: StoryObj<typeof meta> = {
   args: {
-    color: '#007bff',
+    color: '#e3b0b0',
     appearance: 'filled',
     children: 'Filled Tag',
   },
