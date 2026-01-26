@@ -27,13 +27,13 @@ A reusable, accessible tag atom for Ui elements.
   <tbody>
     <tr>
       <td>
-        <code>variant</code>
+        <code>color</code>
       </td>
       <td>
-        <code>'inDecision' | 'comingSoon' | 'finished'</code>
+        <code>string</code>
       </td>
-      <td>No</td>
-      <td>The variant style between default(variant props = undefined) | inDecision | comingSoon | finished</td>
+      <td>Yes</td>
+      <td>The color of the tag</td>
     </tr>
     <tr>
       <td>
@@ -65,7 +65,7 @@ A reusable, accessible tag atom for Ui elements.
 ## Example
 
 ```tsx
-<Tag>Tag text</Tag>
+<Tag color="#007bff">Tag text</Tag>
 ```
 
 ## Long text behavior
@@ -76,7 +76,6 @@ When the content is too long, the tag will be truncated with an ellipsis and the
 
 ## Playground
 
-<Canvas of={TagStories.Default} />
-<Canvas of={TagStories.InDecision} />
-<Canvas of={TagStories.ComingSoon} />
-<Canvas of={TagStories.Finished} />
+<Canvas of={TagStories.Filled} />
+<Canvas of={TagStories.Outlined} />
+<Canvas of={TagStories.Ellipsis} />
