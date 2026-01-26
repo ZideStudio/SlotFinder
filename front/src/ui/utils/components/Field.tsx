@@ -1,19 +1,18 @@
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
-import { TextInputAtom } from "@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom";
 import { getClassName } from "@Front/utils/getClassName";
-import { ComponentProps, useId } from "react";
+import { ComponentProps, useId, ReactNode } from "react";
+import './Field.scss';
 
-interface FieldProps {
-    input: React.ComponentType<any>;
-    id?: string;
-    label?: ComponentProps<typeof LabelInput>['children'];
-    error?: ComponentProps<typeof InputErrorMessage>['children'];
-    defaultClassName?: string;
-    required?: boolean;
-    className?: string;
-    [key: string]: any;
-}
+  type FieldProps = Omit<ComponentProps<'input'>, 'id'> & {
+      input: React.ComponentType<any>;
+      id?: string;
+      label?: ReactNode;
+      error?: ReactNode;
+      defaultClassName?: string;
+      required?: boolean;
+      className?: string;
+  }
 
 export const Field = ({ input: Input, id, error, label, required, className, defaultClassName = "ds-field", ...props }: FieldProps) => {
   const generatedId = useId();
@@ -34,6 +33,7 @@ export const Field = ({ input: Input, id, error, label, required, className, def
         id={inputId}
         aria-describedby={error ? errorId : undefined}
         aria-invalid={Boolean(error)}
+        required={required}
         {...props}
       />
       <InputErrorMessage id={errorId}>{error}</InputErrorMessage>
