@@ -1,5 +1,12 @@
 import { AuthenticationContext } from '@Front/contexts/AuthenticationContext/AuthenticationContext';
-import type { AuthenticationContextType } from '@Front/contexts/AuthenticationContext/types';
 import { useContext } from 'react';
 
-export const useAuthenticationContext = () => useContext(AuthenticationContext) as AuthenticationContextType;
+export const useAuthenticationContext = () => {
+  const authenticationContext = useContext(AuthenticationContext);
+
+  if (!authenticationContext) {
+    throw new Error('useAuthenticationContext must be used within a AuthenticationContextProvider');
+  }
+
+  return authenticationContext;
+};
