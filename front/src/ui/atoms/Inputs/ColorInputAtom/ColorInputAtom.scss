@@ -2,17 +2,20 @@
 @use '../../../../utils/sass/mixins/responsive';
 
 .ds-color-input {
+  --outline-width: 1px;
+  --outline-color: var(--color-primary-50);
+
   display: flex;
-  width: 100%;
-  max-width: helpers.px-to-rem(300);
+  width: fit-content;
+  max-width: helpers.px-to-rem(200);
   padding: helpers.px-to-rem(6) helpers.px-to-rem(12);
-  border: 1px solid var(--color-grey-900);
+  outline: var(--outline-width) solid var(--outline-color);
   border-radius: helpers.px-to-rem(10);
   align-items: center;
   gap: helpers.px-to-rem(8);
   font-weight: 600;
   transition:
-    border-color 0.3s ease,
+    outline-color 0.3s ease,
     filter 0.3s ease;
   cursor: pointer;
 
@@ -20,19 +23,18 @@
     filter: brightness(0.95);
   }
 
-  &:focus-within {
-    outline: 1px solid var(--color-black);
-    outline-offset: helpers.px-to-rem(2);
-    transition: 0.1s ease;
+  &:focus-within,
+  &:hover {
+    --outline-width: 2px;
   }
 
   &:has(input[aria-invalid='true']) {
-    border-width: helpers.px-to-rem(2);
-    border-color: var(--color-error);
+    --outline-width: 2px;
+    --outline-color: var(--color-error);
 
     &:hover,
     &:focus-within {
-      outline-color: var(--color-error);
+      --outline-width: 3px;
     }
   }
 
