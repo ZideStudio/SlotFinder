@@ -32,7 +32,7 @@ export const Default: Story = {};
 
 export const WithError: Story = {
   args: {
-    label: "Email",
+    label: 'Email',
     error: "Format d'email invalide",
     required: true,
   },

@@ -4,15 +4,15 @@ import { getClassName } from "@Front/utils/getClassName";
 import { ComponentProps, useId, ReactNode } from "react";
 import './Field.scss';
 
-  type FieldProps = Omit<ComponentProps<'input'>, 'id'> & {
-      input: React.ComponentType<any>;
-      id?: string;
-      label?: ReactNode;
-      error?: ReactNode;
-      defaultClassName?: string;
-      required?: boolean;
-      className?: string;
-  }
+type FieldProps = Omit<ComponentProps<'input'>, 'id'> & {
+    input: React.ComponentType<any>;
+    id?: string;
+    label?: ReactNode;
+    error?: ReactNode;
+    defaultClassName?: string;
+    required?: boolean;
+    className?: string;
+}
 
 export const Field = ({ input: Input, id, error, label, required, className, defaultClassName = "ds-field", ...props }: FieldProps) => {
   const generatedId = useId();
