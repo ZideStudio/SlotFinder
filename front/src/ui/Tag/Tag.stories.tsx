@@ -15,53 +15,26 @@ const meta = {
 
 export default meta;
 
-export const Default: StoryObj<typeof meta> = {
-  render: () => (
-    <div style={{ display: 'flex', gap: 12 }}>
-      <Tag>Default filled</Tag>
-      <Tag appearance="outlined">Default outlined</Tag>
-    </div>
-  ),
+export const Filled: StoryObj<typeof meta> = {
+  args: {
+    color: '#007bff',
+    appearance: 'filled',
+    children: 'Filled Tag',
+  },
 };
 
-export const InDecision: StoryObj<typeof meta> = {
-  render: () => (
-    <div style={{ display: 'flex', gap: 12 }}>
-      <Tag variant="inDecision">In decision</Tag>
-      <Tag variant="inDecision" appearance="outlined">
-        In decision
-      </Tag>
-    </div>
-  ),
-};
-
-export const ComingSoon: StoryObj<typeof meta> = {
-  render: () => (
-    <div style={{ display: 'flex', gap: 12 }}>
-      <Tag variant="comingSoon">Coming soon</Tag>
-      <Tag variant="comingSoon" appearance="outlined">
-        Coming soon
-      </Tag>
-    </div>
-  ),
-};
-
-export const Finished: StoryObj<typeof meta> = {
-  render: () => (
-    <div style={{ display: 'flex', gap: 12 }}>
-      <Tag variant="finished">Finished</Tag>
-      <Tag variant="finished" appearance="outlined">
-        Finished
-      </Tag>
-    </div>
-  ),
+export const Outlined: StoryObj<typeof meta> = {
+  args: {
+    color: '#28a745',
+    appearance: 'outlined',
+    children: 'Outlined Tag',
+  },
 };
 
 export const Ellipsis: StoryObj<typeof meta> = {
-  render: () => (
-    <div style={{ display: 'flex', gap: 12 }}>
-      <Tag>Very very long filled text </Tag>
-      <Tag appearance="outlined">Very long outlined text</Tag>
-    </div>
-  ),
+  args: {
+    color: '#ff00ff',
+    appearance: 'filled',
+    children: 'Very very long filled text',
+  },
 };
