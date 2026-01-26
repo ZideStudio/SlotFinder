@@ -5,10 +5,10 @@ import { Navigate, useSearchParams } from 'react-router';
 export const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get('returnUrl');
-  const message = searchParams.get('message');
+  const error = searchParams.get('error');
 
-  if (message) {
-    return <Navigate to={appRoutes.error()} state={{ message }} replace />;
+  if (error) {
+    return <Navigate to={appRoutes.error()} state={{ message: error }} replace />;
   }
 
   const destinationPath = returnUrl && isInternalUrl(returnUrl) ? returnUrl : appRoutes.home();

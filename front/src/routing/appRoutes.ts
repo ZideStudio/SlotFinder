@@ -5,20 +5,20 @@ import { oauthCallbackRoutes } from '@Front/pages/OAuthCallback';
 type AppRoute = {
   home: () => string;
   signUp: () => string;
-  oAuthCallback: (params?: { message?: string; returnUrl?: string }) => string;
+  oAuthCallback: (params?: { error?: string; returnUrl?: string }) => string;
   error: () => string;
 };
 
 export const appRoutes: AppRoute = {
   home: () => '/',
   signUp: () => `/${signUpRoutes.path}`,
-  oAuthCallback: ({ message, returnUrl } = {}) => {
+  oAuthCallback: ({ error, returnUrl } = {}) => {
     let route = `/${oauthCallbackRoutes.path}`;
 
     const queryParams = new URLSearchParams();
 
-    if (message) {
-      queryParams.append('message', message);
+    if (error) {
+      queryParams.append('error', error);
     }
     if (returnUrl) {
       queryParams.append('returnUrl', returnUrl);

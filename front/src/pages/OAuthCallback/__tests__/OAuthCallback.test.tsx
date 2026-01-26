@@ -6,19 +6,19 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { oauthCallbackRoutes } from '../routes';
 
-const renderOAuthCallback = (params?: { message?: string; returnUrl?: string }) =>
+const renderOAuthCallback = (params?: { error?: string; returnUrl?: string }) =>
   renderRoute({
     routes: [oauthCallbackRoutes, homeRoutes, errorRoutes],
     initialEntry: appRoutes.oAuthCallback(params),
   });
 
 describe('OAuthCallback', () => {
-  it('should redirect to /error with state when message param is present', async () => {
-    renderOAuthCallback({ message: 'TestError' });
+  it('should redirect to /error with state when error param is present', async () => {
+    renderOAuthCallback({ error: 'TestError' });
     expect(await screen.findByText('TestError')).toBeInTheDocument();
   });
 
-  it('should redirect to / when no message param is present', async () => {
+  it('should redirect to / when no error param is present', async () => {
     renderOAuthCallback();
     expect(await screen.findByText('dashboard.title')).toBeInTheDocument();
   });
