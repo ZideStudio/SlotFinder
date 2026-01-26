@@ -99,6 +99,16 @@ services:
     networks:
       - traefik
 
+  devtools:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    volumes:
+      - ./:/workspace
+      - go-mod-cache:/go/pkg/mod
+    working_dir: /workspace
+
 volumes:
   postgres_data:
   go-mod-cache:
