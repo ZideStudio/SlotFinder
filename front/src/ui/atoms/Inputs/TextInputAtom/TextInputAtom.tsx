@@ -3,8 +3,10 @@ import type { ComponentPropsWithRef } from 'react';
 
 import './TextInputAtom.scss';
 
-type TextInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
+export type TextInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
   name: string;
+  label?: string;
+  error?: string;
 };
 
 export const TextInputAtom = ({ className, ...props }: TextInputAtomProps) => {
