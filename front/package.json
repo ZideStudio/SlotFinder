@@ -38,7 +38,7 @@
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.71.1",
     "react-i18next": "^16.5.3",
-    "react-router": "^7.12.0",
+    "react-router": "^7.13.0",
     "stylelint-selector-bem-pattern": "^4.0.1",
     "yup": "^1.7.1"
   },
