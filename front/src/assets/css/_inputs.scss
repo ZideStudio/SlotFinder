@@ -48,3 +48,9 @@
     --input-shadow-color: var(--color-primary-50);
   }
 }
+
+%field-gap {
+  display: flex;
+  flex-direction: column;
+  gap: helpers.px-to-rem(4);
+}

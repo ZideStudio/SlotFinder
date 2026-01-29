@@ -1,0 +1,5 @@
+@use '../../../assets/css/inputs.scss' as *;
+
+.ds-field {
+  @extend %field-gap;
+}
