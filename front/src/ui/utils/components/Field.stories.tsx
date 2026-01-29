@@ -10,6 +10,7 @@ const meta = {
     label: "Nom d'utilisateur",
     input: TextInputAtom,
     className: 'custom-class',
+    required: false,
   },
   argTypes: {
     error: { control: 'text' },

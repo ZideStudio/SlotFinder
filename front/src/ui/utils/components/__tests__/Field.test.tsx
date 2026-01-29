@@ -2,14 +2,14 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { Field } from '../Field';
 
-const MockInput = (props: any) => <input {...props} data-testid="mock-input" />;
+const MockInput = (props: any) => <input {...props} />;
 
 describe('Field Component', () => {
   it('Must link the label to the input via a generated ID', () => {
     render(<Field input={MockInput} label="Nom d'utilisateur" />);
 
     const label = screen.getByText("Nom d'utilisateur");
-    const input = screen.getByTestId('mock-input');
+    const input = screen.getByRole('textbox');
 
     expect(label).toHaveAttribute('for', input.id);
     expect(input.id).toBeDefined();
@@ -19,7 +19,7 @@ describe('Field Component', () => {
     const manualId = 'custom-id';
     render(<Field input={MockInput} label="Email" id={manualId} />);
 
-    const input = screen.getByTestId('mock-input');
+    const input = screen.getByRole('textbox');
     expect(input.id).toBe(manualId);
   });
 
@@ -27,7 +27,7 @@ describe('Field Component', () => {
     const errorMessage = 'This field is required';
     render(<Field input={MockInput} label="Test" error={errorMessage} />);
 
-    const input = screen.getByTestId('mock-input');
+    const input = screen.getByRole('textbox');
     const errorElement = screen.getByText(errorMessage);
 
     expect(input).toHaveAttribute('aria-invalid', 'true');
@@ -36,7 +36,7 @@ describe('Field Component', () => {
 
   it('Must not have aria-describedby if no error is present', () => {
     render(<Field input={MockInput} label="Test" />);
-    const input = screen.getByTestId('mock-input');
+    const input = screen.getByRole('textbox');
 
     expect(input).not.toHaveAttribute('aria-describedby');
     expect(input).toHaveAttribute('aria-invalid', 'false');
@@ -45,7 +45,7 @@ describe('Field Component', () => {
   it('Must pass additional props to the input', () => {
     render(<Field input={MockInput} placeholder="Enter your text" name="username" />);
 
-    const input = screen.getByTestId('mock-input');
+    const input = screen.getByRole('textbox');
     expect(input).toHaveAttribute('placeholder', 'Enter your text');
     expect(input).toHaveAttribute('name', 'username');
   });

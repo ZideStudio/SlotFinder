@@ -1,5 +1,7 @@
-@use '../../../assets/css/inputs.scss' as *;
+@use '../../../utils/sass/mixins/helpers';
 
 .ds-field {
-  @extend %field-gap;
+  display: flex;
+  flex-direction: column;
+  gap: helpers.px-to-rem(8);
 }
