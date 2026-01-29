@@ -2,7 +2,7 @@ import { InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/Inpu
 import { LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
 import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
 import { Field } from '@Front/ui/utils/components/Field';
-import { ComponentProps } from 'react';
+import { type ComponentProps } from 'react';
 
 type TextInputProps = ComponentProps<typeof TextInputAtom> & {
   label: ComponentProps<typeof LabelInput>['children'];
