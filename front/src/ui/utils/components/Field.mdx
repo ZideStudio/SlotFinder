@@ -1,0 +1,78 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as FieldStories from './Field.stories';
+import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
+
+<Meta of={FieldStories} />
+
+# Field
+
+A reusable, accessible text input atom for forms and UI elements.
+
+## Usage
+
+```tsx
+<Field input={TextInputAtom} className="custom-class" />
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>input</code>
+      </td>
+      <td>
+        <code>React.ElementType</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input component called </td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>No</td>
+      <td>All standard input props (e.g. value, onChange, placeholder)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Follows WCAG 2.2 AA and RGAA 4 guidelines.
+- Keyboard accessible.
+
+## Example
+
+```tsx
+<Field input={TextInputAtom} className="custom-class" />
+```
+
+## Playground
+
+<Canvas of={FieldStories.Default} sourceState="shown" />
+<Controls of={FieldStories.Default} />
