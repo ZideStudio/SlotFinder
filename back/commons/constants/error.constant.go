@@ -25,7 +25,7 @@ var (
 	// Auth
 	ERR_NOT_AUTHENTICATED              = err("NOT_AUTHENTICATED", http.StatusUnauthorized)
 	ERR_TOKEN_INVALID                  = err("TOKEN_INVALID", http.StatusUnauthorized)
-	ERR_TOKEN_EXPIRED                  = err("TOKEN_EXPIRED", http.StatusUnauthorized)
+	ERR_TOKEN_EXPIRED                  = err("TOKEN_EXPIRED", 498)
 	ERR_PROVIDER_CONNECTION_FAILED     = err("PROVIDER_CONNECTION_FAILED", 0)
 	ERR_INVALID_IDENTIFIER_OR_PASSWORD = err("INVALID_IDENTIFIER_OR_PASSWORD", http.StatusUnauthorized)
 	ERR_TERMS_NOT_ACCEPTED             = err("TERMS_NOT_ACCEPTED", http.StatusForbidden)

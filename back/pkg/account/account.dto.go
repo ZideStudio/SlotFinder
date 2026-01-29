@@ -28,3 +28,8 @@ type ResetPasswordDto struct {
 	Token    string `json:"token" binding:"required"`
 	Password string `json:"password" binding:"required,max=100"`
 }
+
+type AccountTokensDto struct {
+	AccessToken  string
+	RefreshToken string
+}

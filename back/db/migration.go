@@ -10,6 +10,7 @@ func startMigration() (err error) {
 		&model.Slot{},
 		&model.AccountEvent{},
 		&model.AccountProvider{},
+		&model.RefreshToken{},
 	}
 
 	for _, m := range models {
