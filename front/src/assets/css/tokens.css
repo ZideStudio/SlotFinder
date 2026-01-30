@@ -27,4 +27,6 @@
   --color-error: hsl(0deg 100% 45.1%); /* Vivid Red */
   --color-success: hsl(150deg 60% 45%); /* Harmonious Success Green */
   --color-warning: hsl(45deg 100% 50%); /* Soft Yellow */
+
+  --color-black: hsl(0deg 0% 0%);
 }
