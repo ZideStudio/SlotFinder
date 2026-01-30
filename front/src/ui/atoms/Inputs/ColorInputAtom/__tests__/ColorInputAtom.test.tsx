@@ -10,7 +10,7 @@ describe('ColorInput', () => {
 
     const input = screen.getByLabelText('Choisir une couleur');
     expect(input).toBeInTheDocument();
-    expect(input).toHaveValue('#ffffff');
+    expect(input).toHaveValue('#000000');
   });
 
   it('updates the value when a new color is selected', () => {
