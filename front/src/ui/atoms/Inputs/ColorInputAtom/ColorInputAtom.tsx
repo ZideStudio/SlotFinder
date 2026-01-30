@@ -14,6 +14,7 @@ export const ColorInputAtom = ({ id, className, description, onChange, ...props 
   const generatedId = useId();
   const inputId = id || generatedId;
   const [value, setValue] = useState('#FFFFFF');
+  const [isValueNotSet, setIsValueNotSet] = useState(true);
   const contentColor = getContrastTextColor(value);
 
   const parentClassName = getClassName({
@@ -24,7 +25,7 @@ export const ColorInputAtom = ({ id, className, description, onChange, ...props 
   return (
     <label htmlFor={inputId} className={parentClassName} style={{ backgroundColor: value, color: contentColor }}>
       <PaletteIcon className="ds-color-input__icon" style={{ fill: contentColor }} aria-hidden="true" />
-      <span className="ds-color-input__value">{description}</span>
+      <span className="ds-color-input__value">{isValueNotSet ? description : value}</span>
 
       <input
         id={inputId}
@@ -34,6 +35,7 @@ export const ColorInputAtom = ({ id, className, description, onChange, ...props 
         {...props}
         onChange={event => {
           setValue(event.target.value);
+          setIsValueNotSet(false);
           onChange?.(event);
         }}
       />

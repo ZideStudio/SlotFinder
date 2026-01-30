@@ -9,11 +9,11 @@
   width: fit-content;
   max-width: helpers.px-to-rem(200);
   padding: helpers.px-to-rem(6) helpers.px-to-rem(12);
-  outline: var(--outline-width) solid var(--outline-color);
   border-radius: helpers.px-to-rem(10);
   align-items: center;
   gap: helpers.px-to-rem(8);
   font-weight: 600;
+  outline: var(--outline-width) solid var(--outline-color);
   transition:
     outline-color 0.3s ease,
     filter 0.3s ease;

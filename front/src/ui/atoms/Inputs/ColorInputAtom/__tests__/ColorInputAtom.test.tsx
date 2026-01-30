@@ -32,4 +32,16 @@ describe('ColorInput', () => {
 
     expect(input).toBeDisabled();
   });
+
+  it('change description when color is selected', () => {
+    render(<ColorInputAtom name="color" description="Choisir une couleur" />);
+
+    const input = screen.getByLabelText('Choisir une couleur');
+
+    fireEvent.change(input, {
+      target: { value: '#0000ff' },
+    });
+
+    expect(screen.getByText('#0000ff')).toBeInTheDocument();
+  });
 });
