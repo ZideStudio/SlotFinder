@@ -28,7 +28,6 @@ export const ColorInputAtom = ({ id, className, description, onChange, ...props 
       className={parentClassName}
       style={{ backgroundColor: value ?? DEFAULT_COLOR, color: contentColor }}
     >
-      {' '}
       <PaletteIcon className="ds-color-input__icon" style={{ fill: contentColor }} aria-hidden="true" />
       <span className="ds-color-input__value">{value === '' ? description : value}</span>
       <input
