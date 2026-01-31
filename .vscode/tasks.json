@@ -1,47 +1,108 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "make: start",
-			"type": "shell",
-			"command": "make",
-			"args": ["start"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: build-start",
-			"type": "shell",
-			"command": "make",
-			"args": ["build-start"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: stop",
-			"type": "shell",
-			"command": "make",
-			"args": ["stop"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: down",
-			"type": "shell",
-			"command": "make",
-			"args": ["down"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: clean",
-			"type": "shell",
-			"command": "make",
-			"args": ["clean"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: logs",
-			"type": "shell",
-			"command": "make",
-			"args": ["logs"],
-			"problemMatcher": []
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "make: start",
+      "type": "shell",
+      "command": "make",
+      "args": ["start"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: build-start",
+      "type": "shell",
+      "command": "make",
+      "args": ["build-start"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: stop",
+      "type": "shell",
+      "command": "make",
+      "args": ["stop"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: down",
+      "type": "shell",
+      "command": "make",
+      "args": ["down"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: clean",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: logs",
+      "type": "shell",
+      "command": "make",
+      "args": ["logs"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "frontend: lint",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint"],
+      "options": {
+        "cwd": "${workspaceFolder}/front",
+      },
+      "problemMatcher": [],
+    },
+    {
+      "label": "frontend: lint:fix",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "lint:oxlint:fix"],
+      "options": {
+        "cwd": "${workspaceFolder}/front",
+      },
+      "problemMatcher": [],
+    },
+    {
+      "label": "frontend: test",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:unit"],
+      "options": {
+        "cwd": "${workspaceFolder}/front",
+      },
+      "problemMatcher": [],
+    },
+    {
+      "label": "frontend: test:watch",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:unit:watch"],
+      "options": {
+        "cwd": "${workspaceFolder}/front",
+      },
+      "problemMatcher": [],
+      "isBackground": true,
+    },
+    {
+      "label": "backend: test",
+      "type": "shell",
+      "command": "go",
+      "args": ["test", "./..."],
+      "options": {
+        "cwd": "${workspaceFolder}/back",
+      },
+      "problemMatcher": [],
+    },
+    {
+      "label": "backend: format",
+      "type": "shell",
+      "command": "goimports",
+      "args": ["-w", "."],
+      "options": {
+        "cwd": "${workspaceFolder}/back",
+      },
+      "problemMatcher": [],
+    },
+  ],
 }

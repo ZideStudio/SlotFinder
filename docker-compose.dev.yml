@@ -104,6 +104,10 @@ services:
       context: .
       dockerfile: .devcontainer/Dockerfile
     command: sleep infinity
+    environment:
+      - GOPATH=/go
+      - GOBIN=/go/bin
+      - PATH=/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - ./:/workspace
       - go-mod-cache:/go/pkg/mod

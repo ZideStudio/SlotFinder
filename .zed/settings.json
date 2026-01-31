@@ -1,60 +1,149 @@
 {
-    "lsp": {
-        "gopls": {
-            "binary": {
-                "path": "/go/bin/gopls"
-            },
-            "settings": {
-                "gopls": {
-                    "buildFlags": [],
-                    "env": {
-                        "GOPATH": "/go",
-                        "GOROOT": "/usr/local/go"
-                    },
-                    "directoryFilters": [
-                        "-node_modules",
-                        "-front/node_modules"
-                    ],
-                    "formatting.gofumpt": true,
-                    "ui.completion.usePlaceholders": true,
-                    "ui.diagnostic.analyses": {
-                        "fieldalignment": false,
-                        "shadow": true,
-                        "unusedparams": true,
-                        "unusedwrite": true
-                    },
-                    "ui.navigation.importShortcut": "Both",
-                    "ui.semanticTokens": true
-                }
-            }
-        }
+  "languages": {
+    "Go": {
+      "format_on_save": "on",
+      "formatter": "language_server",
+      "language_servers": ["gopls"],
     },
-    "languages": {
-        "Go": {
-            "format_on_save": "on",
-            "formatter": "language_server"
+    "TypeScript": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--config",
+            "/workspace/front/.prettierrc",
+          ],
         },
-        "TypeScript": {
-            "formatter": {
-                "external": {
-                    "command": "/workspace/front/node_modules/.bin/prettier",
-                    "arguments": [
-                        "--stdin-filepath",
-                        "{buffer_path}",
-                        "--config",
-                        "front/.prettierrc",
-                        "--plugin-search-dir=/workspace/front"
-                    ]
-                }
-            }
+      },
+      "language_servers": ["typescript-language-server", "!vtsls"],
+    },
+    "TSX": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--config",
+            "/workspace/front/.prettierrc",
+          ],
         },
-        "TSX": {
-            "formatter": "prettier",
-            "format_on_save": "on"
+      },
+      "language_servers": ["typescript-language-server", "!vtsls"],
+    },
+    "JavaScript": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--config",
+            "/workspace/front/.prettierrc",
+          ],
         },
-        "JavaScript": {
-            "formatter": "prettier",
-            "format_on_save": "on"
-        }
-    }
+      },
+      "language_servers": ["typescript-language-server", "!vtsls"],
+    },
+    "JSON": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--parser",
+            "json",
+          ],
+        },
+      },
+    },
+    "CSS": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": ["--stdin-filepath", "{buffer_path}", "--parser", "css"],
+        },
+      },
+    },
+    "SCSS": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--parser",
+            "scss",
+          ],
+        },
+      },
+    },
+    "Markdown": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--parser",
+            "markdown",
+          ],
+        },
+      },
+    },
+    "YAML": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "prettier-wrapper",
+          "arguments": [
+            "--stdin-filepath",
+            "{buffer_path}",
+            "--parser",
+            "yaml",
+          ],
+        },
+      },
+    },
+  },
+  "lsp": {
+    "gopls": {
+      "binary": {
+        "path": "/go/bin/gopls",
+        "arguments": [],
+      },
+      "settings": {
+        "gopls": {
+          "formatting.gofmt": true,
+          "ui.completion.usePlaceholders": true,
+          "ui.diagnostic.analyses": {
+            "unusedparams": true,
+            "shadow": true,
+          },
+        },
+      },
+    },
+    "typescript-language-server": {
+      "binary": {
+        "path": "/usr/local/bin/typescript-language-server",
+        "arguments": ["--stdio"],
+      },
+    },
+  },
+  "terminal": {
+    "working_directory": "current_project_directory",
+  },
+  "code_actions_on_format": {
+    "source.organizeImports": true,
+  },
 }
