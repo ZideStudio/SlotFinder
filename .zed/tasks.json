@@ -118,4 +118,11 @@
     "cwd": "/workspace",
     "reveal": "always",
   },
+  {
+    "label": "Git: Lazygit",
+    "command": "lazygit",
+    "args": [],
+    "cwd": "/workspace",
+    "reveal": "always",
+  },
 ]

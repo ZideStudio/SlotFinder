@@ -24,7 +24,15 @@ RUN apt-get update && apt-get install -y \
     unzip \
     postgresql-client \
     build-essential \
+    git \
     && rm -rf /var/lib/apt/lists/*
+
+# Install lazygit
+ARG LAZYGIT_VERSION=0.44.1
+RUN curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${TARGETARCH}.tar.gz" && \
+    tar xf lazygit.tar.gz lazygit && \
+    install lazygit /usr/local/bin && \
+    rm lazygit.tar.gz lazygit
 
 # Create Go directories
 RUN mkdir -p /go/bin /go/pkg /go/src
@@ -44,5 +52,26 @@ RUN echo '#!/bin/sh\ncd /workspace/front\nexec npx prettier "$@"' > /usr/local/b
 
 # Note: prettier and oxlint will be used from the front project's node_modules
 # This ensures version consistency with the project
+
+# Create shell aliases
+RUN echo 'alias lg="lazygit"' >> /home/vscode/.bashrc && \
+    echo 'alias lg="lazygit"' >> /home/vscode/.zshrc 2>/dev/null || true
+
+# Create Git initialization script
+RUN echo '#!/bin/sh\n\
+    git config --global --add safe.directory /workspace 2>/dev/null || true\n\
+    git config --global --add safe.directory "*" 2>/dev/null || true\n\
+    ' > /usr/local/bin/init-git.sh && \
+    chmod +x /usr/local/bin/init-git.sh
+
+# Run git initialization at container start
+RUN echo '#!/bin/sh\n\
+    /usr/local/bin/init-git.sh\n\
+    exec "$@"\n\
+    ' > /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["sleep", "infinity"]
 
 WORKDIR /workspace

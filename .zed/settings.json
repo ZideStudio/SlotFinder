@@ -146,4 +146,14 @@
   "code_actions_on_format": {
     "source.organizeImports": true,
   },
+  "git": {
+    "enabled": true,
+    "inline_blame": {
+      "enabled": true,
+    },
+    "git_gutter": "tracked_files",
+  },
+  "project_panel": {
+    "git_status": true,
+  },
 }

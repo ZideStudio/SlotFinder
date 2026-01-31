@@ -103,7 +103,7 @@ services:
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
-    command: sleep infinity
+    user: vscode
     environment:
       - GOPATH=/go
       - GOBIN=/go/bin
@@ -111,6 +111,8 @@ services:
     volumes:
       - ./:/workspace
       - go-mod-cache:/go/pkg/mod
+      - ~/.gitconfig:/home/vscode/.gitconfig:ro
+      - ~/.ssh:/home/vscode/.ssh:ro
     working_dir: /workspace
 
 volumes:

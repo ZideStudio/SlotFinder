@@ -10,6 +10,13 @@
     "GOBIN": "/go/bin",
     "PATH": "${containerEnv:PATH}:/go/bin",
   },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest",
+    },
+  },
+  "postCreateCommand": "cd /workspace/front && npm install",
+  "initializeCommand": "git config --global core.autocrlf input || true",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -94,6 +101,8 @@
       "onAutoForward": "notify",
     },
   },
-  "postCreateCommand": "cd /workspace/front && npm install",
   "remoteUser": "vscode",
+  "mounts": [
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+  ],
 }
