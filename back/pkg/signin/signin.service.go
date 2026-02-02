@@ -44,9 +44,10 @@ func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err err
 	}
 
 	claims := &guard.Claims{
-		Id:       account.Id,
-		Username: account.UserName,
-		Email:    account.Email,
+		Id:            account.Id,
+		Username:      account.UserName,
+		Email:         account.Email,
+		TermsAccepted: account.TermsAcceptedAt != nil,
 	}
 
 	return s.GenerateToken(claims)

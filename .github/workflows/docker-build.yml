@@ -13,6 +13,8 @@ on:
       - 'back/Dockerfile'
       - '.github/workflows/docker-build.yml'
   workflow_dispatch:
+  merge_group:
+     branches: ['main']
 
 jobs:
   build:

@@ -1,0 +1,106 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ColorInputStories from './ColorInputAtom.stories';
+
+<Meta of={ColorInputStories} />
+
+# ColorInput
+
+A reusable color input atom that allows users to select a color visually while displaying
+its hexadecimal value.  
+The component automatically adjusts the text and icon color to ensure sufficient contrast
+with the selected background color.
+
+---
+
+## Usage
+
+```tsx
+<ColorInput name="primaryColor" />
+```
+
+---
+
+# Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th> <th>Type</th> <th>Required</th> <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input name attribute for form identification</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td> <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>No</td>
+      <td>
+        All standard input props except <code>type</code> and <code>name</code> (e.g. <code>disabled</code>,
+        <code>required</code>, <code>onBlur</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+# behavior
+
+- Displays the currently selected color as a background.
+
+- Shows the hexadecimal value of the color.
+
+- A utomatically computes a readable text and icon color using contrast detection.
+
+- Clicking the component opens the native color picker.
+
+---
+
+# Accessibility
+
+- Uses a native `<input type="color">` for optimal browser and assistive technology support.
+
+- The input is associated with a `<label>` via a generated id.
+
+- Decorative icon is hidden from screen readers (aria-hidden="true").
+
+- Text color automatically adapts to maintain sufficient contrast.
+
+---
+
+# Example
+
+```tsx
+<ColorInput name="backgroundColor" />
+```
+
+---
+
+# Playground
+
+<Canvas of={ColorInputStories.Default} sourceState="shown" />
+<Controls of={ColorInputStories.Default} />

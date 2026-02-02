@@ -1,0 +1,7 @@
+@use '../../../utils/sass/mixins/helpers';
+
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: helpers.px-to-rem(8);
+}
