@@ -5,7 +5,13 @@ import { TextareaInput } from './TextareaInput';
 const meta = {
   title: 'Molecules/Inputs/TextareaInput',
   component: TextareaInput,
-  args: { label: 'Label', name: 'textarea-input', required: false, className: 'custom-class', placeholder: 'Enter text' },
+  args: {
+    label: 'Label',
+    name: 'textarea-input',
+    required: false,
+    className: 'custom-class',
+    placeholder: 'Enter text',
+  },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
