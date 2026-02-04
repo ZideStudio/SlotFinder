@@ -8,12 +8,12 @@
   "remoteEnv": {
     "GOPATH": "/go",
     "GOBIN": "/go/bin",
-    "PATH": "${containerEnv:PATH}:/go/bin",
+    "PATH": "${containerEnv:PATH}:/go/bin"
   },
   "features": {
     "ghcr.io/devcontainers/features/git:1": {
-      "version": "latest",
-    },
+      "version": "latest"
+    }
   },
   "postCreateCommand": "cd /workspace/front && npm install",
   "initializeCommand": "git config --global core.autocrlf input || true",
@@ -27,38 +27,38 @@
         "ms-azuretools.vscode-docker",
         "eamodio.gitlens",
         "GitHub.copilot",
-        "GitHub.copilot-chat",
+        "GitHub.copilot-chat"
       ],
       "settings": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-          "source.organizeImports": "explicit",
+          "source.organizeImports": "explicit"
         },
         "[go]": {
           "editor.defaultFormatter": "golang.go",
-          "editor.formatOnSave": true,
+          "editor.formatOnSave": true
         },
         "[typescript]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true,
+          "editor.formatOnSave": true
         },
         "[typescriptreact]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true,
+          "editor.formatOnSave": true
         },
         "[javascript]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true,
+          "editor.formatOnSave": true
         },
         "[javascriptreact]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true,
+          "editor.formatOnSave": true
         },
         "[json]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
         },
         "[jsonc]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
         },
         "go.useLanguageServer": true,
         "go.formatTool": "goimports",
@@ -68,41 +68,41 @@
           "ui.completion.usePlaceholders": true,
           "ui.diagnostic.analyses": {
             "unusedparams": true,
-            "shadow": true,
-          },
+            "shadow": true
+          }
         },
         "prettier.configPath": "front/.prettierrc",
         "prettier.prettierPath": "front/node_modules/prettier",
         "typescript.tsdk": "front/node_modules/typescript/lib",
-        "typescript.enablePromptUseWorkspaceTsdk": true,
-      },
-    },
+        "typescript.enablePromptUseWorkspaceTsdk": true
+      }
+    }
   },
   "forwardPorts": [3000, 3001, 3002, 5432, 9000],
   "portsAttributes": {
     "3000": {
       "label": "Frontend",
-      "onAutoForward": "notify",
+      "onAutoForward": "notify"
     },
     "3001": {
       "label": "Backend",
-      "onAutoForward": "notify",
+      "onAutoForward": "notify"
     },
     "3002": {
       "label": "Storybook",
-      "onAutoForward": "notify",
+      "onAutoForward": "notify"
     },
     "5432": {
       "label": "PostgreSQL",
-      "onAutoForward": "ignore",
+      "onAutoForward": "ignore"
     },
     "9000": {
       "label": "Traefik Dashboard",
-      "onAutoForward": "notify",
-    },
+      "onAutoForward": "notify"
+    }
   },
   "remoteUser": "vscode",
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
-  ],
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached"
+  ]
 }

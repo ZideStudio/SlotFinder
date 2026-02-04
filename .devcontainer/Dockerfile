@@ -3,6 +3,14 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ARG TARGETARCH
 ENV GOTOOLCHAIN=local
 
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        echo "x64" > /tmp/arch_node && \
+        echo "x86_64" > /tmp/arch_lazygit; \
+    else \
+        echo "$TARGETARCH" > /tmp/arch_node && \
+        echo "$TARGETARCH" > /tmp/arch_lazygit; \
+    fi
+
 # Go
 RUN curl -fsSL https://go.dev/dl/go1.25.5.linux-${TARGETARCH}.tar.gz \
     | tar -C /usr/local -xz
@@ -13,8 +21,16 @@ ENV GOBIN=/go/bin
 ENV PATH="/usr/local/go/bin:/go/bin:${PATH}"
 
 # Node
-RUN curl -fsSL https://nodejs.org/dist/v24.13.0/node-v24.13.0-linux-${TARGETARCH}.tar.xz \
+RUN NODE_ARCH=$(cat /tmp/arch_node) && \
+    curl -fsSL "https://nodejs.org/dist/v24.13.0/node-v24.13.0-linux-${NODE_ARCH}.tar.xz" \
     | tar -xJ -C /usr/local --strip-components=1
+
+# --- FIX PERMISSIONS ---
+# We give ownership to the 'vscode' user for global node modules and binaries
+RUN mkdir -p /usr/local/lib/node_modules && \
+    chown -R vscode:vscode /usr/local/lib/node_modules && \
+    chown -R vscode:vscode /usr/local/bin && \
+    chown -R vscode:vscode /usr/local/share
 
 # Utils
 RUN apt-get update && apt-get install -y \
@@ -29,13 +45,17 @@ RUN apt-get update && apt-get install -y \
 
 # Install lazygit
 ARG LAZYGIT_VERSION=0.44.1
-RUN curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${TARGETARCH}.tar.gz" && \
+RUN LG_ARCH=$(cat /tmp/arch_lazygit) && \
+curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${LG_ARCH}.tar.gz" && \
     tar xf lazygit.tar.gz lazygit && \
     install lazygit /usr/local/bin && \
     rm lazygit.tar.gz lazygit
 
 # Create Go directories
-RUN mkdir -p /go/bin /go/pkg /go/src
+RUN mkdir -p /go/bin /go/pkg /go/srcRUN mkdir -p /usr/local/lib/node_modules && \
+    chown -R vscode:vscode /usr/local/lib/node_modules && \
+    chown -R vscode:vscode /usr/local/bin && \
+    chown -R vscode:vscode /usr/local/share
 
 # Go tools (LSP, formatter, debugger)
 RUN go install golang.org/x/tools/gopls@v0.21.0 && \
