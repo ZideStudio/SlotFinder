@@ -1,159 +1,164 @@
 {
-  "languages": {
-    "Go": {
-      "format_on_save": "on",
-      "formatter": "language_server",
-      "language_servers": ["gopls"],
-    },
-    "TypeScript": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--config",
-            "/workspace/front/.prettierrc",
-          ],
+    "languages": {
+        "Go": {
+            "format_on_save": "on",
+            "formatter": "language_server",
+            "language_servers": ["gopls"]
         },
-      },
-      "language_servers": ["typescript-language-server", "!vtsls"],
-    },
-    "TSX": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--config",
-            "/workspace/front/.prettierrc",
-          ],
+        "TypeScript": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--config",
+                        "/workspace/front/prettier.config.mjs"
+                    ]
+                }
+            },
+            "language_servers": ["typescript-language-server", "!vtsls"]
         },
-      },
-      "language_servers": ["typescript-language-server", "!vtsls"],
-    },
-    "JavaScript": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--config",
-            "/workspace/front/.prettierrc",
-          ],
+        "TSX": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--config",
+                        "/workspace/front/prettier.config.mjs"
+                    ]
+                }
+            },
+            "language_servers": ["typescript-language-server", "!vtsls"]
         },
-      },
-      "language_servers": ["typescript-language-server", "!vtsls"],
-    },
-    "JSON": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--parser",
-            "json",
-          ],
+        "JavaScript": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--config",
+                        "/workspace/front/prettier.config.mjs"
+                    ]
+                }
+            },
+            "language_servers": ["typescript-language-server", "!vtsls"]
         },
-      },
-    },
-    "CSS": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": ["--stdin-filepath", "{buffer_path}", "--parser", "css"],
+        "JSON": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--parser",
+                        "json"
+                    ]
+                }
+            }
         },
-      },
-    },
-    "SCSS": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--parser",
-            "scss",
-          ],
+        "CSS": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--parser",
+                        "css"
+                    ]
+                }
+            }
         },
-      },
-    },
-    "Markdown": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--parser",
-            "markdown",
-          ],
+        "SCSS": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--parser",
+                        "scss"
+                    ]
+                }
+            }
         },
-      },
-    },
-    "YAML": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": "prettier-wrapper",
-          "arguments": [
-            "--stdin-filepath",
-            "{buffer_path}",
-            "--parser",
-            "yaml",
-          ],
+        "Markdown": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--parser",
+                        "markdown"
+                    ]
+                }
+            }
         },
-      },
+        "YAML": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "prettier",
+                    "arguments": [
+                        "--stdin-filepath",
+                        "{buffer_path}",
+                        "--parser",
+                        "yaml"
+                    ]
+                }
+            }
+        }
     },
-  },
-  "lsp": {
-    "gopls": {
-      "binary": {
-        "path": "/go/bin/gopls",
-        "arguments": [],
-      },
-      "settings": {
+    "lsp": {
         "gopls": {
-          "formatting.gofmt": true,
-          "ui.completion.usePlaceholders": true,
-          "ui.diagnostic.analyses": {
-            "unusedparams": true,
-            "shadow": true,
-          },
+            "binary": {
+                "path": "/go/bin/gopls",
+                "arguments": []
+            },
+            "settings": {
+                "gopls": {
+                    "formatting.gofmt": true,
+                    "ui.completion.usePlaceholders": true,
+                    "ui.diagnostic.analyses": {
+                        "unusedparams": true,
+                        "shadow": true
+                    }
+                }
+            }
         },
-      },
+        "typescript-language-server": {
+            "binary": {
+                "path": "/usr/local/bin/typescript-language-server",
+                "arguments": ["--stdio"]
+            }
+        }
     },
-    "typescript-language-server": {
-      "binary": {
-        "path": "/usr/local/bin/typescript-language-server",
-        "arguments": ["--stdio"],
-      },
+    "terminal": {
+        "working_directory": "current_project_directory"
     },
-  },
-  "terminal": {
-    "working_directory": "current_project_directory",
-  },
-  "code_actions_on_format": {
-    "source.organizeImports": true,
-  },
-  "git": {
-    "enabled": true,
-    "inline_blame": {
-      "enabled": true,
+    "code_actions_on_format": {
+        "source.organizeImports": true
     },
-    "git_gutter": "tracked_files",
-  },
-  "project_panel": {
-    "git_status": true,
-  },
+    "git": {
+        "enabled": true,
+        "inline_blame": {
+            "enabled": true
+        },
+        "git_gutter": "tracked_files"
+    },
+    "project_panel": {
+        "git_status": true
+    }
 }

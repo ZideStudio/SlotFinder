@@ -4,11 +4,11 @@ ARG TARGETARCH
 ENV GOTOOLCHAIN=local
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-        echo "x64" > /tmp/arch_node && \
-        echo "x86_64" > /tmp/arch_lazygit; \
+    echo "x64" > /tmp/arch_node && \
+    echo "x86_64" > /tmp/arch_lazygit; \
     else \
-        echo "$TARGETARCH" > /tmp/arch_node && \
-        echo "$TARGETARCH" > /tmp/arch_lazygit; \
+    echo "$TARGETARCH" > /tmp/arch_node && \
+    echo "$TARGETARCH" > /tmp/arch_lazygit; \
     fi
 
 # Go
@@ -25,8 +25,7 @@ RUN NODE_ARCH=$(cat /tmp/arch_node) && \
     curl -fsSL "https://nodejs.org/dist/v24.13.0/node-v24.13.0-linux-${NODE_ARCH}.tar.xz" \
     | tar -xJ -C /usr/local --strip-components=1
 
-# --- FIX PERMISSIONS ---
-# We give ownership to the 'vscode' user for global node modules and binaries
+# Permissions
 RUN mkdir -p /usr/local/lib/node_modules && \
     chown -R vscode:vscode /usr/local/lib/node_modules && \
     chown -R vscode:vscode /usr/local/bin && \
@@ -46,13 +45,14 @@ RUN apt-get update && apt-get install -y \
 # Install lazygit
 ARG LAZYGIT_VERSION=0.44.1
 RUN LG_ARCH=$(cat /tmp/arch_lazygit) && \
-curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${LG_ARCH}.tar.gz" && \
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${LG_ARCH}.tar.gz" && \
     tar xf lazygit.tar.gz lazygit && \
     install lazygit /usr/local/bin && \
     rm lazygit.tar.gz lazygit
 
 # Create Go directories
-RUN mkdir -p /go/bin /go/pkg /go/srcRUN mkdir -p /usr/local/lib/node_modules && \
+RUN mkdir -p /go/bin /go/pkg /go/src
+RUN mkdir -p /usr/local/lib/node_modules && \
     chown -R vscode:vscode /usr/local/lib/node_modules && \
     chown -R vscode:vscode /usr/local/bin && \
     chown -R vscode:vscode /usr/local/share
@@ -66,12 +66,9 @@ RUN go install golang.org/x/tools/gopls@v0.21.0 && \
 # TypeScript/JavaScript LSP
 RUN npm install -g typescript typescript-language-server vscode-langservers-extracted
 
-# Create prettier wrapper script for Zed
-RUN echo '#!/bin/sh\ncd /workspace/front\nexec npx prettier "$@"' > /usr/local/bin/prettier-wrapper && \
-    chmod +x /usr/local/bin/prettier-wrapper
-
-# Note: prettier and oxlint will be used from the front project's node_modules
-# This ensures version consistency with the project
+# Create prettier wrapper for Zed
+RUN echo '#!/bin/sh\ncd /workspace/front\nexec ./node_modules/.bin/prettier "$@"' > /usr/local/bin/prettier && \
+    chmod +x /usr/local/bin/prettier
 
 # Create shell aliases
 RUN echo 'alias lg="lazygit"' >> /home/vscode/.bashrc && \

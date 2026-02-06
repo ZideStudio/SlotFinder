@@ -59,7 +59,7 @@
       "shadow": true,
     },
   },
-  "prettier.configPath": "front/.prettierrc",
+  "prettier.configPath": "front/prettier.config.mjs",
   "prettier.prettierPath": "front/node_modules/prettier",
   "typescript.tsdk": "front/node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
