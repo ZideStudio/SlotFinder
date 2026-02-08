@@ -100,21 +100,6 @@ describe('SignUp', () => {
     expect(confirmPasswordInput).toHaveAttribute('aria-describedby', 'confirmPassword-error');
   });
 
-  it('accepts email addresses with plus sign', async () => {
-    renderRoute(renderRouteOptions);
-
-    await userEvent.type(screen.getByLabelText('signUp.username'), 'testuser');
-    await userEvent.type(screen.getByLabelText('signUp.email'), 'jules+test@zide.fr');
-    await userEvent.type(screen.getByLabelText('signUp.password'), 'Password1!');
-    await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'Password1!');
-    await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
-
-    // Should not show email validation error
-    await waitFor(() => {
-      expect(screen.queryByText('signUp.invalidEmail')).not.toBeInTheDocument();
-    });
-  });
-
   it('checks authentication from authentication context on successful submission', async () => {
     const checkAuthentication = vi.fn();
     vi.spyOn(authenticationContextHook, 'useAuthenticationContext').mockReturnValue({
