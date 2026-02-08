@@ -33,11 +33,7 @@ describe('SignUp validation', () => {
     });
 
     it('should accept email with percent and underscore characters', () => {
-      const validEmails = [
-        'user%test@example.com',
-        'user_test@example.com',
-        'user%test_123@example.com',
-      ];
+      const validEmails = ['user%test@example.com', 'user_test@example.com', 'user%test_123@example.com'];
 
       validEmails.forEach(email => {
         expect(EMAIL_REGEX.test(email)).toBe(true);
