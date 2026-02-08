@@ -82,7 +82,7 @@
     "vite-tsconfig-paths": "^6.0.5",
     "vitest": "^4.0.18",
     "vitest-axe": "^1.0.0-pre.5",
-    "vitest-browser-react": "^2.0.4",
+    "vitest-browser-react": "^2.0.5",
     "vitest-sonar-reporter": "^3.0.0"
   },
   "volta": {
