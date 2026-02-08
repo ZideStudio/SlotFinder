@@ -47,7 +47,7 @@
     "@pplancq/prettier-config": "*",
     "@pplancq/stylelint-config": "*",
     "@rsbuild/core": "^1.7.2",
-    "@rsbuild/plugin-react": "^1.4.3",
+    "@rsbuild/plugin-react": "^1.4.5",
     "@rsbuild/plugin-sass": "^1.5.0",
     "@rsbuild/plugin-svgr": "^1.2.4",
     "@storybook/addon-a11y": "^10.2.0",
