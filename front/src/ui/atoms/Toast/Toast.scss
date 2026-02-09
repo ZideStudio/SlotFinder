@@ -11,8 +11,8 @@
   align-items: center;
   gap: helpers.px-to-rem(8);
   opacity: 0;
-  color: var(--color-text, #fff);
-  background-color: var(--color-background, #333);
+  color: #fff;
+  background-color: #333;
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
   transform: translate(-50%, 10px);
   transition:
@@ -22,10 +22,6 @@
   &--visible {
     opacity: 1;
     transform: translate(-50%, 0);
-  }
-
-  &__content {
-    flex: 1;
   }
 
   &__close {

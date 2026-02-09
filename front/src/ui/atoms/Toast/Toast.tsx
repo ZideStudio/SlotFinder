@@ -2,15 +2,12 @@ import React from 'react';
 import { getClassName } from '@Front/utils/getClassName';
 import './Toast.scss';
 
-export type ToastProps = {
+type ToastProps = {
   children: React.ReactNode;
-  visible?: boolean;
   onClose?: () => void;
 };
 
-export const Toast = ({ children, visible = true, onClose }: ToastProps) => {
-  if (!visible) {return null;}
-
+export const Toast = ({ children, onClose }: ToastProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-toast',
     modifiers: ['visible'],

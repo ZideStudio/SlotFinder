@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { ToastProvider } from '@Front/providers/ToastProvider';
-import { useToast } from '@Front/hooks/UseToast';
+import { useToast } from '../../../hooks/useToast';
 
 const meta = {
   title: 'Atoms/Toast',
