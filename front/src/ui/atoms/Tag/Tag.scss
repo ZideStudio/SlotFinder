@@ -1,9 +1,10 @@
+@use '../../../../utils/sass/mixins/helpers';
 .ds-tag {
   display: inline-flex;
-  max-width: 150px;
-  padding: 10px;
+  max-width: helpers.px-to-rem(150);
+  padding: helpers.px-to-rem(10);
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: helpers.px-to-rem(10);
   align-items: center;
   justify-content: center;
 
