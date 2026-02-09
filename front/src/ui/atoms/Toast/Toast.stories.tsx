@@ -1,42 +1,23 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import React from 'react';
-
-import { Toast } from './Toast';
+import { useToast } from '@Front/hooks/useToast';
+import { ToastProvider } from '@Front/providers/ToastProvider';
 
 const meta = {
   title: 'Atoms/Toast',
-  component: Toast,
-} satisfies Meta<typeof Toast>;
+} satisfies Meta;
 
 export default meta;
 
-export const Default: StoryObj<typeof meta> = {
-  args: {
-    children: 'Ceci est un toast',
-    visible: false,
-    onClose: () => {},
-  },
-  render: args => {
-    const [visible, setVisible] = React.useState(args.visible ?? false);
+const ToastStoryContent = () => {
+  const { show } = useToast();
 
-    React.useEffect(() => {
-      if (!visible) return;
+  return <button onClick={() => show('Ceci est un toast')}>Afficher le toast</button>;
+};
 
-      const timer = setTimeout(() => {
-        setVisible(false);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }, [visible]);
-
-    return (
-      <div>
-        <button onClick={() => setVisible(true)}>Afficher le toast</button>
-
-        <Toast {...args} visible={visible} onClose={() => setVisible(false)}>
-          {args.children}
-        </Toast>
-      </div>
-    );
-  },
+export const Default: StoryObj = {
+  render: () => (
+    <ToastProvider>
+      <ToastStoryContent />
+    </ToastProvider>
+  ),
 };

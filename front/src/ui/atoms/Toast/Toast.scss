@@ -1,24 +1,23 @@
-@use "../../../utils/sass/mixins/helpers";
+@use '../../../utils/sass/mixins/helpers';
 
 .ds-toast {
   position: fixed;
+  z-index: 1000;
   bottom: helpers.px-to-rem(20);
   left: 50%;
-  transform: translate(-50%, 10px);
-  opacity: 0;
-
-  background-color: var(--color-background, #333);
-  color: var(--color-text, #fff);
+  display: flex;
   padding: helpers.px-to-rem(10) helpers.px-to-rem(20);
   border-radius: helpers.px-to-rem(4);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-
-  display: flex;
   align-items: center;
   gap: helpers.px-to-rem(8);
-
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  color: var(--color-text, #fff);
+  background-color: var(--color-background, #333);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  transform: translate(-50%, 10px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 
   &--visible {
     opacity: 1;
@@ -30,11 +29,11 @@
   }
 
   &__close {
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: helpers.px-to-rem(14);
-    cursor: pointer;
     padding: helpers.px-to-rem(2);
+    border: none;
+    font-size: helpers.px-to-rem(14);
+    color: inherit;
+    background: none;
+    cursor: pointer;
   }
 }
