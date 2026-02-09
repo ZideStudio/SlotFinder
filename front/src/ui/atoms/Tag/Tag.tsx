@@ -8,12 +8,13 @@ export type TagAppearance = 'filled' | 'outlined';
 
 export type TagProps = {
   color: string;
+  title?: string;
   className?: string;
   children: ReactNode;
   appearance?: TagAppearance;
 };
 
-export const Tag = ({ className, children, color, appearance = 'filled' }: TagProps) => {
+export const Tag = ({ className, children, color, title, appearance = 'filled' }: TagProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-tag',
     className,
@@ -23,15 +24,15 @@ export const Tag = ({ className, children, color, appearance = 'filled' }: TagPr
   return (
     <span
       className={parentClassName}
-      style={{ backgroundColor: appearance === 'filled' ? color : 'transparent', borderColor: color }}
+      title={title}
+      style={
+        {
+          '--tag-color': color,
+          color: appearance === 'filled' ? getContrastTextColor(color) : 'black',
+        } as React.CSSProperties
+      }
     >
-      <span
-        className="ds-tag__content"
-        title={typeof children === 'string' ? children : undefined}
-        style={{ color: appearance === 'filled' ? getContrastTextColor(color) : 'black' }}
-      >
-        {children}
-      </span>
+      {children}
     </span>
   );
 };

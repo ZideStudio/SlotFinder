@@ -27,4 +27,16 @@ describe('Tag', () => {
     expect(parentTag).toHaveClass('ds-tag--outlined');
     expect(parentTag).toHaveStyle({ borderColor: '#007bff' });
   });
+
+  it('should render tag component with custom class name', () => {
+    render(
+      <Tag color="#007bff" className="custom-class">
+        Text
+      </Tag>,
+    );
+    const tag = screen.getByText('Text');
+    const parentTag = tag.parentElement;
+    expect(tag).toBeInTheDocument();
+    expect(parentTag).toHaveClass('custom-class');
+  });
 });
