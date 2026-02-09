@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { getClassName } from '@Front/utils/getClassName';
 import './Toast.scss';
 
@@ -8,9 +8,17 @@ type ToastProps = {
 };
 
 export const Toast = ({ children, onClose }: ToastProps) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+  }, []);
+
   const parentClassName = getClassName({
     defaultClassName: 'ds-toast',
-    modifiers: ['visible'],
+    modifiers: [isVisible ? 'visible' : ''],
   });
 
   return (

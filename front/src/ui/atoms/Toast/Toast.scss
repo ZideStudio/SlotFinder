@@ -1,27 +1,22 @@
 @use '../../../utils/sass/mixins/helpers';
 
 .ds-toast {
-  position: fixed;
-  z-index: 1000;
-  bottom: helpers.px-to-rem(20);
-  left: 50%;
+  pointer-events: auto; 
   display: flex;
+  align-items: center;
   padding: helpers.px-to-rem(10) helpers.px-to-rem(20);
   border-radius: helpers.px-to-rem(4);
-  align-items: center;
   gap: helpers.px-to-rem(8);
-  opacity: 0;
   color: #fff;
   background-color: #333;
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-  transform: translate(-50%, 10px);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+    opacity: 0;
+  transform: translateY(100%); 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &--visible {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0); 
   }
 
   &__close {
