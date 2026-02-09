@@ -1,0 +1,88 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ToastStories from './Toast.stories';
+import { Toast } from './Toast';
+
+<Meta of={ToastStories} />
+
+# Toast
+
+A notification component used to display brief, temporary messages to the user without interrupting their workflow.
+
+## Usage
+
+The Toast component is typically managed via the `ToastProvider`. Wrap your application root with the provider, then use the context to trigger toasts.
+
+```tsx
+// 1. Wrap your application
+import { ToastProvider } from '@Front/components/ToastProvider';
+
+const App = () => (
+  <ToastProvider>
+    <RestOfYourApp />
+  </ToastProvider>
+);
+
+// 2. Trigger a toast
+import { useToast } from '@Front/hooks/useToast';
+
+const MyComponent = () => {
+  const { show } = useToast();
+
+  const handleClick = () => {
+    show('This is a success message!');
+  };
+
+  return <button onClick={handleClick}>Show Toast</button>;
+};
+```
+
+## Props
+
+These props define the API for the individual Toast component (used internally by the Provider).
+
+<table>
+  <thead> 
+    <tr> 
+      <th>Name</th> 
+      <th>Type</th>
+      <th>Required</th> 
+      <th>Description</th> 
+    </tr> 
+  </thead> 
+  <tbody>
+    <tr> 
+      <td> 
+        <code>children</code> 
+      </td> 
+      <td> 
+        <code>ReactNode</code> 
+      </td> 
+      <td> 
+        <strong>Yes</strong> 
+      </td> 
+    <td>The message content to display inside the toast.</td>
+    </tr> 
+    <tr> 
+      <td> 
+        <code>onClose</code> 
+      </td> 
+      <td> 
+        <code>() => void</code> 
+      </td> 
+      <td>No</td> 
+        <td>Callback function triggered when the close button is clicked.</td> 
+    </tr> 
+  </tbody> 
+</table>
+
+## Accessibility
+
+- Role & Live Region: Uses role="status" and aria-live="polite" so screen readers announce the new message when the user is idle, without aggressively interrupting.
+
+- Keyboard Navigation: The close button is a native `<button>` element, making it focusable and actionable via keyboard.
+
+- Contrast: Ensures high contrast (White text on Dark background) for readability.
+
+## Playground
+
+<Canvas of={ToastStories.Default} sourceState="shown" /> <Controls of={ToastStories.Default} />

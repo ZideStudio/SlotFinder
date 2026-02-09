@@ -4,10 +4,11 @@ import './Toast.scss';
 
 type ToastProps = {
   children: React.ReactNode;
+  className?: string;
   onClose?: () => void;
 };
 
-export const Toast = ({ children, onClose }: ToastProps) => {
+export const Toast = ({ children, className, onClose }: ToastProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export const Toast = ({ children, onClose }: ToastProps) => {
 
   const parentClassName = getClassName({
     defaultClassName: 'ds-toast',
-    modifiers: [isVisible ? 'visible' : ''],
+    modifiers: [isVisible ? 'visible' : '', className || ''],
   });
 
   return (

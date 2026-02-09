@@ -5,13 +5,12 @@
   z-index: 1000;
   bottom: helpers.px-to-rem(20);
   left: 50%;
-  transform: translateX(-50%); // Centre le conteneur horizontalement
-  
   display: flex;
   flex-direction: column; // Les toasts s'empilent
   align-items: center;
   gap: helpers.px-to-rem(10);
-  
+  transform: translateX(-50%); // Centre le conteneur horizontalement
+
   // Optionnel : permet aux clics de passer au travers des zones vides du conteneur
-  pointer-events: none; 
+  pointer-events: none;
 }
