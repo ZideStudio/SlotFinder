@@ -1,7 +1,7 @@
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { getClassName } from "@Front/utils/getClassName";
-import { ElementType, useId, ReactNode, ComponentProps } from "react";
+import { type ElementType, useId, type ReactNode, type ComponentProps } from "react";
 import './Field.scss';
 
 type FieldProps<ComponentType extends ElementType> = {
