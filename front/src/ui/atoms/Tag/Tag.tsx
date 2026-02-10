@@ -29,7 +29,7 @@ export const Tag = ({ className, children, color, title, appearance = 'filled' }
         {
           '--tag-color': color,
           color: appearance === 'filled' ? getContrastTextColor(color) : 'black',
-        } as React.CSSProperties
+        } as CSSProperties
       }
     >
       {children}
