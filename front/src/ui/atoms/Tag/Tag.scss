@@ -1,0 +1,20 @@
+@use '../../../utils/sass/mixins/helpers';
+
+.ds-tag {
+  display: inline-flex;
+  max-width: helpers.px-to-rem(150);
+  padding: helpers.px-to-rem(10);
+  border: 1px solid var(--tag-color);
+  border-radius: helpers.px-to-rem(10);
+  align-items: center;
+  justify-content: center;
+
+  &--filled {
+    background-color: var(--tag-color);
+  }
+
+  &--outlined {
+    color: black;
+    background-color: transparent;
+  }
+}
