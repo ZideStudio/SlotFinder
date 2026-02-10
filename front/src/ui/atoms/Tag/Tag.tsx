@@ -1,6 +1,6 @@
 import { getClassName } from '@Front/utils/getClassName';
 import { getContrastTextColor } from '@Front/utils/getContrastTextColor';
-import { type ReactNode } from 'react';
+import { CSSProperties, type ReactNode } from 'react';
 
 import './Tag.scss';
 
@@ -21,10 +21,12 @@ export const Tag = ({ className, children, color, title, appearance = 'filled' }
     modifiers: [appearance].filter(Boolean) as string[],
   });
 
+const tagTitle = title || (typeof children === 'string' ? children : undefined);
+
   return (
     <span
       className={parentClassName}
-      title={title}
+      title={tagTitle}
       style={
         {
           '--tag-color': color,

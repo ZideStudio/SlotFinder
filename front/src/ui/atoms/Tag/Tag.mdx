@@ -37,6 +37,16 @@ A reusable, accessible tag atom for Ui elements.
     </tr>
     <tr>
       <td>
+        <code>title</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>The title of the tag (defaults to children text)</td>
+    </tr>
+    <tr>
+      <td>
         <code>children</code>
       </td>
       <td>
@@ -60,12 +70,12 @@ A reusable, accessible tag atom for Ui elements.
 
 ## Accessibility
 
-- The title display the children text.
+- The title display the children text or the value of the `title` prop.
 
 ## Example
 
 ```tsx
-<Tag color="#007bff">Tag text</Tag>
+<Tag color="#007bff" title="Custom title">Tag text</Tag>
 ```
 
 ## Long text behavior

@@ -7,6 +7,7 @@ const meta = {
   args: {
     children: 'Tag text',
     className: 'custom-class',
+    title: 'Tag title',
   },
   argTypes: {
     children: { control: 'text' },
@@ -20,6 +21,7 @@ export const Filled: StoryObj<typeof meta> = {
     color: '#e3b0b0',
     appearance: 'filled',
     children: 'Filled Tag',
+    title: 'Filled Tag',
   },
 };
 
@@ -28,6 +30,7 @@ export const Outlined: StoryObj<typeof meta> = {
     color: '#28a745',
     appearance: 'outlined',
     children: 'Outlined Tag',
+    title: 'Outlined Tag',
   },
 };
 
@@ -36,5 +39,6 @@ export const Ellipsis: StoryObj<typeof meta> = {
     color: '#ff00ff',
     appearance: 'filled',
     children: 'Very very long filled text',
+    title: 'Very very long filled text',
   },
 };

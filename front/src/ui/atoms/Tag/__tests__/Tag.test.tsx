@@ -6,12 +6,10 @@ describe('Tag', () => {
   it('should render tag component with filled style', () => {
     render(<Tag color="#007bff">Text</Tag>);
     const tag = screen.getByText('Text');
-    const parentTag = tag.parentElement;
     expect(tag).toBeInTheDocument();
     expect(tag).toHaveAttribute('title', 'Text');
-    expect(parentTag).toHaveClass('ds-tag--filled');
-    expect(parentTag).toHaveStyle({ backgroundColor: '#007bff' });
-    expect(parentTag).toHaveStyle({ borderColor: '#007bff' });
+    expect(tag).toHaveClass('ds-tag--filled');
+    expect(tag).toHaveStyle({ '--tag-color': '#007bff' });
   });
 
   it('should render tag component with outlined style', () => {
@@ -21,11 +19,10 @@ describe('Tag', () => {
       </Tag>,
     );
     const tag = screen.getByText('Text');
-    const parentTag = tag.parentElement;
     expect(tag).toBeInTheDocument();
     expect(tag).toHaveAttribute('title', 'Text');
-    expect(parentTag).toHaveClass('ds-tag--outlined');
-    expect(parentTag).toHaveStyle({ borderColor: '#007bff' });
+    expect(tag).toHaveClass('ds-tag--outlined');
+    expect(tag).toHaveStyle({ '--tag-color': '#007bff' });
   });
 
   it('should render tag component with custom class name', () => {
@@ -35,8 +32,25 @@ describe('Tag', () => {
       </Tag>,
     );
     const tag = screen.getByText('Text');
-    const parentTag = tag.parentElement;
     expect(tag).toBeInTheDocument();
-    expect(parentTag).toHaveClass('custom-class');
+    expect(tag).toHaveClass('custom-class');
+  });
+
+  it('should render tag component with title attribute', () => {
+    render(
+      <Tag color="#007bff" title="Custom title">
+        Text
+      </Tag>,
+    );
+    const tag = screen.getByText('Text');
+    expect(tag).toBeInTheDocument();
+    expect(tag).toHaveAttribute('title', 'Custom title');
+  });
+
+  it('should render tag component with children text as title when title prop is not provided', () => {
+    render(<Tag color="#007bff">Text</Tag>);
+    const tag = screen.getByText('Text');
+    expect(tag).toBeInTheDocument();
+    expect(tag).toHaveAttribute('title', 'Text');
   });
 });
