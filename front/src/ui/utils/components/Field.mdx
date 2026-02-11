@@ -6,12 +6,22 @@ import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAto
 
 # Field
 
-A reusable, accessible text input atom for forms and UI elements.
+A reusable, accessible field wrapper component that links an input with its label and error message for forms and UI elements.
+
+## Purpose
+
+The Field component is designed to:
+
+- Receive an input component and render it with proper accessibility attributes
+- Link the input with a label using proper HTML associations
+- Display error messages with appropriate ARIA attributes
+- Manage IDs automatically or accept custom IDs
+- Ensure accessibility compliance (WCAG 2.2 AA and RGAA 4)
 
 ## Usage
 
 ```tsx
-<Field input={TextInputAtom} className="custom-class" />
+<Field input={TextInputAtom} label="Username" error="This field is required" required className="custom-class" />
 ```
 
 ## Props
@@ -36,7 +46,47 @@ A reusable, accessible text input atom for forms and UI elements.
       <td>
         <strong>Yes</strong>
       </td>
-      <td>Input component called </td>
+      <td>The input component to render (e.g., TextInputAtom, TextareaAtom)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>No</td>
+      <td>The label text or content to display for the input field</td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>No</td>
+      <td>Error message to display below the input. Automatically sets aria-invalid and aria-describedby</td>
+    </tr>
+    <tr>
+      <td>
+        <code>required</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>No</td>
+      <td>Marks the field as required and displays a visual indicator</td>
+    </tr>
+    <tr>
+      <td>
+        <code>id</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom ID for the input. If not provided, an ID is automatically generated</td>
     </tr>
     <tr>
       <td>
@@ -46,30 +96,63 @@ A reusable, accessible text input atom for forms and UI elements.
         <code>string</code>
       </td>
       <td>No</td>
-      <td>Custom class for styling</td>
+      <td>Additional CSS class(es) to apply to the field wrapper</td>
+    </tr>
+    <tr>
+      <td>
+        <code>defaultClassName</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Default CSS class for the wrapper (defaults to "ds-field")</td>
     </tr>
     <tr>
       <td>
         <code>...props</code>
       </td>
       <td>
-        <code>input props (HTMLInput)</code>
+        <code>ComponentProps&lt;ComponentType&gt;</code>
       </td>
       <td>No</td>
-      <td>All standard input props (e.g. value, onChange, placeholder)</td>
+      <td>All props are passed through to the input component (e.g., value, onChange, placeholder, name)</td>
     </tr>
   </tbody>
 </table>
 
 ## Accessibility
 
-- Follows WCAG 2.2 AA and RGAA 4 guidelines.
-- Keyboard accessible.
+- **WCAG 2.2 AA & RGAA 4 Compliant**: Follows accessibility best practices
+- **Automatic ID Management**: Links label to input using the `for` and `id` attributes
+- **Error Handling**: Uses `aria-invalid` and `aria-describedby` to announce errors to screen readers
+- **Required Fields**: Properly marks required fields for assistive technologies
+- **Keyboard Accessible**: All interactions work with keyboard navigation
 
-## Example
+## Examples
+
+### Basic Field with Label
 
 ```tsx
-<Field input={TextInputAtom} className="custom-class" />
+<Field input={TextInputAtom} label="Email Address" placeholder="Enter your email" />
+```
+
+### Field with Error
+
+```tsx
+<Field input={TextInputAtom} label="Email Address" error="Invalid email format" placeholder="Enter your email" />
+```
+
+### Required Field
+
+```tsx
+<Field input={TextInputAtom} label="Username" required placeholder="Choose a username" />
+```
+
+### Field with Custom Styling
+
+```tsx
+<Field input={TextInputAtom} label="Custom Field" className="my-custom-class" placeholder="Enter value" />
 ```
 
 ## Playground
