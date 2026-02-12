@@ -23,6 +23,7 @@
         "eamodio.gitlens",
         "GitHub.copilot",
         "GitHub.copilot-chat",
+        "vitest.explorer"
       ],
       "settings": {
         "editor.formatOnSave": true,
