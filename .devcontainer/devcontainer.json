@@ -23,7 +23,8 @@
         "eamodio.gitlens",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "vitest.explorer"
+        "vitest.explorer",
+        "oxc.oxc-vscode"
       ],
       "settings": {
         "editor.formatOnSave": true,
