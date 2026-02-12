@@ -3,7 +3,7 @@
   "dockerComposeFile": ["../docker-compose.dev.yml"],
   "service": "devtools",
   "workspaceFolder": "/workspace",
-  "runServices": ["traefik", "frontend", "storybook", "backend", "postgres", "devtools"],
+  "runServices": ["traefik", "frontend", "backend", "postgres", "devtools"],
   "shutdownAction": "stopCompose",
   "remoteEnv": {
     "GOPATH": "/go",
