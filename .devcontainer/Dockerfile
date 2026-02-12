@@ -39,7 +39,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     postgresql-client \
     build-essential \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install lazygit
