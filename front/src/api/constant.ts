@@ -14,4 +14,3 @@ export enum MIME_TYPES {
   json = 'application/json',
   text = 'text/plain',
 }
-
