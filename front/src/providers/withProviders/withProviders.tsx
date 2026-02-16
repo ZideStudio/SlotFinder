@@ -6,11 +6,11 @@ type WithRootProps = {
   queryClient: ComponentProps<typeof QueryClientProvider>['client'];
 };
 
-export const withProvider = <ComponentProps extends object>(Component: ComponentType<ComponentProps>) => {
-  const WithProvider = ({ queryClient, ...props }: ComponentProps & WithRootProps) => (
+export const withProvider = <WithProviderProps extends object>(Component: ComponentType<WithProviderProps>) => {
+  const WithProvider = ({ queryClient, ...props }: WithProviderProps & WithRootProps) => (
     <QueryClientProvider client={queryClient}>
       <AuthenticationContextProvider>
-        <Component {...(props as ComponentProps)} />
+        <Component {...(props as WithProviderProps)} />
       </AuthenticationContextProvider>
     </QueryClientProvider>
   );
