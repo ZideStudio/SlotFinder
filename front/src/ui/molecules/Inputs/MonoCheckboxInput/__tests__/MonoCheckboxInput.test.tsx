@@ -27,7 +27,7 @@ describe('MonoCheckboxInput', () => {
     const input = screen.getByRole('checkbox');
 
     const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-field custom-class');
+    expect(inputContainer).toHaveClass('ds-checkbox-input custom-class');
   });
 
   it('should render error message linked with input', () => {
@@ -49,13 +49,5 @@ describe('MonoCheckboxInput', () => {
 
     const input = screen.getByRole('checkbox');
     expect(input).not.toHaveAttribute('aria-describedby');
-  });
-
-  it('should have the is-checkbox modifier class when isCheckbox prop is true', () => {
-    render(<MonoCheckboxInput label="Test Label" name="test-input" isCheckbox />);
-    const input = screen.getByRole('checkbox');
-
-    const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-field--is-checkbox');
   });
 });

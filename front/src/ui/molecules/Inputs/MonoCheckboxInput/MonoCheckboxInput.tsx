@@ -3,13 +3,13 @@ import { InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/Inpu
 import { LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
 import { Field } from '@Front/ui/utils/components/Field';
 import { type ComponentProps } from 'react';
+import './MonoCheckboxInput.scss';
 
 type MonoCheckboxInputProps = ComponentProps<typeof CheckboxInputAtom> & {
   label: ComponentProps<typeof LabelInput>['children'];
   error?: ComponentProps<typeof InputErrorMessage>['children'];
-  isCheckbox?: boolean;
 };
 
 export const MonoCheckboxInput = (props: MonoCheckboxInputProps) => {
-  return <Field input={CheckboxInputAtom} isCheckbox {...props} />;
+  return <Field input={CheckboxInputAtom} defaultClassName='ds-checkbox-input' {...props} />;
 };

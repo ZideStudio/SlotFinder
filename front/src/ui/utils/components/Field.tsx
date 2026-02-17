@@ -12,7 +12,6 @@ type FieldProps<ComponentType extends ElementType> = {
   defaultClassName?: string;
   required?: boolean;
   className?: string;
-  isCheckbox?: boolean;
 } & Omit<ComponentProps<ComponentType>, 'id' | 'aria-describedby' | 'aria-invalid' | 'required'>;
 
 export const Field = <ComponentType extends ElementType>({
@@ -23,7 +22,6 @@ export const Field = <ComponentType extends ElementType>({
   required,
   className,
   defaultClassName = 'ds-field',
-  isCheckbox,
   ...props
 }: FieldProps<ComponentType>) => {
   const generatedId = useId();
@@ -33,7 +31,6 @@ export const Field = <ComponentType extends ElementType>({
   const parentClassName = getClassName({
     defaultClassName,
     className,
-    modifiers: isCheckbox ? 'is-checkbox' : '',
   });
 
   const Component = Input as React.ElementType;
