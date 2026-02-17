@@ -27,7 +27,7 @@ describe('MonoCheckboxInput', () => {
     const input = screen.getByRole('checkbox');
 
     const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-checkbox-input custom-class');
+    expect(inputContainer).toHaveClass('ds-mono-checkbox-input custom-class');
   });
 
   it('should render error message linked with input', () => {

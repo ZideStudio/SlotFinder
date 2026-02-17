@@ -11,5 +11,5 @@ type MonoCheckboxInputProps = ComponentProps<typeof CheckboxInputAtom> & {
 };
 
 export const MonoCheckboxInput = (props: MonoCheckboxInputProps) => {
-  return <Field input={CheckboxInputAtom} defaultClassName='ds-checkbox-input' {...props} />;
+  return <Field input={CheckboxInputAtom} defaultClassName='ds-mono-checkbox-input' {...props} />;
 };
