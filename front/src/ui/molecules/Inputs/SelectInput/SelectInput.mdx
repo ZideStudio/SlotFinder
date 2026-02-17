@@ -10,7 +10,16 @@ A reusable, accessible Select input for forms and UI elements.
 ## Usage
 
 ```tsx
-<SelectInput label="Input Label" name="input-name" placeholder="Select an option" className="custom-class" />
+<SelectInput
+  label="Input Label"
+  name="input-name"
+  placeholder="Select an option"
+  className="custom-class"
+  options={[
+    { label: 'Option A', value: 'A' },
+    { label: 'Option B', value: 'B' },
+  ]}
+/>
 ```
 
 ## Props
@@ -48,6 +57,18 @@ A reusable, accessible Select input for forms and UI elements.
         <strong>Yes</strong>
       </td>
       <td>Input name attribute for form identification</td>
+    </tr>
+    <tr>
+      <td>
+        <code>options</code>
+      </td>
+      <td>
+        <code>Array&lt;&#123; label: string; value: string | number; &#125;&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Options to select with a label and a value</td>
     </tr>
     <tr>
       <td>
