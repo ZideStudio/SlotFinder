@@ -104,3 +104,38 @@ jobs:
       - name: Run build
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npm run build:storybook
+
+  chromatic:
+    name: Run Chromatic
+    needs:
+      - storybook-build
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            ui:
+              - 'front/src/ui/**'
+
+      - name: Setup Node (only when UI changed)
+        if: steps.changes.outputs.ui == 'true'
+        uses: ./.github/actions/setup-node
+
+      - name: Run Chromatic
+        if: steps.changes.outputs.ui == 'true'
+        uses: chromaui/action@latest
+        with:
+          buildScriptName: "build:storybook"
+          workingDir: "front"
+          onlyChanged: true
+          zip: true
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
