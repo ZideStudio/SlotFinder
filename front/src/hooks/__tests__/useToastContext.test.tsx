@@ -1,4 +1,4 @@
-import { useToastContext } from '../useToastContext';
+import { useToastContext } from '../useToastService';
 
 describe('ToastContext', () => {
   it('should throw an error if used outside of ToastProvider', () => {

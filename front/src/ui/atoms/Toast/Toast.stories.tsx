@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { ToastProvider } from '@Front/providers/ToastProvider';
-import { useToastContext } from '@Front/hooks/useToastContext';
+import { useToastService } from '@Front/hooks/useToastService';
 
 const meta = {
   title: 'Atoms/Toast',
@@ -9,9 +9,9 @@ const meta = {
 export default meta;
 
 const ToastStoryContent = () => {
-  const { show } = useToastContext();
+  const toastService = useToastService();
 
-  return <button onClick={() => show('Ceci est un toast')}>Afficher le toast</button>;
+  return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
 };
 
 export const Default: StoryObj = {

@@ -6,11 +6,9 @@
   bottom: helpers.px-to-rem(20);
   left: 50%;
   display: flex;
-  flex-direction: column; // Les toasts s'empilent
+  flex-direction: column; 
   align-items: center;
   gap: helpers.px-to-rem(10);
-  transform: translateX(-50%); // Centre le conteneur horizontalement
-
-  // Optionnel : permet aux clics de passer au travers des zones vides du conteneur
+  transform: translateX(-50%);
   pointer-events: none;
 }

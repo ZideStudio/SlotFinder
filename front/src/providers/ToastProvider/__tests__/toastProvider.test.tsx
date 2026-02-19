@@ -1,6 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
 import { ToastProvider } from '../ToastProvider';
-import { useToastContext } from '@Front/hooks/useToastContext';
+import { useToastContext } from '@Front/hooks/useToastService';
 
 describe('ToastProvider', () => {
   it('should render children and provide toast context', () => {
