@@ -1,14 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ToastService } from '../toastService';
 
-beforeEach(() => {
-  vi.useFakeTimers();
-});
 
-afterEach(() => {
-  vi.useRealTimers();
-  vi.clearAllTimers();
-});
+
 
 describe('ToastService', () => {
   it('should return empty array on initialization for getAllToastIds', () => {
@@ -96,6 +90,8 @@ describe('ToastService', () => {
   });
 
   it('should notify subscribers on automatic removal', () => {
+      vi.useFakeTimers();
+
     const storeAuto = new ToastService();
     const observerAuto = vi.fn();
     const unsubscribeAuto = storeAuto.subscribe(observerAuto);
@@ -111,5 +107,7 @@ describe('ToastService', () => {
     expect(storeAuto.getAllToastIds()).toStrictEqual([]);
 
     unsubscribeAuto();
+      vi.useRealTimers();
+  vi.clearAllTimers();
   });
 });

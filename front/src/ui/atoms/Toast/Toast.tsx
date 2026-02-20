@@ -10,7 +10,6 @@ type ToastProps = {
 };
 
 const ToastComponent = ({ className, id }: ToastProps) => {
-  const [isVisible, setIsVisible] = useState(false);
   const toast = useToastSelector(t => t.getToastById(id));
   const toastService = useToastService();
 
@@ -18,26 +17,20 @@ const ToastComponent = ({ className, id }: ToastProps) => {
     return null;
   }
 
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setIsVisible(true);
-    });
-  }, []);
-
   const parentClassName = getClassName({
     defaultClassName: 'ds-toast',
-    modifiers: [isVisible ? 'visible' : '', className || ''],
+    className,
   });
 
   return (
-    <div className={parentClassName} role="status" aria-live="polite">
+    <div className={parentClassName} role="status">
       <span className="ds-toast__content">{toast.message}</span>
       <button
         className="ds-toast__close"
         onClick={() => {
           toastService.removeToast(id);
         }}
-        aria-label="Fermer"
+        aria-label="Fermer la notification"
       >
         ✕
       </button>

@@ -24,7 +24,7 @@ export class ToastService extends AbstractObserver {
   addToast(toast: string, duration?: number) {
     this.currentId += 1;
 
-    const durationToUse = duration || this.defaultDuration;
+    const durationToUse = duration ?? this.defaultDuration;
 
     this.toast.set(this.currentId, {
       id: this.currentId,

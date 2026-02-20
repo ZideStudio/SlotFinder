@@ -22,55 +22,16 @@ const App = () => (
   </ToastProvider>
 );
 
-// 2. Trigger a toast
+// 2. Trigger a toast (you must be within the ToastProvider context)
 const toastService = useToastService();
 
   return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
 };
 ```
 
-## Props
-
-These props define the API for the individual Toast component (used internally by the toast container).
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Required</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>className</code>
-      </td>
-      <td>
-        <code>string</code>
-      </td>
-      <td>
-        <strong>No</strong>
-      </td>
-      <td>The class for override the style</td>
-    </tr>
-    <tr>
-      <td>
-        <code>title</code>
-      </td>
-      <td>
-        <code>string</code>
-      </td>
-      <td>Yes</td>
-      <td>the displayed message</td>
-    </tr>
-  </tbody>
-</table>
-
 ## Accessibility
 
-- Role & Live Region: Uses role="status" and aria-live="polite" so screen readers announce the new message when the user is idle, without aggressively interrupting.
+- Role & Live Region: Uses role="status" so screen readers announce the new message when the user is idle, without aggressively interrupting.
 
 - Keyboard Navigation: The close button is a native `<button>` element, making it focusable and actionable via keyboard.
 
