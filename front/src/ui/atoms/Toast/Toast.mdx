@@ -23,22 +23,15 @@ const App = () => (
 );
 
 // 2. Trigger a toast
-import { useToast } from '@Front/hooks/useToast';
+const toastService = useToastService();
 
-const MyComponent = () => {
-  const { show } = useToast();
-
-  const handleClick = () => {
-    show('This is a success message!');
-  };
-
-  return <button onClick={handleClick}>Show Toast</button>;
+  return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
 };
 ```
 
 ## Props
 
-These props define the API for the individual Toast component (used internally by the Provider).
+These props define the API for the individual Toast component (used internally by the toast container).
 
 <table>
   <thead> 
@@ -52,25 +45,25 @@ These props define the API for the individual Toast component (used internally b
   <tbody>
     <tr> 
       <td> 
-        <code>children</code> 
+        <code>className</code> 
       </td> 
       <td> 
-        <code>ReactNode</code> 
+        <code>string</code> 
       </td> 
       <td> 
-        <strong>Yes</strong> 
+        <strong>No</strong> 
       </td> 
-    <td>The message content to display inside the toast.</td>
+    <td>The class for override the style</td>
     </tr> 
     <tr> 
       <td> 
-        <code>onClose</code> 
+        <code>title</code> 
       </td> 
       <td> 
-        <code>() => void</code> 
+        <code>string</code> 
       </td> 
-      <td>No</td> 
-        <td>Callback function triggered when the close button is clicked.</td> 
+      <td>Yes</td> 
+        <td>the displayed message</td> 
     </tr> 
   </tbody> 
 </table>
@@ -85,4 +78,4 @@ These props define the API for the individual Toast component (used internally b
 
 ## Playground
 
-<Canvas of={ToastStories.Default} sourceState="shown" /> <Controls of={ToastStories.Default} />
+<Canvas of={ToastStories.Default} /> <Controls of={ToastStories.Default} />
