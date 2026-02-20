@@ -13,7 +13,7 @@ export class ToastService extends AbstractObserver {
 
   private readonly toast: Map<number, Toast> = new Map();
 
-  private cachedAllToastIds: Array<number> = [];
+  private cachedAllToastIds: number[] = [];
 
   constructor(duration: number = 3000) {
     super();

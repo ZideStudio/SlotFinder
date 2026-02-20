@@ -101,12 +101,12 @@ describe('ToastService', () => {
     const unsubscribeAuto = storeAuto.subscribe(observerAuto);
 
     storeAuto.addToast('Auto');
-    expect(observerAuto).toHaveBeenCalledTimes(1); // add
+    expect(observerAuto).toHaveBeenCalledTimes(1); // Add
 
     vi.advanceTimersByTime(3000);
-    expect(observerAuto).toHaveBeenCalledTimes(2); // removal after timeout
+    expect(observerAuto).toHaveBeenCalledTimes(2); // Removal after timeout
 
-    // verify the toast was actually removed
+    // Verify the toast was actually removed
     expect(storeAuto.getToastById(1)).toBeUndefined();
     expect(storeAuto.getAllToastIds()).toStrictEqual([]);
 

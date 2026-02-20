@@ -1,12 +1,12 @@
 import { render, fireEvent } from '@testing-library/react';
 import { ToastProvider } from '../ToastProvider';
-import { useToastContext } from '@Front/hooks/useToastService';
+import { useToastService } from '@Front/hooks/useToastService';
 
 describe('ToastProvider', () => {
   it('should render children and provide toast context', () => {
     const TestComponent = () => {
-      const { show } = useToastContext();
-      return <button onClick={() => show('Test Toast')}>Show Toast</button>;
+      const toast = useToastService();
+      return <button onClick={() => toast.addToast('Test Toast')}>Show Toast</button>;
     };
 
     const { getByText } = render(
@@ -25,8 +25,8 @@ describe('ToastProvider', () => {
 
   it('should remove toast after duration', () => {
     const TestComponent = () => {
-      const { show } = useToastContext();
-      return <button onClick={() => show('Test Toast')}>Show Toast</button>;
+      const toast = useToastService();
+      return <button onClick={() => toast.addToast('Test Toast')}>Show Toast</button>;
     };
 
     const { getByText, queryByText } = render(
@@ -47,8 +47,8 @@ describe('ToastProvider', () => {
 
   it('should remove toast when close button is clicked', () => {
     const TestComponent = () => {
-      const { show } = useToastContext();
-      return <button onClick={() => show('Test Toast')}>Show Toast</button>;
+      const toast = useToastService();
+      return <button onClick={() => toast.addToast('Test Toast')}>Show Toast</button>;
     };
 
     const { getByText, queryByText } = render(
