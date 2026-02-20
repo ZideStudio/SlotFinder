@@ -71,7 +71,7 @@
     "prettier-plugin-sh": "^0.18.0",
     "remark-gfm": "^4.0.1",
     "storybook": "^10.2.8",
-    "storybook-react-rsbuild": "^3.2.2",
+    "storybook-react-rsbuild": "^3.2.3",
     "stylelint": "^17.3.0",
     "stylelint-prettier": "^5.0.3",
     "stylelint-scss": "^7.0.0",
