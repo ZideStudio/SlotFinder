@@ -14,7 +14,7 @@ You have two options to set up your development environment:
 #### Quick Start
 
 1. **Prerequisites**
-   - Docker and Docker Compose installed
+   - Docker installed
    - VS Code with [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) OR Zed (recent version)
 
 2. **Open in Container**
