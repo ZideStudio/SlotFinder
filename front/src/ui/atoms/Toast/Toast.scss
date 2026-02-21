@@ -10,7 +10,7 @@
   background-color: var(--color-black);
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
   pointer-events: auto;
-
+  animation: slideIn 0.3s ease-out forwards;
  
 
   &__close {
@@ -21,4 +21,9 @@
     background: none;
     cursor: pointer;
   }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }

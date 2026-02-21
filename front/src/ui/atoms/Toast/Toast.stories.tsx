@@ -11,7 +11,7 @@ export default meta;
 const ToastStoryContent = () => {
   const toastService = useToastService();
 
-  return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
+  return <button onClick={() => toastService.addToast('Ceci est un toast')}>Ajouter un toast</button>;
 };
 
 export const Default: StoryObj = {
