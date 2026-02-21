@@ -11,7 +11,7 @@ export class ToastService extends AbstractObserver {
 
   private readonly defaultDuration: number;
 
-  private readonly toast: Map<number, Toast> = new Map();
+  private readonly toast = new Map<number, Toast>();
 
   private cachedAllToastIds: number[] = [];
 

@@ -9,9 +9,8 @@
   color: var(--color-white);
   background-color: var(--color-black);
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-  pointer-events: auto;
   animation: slideIn 0.3s ease-out forwards;
- 
+  pointer-events: auto;
 
   &__close {
     padding: helpers.px-to-rem(2);
@@ -23,7 +22,14 @@
   }
 }
 
-@keyframes slideIn {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
