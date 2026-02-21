@@ -1,12 +1,12 @@
 import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
 import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
-import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
+import { SelectInputAtom } from '@Front/ui/atoms/Inputs/SelectInputAtom/SelectInputAtom';
 import { Field } from '@Front/ui/utils/components/Field';
 import { type ComponentProps } from 'react';
 
-type TextInputProps = ComponentProps<typeof TextInputAtom> & {
+type SelectInputProps = ComponentProps<typeof SelectInputAtom> & {
   label: ComponentProps<typeof LabelInput>['children'];
   error?: ComponentProps<typeof InputErrorMessage>['children'];
 };
 
-export const TextInput = (props: TextInputProps) => <Field input={TextInputAtom} {...props} />;
+export const SelectInput = (props: SelectInputProps) => <Field input={SelectInputAtom} {...props} />;
