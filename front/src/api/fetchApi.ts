@@ -1,6 +1,7 @@
 import type { Json } from '@Front/types/api.types';
 import { ErrorResponse } from '@Front/types/ErrorResponse';
 import { HEADERS, METHODS, MIME_TYPES } from './constant';
+import { tokenRefreshManager } from './tokenRefreshManager';
 
 type FetchApiError = Error & {
   code?: number;
@@ -33,11 +34,22 @@ export const fetchApi = async <
     mergeHeaders.append(HEADERS.contentType, MIME_TYPES.json);
   }
 
-  const response = await fetch(path, {
-    method,
-    ...(data && { body: JSON.stringify(data) }),
-    headers: mergeHeaders,
-  });
+  const makeRequest = async (): Promise<globalThis.Response> => {
+    return await fetch(path, {
+      method,
+      ...(data && { body: JSON.stringify(data) }),
+      headers: mergeHeaders,
+    });
+  };
+
+  let response = await makeRequest();
+
+  // Handle 498 status code from api (expired access token)
+  const apiUrlFull = `${import.meta.env.FRONT_DOMAIN}${import.meta.env.FRONT_BACKEND_URL}`;
+  if (response.status === 498 && response.url.startsWith(apiUrlFull)) {
+    await tokenRefreshManager.refreshToken();
+    response = await makeRequest(); // Retry the original request
+  }
 
   const content = await response.text();
 

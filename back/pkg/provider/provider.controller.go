@@ -100,6 +100,7 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 	}
 
 	lib.SetAccessTokenCookie(c, jwt.AccessToken, 0)
+	lib.SetRefreshTokenCookie(c, jwt.RefreshToken, 0)
 
 	redirectWithQuery := redirectUrl + "?" + q.Encode()
 	c.Redirect(http.StatusFound, redirectWithQuery)
