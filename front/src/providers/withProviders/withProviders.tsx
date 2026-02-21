@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@Front/providers/QueryClientProvider';
 import type { ComponentProps, ComponentType } from 'react';
 import { AuthenticationContextProvider } from '../../contexts/AuthenticationContext/AuthenticationContextProvider';
-import { ToastProvider } from '../ToastProvider';
+import { ToastProvider } from '../ToastProvider/ToastProvider';
 
 type WithRootProps = {
   queryClient: ComponentProps<typeof QueryClientProvider>['client'];

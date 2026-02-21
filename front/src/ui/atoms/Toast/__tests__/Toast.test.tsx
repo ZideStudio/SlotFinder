@@ -1,7 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/react';
-import { Toast } from '../Toast';
 import { useToastService } from '@Front/hooks/useToastService';
-import { ToastProvider } from '@Front/providers/ToastProvider';
+import { ToastProvider } from '@Front/providers/ToastProvider/ToastProvider';
 
 describe('Toast', () => {
   it('renders the Toast component with the provided message', () => {
