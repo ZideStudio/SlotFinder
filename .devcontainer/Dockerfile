@@ -22,7 +22,9 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     fi
 
 # Go
-RUN curl -fsSL "https://go.dev/dl/go1.25.5.linux-${TARGETARCH}.tar.gz" | tar -C /usr/local -xz
+COPY back/go.mod /tmp/go.mod
+RUN GO_VERSION=$(grep -oP '^go\s+\K[\d.]+' /tmp/go.mod) && \
+    curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz" | tar -C /usr/local -xz
 
 # Git
 ARG LAZYGIT_VERSION=0.44.1
