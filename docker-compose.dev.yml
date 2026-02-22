@@ -99,6 +99,22 @@ services:
     networks:
       - traefik
 
+  devtools:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    user: vscode
+    environment:
+      - GOPATH=/go
+      - GOBIN=/go/bin
+      - PATH=/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - ./:/workspace
+      - go-mod-cache:/home/vscode/go/pkg/mod
+      - ~/.gitconfig:/home/vscode/.gitconfig:ro
+      - ~/.ssh:/home/vscode/.ssh:ro
+    working_dir: /workspace
+
 volumes:
   postgres_data:
   go-mod-cache:

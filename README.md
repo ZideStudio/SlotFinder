@@ -4,7 +4,43 @@ No more endless discussions to find a date: let us suggest the best times that s
 
 ## Development Setup
 
-### Prerequisites
+You have two options to set up your development environment:
+
+1. **Dev Container (Recommended)** - Complete development environment in Docker with IDE integration
+2. **Local Setup** - Traditional setup on your host machine
+
+### Option 1: Dev Container (Recommended)
+
+#### Quick Start
+
+1. **Prerequisites**
+   - Docker installed
+   - VS Code with [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) OR Zed (recent version)
+
+2. **Open in Container**
+
+   ```bash
+   # Clone the repository
+   git clone https://github.com/ZideStudio/SlotFinder
+   cd SlotFinder
+
+   # Open in VS Code
+   code .
+   # Then: Cmd/Ctrl+Shift+P → "Dev Containers: Reopen in Container"
+
+   # OR open in Zed
+   zed .
+   # Then: Cmd/Ctrl+Shift+P → "projects: open dev container"
+   ```
+
+3. **Wait for Setup**
+   - The container builds automatically
+   - Dependencies install automatically
+   - All services start automatically
+
+4. **Start Coding!**
+
+### Option 2: Local Setup
 
 #### Clone the repository
 

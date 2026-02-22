@@ -1,47 +1,67 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "make: start",
-			"type": "shell",
-			"command": "make",
-			"args": ["start"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: build-start",
-			"type": "shell",
-			"command": "make",
-			"args": ["build-start"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: stop",
-			"type": "shell",
-			"command": "make",
-			"args": ["stop"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: down",
-			"type": "shell",
-			"command": "make",
-			"args": ["down"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: clean",
-			"type": "shell",
-			"command": "make",
-			"args": ["clean"],
-			"problemMatcher": []
-		},
-		{
-			"label": "make: logs",
-			"type": "shell",
-			"command": "make",
-			"args": ["logs"],
-			"problemMatcher": []
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "make: start",
+      "type": "shell",
+      "command": "make",
+      "args": ["start"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: build-start",
+      "type": "shell",
+      "command": "make",
+      "args": ["build-start"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: stop",
+      "type": "shell",
+      "command": "make",
+      "args": ["stop"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: down",
+      "type": "shell",
+      "command": "make",
+      "args": ["down"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: clean",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "make: logs",
+      "type": "shell",
+      "command": "make",
+      "args": ["logs"],
+      "problemMatcher": [],
+    },
+    {
+      "label": "backend: test",
+      "type": "shell",
+      "command": "go",
+      "args": ["test", "./..."],
+      "options": {
+        "cwd": "${workspaceFolder}/back",
+      },
+      "problemMatcher": [],
+    },
+    {
+      "label": "backend: format",
+      "type": "shell",
+      "command": "goimports",
+      "args": ["-w", "."],
+      "options": {
+        "cwd": "${workspaceFolder}/back",
+      },
+      "problemMatcher": [],
+    },
+  ],
 }

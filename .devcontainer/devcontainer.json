@@ -1,0 +1,111 @@
+{
+  "name": "slotfinder-dev",
+  "dockerComposeFile": ["../docker-compose.dev.yml"],
+  "service": "devtools",
+  "workspaceFolder": "/workspace",
+  "runServices": [
+    "traefik",
+    "frontend",
+    "storybook",
+    "backend",
+    "postgres",
+    "devtools",
+  ],
+  "shutdownAction": "stopCompose",
+  "remoteEnv": {
+    "GOPATH": "/go",
+    "GOBIN": "/go/bin",
+    "VOLTA_HOME": "/home/vscode/.volta",
+    "PATH": "/home/vscode/.volta/bin:/go/bin:/usr/local/go/bin:${containerEnv:PATH}",
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "vitest.explorer",
+        "oxc.oxc-vscode",
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit",
+        },
+        "[go]": {
+          "editor.defaultFormatter": "golang.go",
+          "editor.formatOnSave": true,
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true,
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true,
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true,
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true,
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+        },
+        "[jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+        },
+        "go.gopath": "/go",
+        "go.toolsGopath": "/go",
+        "go.useLanguageServer": true,
+        "go.formatTool": "goimports",
+        "go.lintOnSave": "workspace",
+        "gopls": {
+          "formatting.gofmt": true,
+          "ui.completion.usePlaceholders": true,
+          "ui.diagnostic.analyses": {
+            "unusedparams": true,
+            "shadow": true,
+          },
+        },
+        "prettier.configPath": "front/prettier.config.mjs",
+        "prettier.prettierPath": "front/node_modules/prettier",
+        "typescript.tsdk": "front/node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true,
+      },
+    },
+  },
+  "forwardPorts": [3000, 3001, 3002, 5432, 9000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend",
+      "onAutoForward": "notify",
+    },
+    "3001": {
+      "label": "Backend",
+      "onAutoForward": "notify",
+    },
+    "3002": {
+      "label": "Storybook",
+      "onAutoForward": "notify",
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "ignore",
+    },
+    "9000": {
+      "label": "Traefik Dashboard",
+      "onAutoForward": "notify",
+    },
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "cd /workspace/front && npm install",
+}

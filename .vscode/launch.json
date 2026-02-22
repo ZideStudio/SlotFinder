@@ -1,0 +1,84 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: Launch",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/back",
+      "cwd": "${workspaceFolder}/back",
+      "env": {},
+      "args": [],
+      "showLog": true
+    },
+    {
+      "name": "Backend: Attach to Process",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "remotePath": "/workspace/back",
+      "port": 2345,
+      "host": "localhost",
+      "showLog": true
+    },
+    {
+      "name": "Backend: Test Current File",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}/back",
+      "showLog": true
+    },
+    {
+      "name": "Backend: Test Current Package",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${fileDirname}",
+      "cwd": "${workspaceFolder}/back",
+      "showLog": true
+    },
+    {
+      "name": "Frontend: Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://localhost:3000",
+      "webRoot": "${workspaceFolder}/front/src",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "name": "Frontend: Edge",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://localhost:3000",
+      "webRoot": "${workspaceFolder}/front/src",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "name": "Frontend: Firefox",
+      "type": "firefox",
+      "request": "launch",
+      "url": "https://localhost:3000",
+      "webRoot": "${workspaceFolder}/front/src",
+      "pathMappings": [
+        {
+          "url": "webpack:///src",
+          "path": "${webRoot}"
+        }
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: Backend + Frontend",
+      "configurations": ["Backend: Launch", "Frontend: Chrome"],
+      "stopAll": true
+    }
+  ]
+}
