@@ -1,6 +1,7 @@
 import { QueryClientProvider } from '@Front/providers/QueryClientProvider';
 import type { ComponentProps, ComponentType } from 'react';
 import { AuthenticationContextProvider } from '../../contexts/AuthenticationContext/AuthenticationContextProvider';
+import { ToastProvider } from '../ToastProvider/ToastProvider';
 
 type WithRootProps = {
   queryClient: ComponentProps<typeof QueryClientProvider>['client'];
@@ -10,7 +11,9 @@ export const withProvider = <WithProviderProps extends object>(Component: Compon
   const WithProvider = ({ queryClient, ...props }: WithProviderProps & WithRootProps) => (
     <QueryClientProvider client={queryClient}>
       <AuthenticationContextProvider>
-        <Component {...(props as WithProviderProps)} />
+        <ToastProvider>
+          <Component {...(props as WithProviderProps)} />
+        </ToastProvider>
       </AuthenticationContextProvider>
     </QueryClientProvider>
   );
