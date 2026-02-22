@@ -44,47 +44,6 @@
       "problemMatcher": [],
     },
     {
-      "label": "frontend: lint",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "lint"],
-      "options": {
-        "cwd": "${workspaceFolder}/front",
-      },
-      "problemMatcher": [],
-    },
-    {
-      "label": "frontend: lint:fix",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "lint:oxlint:fix"],
-      "options": {
-        "cwd": "${workspaceFolder}/front",
-      },
-      "problemMatcher": [],
-    },
-    {
-      "label": "frontend: test",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "test:unit"],
-      "options": {
-        "cwd": "${workspaceFolder}/front",
-      },
-      "problemMatcher": [],
-    },
-    {
-      "label": "frontend: test:watch",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "test:unit:watch"],
-      "options": {
-        "cwd": "${workspaceFolder}/front",
-      },
-      "problemMatcher": [],
-      "isBackground": true,
-    },
-    {
       "label": "backend: test",
       "type": "shell",
       "command": "go",
