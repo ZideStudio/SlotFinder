@@ -79,7 +79,7 @@
                                             Arial, Helvetica, sans-serif;
                                     "
                                 >
-                                    Welcome to SlotFinder!
+                                    {{.title}}
                                 </h1>
                             </td>
                         </tr>
@@ -104,14 +104,11 @@
                                             "
                                         >
                                             <p style="margin: 0 0 16px 0">
-                                                Hello there,
+                                                {{.greeting}}
                                             </p>
 
                                             <p style="margin: 0 0 20px 0">
-                                                Welcome to SlotFinder! Thanks
-                                                for joining our community. We're
-                                                excited to have you and your
-                                                friends on board.
+                                                {{.welcomeMessage}}
                                             </p>
                                         </td>
                                     </tr>
@@ -137,7 +134,7 @@
                                                         sans-serif;
                                                 "
                                             >
-                                                <strong>What's next?</strong>
+                                                <strong>{{.whatsNext}}</strong>
                                             </p>
                                             <ul
                                                 style="
@@ -151,16 +148,13 @@
                                                 "
                                             >
                                                 <li style="margin-bottom: 5px">
-                                                    Start creating your first
-                                                    event
+                                                    {{.steps.createEvent}}
                                                 </li>
                                                 <li style="margin-bottom: 5px">
-                                                    Invite participants to share
-                                                    their availability
+                                                    {{.steps.inviteParticipants}}
                                                 </li>
                                                 <li style="margin-bottom: 0">
-                                                    Choose the perfect time slot
-                                                    for everyone
+                                                    {{.steps.chooseTimeSlot}}
                                                 </li>
                                             </ul>
                                         </td>
@@ -178,9 +172,7 @@
                                                         sans-serif;
                                                 "
                                             >
-                                                No more endless discussions to
-                                                find a date: let us suggest the
-                                                best times that suit everyone.
+                                                {{.getStartedMessage}}
                                             </p>
                                         </td>
                                     </tr>
@@ -217,7 +209,7 @@
                                                                 border-radius: 5px;
                                                             "
                                                         >
-                                                            Get Started
+                                                            {{.buttonText}}
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -267,12 +259,11 @@
                                             "
                                         >
                                             <p style="margin: 0 0 10px 0">
-                                                Thank you for choosing
-                                                SlotFinder!
+                                                {{.footerGreeting}}
                                             </p>
                                             <p style="margin: 0 0 15px 0">
                                                 <strong
-                                                    >The SlotFinder Team</strong
+                                                    >{{.footerSignature}}</strong
                                                 >
                                             </p>
 
@@ -292,9 +283,7 @@
                                                     color: #999999;
                                                 "
                                             >
-                                                If you have any questions, feel
-                                                free to contact us at
-                                                support@slotfinder.com
+                                                {{.footerNote}}
                                             </p>
 
                                             <p
@@ -304,9 +293,7 @@
                                                     color: #999999;
                                                 "
                                             >
-                                                This is an automated message,
-                                                please do not reply to this
-                                                email.
+                                                {{.footerUnsubscribe}}
                                             </p>
                                         </td>
                                     </tr>
