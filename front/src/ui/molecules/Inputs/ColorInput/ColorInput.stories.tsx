@@ -14,13 +14,6 @@ const meta = {
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
-  decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof ColorInput>;
 
 export default meta;
