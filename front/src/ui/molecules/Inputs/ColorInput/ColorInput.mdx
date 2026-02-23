@@ -1,0 +1,35 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ColorInputStories from './ColorInput.stories';
+
+<Meta of={ColorInputStories} />
+
+# ColorInput
+
+A reusable, accessible color input for forms and UI elements.  
+Combines the `ColorInputAtom` with a label and error message via the `Field` utility component.
+
+## Usage
+
+<ColorInput label="Input Label" name="color-input" description="Choisir une couleur" className="custom-class" />
+
+## Props
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `label` | `ReactNode` | Yes | Input label for accessibility and user understanding |
+| `name` | `string` | Yes | Input name attribute for form identification |
+| `description` | `string` | Yes | Placeholder text displayed before a color is selected |
+| `error` | `ReactNode` | No | Error message to display when input is invalid |
+| `className` | `string` | No | Custom class for styling |
+| `...props` | `input props (HTMLInput)` | No | All standard input props except `type` and `name` (e.g. `disabled`, `required`, `onBlur`) |
+
+## Accessibility
+
+- Follows WCAG 2.2 AA and RGAA 4 guidelines.
+- Keyboard accessible.
+- Error message is linked to the input via `aria-describedby`.
+
+## Playground
+
+<Canvas of={ColorInputStories.Default} sourceState="shown" />
+<Controls of={ColorInputStories.Default} />
