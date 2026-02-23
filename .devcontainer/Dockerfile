@@ -21,6 +21,21 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     echo "$TARGETARCH" > /tmp/lg_arch; \
     fi
 
+# Docker
+RUN install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+    && chmod a+r /etc/apt/keyrings/docker.gpg \
+    && echo "deb [arch=$TARGETARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu focal stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && apt-get update && apt-get install -y docker-ce-cli \
+    && groupadd -f docker && usermod -aG docker vscode
+
+RUN apt-get update && apt-get install -y sudo \
+    && echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode
+
+COPY .devcontainer/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Go
 COPY back/go.mod /tmp/go.mod
 RUN GO_VERSION=$(grep -oP '^go\s+\K[\d.]+' /tmp/go.mod) && \
@@ -75,5 +90,6 @@ RUN go install golang.org/x/tools/gopls@v0.21.0 && \
 RUN echo 'alias lg="lazygit"' >> /home/vscode/.bashrc
 
 WORKDIR /workspace
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+USER vscode
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["sleep", "infinity"]

@@ -104,6 +104,8 @@ services:
       context: .
       dockerfile: .devcontainer/Dockerfile
     user: vscode
+    group_add:
+      - docker
     environment:
       - GOPATH=/go
       - GOBIN=/go/bin
@@ -113,6 +115,7 @@ services:
       - go-mod-cache:/home/vscode/go/pkg/mod
       - ~/.gitconfig:/home/vscode/.gitconfig:ro
       - ~/.ssh:/home/vscode/.ssh:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /workspace
 
 volumes:
