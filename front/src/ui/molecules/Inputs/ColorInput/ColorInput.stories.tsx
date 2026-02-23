@@ -4,7 +4,13 @@ import { ColorInput } from './ColorInput';
 const meta = {
   title: 'Molecules/Inputs/ColorInput',
   component: ColorInput,
-  args: { label: 'Label', name: 'color-input', description: 'Choisir une couleur', required: false, className: 'custom-class' },
+  args: {
+    label: 'Label',
+    name: 'color-input',
+    description: 'Choisir une couleur',
+    required: false,
+    className: 'custom-class',
+  },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
