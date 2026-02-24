@@ -61,29 +61,31 @@ describe('ToastService', () => {
   });
 
   it('should notify subscribers on add and remove, and allow unsubscribe', () => {
-    const store = new ToastService();
+  const store = new ToastService();
 
-    const observer = vi.fn();
-    const unsubscribe = store.subscribe(observer);
+  const observer = vi.fn();
+  const unsubscribe = store.subscribe(observer);
 
-    store.addToast('One');
-    expect(observer).toHaveBeenCalledTimes(1);
+  store.addToast('One');
+  expect(observer).toHaveBeenCalledTimes(1);
 
-    store.addToast('Two');
-    expect(observer).toHaveBeenCalledTimes(2);
+  store.addToast('Two');
+  expect(observer).toHaveBeenCalledTimes(2);
 
-    unsubscribe();
+  unsubscribe();
 
-    store.addToast('Three');
-    expect(observer).toHaveBeenCalledTimes(2);
+  observer.mockClear(); 
 
-    const observer2 = vi.fn();
-    const unsubscribe2 = store.subscribe(observer2);
+  store.addToast('Three');
+  expect(observer).not.toHaveBeenCalled();
 
-    store.removeToast(1);
-    expect(observer2).toHaveBeenCalledTimes(1);
+  const observer2 = vi.fn();
+  const unsubscribe2 = store.subscribe(observer2);
 
-    unsubscribe2();
+  store.removeToast(1);
+  expect(observer2).toHaveBeenCalledTimes(1);
+
+  unsubscribe2();
   });
 
   it('should notify subscribers on automatic removal', () => {
