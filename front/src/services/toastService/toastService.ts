@@ -1,19 +1,17 @@
 import { AbstractObserver } from "@Front/observers/abstractObserver";
 
 export type Toast = {
-  id: number;
+  id: string;
   message: string;
   duration?: number;
 };
 
 export class ToastService extends AbstractObserver {
-  private currentId: number = 0;
-
   private readonly defaultDuration: number;
 
-  private readonly toast = new Map<number, Toast>();
+  private readonly toast = new Map<string, Toast>();
 
-  private cachedAllToastIds: number[] = [];
+  private cachedAllToastIds: string[] = [];
 
   constructor(duration: number = 3000) {
     super();
@@ -22,12 +20,12 @@ export class ToastService extends AbstractObserver {
   }
 
   addToast(toast: string, duration?: number) {
-    this.currentId += 1;
+    const newId = globalThis.crypto.randomUUID();
 
-    const durationToUse = duration ?? this.defaultDuration;
+    const durationToUse = duration || this.defaultDuration;
 
-    this.toast.set(this.currentId, {
-      id: this.currentId,
+    this.toast.set(newId, {
+      id: newId,
       message: toast,
       duration: durationToUse,
     });
@@ -35,7 +33,7 @@ export class ToastService extends AbstractObserver {
     this.cachedAllToastIds = Array.from(this.toast.keys());
 
     setTimeout(() => {
-      this.removeToast(this.currentId);
+      this.removeToast(newId);
     }, durationToUse);
 
     this.notifyObservers();
@@ -45,11 +43,11 @@ export class ToastService extends AbstractObserver {
     return this.cachedAllToastIds;
   }
 
-  getToastById(id: number) {
+  getToastById(id: string) {
     return this.toast.get(id);
   }
 
-  removeToast(id: number) {
+  removeToast(id: string) {
     this.toast.delete(id);
 
     this.cachedAllToastIds = Array.from(this.toast.keys());

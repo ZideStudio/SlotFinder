@@ -6,7 +6,7 @@ import { useToastService } from '@Front/hooks/useToastService';
 
 type ToastProps = {
   className?: string;
-  id: number;
+  id: string;
 };
 
 const ToastComponent = ({ className, id }: ToastProps) => {

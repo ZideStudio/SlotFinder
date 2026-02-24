@@ -13,10 +13,11 @@ describe('ToastService', () => {
 
     store.addToast('Hello World');
 
-    const toast = store.getToastById(1);
+    const toastIds = store.getAllToastIds();
+    const toast = store.getToastById(toastIds[0]);
 
     expect(toast).toBeDefined();
-    expect(toast?.id).toStrictEqual(1);
+    expect(toast?.id).toStrictEqual(toastIds[0]);
     expect(toast?.message).toStrictEqual('Hello World');
     expect(toast?.duration).toStrictEqual(3000);
   });
@@ -26,7 +27,8 @@ describe('ToastService', () => {
 
     store.addToast('Short', 1500);
 
-    expect(store.getToastById(1)?.duration).toStrictEqual(1500);
+    const toastIds = store.getAllToastIds();
+    expect(store.getToastById(toastIds[0])?.duration).toStrictEqual(1500);
   });
 
   it('should use constructor default duration when provided', () => {
@@ -34,7 +36,8 @@ describe('ToastService', () => {
 
     store.addToast('Long');
 
-    expect(store.getToastById(1)?.duration).toStrictEqual(10000);
+    const toastIds = store.getAllToastIds();
+    expect(store.getToastById(toastIds[0])?.duration).toStrictEqual(10000);
   });
 
   it('should return all toast ids after adding multiple toasts', () => {
@@ -44,7 +47,8 @@ describe('ToastService', () => {
     store.addToast('B');
     store.addToast('C');
 
-    expect(store.getAllToastIds()).toStrictEqual([1, 2, 3]);
+    const toastIds = store.getAllToastIds();
+    expect(toastIds.length).toBe(3);
   });
 
   it('should remove toast and update ids', () => {
@@ -54,38 +58,40 @@ describe('ToastService', () => {
     store.addToast('B');
     store.addToast('C');
 
-    store.removeToast(2);
+    const toastIds = store.getAllToastIds();
+    store.removeToast(toastIds[1]);
 
-    expect(store.getToastById(2)).toBeUndefined();
-    expect(store.getAllToastIds()).toStrictEqual([1, 3]);
+    expect(store.getToastById(toastIds[1])).toBeUndefined();
+    expect(store.getAllToastIds()).toStrictEqual([toastIds[0], toastIds[2]]);
   });
 
   it('should notify subscribers on add and remove, and allow unsubscribe', () => {
-  const store = new ToastService();
+    const store = new ToastService();
 
-  const observer = vi.fn();
-  const unsubscribe = store.subscribe(observer);
+    const observer = vi.fn();
+    const unsubscribe = store.subscribe(observer);
 
-  store.addToast('One');
-  expect(observer).toHaveBeenCalledTimes(1);
+    store.addToast('One');
+    expect(observer).toHaveBeenCalledTimes(1);
 
-  store.addToast('Two');
-  expect(observer).toHaveBeenCalledTimes(2);
+    store.addToast('Two');
+    expect(observer).toHaveBeenCalledTimes(2);
 
-  unsubscribe();
+    unsubscribe();
 
-  observer.mockClear(); 
+    observer.mockClear();
 
-  store.addToast('Three');
-  expect(observer).not.toHaveBeenCalled();
+    store.addToast('Three');
+    expect(observer).not.toHaveBeenCalled();
 
-  const observer2 = vi.fn();
-  const unsubscribe2 = store.subscribe(observer2);
+    const observer2 = vi.fn();
+    const unsubscribe2 = store.subscribe(observer2);
 
-  store.removeToast(1);
-  expect(observer2).toHaveBeenCalledTimes(1);
+    const toastIds = store.getAllToastIds();
+    store.removeToast(toastIds[0]);
+    expect(observer2).toHaveBeenCalledTimes(1);
 
-  unsubscribe2();
+    unsubscribe2();
   });
 
   it('should notify subscribers on automatic removal', () => {
@@ -102,7 +108,8 @@ describe('ToastService', () => {
     expect(observerAuto).toHaveBeenCalledTimes(2); // Removal after timeout
 
     // Verify the toast was actually removed
-    expect(storeAuto.getToastById(1)).toBeUndefined();
+    const toastIds = storeAuto.getAllToastIds();
+    expect(storeAuto.getToastById(toastIds[0])).toBeUndefined();
     expect(storeAuto.getAllToastIds()).toStrictEqual([]);
 
     unsubscribeAuto();

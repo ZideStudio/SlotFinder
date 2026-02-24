@@ -1,10 +1,14 @@
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, act } from '@testing-library/react';
 import { ToastProvider } from '../ToastProvider';
 import { useToastService } from '@Front/hooks/useToastService';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 describe('ToastProvider', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   const TestComponent = () => {
     const toast = useToastService();
     return <button onClick={() => toast.addToast('Test Toast')}>Show Toast</button>;
@@ -27,23 +31,23 @@ describe('ToastProvider', () => {
   });
 
   it('should remove toast after duration', async () => {
-    const { queryByText } = render(
+    vi.useFakeTimers();
+
+    render(
       <ToastProvider>
         <TestComponent />
       </ToastProvider>,
     );
 
-    const button = screen.getByRole('button', { name: 'Show Toast' });
-    await userEvent.click(button);
-    const toastMessage = await screen.findByText('Test Toast');
-    expect(toastMessage).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show Toast' }));
 
-    await waitFor(
-      () => {
-        expect(queryByText('Test Toast')).not.toBeInTheDocument();
-      },
-      { timeout: 3500 },
-    );
+    expect(screen.getByText('Test Toast')).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(screen.queryByText('Test Toast')).not.toBeInTheDocument();
   });
 
   it('should remove toast when close button is clicked', async () => {
