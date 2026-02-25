@@ -1,6 +1,6 @@
 import { render, fireEvent, act } from '@testing-library/react';
 import { ToastProvider } from '../ToastProvider';
-import { useToastService } from '@Front/hooks/useToastService';
+import { useToastService } from '@Front/ui/utils/toast/hooks/useToastService';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 

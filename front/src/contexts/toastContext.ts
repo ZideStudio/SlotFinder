@@ -1,4 +1,4 @@
-import type { ToastService } from '@Front/services/toastService/toastService';
+import type { ToastService } from '@Front/ui/utils/toast/service/toastService/toastService';
 import { createContext } from 'react';
 
 type ToastContextProps = {

@@ -1,4 +1,4 @@
-import { AbstractObserver } from "@Front/observers/abstractObserver";
+import { AbstractObserver } from "@Front/ui/utils/observers/abstractObserver";
 
 export type Toast = {
   id: string;

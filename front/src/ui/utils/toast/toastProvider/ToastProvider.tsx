@@ -1,5 +1,5 @@
 import { type PropsWithChildren, useRef } from 'react';
-import { ToastService } from '@Front/services/toastService/toastService';
+import { ToastService } from '@Front/ui/utils/toast/service/toastService/toastService';
 import { ToastContext } from '@Front/contexts/toastContext';
 import { ToastContainer } from './ToastContainer';
 
@@ -9,7 +9,6 @@ export type ToastProviderProps = PropsWithChildren & {
 
 export const ToastProvider = ({ children, defaultDuration }: ToastProviderProps) => {
   const toastRef = useRef({ toast: new ToastService(defaultDuration) });
-
 
   return (
     <ToastContext.Provider value={toastRef.current}>

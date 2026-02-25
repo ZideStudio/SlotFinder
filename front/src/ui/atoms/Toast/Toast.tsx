@@ -1,8 +1,8 @@
 import React, { memo, useEffect, useState } from 'react';
 import { getClassName } from '@Front/utils/getClassName';
 import './Toast.scss';
-import { useToastSelector } from '@Front/hooks/useToastSelector';
-import { useToastService } from '@Front/hooks/useToastService';
+import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
+import { useToastService } from '@Front/ui/utils/toast/hooks/useToastService';
 
 type ToastProps = {
   className?: string;
