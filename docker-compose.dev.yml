@@ -58,6 +58,19 @@ services:
     ports:
       - "3002:3002"
 
+  playwright:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.playwright
+    volumes:
+      - ./:/workspace
+    ipc: host
+    networks:
+      - traefik
+    stdin_open: true
+    tty: true
+    command: sleep infinity
+
   backend:
     build:
       context: ./back
@@ -109,7 +122,7 @@ services:
     environment:
       - GOPATH=/go
       - GOBIN=/go/bin
-      - PATH=/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - PATH=/home/vscode/.volta/bin:/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - ./:/workspace
       - go-mod-cache:/home/vscode/go/pkg/mod
