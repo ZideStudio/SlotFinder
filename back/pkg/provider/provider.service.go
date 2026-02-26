@@ -255,6 +255,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		if err := s.accountRepository.Create(repository.AccountCreateDto{
 			Id:        accountId,
 			UserName:  providerAccountResponse.Account.UserName,
+			Email:     providerAccountResponse.Account.Email,
 			Color:     string(color),
 			AvatarUrl: avatarUrl,
 			Providers: providerAccountResponse.Account.Providers,
@@ -274,7 +275,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		}
 
 		// Send welcome email
-		if providerAccountResponse.Account.Email != nil {
+		if account.Email != nil {
 			go s.mailService.SendMail(mail.EmailParams{
 				Template: constants.MAIL_TEMPLATE_WELCOME,
 				To:       *account.Email,

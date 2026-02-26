@@ -1,0 +1,42 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ToastStories from './Toast.stories';
+import { Toast } from './Toast';
+
+<Meta of={ToastStories} />
+
+# Toast
+
+A notification component used to display brief, temporary messages to the user without interrupting their workflow.
+
+## Usage
+
+The Toast component is typically managed via the `ToastProvider`. Wrap your application root with the provider, then use the context to trigger toasts.
+
+```tsx
+// 1. Wrap your application
+import { ToastProvider } from '@Front/components/ToastProvider';
+
+const App = () => (
+  <ToastProvider>
+    <RestOfYourApp />
+  </ToastProvider>
+);
+
+// 2. Trigger a toast (you must be within the ToastProvider context)
+const toastService = useToastService();
+
+  return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
+};
+```
+
+## Accessibility
+
+- Role & Live Region: Uses role="status" so screen readers announce the new message when the user is idle, without aggressively interrupting.
+
+- Keyboard Navigation: The close button is a native `<button>` element, making it focusable and actionable via keyboard.
+
+- Contrast: Ensures high contrast (White text on Dark background) for readability.
+
+## Playground
+
+<Canvas of={ToastStories.Default} /> <Controls of={ToastStories.Default} />
