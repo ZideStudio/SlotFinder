@@ -1,0 +1,107 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ColorInputStories from './ColorInput.stories';
+
+<Meta of={ColorInputStories} />
+
+# ColorInput
+
+A reusable, accessible color input for forms and UI elements.  
+Combines the `ColorInputAtom` with a label and error message via the `Field` utility component.
+
+## Usage
+
+```tsx
+<ColorInput label="Input Label" name="color-input" description="Choisir une couleur" className="custom-class" />
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input label for accessibility and user understanding</td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input name attribute for form identification</td>
+    </tr>
+    <tr>
+      <td>
+        <code>description</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Placeholder text displayed before a color is selected</td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>No</td>
+      <td>Error message to display when input is invalid</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>No</td>
+      <td>All standard input props except type and name (e.g. disabled, required, onBlur)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Follows WCAG 2.2 AA and RGAA 4 guidelines.
+- Keyboard accessible.
+- Error message is linked to the input via `aria-describedby`.
+
+## Playground
+
+<Canvas of={ColorInputStories.Default} sourceState="shown" />
+<Controls of={ColorInputStories.Default} />
