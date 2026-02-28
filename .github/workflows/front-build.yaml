@@ -108,12 +108,12 @@ jobs:
   chromatic:
     name: Run Chromatic
     needs:
-      - storybook-build
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main' }}
+      - install
+    if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
@@ -126,7 +126,7 @@ jobs:
             ui:
               - 'front/src/ui/**'
 
-      - name: Setup Node (only when UI changed)
+      - name: Setup Node
         if: steps.changes.outputs.ui == 'true'
         uses: ./.github/actions/setup-node
 
