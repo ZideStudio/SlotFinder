@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { ColorInputAtom } from './ColorInputAtom';
 
 const meta = {
+  title: 'Atoms/Inputs/ColorInputAtom',
   component: ColorInputAtom,
 } satisfies Meta<typeof ColorInputAtom>;
 
