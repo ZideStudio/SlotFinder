@@ -132,7 +132,7 @@ jobs:
 
       - name: Run Chromatic
         if: steps.changes.outputs.ui == 'true'
-        uses: chromaui/action@latest
+        uses: chromaui/action@v15
         with:
           buildScriptName: "build:storybook"
           workingDir: "front"
