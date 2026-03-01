@@ -13,6 +13,7 @@
   ],
   "shutdownAction": "stopCompose",
   "remoteEnv": {
+    "DISPLAY": ":99",
     "GOPATH": "/go",
     "GOBIN": "/go/bin",
     "VOLTA_HOME": "/home/vscode/.volta",

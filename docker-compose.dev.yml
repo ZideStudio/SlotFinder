@@ -58,19 +58,6 @@ services:
     ports:
       - "3002:3002"
 
-  playwright:
-    build:
-      context: ./docker
-      dockerfile: Dockerfile.playwright
-    volumes:
-      - ./:/workspace
-    ipc: host
-    networks:
-      - traefik
-    stdin_open: true
-    tty: true
-    command: sleep infinity
-
   backend:
     build:
       context: ./back

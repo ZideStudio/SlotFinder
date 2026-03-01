@@ -26,12 +26,15 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && chmod a+r /etc/apt/keyrings/docker.gpg \
     && echo "deb [arch=$TARGETARCH signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu focal stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update && apt-get install -y docker-ce-cli \
+    && apt-get update \
+    && apt-get install -y docker-ce-cli \
     && groupadd -f docker && usermod -aG docker vscode
 
-RUN apt-get update && apt-get install -y sudo \
+RUN apt-get install -y sudo \
     && echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/vscode \
     && chmod 0440 /etc/sudoers.d/vscode
+
+RUN apt-get install -y xvfb
 
 COPY .devcontainer/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
@@ -81,13 +84,19 @@ RUN NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /tmp/package.json | head -1) &&
     volta install node@${NODE_VERSION:-latest} && \
     volta install typescript typescript-language-server vscode-langservers-extracted
 
+RUN npx playwright install && \
+    npx playwright install-deps
+
 # Go
 RUN go install golang.org/x/tools/gopls@v0.21.0 && \
     go install github.com/go-delve/delve/cmd/dlv@v1.26.0 && \
     go install golang.org/x/tools/cmd/goimports@latest && \
     go install github.com/air-verse/air@latest
 
-RUN echo 'alias lg="lazygit"' >> /home/vscode/.bashrc
+RUN cat <<EOF >> /home/vscode/.bashrc
+    alias lg="lazygit"
+    export DISPLAY=:99
+EOF
 
 WORKDIR /workspace
 USER vscode
