@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ToastService } from '../toastService';
 
 describe('ToastService', () => {
@@ -113,6 +113,34 @@ describe('ToastService', () => {
     expect(storeAuto.getAllToastIds()).toStrictEqual([]);
 
     unsubscribeAuto();
+    vi.useRealTimers();
+    vi.clearAllTimers();
+  });
+
+  it('should not notify subscribers twice when toast is manually removed before timeout', () => {
+    vi.useFakeTimers();
+
+    const store = new ToastService();
+    const observer = vi.fn();
+    const unsubscribe = store.subscribe(observer);
+
+    store.addToast('Manual', 10000);
+    expect(observer).toHaveBeenCalledTimes(1);
+    const ids = store.getAllToastIds();
+    expect(ids).toHaveLength(1);
+    const toastId = ids[0];
+
+    vi.advanceTimersByTime(100);
+    store.removeToast(toastId);
+    expect(observer).toHaveBeenCalledTimes(2);
+    observer.mockClear();
+
+    vi.advanceTimersByTime(10000);
+    expect(observer).not.toHaveBeenCalled();
+    expect(store.getToastById(toastId)).toBeUndefined();
+    expect(store.getAllToastIds()).toStrictEqual([]);
+    unsubscribe();
+
     vi.useRealTimers();
     vi.clearAllTimers();
   });
