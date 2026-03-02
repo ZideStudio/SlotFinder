@@ -120,9 +120,9 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	}
 
 	if account.Email != nil {
-		subject := "Welcome to SlotFinder!"
+		subject := constants.MAIL_SUBJECT_WELCOME_EN
 		if account.Language == constants.ACCOUNT_LANGUAGE_FR {
-			subject = "Bievenue sur SlotFinder !"
+			subject = constants.MAIL_SUBJECT_WELCOME_FR
 		}
 
 		go s.mailService.SendMail(mail.EmailParams{
@@ -260,9 +260,9 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 	}
 
 	// Send reset email
-	subject := "Reset your password"
+	subject := constants.MAIL_SUBJECT_PASSWORD_RESET_EN
 	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
-		subject = "Réinitialiser votre mot de passe"
+		subject = constants.MAIL_SUBJECT_PASSWORD_RESET_FR
 	}
 	if err := s.mailService.SendMail(mail.EmailParams{
 		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET,
@@ -326,9 +326,9 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 	}
 
 	// Send confirmation email
-	subject := "Password reset successful"
+	subject := constants.MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_EN
 	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
-		subject = "Mot de passe réinitialisé avec succès"
+		subject = constants.MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_FR
 	}
 	go s.mailService.SendMail(mail.EmailParams{
 		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
