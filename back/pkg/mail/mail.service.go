@@ -153,21 +153,26 @@ func (s *MailService) loadTranslations() error {
 
 // getTranslations returns translations for a specific template and language
 func (s *MailService) getTranslations(templateName constants.MailTemplate, language constants.AccountLanguage) map[string]any {
-	if langTranslations, exists := s.translations[string(language)]; exists {
-		if templateTranslations, exists := langTranslations[templateName]; exists {
-			return templateTranslations
+	// Helper to search for a translation in a given language
+	getLanguageTranslations := func(lang string) (map[string]any, bool) {
+		langTranslations, exists := s.translations[lang]
+		if !exists {
+			return nil, false
 		}
+		templateTranslations, exists := langTranslations[templateName]
+		return templateTranslations, exists
 	}
 
-	// Fallback to English if translation not found
-	if langTranslations, exists := s.translations[string(constants.ACCOUNT_LANGUAGE_EN)]; exists {
-		if templateTranslations, exists := langTranslations[templateName]; exists {
-			log.Warn().
-				Str("template", string(templateName)).
-				Str("requested_language", string(language)).
-				Msg("MAIL_SERVICE::GET_TRANSLATIONS Translation not found, falling back to English")
-			return templateTranslations
-		}
+	if translations, found := getLanguageTranslations(string(language)); found {
+		return translations
+	}
+
+	if translations, found := getLanguageTranslations(string(constants.ACCOUNT_LANGUAGE_EN)); found {
+		log.Warn().
+			Str("template", string(templateName)).
+			Str("requested_language", string(language)).
+			Msg("MAIL_SERVICE::GET_TRANSLATIONS Translation not found, falling back to English")
+		return translations
 	}
 
 	log.Error().
