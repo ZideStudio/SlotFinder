@@ -120,16 +120,20 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 	}
 
 	if account.Email != nil {
-		go func() {
-			_ = s.mailService.SendMail(mail.EmailParams{
-				Template: constants.MAIL_TEMPLATE_WELCOME,
-				To:       *account.Email,
-				Subject:  "Welcome to SlotFinder!",
-				Params: map[string]string{
-					"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
-				},
-			})
-		}()
+		subject := "Welcome to SlotFinder!"
+		if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+			subject = "Bievenue sur SlotFinder !"
+		}
+
+		go s.mailService.SendMail(mail.EmailParams{
+			Template: constants.MAIL_TEMPLATE_WELCOME,
+			To:       *account.Email,
+			Subject:  subject,
+			Language: account.Language,
+			Params: map[string]string{
+				"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
+			},
+		})
 	}
 
 	return token.AccessToken, nil
@@ -256,10 +260,15 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 	}
 
 	// Send reset email
+	subject := "Reset your password"
+	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+		subject = "Réinitialiser votre mot de passe"
+	}
 	if err := s.mailService.SendMail(mail.EmailParams{
 		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET,
 		To:       *account.Email,
-		Subject:  "Reset your password",
+		Subject:  subject,
+		Language: account.Language,
 		Params: map[string]string{
 			"ResetUrl":   fmt.Sprintf("%s/reset-password?token=%s", s.config.Origin, resetTokenEncrypted),
 			"ExpiryTime": "1 hour",
@@ -317,17 +326,20 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 	}
 
 	// Send confirmation email
-	go func() {
-		_ = s.mailService.SendMail(mail.EmailParams{
-			Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
-			To:       *account.Email,
-			Subject:  "Password reset successful",
-			Params: map[string]string{
-				"Timestamp": time.Now().Format("January 2, 2006 at 15:04 UTC"),
-				"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
-			},
-		})
-	}()
+	subject := "Password reset successful"
+	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+		subject = "Mot de passe réinitialisé avec succès"
+	}
+	go s.mailService.SendMail(mail.EmailParams{
+		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
+		To:       *account.Email,
+		Subject:  subject,
+		Language: account.Language,
+		Params: map[string]string{
+			"Timestamp": time.Now().Format("January 2, 2006 at 15:04 UTC"),
+			"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
+		},
+	})
 
 	return nil
 }
