@@ -28,10 +28,9 @@
         "bradlc.vscode-tailwindcss",
         "ms-azuretools.vscode-docker",
         "eamodio.gitlens",
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
         "vitest.explorer",
-        "oxc.oxc-vscode",
+        "github.copilot-chat",
+        "oxc.oxc-vscode"
       ],
       "settings": {
         "editor.formatOnSave": true,
