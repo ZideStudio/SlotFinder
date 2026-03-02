@@ -94,6 +94,7 @@
         "prettier.prettierPath": "front/node_modules/prettier",
         "typescript.tsdk": "front/node_modules/typescript/lib",
         "typescript.enablePromptUseWorkspaceTsdk": true,
+        "debug.javascript.autoAttachFilter": "disabled",
         "files.watcherExclude": {
           "**/node_modules/**": true,
           "**/dist/**": true,
