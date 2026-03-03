@@ -25,12 +25,11 @@
         "golang.go",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "bradlc.vscode-tailwindcss",
         "ms-azuretools.vscode-docker",
         "eamodio.gitlens",
         "vitest.explorer",
         "github.copilot-chat",
-        "oxc.oxc-vscode"
+        "oxc.oxc-vscode",
       ],
       "settings": {
         "editor.formatOnSave": true,
