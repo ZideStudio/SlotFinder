@@ -134,6 +134,4 @@
       "onAutoForward": "notify",
     },
   },
-  "remoteUser": "vscode",
-  "postCreateCommand": "cd /workspace/front && npm install",
 }
