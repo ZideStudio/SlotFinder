@@ -111,7 +111,7 @@
       },
     },
   },
-  "forwardPorts": [3000, 3001, 3002, 5432, 9000],
+  "forwardPorts": [3000, 3001, 3002, 5432, 9000, 51204, 63315],
   "portsAttributes": {
     "3000": {
       "label": "Frontend",
@@ -131,6 +131,14 @@
     },
     "9000": {
       "label": "Traefik Dashboard",
+      "onAutoForward": "notify",
+    },
+    "51204": {
+      "label": "Vitest Brower Runner",
+      "onAutoForward": "notify",
+    },
+    "63315": {
+      "label": "Vitest Browser UI",
       "onAutoForward": "notify",
     },
   },
