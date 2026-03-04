@@ -84,8 +84,7 @@ RUN NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /tmp/package.json | head -1) &&
     volta install node@${NODE_VERSION:-latest} && \
     volta install typescript typescript-language-server vscode-langservers-extracted
 
-RUN npx playwright install && \
-    npx playwright install-deps
+RUN npx playwright install --with-deps
 
 # Go
 RUN go install golang.org/x/tools/gopls@v0.21.0 && \
