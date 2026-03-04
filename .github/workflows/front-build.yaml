@@ -119,7 +119,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Filter changed paths
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
         id: changes
         with:
           filters: |
@@ -132,7 +132,7 @@ jobs:
 
       - name: Run Chromatic
         if: steps.changes.outputs.ui == 'true'
-        uses: chromaui/action@v15
+        uses: chromaui/action@5ec258af08deb3e8c36653bd618cb7fe52090031 # v15
         with:
           buildScriptName: "build:storybook"
           workingDir: "front"
