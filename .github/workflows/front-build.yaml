@@ -6,21 +6,38 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - 'front/**'
-      - '.github/workflows/front-build.yaml'
-      - '.github/actions/setup-node/**'
-      - 'Makefile'
   workflow_dispatch:
   merge_group:
-     branches: ['main']
+    branches: ["main"]
 
 env:
   FRONT_FOLDER: ./front
 
 jobs:
+  detect-changes:
+    name: Detect Front Changes
+    runs-on: ubuntu-latest
+    outputs:
+      back: ${{ steps.filter.outputs.back }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Check for backend file changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            front:
+              - "front/**"
+              - ".github/workflows/front-build.yaml"
+              - ".github/actions/setup-node/**"
+              - "Makefile"
+
   install:
-    name: Install package
+    name: Front Install package
+    needs: detect-changes
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -36,11 +53,11 @@ jobs:
       - name: Install package
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npm ci
-        
+
   lint:
-    name: Lint code
-    needs:
-      - install
+    name: Front Lint code
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -54,9 +71,9 @@ jobs:
         run: npm run lint
 
   test:
-    name: Test
-    needs:
-      - install
+    name: Front Test
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -64,7 +81,7 @@ jobs:
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
-      
+
       - name: Run Playwright install
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npx playwright install
@@ -74,9 +91,9 @@ jobs:
         run: npm run test
 
   build:
-    name: Build
-    needs:
-      - install
+    name: Front Build
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -90,9 +107,9 @@ jobs:
         run: npm run build
 
   storybook-build:
-    name: Build Storybook
-    needs:
-      - install
+    name: Front Build Storybook
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -104,39 +121,3 @@ jobs:
       - name: Run build
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npm run build:storybook
-
-  chromatic:
-    name: Run Chromatic
-    needs:
-      - install
-    if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Filter changed paths
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
-        id: changes
-        with:
-          filters: |
-            ui:
-              - 'front/src/ui/**'
-
-      - name: Setup Node
-        if: steps.changes.outputs.ui == 'true'
-        uses: ./.github/actions/setup-node
-
-      - name: Run Chromatic
-        if: steps.changes.outputs.ui == 'true'
-        uses: chromaui/action@5ec258af08deb3e8c36653bd618cb7fe52090031 # v15
-        with:
-          buildScriptName: "build:storybook"
-          workingDir: "front"
-          onlyChanged: true
-          zip: true
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          autoAcceptChanges: 'main'

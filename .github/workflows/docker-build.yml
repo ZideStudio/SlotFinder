@@ -7,18 +7,37 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - 'docker-compose.dev.yml'
-      - 'docker/**'
-      - 'front/Dockerfile'
-      - 'back/Dockerfile'
-      - '.github/workflows/docker-build.yml'
+
   workflow_dispatch:
   merge_group:
-     branches: ['main']
+    branches: ["main"]
 
 jobs:
+  detect-changes:
+    name: Detect Docker Changes
+    runs-on: ubuntu-latest
+    outputs:
+      back: ${{ steps.filter.outputs.back }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Check for backend file changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docker:
+              - 'docker-compose.dev.yml'
+              - 'docker/**'
+              - 'front/Dockerfile'
+              - 'back/Dockerfile'
+              - '.github/workflows/docker-build.yml'
+
   build:
-    name: Development Docker Compose Build
+    name: Docker Development Compose Build
+    needs: detect-changes
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
