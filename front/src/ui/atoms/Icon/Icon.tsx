@@ -1,4 +1,4 @@
-import { ElementType, type FC, type SVGProps } from 'react';
+import { type FC, type SVGProps } from 'react';
 import { getClassName } from '@Front/utils/getClassName';
 
 import './Icon.scss';
