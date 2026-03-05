@@ -4,6 +4,7 @@ export type Toast = {
   id: string;
   message: string;
   duration?: number;
+  timeout: ReturnType<typeof setTimeout>;
 };
 
 export class ToastService extends AbstractObserver {
@@ -24,17 +25,18 @@ export class ToastService extends AbstractObserver {
 
     const durationToUse = duration || this.defaultDuration;
 
+    const timeout = setTimeout(() => {
+      this.removeToast(newId);
+    }, durationToUse);
+
     this.toast.set(newId, {
       id: newId,
       message: toast,
       duration: durationToUse,
+      timeout,
     });
 
     this.cachedAllToastIds = Array.from(this.toast.keys());
-
-    setTimeout(() => {
-      this.removeToast(newId);
-    }, durationToUse);
 
     this.notifyObservers();
   }
@@ -48,6 +50,11 @@ export class ToastService extends AbstractObserver {
   }
 
   removeToast(id: string) {
+    const toast = this.toast.get(id);
+    if (toast) {
+      clearTimeout(toast.timeout);
+    }
+
     this.toast.delete(id);
 
     this.cachedAllToastIds = Array.from(this.toast.keys());
