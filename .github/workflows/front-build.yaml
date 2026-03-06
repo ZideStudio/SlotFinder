@@ -124,9 +124,8 @@ jobs:
 
   chromatic:
     name: Run Chromatic
-    needs:
-      - install
-    if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.front == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
