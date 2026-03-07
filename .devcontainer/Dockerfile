@@ -11,6 +11,9 @@ USER root
 
 RUN apt-get update && apt-get install -y \
     git make curl unzip postgresql-client build-essential \
+    xvfb sudo \
+    && echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode \
     && rm -rf /var/lib/apt/lists/*
 
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
@@ -20,12 +23,6 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     echo "$TARGETARCH" > /tmp/node_arch && \
     echo "$TARGETARCH" > /tmp/lg_arch; \
     fi
-
-RUN apt-get install -y sudo \
-    && echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/vscode \
-    && chmod 0440 /etc/sudoers.d/vscode
-
-RUN apt-get install -y xvfb
 
 COPY .devcontainer/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
