@@ -4,6 +4,7 @@
 .ds-color-input {
   --outline-width: 1px;
   --outline-color: var(--color-primary-50);
+  --value-font-size: #{helpers.px-to-rem(14)};
 
   display: flex;
   width: fit-content;
@@ -38,6 +39,10 @@
     }
   }
 
+  @include responsive.media-exceeds-width('desktop-small') {
+    --value-font-size: #{helpers.px-to-rem(16)};
+  }
+
   &__icon {
     width: helpers.px-to-rem(20);
     height: helpers.px-to-rem(20);
@@ -45,11 +50,7 @@
   }
 
   &__value {
-    font-size: helpers.px-to-rem(14);
-
-    @include responsive.media-exceeds-width('desktop-small') {
-      font-size: helpers.px-to-rem(16);
-    }
+    font-size: var(--value-font-size);
   }
 
   &__input {
