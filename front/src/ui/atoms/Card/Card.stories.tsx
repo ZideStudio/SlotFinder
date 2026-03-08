@@ -14,6 +14,13 @@ const meta = {
       control: { type: 'text' },
     },
   },
+  decorators: [
+    Story => (
+      <div style={{ width: '300px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof Card>;
 
 export default meta;
