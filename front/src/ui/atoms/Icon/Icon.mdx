@@ -1,7 +1,5 @@
 import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
 import * as IconStories from './Icon.stories';
-import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
-import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
 
 <Meta of={IconStories} />
 
@@ -60,6 +58,9 @@ A reusable, accessible Icon atom.
 ## Example
 
 ```tsx
+import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
+import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
+
 <Icon icon={GoogleIcon} />
 <Icon icon={PaletteIcon} className="custom-color" />
 ```
