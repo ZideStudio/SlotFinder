@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 
-import { FileUploadInputAtom } from './FileUploadInput';
+import { FileUploadInputAtom } from './FileUploadInputAtom';
 
 const meta = {
   component: FileUploadInputAtom,
