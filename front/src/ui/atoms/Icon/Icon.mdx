@@ -1,6 +1,7 @@
 import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
 import * as IconStories from './Icon.stories';
-import googleIcon from '@Front/assets/svg/google_icon.svg?react';
+import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
+import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
 
 <Meta of={IconStories} />
 
@@ -11,7 +12,7 @@ A reusable, accessible Icon atom.
 ## Usage
 
 ```tsx
-<Icon icon={googleIcon} />
+<Icon icon={GoogleIcon} />
 ```
 
 > ⚠️ The `icon` prop expects a React component, not a JSX element. So you should pass the imported SVG directly without wrapping it in JSX.
@@ -59,7 +60,8 @@ A reusable, accessible Icon atom.
 ## Example
 
 ```tsx
-<Icon icon={googleIcon} />
+<Icon icon={GoogleIcon} />
+<Icon icon={PaletteIcon} className="custom-color" />
 ```
 
 ## Playground

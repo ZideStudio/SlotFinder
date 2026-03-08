@@ -5,8 +5,8 @@ describe('Icon', () => {
   it('should render the icon component', () => {
     const { container } = render(
       <Icon
-        icon={() => (
-          <svg>
+        icon={props => (
+          <svg {...props}>
             <rect width="100" height="100" fill="blue" />
           </svg>
         )}
@@ -14,14 +14,15 @@ describe('Icon', () => {
     );
 
     expect(container.querySelector('.ds-icon')).toBeInTheDocument();
-    expect(container.querySelector('svg')).toBeInTheDocument();
+    expect(container.querySelector('.ds-icon')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('.ds-icon')).toHaveAttribute('role', 'presentation');
   });
 
   it('should apply custom class name', () => {
     const { container } = render(
       <Icon
-        icon={() => (
-          <svg>
+        icon={props => (
+          <svg {...props}>
             <rect width="100" height="100" fill="blue" />
           </svg>
         )}

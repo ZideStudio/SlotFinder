@@ -5,20 +5,15 @@ import './Icon.scss';
 
 export type SvgIcon = FC<SVGProps<SVGSVGElement>>;
 
-export type IconProps = {
+export type IconProps = SVGProps<SVGSVGElement> & {
   icon: SvgIcon;
-  className?: string;
 };
 
-export const Icon = ({ icon: IconComponent, className }: IconProps) => {
+export const Icon = ({ icon: IconComponent, className, ...props }: IconProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-icon',
     className,
   });
 
-  return (
-    <span className={parentClassName} aria-hidden="true" role="presentation">
-      <IconComponent />
-    </span>
-  );
+  return <IconComponent className={parentClassName} aria-hidden="true" role="presentation" {...props} />;
 };
