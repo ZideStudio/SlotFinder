@@ -7,8 +7,15 @@ const meta = {
   component: Icon,
   args: {
     icon: GoogleIcon,
-    className: '',
+    className: 'custom-class',
   },
+  decorators: [
+    Story => (
+      <div style={{ width: '50px', height: '50px' }}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof Icon>;
 
 export default meta;
@@ -18,6 +25,5 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     icon: GoogleIcon,
-    className: '',
   },
 };

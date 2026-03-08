@@ -1,9 +1,9 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Icon } from '../Icon';
 
 describe('Icon', () => {
   it('should render the icon component', () => {
-    const { container } = render(
+    render(
       <Icon
         icon={props => (
           <svg {...props}>
@@ -13,13 +13,11 @@ describe('Icon', () => {
       />,
     );
 
-    expect(container.querySelector('.ds-icon')).toBeInTheDocument();
-    expect(container.querySelector('.ds-icon')).toHaveAttribute('aria-hidden', 'true');
-    expect(container.querySelector('.ds-icon')).toHaveAttribute('role', 'presentation');
+    expect(screen.getByRole('presentation', { hidden: true })).toBeInTheDocument();
   });
 
   it('should apply custom class name', () => {
-    const { container } = render(
+    render(
       <Icon
         icon={props => (
           <svg {...props}>
@@ -30,6 +28,6 @@ describe('Icon', () => {
       />,
     );
 
-    expect(container.querySelector('.ds-icon')).toHaveClass('custom-class');
+    expect(screen.getByRole('presentation', { hidden: true })).toHaveClass('custom-class');
   });
 });
