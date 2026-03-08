@@ -149,7 +149,7 @@ jobs:
         with:
           buildScriptName: "build:storybook"
           workingDir: "front"
-          onlyChanged: true
+          onlyChanged: false
           zip: true
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           autoAcceptChanges: "main"
