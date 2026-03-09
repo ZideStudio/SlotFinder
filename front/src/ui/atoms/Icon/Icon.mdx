@@ -1,0 +1,71 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as IconStories from './Icon.stories';
+
+<Meta of={IconStories} />
+
+# Icon
+
+A reusable, accessible Icon atom.
+
+## Usage
+
+```tsx
+<Icon icon={GoogleIcon} />
+```
+
+> ⚠️ The `icon` prop expects a React component, not a JSX element. So you should pass the imported SVG directly without wrapping it in JSX.
+> Don't forget to import your SVGs with the `?react` suffix to ensure they are treated as React components.
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th> <th>Type</th> <th>Required</th> <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>icon</code>
+      </td>
+      <td>
+        <code>`FC<SVGProps<SVGSVGElement>>`</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>The icon component to be rendered</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td> <td>Custom class for styling</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- It uses `aria-hidden="true"` to hide decorative icons from assistive technologies.
+
+- It uses `role="presentation"` for purely decorative icons.
+
+## Example
+
+```tsx
+import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
+import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
+
+<Icon icon={GoogleIcon} />
+<Icon icon={PaletteIcon} className="custom-color" />
+```
+
+## Playground
+
+<Canvas of={IconStories.Default} sourceState="shown" />
+<Controls of={IconStories.Default} />
