@@ -1,0 +1,5 @@
+@use '../../../../assets/css/inputs' as *;
+
+.ds-number-input-atom {
+  @extend %input-base;
+}
