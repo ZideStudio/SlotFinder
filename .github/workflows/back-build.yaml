@@ -6,22 +6,39 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-    paths:
-      - "back/**"
-      - ".github/workflows/back-build.yaml"
-      - ".github/actions/setup-go/**"
-      - "Makefile"
   workflow_dispatch:
   merge_group:
-     branches: ['main']
+    branches: ["main"]
 
 env:
   HUSKY: 0
   BACK_FOLDER: ./back
 
 jobs:
+  detect-changes:
+    name: Detect Back Changes
+    runs-on: ubuntu-latest
+    outputs:
+      back: ${{ steps.filter.outputs.back }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Check for back file changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: filter
+        with:
+          filters: |
+            back:
+              - 'back/**'
+              - '.github/workflows/back-build.yaml'
+              - '.github/actions/setup-go/**'
+              - 'Makefile'
+
   install:
-    name: Install dependencies
+    name: Back Install dependencies
+    needs: detect-changes
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -35,8 +52,9 @@ jobs:
         run: go mod download
 
   lint:
-    name: Lint code
-    needs: install
+    name: Back Lint code
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,8 +68,9 @@ jobs:
         run: go vet ./...
 
   test:
-    name: Test
-    needs: install
+    name: Back Test
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -71,8 +90,9 @@ jobs:
           flags: backend
 
   build:
-    name: Build
-    needs: install
+    name: Back Build
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -86,8 +106,9 @@ jobs:
         run: go build -v ./...
 
   swaggo:
-    name: Check Swagger documentation build
-    needs: install
+    name: Back Check Swagger documentation build
+    needs: [detect-changes, install]
+    if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
