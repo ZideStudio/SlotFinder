@@ -12,6 +12,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    label: 'label',
+    name: 'file-upload',
   },
 };

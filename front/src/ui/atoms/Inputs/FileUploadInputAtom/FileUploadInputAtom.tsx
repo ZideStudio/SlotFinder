@@ -1,17 +1,26 @@
 import { getClassName } from '@Front/utils/getClassName';
+import { useId, type ComponentPropsWithRef } from 'react';
+import UploadIcon from '@material-symbols/svg-400/outlined/upload_file.svg?react';
 
 import './FileUploadInputAtom.scss';
-import { ComponentPropsWithRef } from 'react';
 
-type FileUploadInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
+type FileUploadInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name' | 'type'> & {
   name: string;
 };
 
-export const FileUploadInputAtom = ({ className }: FileUploadInputAtomProps) => {
+export const FileUploadInputAtom = ({ id, className, ...props }: FileUploadInputAtomProps) => {
+  const generatedId = useId();
+  const inputId = id || generatedId;
+
   const parentClassName = getClassName({
     defaultClassName: 'ds-file-upload-input-atom',
     className,
   });
 
-  return <input type="file" className={parentClassName} />;
+  return (
+    <label htmlFor={inputId} className={parentClassName}>
+      <UploadIcon aria-hidden="true"  className='ds-file-upload-input-atom-icon'/>
+      <input id={inputId} type="file" {...props} />
+    </label>
+  );
 };
