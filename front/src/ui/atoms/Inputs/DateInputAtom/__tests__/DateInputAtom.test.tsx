@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { DateInputAtom } from "../DateInputAtom";
+import { render, screen } from '@testing-library/react';
+import { DateInputAtom } from '../DateInputAtom';
 
 describe('DateInputAtom', () => {
   it('renders the date input with default value', () => {
