@@ -19,8 +19,9 @@ export const FileUploadInputAtom = ({ id, className, ...props }: FileUploadInput
 
   return (
     <label htmlFor={inputId} className={parentClassName}>
-      <UploadIcon aria-hidden="true"  className='ds-file-upload-input-atom-icon'/>
-      <input id={inputId} type="file" {...props} />
+      <UploadIcon aria-hidden="true" className="ds-file-upload-input-atom__icon" />
+      <span className="ds-file-upload-input-atom__description">Déposer</span>
+      <input id={inputId} type="file" {...props} className="ds-file-upload-input-atom__input" />
     </label>
   );
 };

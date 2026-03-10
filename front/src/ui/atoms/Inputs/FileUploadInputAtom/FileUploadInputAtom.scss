@@ -1,16 +1,59 @@
-.ds-file-upload-input-atom {
-    display: flex;
-    align-items: center;
-    border: 1px solid var(--color-primary-50);
-    border-radius: 8px;
-    width: fit-content;
-    padding: 6px 12px;
-    gap: 8px;
-    cursor: pointer;
+@use '../../../../utils/sass/mixins/helpers';
+@use '../../../../utils/sass/mixins/responsive';
 
-    &-icon {
-        flex-shrink: 0;
-        width: 20px;
-        height: 20px;
+.ds-file-upload-input-atom {
+  --outline-width: 1px;
+  --outline-color: var(--color-primary-50);
+
+  display: flex;
+  width: fit-content;
+  max-width: helpers.px-to-rem(200);
+  padding: helpers.px-to-rem(6) helpers.px-to-rem(12);
+  border-radius: helpers.px-to-rem(10);
+  align-items: center;
+  gap: helpers.px-to-rem(8);
+  font-weight: 600;
+  outline: var(--outline-width) solid var(--outline-color);
+  transition:
+    outline-color 0.3s ease,
+    filter 0.3s ease;
+  cursor: pointer;
+
+  &__icon {
+    width: helpers.px-to-rem(20);
+    height: helpers.px-to-rem(20);
+    flex-shrink: 0;
+  }
+
+  &:focus-within,
+  &:hover {
+    --outline-width: 2px;
+  }
+
+  &:has(input[aria-invalid='true']) {
+    --outline-width: 2px;
+    --outline-color: var(--color-error);
+
+    &:hover,
+    &:focus-within {
+      --outline-width: 3px;
     }
+  }
+
+  &__description {
+    font-size: helpers.px-to-rem(14);
+
+    @include responsive.media-exceeds-width('desktop-small') {
+      font-size: helpers.px-to-rem(16);
+    }
+  }
+
+  &__input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
 }
