@@ -1,7 +1,7 @@
 import {
-    postTokenRefresh200,
-    postTokenRefresh400,
-    postTokenRefreshNetworkError,
+  postTokenRefresh200,
+  postTokenRefresh400,
+  postTokenRefreshNetworkError,
 } from '@Mocks/handlers/tokenRefreshHandlers';
 import { server } from '@Mocks/server';
 import { http, HttpResponse } from 'msw';
@@ -44,7 +44,7 @@ describe('TokenRefreshManager', () => {
         http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, () => {
           requestCount++;
           return HttpResponse.json({}, { status: 200 });
-        })
+        }),
       );
 
       const refreshPromises = [
