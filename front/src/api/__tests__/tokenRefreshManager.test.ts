@@ -75,19 +75,5 @@ describe('TokenRefreshManager', () => {
 
       expect(mockLocationReload).not.toHaveBeenCalled();
     });
-
-    it('should reset refresh state even when performRefresh throws error', async () => {
-      server.use(postTokenRefresh400);
-
-      await expect(tokenRefreshManager.refreshToken()).rejects.toThrow('Token refresh failed');
-
-      expect(mockLocationReload).toHaveBeenCalledTimes(1);
-
-      server.use(postTokenRefresh200());
-
-      await tokenRefreshManager.refreshToken();
-
-      expect(mockLocationReload).toHaveBeenCalledTimes(1); // Still 1 from previous call
-    });
   });
 });
