@@ -261,8 +261,10 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 
 	// Send reset email
 	subject := constants.MAIL_SUBJECT_PASSWORD_RESET_EN
+	expiryTime := "1 hour"
 	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
 		subject = constants.MAIL_SUBJECT_PASSWORD_RESET_FR
+		expiryTime = "1 heure"
 	}
 	if err := s.mailService.SendMail(mail.EmailParams{
 		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET,
@@ -271,7 +273,7 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 		Language: account.Language,
 		Params: map[string]string{
 			"ResetUrl":   fmt.Sprintf("%s/reset-password?token=%s", s.config.Origin, resetTokenEncrypted),
-			"ExpiryTime": "1 hour",
+			"ExpiryTime": expiryTime,
 		},
 	}); err != nil {
 		log.Error().Err(err).Str("email", *account.Email).Msg("ACCOUNT_SERVICE::SEND_PASSWORD_RESET_EMAIL Failed to send password reset email")
