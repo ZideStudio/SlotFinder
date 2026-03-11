@@ -1,0 +1,5 @@
+@use '../../../../assets/css/inputs' as *;
+
+.ds-date-input-atom {
+  @extend %input-base;
+}
