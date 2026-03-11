@@ -10,7 +10,7 @@ const (
 
 const (
 	MAIL_SUBJECT_WELCOME_EN                = "Welcome to SlotFinder!"
-	MAIL_SUBJECT_WELCOME_FR                = "Bievenue sur SlotFinder !"
+	MAIL_SUBJECT_WELCOME_FR                = "Bienvenue sur SlotFinder !"
 	MAIL_SUBJECT_PASSWORD_RESET_EN         = "Reset your password"
 	MAIL_SUBJECT_PASSWORD_RESET_FR         = "Réinitialiser votre mot de passe"
 	MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_EN = "Password reset successful"
