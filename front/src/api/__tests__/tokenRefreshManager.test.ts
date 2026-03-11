@@ -1,8 +1,7 @@
 import {
-  postTokenRefresh200,
-  postTokenRefresh400,
-  postTokenRefreshNetworkError,
-  postTokenRefreshSlowResponse,
+    postTokenRefresh200,
+    postTokenRefresh400,
+    postTokenRefreshNetworkError,
 } from '@Mocks/handlers/tokenRefreshHandlers';
 import { server } from '@Mocks/server';
 import { describe, expect, it, vi } from 'vitest';
@@ -23,7 +22,7 @@ describe('TokenRefreshManager', () => {
 
   describe('refreshToken', () => {
     it('should successfully refresh token when API returns ok response', async () => {
-      server.use(postTokenRefresh200);
+      server.use(postTokenRefresh200());
 
       await tokenRefreshManager.refreshToken();
 
@@ -39,7 +38,7 @@ describe('TokenRefreshManager', () => {
     });
 
     it('should handle multiple simultaneous refresh requests without duplicate API calls', async () => {
-      server.use(postTokenRefreshSlowResponse);
+      server.use(postTokenRefresh200(100));
 
       const refreshPromises = [
         tokenRefreshManager.refreshToken(),
@@ -53,7 +52,7 @@ describe('TokenRefreshManager', () => {
     });
 
     it('should handle subsequent refresh requests after first one completes', async () => {
-      server.use(postTokenRefresh200);
+      server.use(postTokenRefresh200());
 
       await tokenRefreshManager.refreshToken();
       await tokenRefreshManager.refreshToken();
@@ -76,7 +75,7 @@ describe('TokenRefreshManager', () => {
 
       expect(mockLocationReload).toHaveBeenCalledTimes(1);
 
-      server.use(postTokenRefresh200);
+      server.use(postTokenRefresh200());
 
       await tokenRefreshManager.refreshToken();
 

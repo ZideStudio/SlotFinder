@@ -1,10 +1,11 @@
 import { delay, http, HttpResponse } from 'msw';
 
-export const postTokenRefresh200 = http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, async () => {
-  await delay();
+export const postTokenRefresh200 = (delayMs?: number) =>
+  http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, async () => {
+    await delay(delayMs);
 
-  return HttpResponse.json({}, { status: 200 });
-});
+    return HttpResponse.json({}, { status: 200 });
+  });
 
 export const postTokenRefresh400 = http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, async () => {
   await delay();
@@ -16,10 +17,4 @@ export const postTokenRefreshNetworkError = http.post(`${import.meta.env.FRONT_B
   await delay();
 
   return HttpResponse.error();
-});
-
-export const postTokenRefreshSlowResponse = http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, async () => {
-  await delay(100);
-
-  return HttpResponse.json({}, { status: 200 });
 });
