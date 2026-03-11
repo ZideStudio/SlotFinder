@@ -32,9 +32,7 @@ func NewSigninController(ctl *SigninController) *SigninController {
 // @Router /api/v1/auth/signin [post]
 func (ctl *SigninController) Signin(c *gin.Context) {
 	var data SigninDto
-	err := helpers.SetHttpContextBody(c, &data)
-	if err != nil {
-		helpers.HandleJSONResponse(c, nil, err)
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
 		return
 	}
 
