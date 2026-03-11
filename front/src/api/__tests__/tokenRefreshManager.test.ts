@@ -4,6 +4,7 @@ import {
     postTokenRefreshNetworkError,
 } from '@Mocks/handlers/tokenRefreshHandlers';
 import { server } from '@Mocks/server';
+import { http, HttpResponse } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 import { tokenRefreshManager } from '../tokenRefreshManager';
 
@@ -38,7 +39,13 @@ describe('TokenRefreshManager', () => {
     });
 
     it('should handle multiple simultaneous refresh requests without duplicate API calls', async () => {
-      server.use(postTokenRefresh200(100));
+      let requestCount = 0;
+      server.use(
+        http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, () => {
+          requestCount++;
+          return HttpResponse.json({}, { status: 200 });
+        })
+      );
 
       const refreshPromises = [
         tokenRefreshManager.refreshToken(),
@@ -49,6 +56,7 @@ describe('TokenRefreshManager', () => {
       await Promise.all(refreshPromises);
 
       expect(mockLocationReload).not.toHaveBeenCalled();
+      expect(requestCount).toBe(1);
     });
 
     it('should handle subsequent refresh requests after first one completes', async () => {
