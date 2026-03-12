@@ -1,0 +1,79 @@
+import {
+  postTokenRefresh200,
+  postTokenRefresh400,
+  postTokenRefreshNetworkError,
+} from '@Mocks/handlers/tokenRefreshHandlers';
+import { server } from '@Mocks/server';
+import { http, HttpResponse } from 'msw';
+import { describe, expect, it, vi } from 'vitest';
+import { tokenRefreshManager } from '../tokenRefreshManager';
+
+describe('TokenRefreshManager', () => {
+  const mockLocationReload = vi.fn();
+
+  const originalLocation = globalThis.location;
+  vi.spyOn(globalThis, 'location', 'get').mockImplementation(() => ({
+    ...originalLocation,
+    reload: mockLocationReload,
+  }));
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('refreshToken', () => {
+    it('should successfully refresh token when API returns ok response', async () => {
+      server.use(postTokenRefresh200());
+
+      await tokenRefreshManager.refreshToken();
+
+      expect(mockLocationReload).not.toHaveBeenCalled();
+    });
+
+    it('should reload page and throw error when API returns error response', async () => {
+      server.use(postTokenRefresh400);
+
+      await expect(tokenRefreshManager.refreshToken()).rejects.toThrow('Token refresh failed');
+
+      expect(mockLocationReload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle multiple simultaneous refresh requests without duplicate API calls', async () => {
+      let requestCount = 0;
+      server.use(
+        http.post(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, () => {
+          requestCount++;
+          return HttpResponse.json({}, { status: 200 });
+        }),
+      );
+
+      const refreshPromises = [
+        tokenRefreshManager.refreshToken(),
+        tokenRefreshManager.refreshToken(),
+        tokenRefreshManager.refreshToken(),
+      ];
+
+      await Promise.all(refreshPromises);
+
+      expect(mockLocationReload).not.toHaveBeenCalled();
+      expect(requestCount).toBe(1);
+    });
+
+    it('should handle subsequent refresh requests after first one completes', async () => {
+      server.use(postTokenRefresh200());
+
+      await tokenRefreshManager.refreshToken();
+      await tokenRefreshManager.refreshToken();
+
+      expect(mockLocationReload).not.toHaveBeenCalled();
+    });
+
+    it('should handle fetch network error', async () => {
+      server.use(postTokenRefreshNetworkError);
+
+      await expect(tokenRefreshManager.refreshToken()).rejects.toThrow('Failed to fetch');
+
+      expect(mockLocationReload).not.toHaveBeenCalled();
+    });
+  });
+});
