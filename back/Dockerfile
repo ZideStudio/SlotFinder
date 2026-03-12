@@ -28,7 +28,7 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest && \
     sed -i -e '/LeftDelim/d' -e '/RightDelim/d' docs/docs.go
 
 # compile application
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /usr/src/app
+RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app
 
 ##
 ## STEP 2 - DEPLOY

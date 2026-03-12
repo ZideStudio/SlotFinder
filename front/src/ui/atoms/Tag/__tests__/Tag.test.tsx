@@ -9,7 +9,7 @@ describe('Tag', () => {
     expect(tag).toBeInTheDocument();
     expect(tag).toHaveAttribute('title', 'Text');
     expect(tag).toHaveClass('ds-tag--filled');
-    expect(tag).toHaveStyle({ '--tag-color': '#007bff' });
+    expect(tag).toHaveStyle('--tag-color: #007bff');
   });
 
   it('should render tag component with outlined style', () => {
@@ -22,7 +22,7 @@ describe('Tag', () => {
     expect(tag).toBeInTheDocument();
     expect(tag).toHaveAttribute('title', 'Text');
     expect(tag).toHaveClass('ds-tag--outlined');
-    expect(tag).toHaveStyle({ '--tag-color': '#007bff' });
+    expect(tag).toHaveStyle('--tag-color: #007bff');
   });
 
   it('should render tag component with custom class name', () => {
