@@ -12,7 +12,6 @@ export const DateInputAtom = ({ className, ...props }: DateInputAtomProps) => {
     defaultClassName: 'ds-date-input-atom',
     className,
   });
-  const today = new Date().toISOString().split('T')[0];
 
-  return <input className={parentClassName} type="date" defaultValue={today} {...props} />;
+  return <input className={parentClassName} type="date" {...props} />;
 };
