@@ -2,6 +2,7 @@ package provider
 
 import (
 	"app/config"
+	"errors"
 	"fmt"
 
 	"github.com/go-resty/resty/v2"
@@ -10,8 +11,12 @@ import (
 type GithubUserNameInfo struct {
 	Id        int32  `json:"id"`
 	Name      string `json:"login"`
-	Email     string `json:"email"`
 	AvatarUrl string `json:"avatar_url"`
+}
+
+type GithubUserEmailInfo struct {
+	Email   string `json:"email"`
+	Primary bool   `json:"primary"`
 }
 
 type GithubTokenResponse struct {
@@ -57,10 +62,37 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github user with status %v info: %s", res.StatusCode(), res)
 	}
 
+	var emailInfo []GithubUserEmailInfo
+	res, err = client.R().
+		SetHeader("Authorization", "Bearer "+token.AccessToken).
+		SetResult(&emailInfo).
+		Get("https://api.github.com/user/emails")
+
+	if err != nil {
+		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github emails info: %w", err)
+	}
+	if res.StatusCode() != 200 {
+		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github emails with status %v info: %s", res.StatusCode(), res)
+	}
+
+	if len(emailInfo) == 0 {
+		return ProviderAccount{}, errors.New("OAUTH: no email addresses found for Github user")
+	}
+	var email string
+	for _, currentEmail := range emailInfo {
+		if currentEmail.Primary {
+			email = currentEmail.Email
+			break
+		}
+	}
+	if email == "" {
+		email = emailInfo[0].Email
+	}
+
 	return ProviderAccount{
 		Id:        fmt.Sprintf("%d", userNameInfo.Id),
 		Username:  userNameInfo.Name,
 		AvatarUrl: &userNameInfo.AvatarUrl,
-		Email:     &userNameInfo.Email,
+		Email:     &email,
 	}, nil
 }

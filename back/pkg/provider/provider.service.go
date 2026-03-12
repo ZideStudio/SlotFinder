@@ -116,9 +116,26 @@ type ProviderAccountReponse struct {
 }
 
 func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccountDto, authUserId string) (providerAccountResponse ProviderAccountReponse, err error) {
+	var existingAccount model.Account
+	if err := s.accountRepository.FindOneByEmail(*providerUser.ProviderAccount.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return providerAccountResponse, fmt.Errorf("error finding existing account: %w", err)
+	}
+	if existingAccount.Id != uuid.Nil {
+		providerFound := false
+		for _, provider := range existingAccount.Providers {
+			if provider.Provider == providerUser.Provider {
+				providerFound = true
+				break
+			}
+		}
+		if !providerFound {
+			return providerAccountResponse, constants.ERR_EMAIL_ALREADY_EXISTS.Err
+		}
+	}
+
 	var existingAccountProvider model.AccountProvider
 	if err := s.accountProvidersRepository.FindOneById(providerUser.ProviderAccount.Id, string(providerUser.Provider), &existingAccountProvider); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return providerAccountResponse, fmt.Errorf("error finding provider: %w", err)
+		return providerAccountResponse, fmt.Errorf("error finding existing provider: %w", err)
 	}
 
 	if authUserId != "" && authUserId != existingAccountProvider.AccountId.String() {
@@ -128,7 +145,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 			}
 
 			if err := s.accountProvidersRepository.Delete(providerUser.ProviderAccount.Id); err != nil {
-				return providerAccountResponse, fmt.Errorf("error finding provider: %w", err)
+				return providerAccountResponse, fmt.Errorf("error deleting provider: %w", err)
 			}
 		}
 
@@ -200,7 +217,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		Provider:        provider,
 	}, userId)
 	if err != nil {
-		return tokenResponse, fmt.Errorf("failed to create provider account: %w", err)
+		return tokenResponse, err
 	}
 	if providerAccountResponse.Jwt != nil { // log user
 		return *providerAccountResponse.Jwt, nil
