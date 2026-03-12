@@ -3,8 +3,8 @@ import { DateInputAtom } from '../DateInputAtom';
 
 describe('DateInputAtom', () => {
   it('renders the date input with default value', () => {
-    render(<DateInputAtom name="date-input" value="2026-01-01" data-testid="date-input" />);
-    const input = screen.getByTestId('date-input');
+    render(<DateInputAtom name="date-input" value="2026-01-01" />);
+    const input = screen.getByDisplayValue('2026-01-01');
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('value', '2026-01-01');
     expect(input).toHaveAttribute('type', 'date');
@@ -13,8 +13,8 @@ describe('DateInputAtom', () => {
   });
 
   it('should apply custom className', () => {
-    render(<DateInputAtom name="date-input" className="custom-class" data-testid="date-input" />);
-    const input = screen.getByTestId('date-input');
+    render(<DateInputAtom name="date-input" className="custom-class" value="2026-01-01" />);
+    const input = screen.getByDisplayValue('2026-01-01');
     expect(input).toHaveClass('ds-date-input-atom custom-class');
   });
 });

@@ -5,7 +5,7 @@ import { DateInputAtom } from './DateInputAtom';
 const meta = {
   title: 'Atoms/Inputs/DateInputAtom',
   component: DateInputAtom,
-  args: { name: 'date-input', className: 'custom-class', id: 'date-inputId', defaultValue: '2026-01-01' },
+  args: { name: 'date-input', className: 'custom-class', id: 'date-inputId' },
   argTypes: {
     'aria-invalid': {
       control: { type: 'boolean' },
