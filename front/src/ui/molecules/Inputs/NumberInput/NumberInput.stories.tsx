@@ -5,7 +5,13 @@ import { NumberInput } from './NumberInput';
 const meta = {
   title: 'Molecules/Inputs/NumberInput',
   component: NumberInput,
-  args: { label: 'Label', name: 'number-input', required: false, className: 'custom-class', placeholder: 'Enter a number' },
+  args: {
+    label: 'Label',
+    name: 'number-input',
+    required: false,
+    className: 'custom-class',
+    placeholder: 'Enter a number',
+  },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
