@@ -11,7 +11,6 @@ on:
       - .github/workflows/copilot-setup-steps.yml
 
 env:
-  HUSKY: 0
   FRONT_FOLDER: ./front
 
 jobs:
