@@ -5,7 +5,7 @@
 ##
 
 # specify the base image to  be used for the application, alpine or ubuntu
-FROM golang:1.26.0-alpine AS build
+FROM golang:1.26.1-alpine AS build
 RUN apk --no-cache add --upgrade ca-certificates && update-ca-certificates
 RUN adduser -g "" -s /sbin/nologin -D -H -u 1001 appuser
 
@@ -28,7 +28,7 @@ RUN go install github.com/swaggo/swag/cmd/swag@latest && \
     sed -i -e '/LeftDelim/d' -e '/RightDelim/d' docs/docs.go
 
 # compile application
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /usr/src/app
+RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app
 
 ##
 ## STEP 2 - DEPLOY

@@ -27,12 +27,13 @@ import (
 )
 
 type AccountService struct {
-	accountRepository     *repository.AccountRepository
-	avatarService         *AvatarService
-	signinService         *signin.SigninService
-	mailService           *mail.MailService
-	config                *config.Config
-	passwordResetCooldown *cache.Cache
+	accountRepository      *repository.AccountRepository
+	avatarService          *AvatarService
+	signinService          *signin.SigninService
+	mailService            *mail.MailService
+	config                 *config.Config
+	passwordResetCooldown  *cache.Cache
+	refreshTokenRepository *repository.RefreshTokenRepository
 }
 
 func NewAccountService(service *AccountService) *AccountService {
@@ -41,12 +42,13 @@ func NewAccountService(service *AccountService) *AccountService {
 	}
 
 	return &AccountService{
-		accountRepository:     &repository.AccountRepository{},
-		avatarService:         NewAvatarService(nil),
-		signinService:         signin.NewSigninService(nil),
-		mailService:           mail.NewMailService(nil),
-		config:                config.GetConfig(),
-		passwordResetCooldown: cache.New(10*time.Minute, 15*time.Minute),
+		accountRepository:      &repository.AccountRepository{},
+		avatarService:          NewAvatarService(nil),
+		signinService:          signin.NewSigninService(nil),
+		mailService:            mail.NewMailService(nil),
+		config:                 config.GetConfig(),
+		passwordResetCooldown:  cache.New(10*time.Minute, 15*time.Minute),
+		refreshTokenRepository: &repository.RefreshTokenRepository{},
 	}
 }
 
@@ -63,27 +65,28 @@ func (s *AccountService) CheckUserNameAvailability(userName string, excludeUserI
 	return false, nil
 }
 
-func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
+func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error) {
+	var tokens AccountTokensDto
 	// Validate input
 	if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(data.TermsVersion)) {
-		return "", errors.New("invalid terms version")
+		return tokens, errors.New("invalid terms version")
 	}
 
 	if !lib.IsValidEmail(data.Email) {
-		return "", constants.ERR_INVALID_EMAIL_FORMAT.Err
+		return tokens, constants.ERR_INVALID_EMAIL_FORMAT.Err
 	}
 
 	if !lib.IsValidPassword(data.Password) {
-		return "", constants.ERR_INVALID_PASSWORD_FORMAT.Err
+		return tokens, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 	}
 
 	// Check if email already exists
 	var existingAccount model.Account
 	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", err
+		return tokens, err
 	}
 	if existingAccount.Id != uuid.Nil {
-		return "", constants.ERR_EMAIL_ALREADY_EXISTS.Err
+		return tokens, constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
 	// Choose a random color
@@ -102,7 +105,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		TermsVersion: &data.TermsVersion,
 		AvatarUrl:    s.avatarService.GetGravatarURL(accountId.String()),
 	}, &account); err != nil {
-		return "", err
+		return tokens, err
 	}
 
 	// Generate token
@@ -113,26 +116,33 @@ func (s *AccountService) Create(data *AccountCreateDto) (string, error) {
 		TermsAccepted: true,
 	}
 
-	token, err := s.signinService.GenerateToken(claims)
+	token, err := s.signinService.GenerateTokens(claims)
 	if err != nil {
 		_ = s.accountRepository.Delete(account.Id)
-		return "", err
+		return tokens, err
 	}
 
 	if account.Email != nil {
-		go func() {
-			_ = s.mailService.SendMail(mail.EmailParams{
-				Template: constants.MAIL_TEMPLATE_WELCOME,
-				To:       *account.Email,
-				Subject:  "Welcome to SlotFinder!",
-				Params: map[string]string{
-					"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
-				},
-			})
-		}()
+		subject := constants.MAIL_SUBJECT_WELCOME_EN
+		if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+			subject = constants.MAIL_SUBJECT_WELCOME_FR
+		}
+
+		go s.mailService.SendMail(mail.EmailParams{
+			Template: constants.MAIL_TEMPLATE_WELCOME,
+			To:       *account.Email,
+			Subject:  subject,
+			Language: account.Language,
+			Params: map[string]string{
+				"LoginUrl": fmt.Sprintf("%s/login", s.config.Origin),
+			},
+		})
 	}
 
-	return token.AccessToken, nil
+	tokens.AccessToken = token.AccessToken
+	tokens.RefreshToken = token.RefreshToken
+
+	return tokens, nil
 }
 
 func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err error) {
@@ -143,7 +153,7 @@ func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err err
 	return account, nil
 }
 
-func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, accessToken *string, err error) {
+func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, tokens *AccountTokensDto, err error) {
 	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
 		return account, nil, err
 	}
@@ -168,11 +178,13 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	if dto.Email != nil {
 		account.Email = dto.Email
 	}
+	passwordChanged := false
 	if dto.Password != nil {
 		if !lib.IsValidPassword(*dto.Password) {
 			return account, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
+		passwordChanged = true
 	}
 	if dto.Language != nil {
 		account.Language = *dto.Language
@@ -198,21 +210,29 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	if dto.UserName != nil || termsUpdated {
-		termsAccepted := account.TermsAcceptedAt != nil
+	// Generate new tokens if username was set or password was changed
+	if dto.UserName != nil || termsUpdated || passwordChanged {
+		// If password changed, revoke all existing refresh tokens to force re-login on all devices
+		if passwordChanged {
+			_ = s.refreshTokenRepository.RevokeAllForAccount(userId)
+		}
+
 		claims := &guard.Claims{
 			Id:            account.Id,
 			Username:      account.UserName,
 			Email:         account.Email,
-			TermsAccepted: termsAccepted,
+			TermsAccepted: account.TermsAcceptedAt != nil,
 		}
 
-		token, err := s.signinService.GenerateToken(claims)
+		token, err := s.signinService.GenerateTokens(claims)
 		if err != nil {
 			_ = s.accountRepository.Delete(account.Id)
 			return account, nil, err
 		}
-		accessToken = &token.AccessToken
+		tokens = &AccountTokensDto{
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
+		}
 	}
 
 	me, err := s.GetMe(userId)
@@ -220,7 +240,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		return account, nil, err
 	}
 
-	return me, accessToken, nil
+	return me, tokens, nil
 }
 
 // ForgotPassword generates a reset token and sends reset email
@@ -256,13 +276,20 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 	}
 
 	// Send reset email
+	subject := constants.MAIL_SUBJECT_PASSWORD_RESET_EN
+	expiryTime := "1 hour"
+	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+		subject = constants.MAIL_SUBJECT_PASSWORD_RESET_FR
+		expiryTime = "1 heure"
+	}
 	if err := s.mailService.SendMail(mail.EmailParams{
 		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET,
 		To:       *account.Email,
-		Subject:  "Reset your password",
+		Subject:  subject,
+		Language: account.Language,
 		Params: map[string]string{
 			"ResetUrl":   fmt.Sprintf("%s/reset-password?token=%s", s.config.Origin, resetTokenEncrypted),
-			"ExpiryTime": "1 hour",
+			"ExpiryTime": expiryTime,
 		},
 	}); err != nil {
 		log.Error().Err(err).Str("email", *account.Email).Msg("ACCOUNT_SERVICE::SEND_PASSWORD_RESET_EMAIL Failed to send password reset email")
@@ -317,17 +344,22 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 	}
 
 	// Send confirmation email
-	go func() {
-		_ = s.mailService.SendMail(mail.EmailParams{
-			Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
-			To:       *account.Email,
-			Subject:  "Password reset successful",
-			Params: map[string]string{
-				"Timestamp": time.Now().Format("January 2, 2006 at 15:04 UTC"),
-				"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
-			},
-		})
-	}()
+	subject := constants.MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_EN
+	timestampFormat := "January 2, 2006 at 15:04 UTC"
+	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+		subject = constants.MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_FR
+		timestampFormat = "2 January 2006 à 15:04 UTC"
+	}
+	go s.mailService.SendMail(mail.EmailParams{
+		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
+		To:       *account.Email,
+		Subject:  subject,
+		Language: account.Language,
+		Params: map[string]string{
+			"Timestamp": time.Now().Format(timestampFormat),
+			"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
+		},
+	})
 
 	return nil
 }

@@ -32,9 +32,7 @@ func NewSigninController(ctl *SigninController) *SigninController {
 // @Router /api/v1/auth/signin [post]
 func (ctl *SigninController) Signin(c *gin.Context) {
 	var data SigninDto
-	err := helpers.SetHttpContextBody(c, &data)
-	if err != nil {
-		helpers.HandleJSONResponse(c, nil, err)
+	if err := helpers.SetHttpContextBody(c, &data); err != nil {
 		return
 	}
 
@@ -45,6 +43,37 @@ func (ctl *SigninController) Signin(c *gin.Context) {
 	}
 
 	lib.SetAccessTokenCookie(c, token.AccessToken, 0)
+	lib.SetRefreshTokenCookie(c, token.RefreshToken, 0)
+
+	helpers.HandleJSONResponse(c, nil, nil)
+}
+
+// @Summary Refresh access token
+// @Description Refresh access token using refresh token
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 401 {object} helpers.ApiError
+// @Router /api/v1/auth/refresh [post]
+func (ctl *SigninController) Refresh(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	token, err := ctl.signinService.RefreshAccessToken(refreshToken)
+	if err != nil {
+		// Clear both cookies on error
+		lib.SetAccessTokenCookie(c, "", -1)
+		lib.SetRefreshTokenCookie(c, "", -1)
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	lib.SetAccessTokenCookie(c, token.AccessToken, 0)
+	lib.SetRefreshTokenCookie(c, token.RefreshToken, 0)
 
 	helpers.HandleJSONResponse(c, nil, nil)
 }

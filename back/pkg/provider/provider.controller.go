@@ -13,6 +13,7 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 type ProviderController struct {
@@ -93,13 +94,19 @@ func (ctl *ProviderController) ProviderCallback(c *gin.Context) {
 
 	jwt, err := ctl.signinService.ProviderCallback(provider, code, userId)
 	if err != nil {
-		q.Set("error", constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error())
+		var finalError string = err.Error()
+		if !lib.IsCustomError(err) {
+			log.Error().Err(err).Msg("PROVIDER_CALLBACK failed to connect user")
+			finalError = constants.ERR_PROVIDER_CONNECTION_FAILED.Err.Error()
+		}
+		q.Set("error", finalError)
 		redirectWithQuery := redirectUrl + "?" + q.Encode()
 		c.Redirect(http.StatusFound, redirectWithQuery)
 		return
 	}
 
 	lib.SetAccessTokenCookie(c, jwt.AccessToken, 0)
+	lib.SetRefreshTokenCookie(c, jwt.RefreshToken, 0)
 
 	redirectWithQuery := redirectUrl + "?" + q.Encode()
 	c.Redirect(http.StatusFound, redirectWithQuery)
