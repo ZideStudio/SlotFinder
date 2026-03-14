@@ -3,6 +3,7 @@ import { useId, type ComponentPropsWithRef } from 'react';
 import UploadIcon from '@material-symbols/svg-400/outlined/upload_file.svg?react';
 
 import './FileUploadInputAtom.scss';
+import { Icon } from '../../Icon/Icon';
 
 type FileUploadInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name' | 'type'> & {
   name: string;
@@ -19,7 +20,7 @@ export const FileUploadInputAtom = ({ id, className, ...props }: FileUploadInput
 
   return (
     <label htmlFor={inputId} className={parentClassName}>
-      <UploadIcon aria-hidden="true" className="ds-file-upload-input-atom__icon" />
+      <Icon icon={UploadIcon} className="ds-file-upload-input-atom__icon" />
       <span className="ds-file-upload-input-atom__description">Déposer</span>
       <input id={inputId} type="file" className="ds-file-upload-input-atom__input" {...props} />
     </label>
