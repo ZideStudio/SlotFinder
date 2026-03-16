@@ -6,13 +6,14 @@
   --select-atom-shadow-color: var(--select-atom-color);
   --select-atom-shadow-size: #{helpers.px-to-rem(1)};
   --select-atom-border-color: transparent;
+  --select-atom-font-size: #{helpers.px-to-rem(14)};
 
   width: 100%;
   padding: helpers.px-to-rem(8) helpers.px-to-rem(10);
   border: helpers.px-to-rem(1) solid var(--select-atom-border-color);
   border-radius: helpers.px-to-rem(4);
   overflow: hidden;
-  font-size: helpers.px-to-rem(14);
+  font-size: var(--select-atom-font-size);
   text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--color-white);
@@ -75,7 +76,7 @@
   }
 
   @include responsive.media-exceeds-width('desktop-small') {
-    font-size: helpers.px-to-rem(16);
+    --select-atom-font-size: #{helpers.px-to-rem(16)};
   }
 
   &:hover:not(:focus):not([aria-invalid='true']) {
