@@ -25,6 +25,7 @@ type Account struct {
 	CreatedAt            time.Time                 `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt,omitzero"`
 	UpdatedAt            time.Time                 `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"-"`
 	DeletedAt            *time.Time                `gorm:"column:deleted_at;default:null" json:"-"`
+	TimeZone             string                    `gorm:"column:time_zone;type:varchar(50);default:'UTC'" json:"timeZone,omitempty"`
 }
 
 func (Account) TableName() string {

@@ -25,6 +25,7 @@ type AccountCreateDto struct {
 	AvatarUrl    string
 	TermsVersion *string
 	Providers    []model.AccountProvider
+	TimeZone     time.Location
 }
 
 func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) error {
@@ -37,6 +38,7 @@ func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) 
 		AvatarUrl:    data.AvatarUrl,
 		Providers:    data.Providers,
 		TermsVersion: data.TermsVersion,
+		TimeZone:     data.TimeZone.String(),
 	}
 	if account.TermsVersion != nil {
 		now := time.Now().UTC()

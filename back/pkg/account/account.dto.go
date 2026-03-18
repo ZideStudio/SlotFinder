@@ -1,6 +1,8 @@
 package account
 
-import "app/commons/constants"
+import (
+	"app/commons/constants"
+)
 
 type AccountCreateDto struct {
 	Email         string                    `json:"email" binding:"required,email,min=6,max=320"`
@@ -8,6 +10,7 @@ type AccountCreateDto struct {
 	Language      constants.AccountLanguage `json:"language" binding:"required,oneof=en fr"`
 	TermsAccepted bool                      `json:"termsAccepted" binding:"required,eq=true"`
 	TermsVersion  string                    `json:"termsVersion" binding:"required"`
+	TimeZone      string                    `json:"timeZone" binding:"required"`
 }
 
 type AccountUpdateDto struct {
@@ -18,6 +21,7 @@ type AccountUpdateDto struct {
 	Language      *constants.AccountLanguage `json:"language" binding:"omitempty,oneof=en fr"`
 	TermsAccepted *bool                      `json:"termsAccepted" binding:"omitempty,eq=true"`
 	TermsVersion  *string                    `json:"termsVersion"`
+	TimeZone      *string                    `json:"timeZone" binding:"omitempty"`
 }
 
 type ForgotPasswordDto struct {

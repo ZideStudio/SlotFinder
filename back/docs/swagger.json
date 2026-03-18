@@ -910,7 +910,8 @@
                 "language",
                 "password",
                 "termsAccepted",
-                "termsVersion"
+                "termsVersion",
+                "timeZone"
             ],
             "properties": {
                 "email": {
@@ -937,6 +938,9 @@
                     "type": "boolean"
                 },
                 "termsVersion": {
+                    "type": "string"
+                },
+                "timeZone": {
                     "type": "string"
                 }
             }
@@ -971,6 +975,9 @@
                     "type": "boolean"
                 },
                 "termsVersion": {
+                    "type": "string"
+                },
+                "timeZone": {
                     "type": "string"
                 },
                 "username": {
@@ -1215,6 +1222,9 @@
                     "type": "string"
                 },
                 "termsVersion": {
+                    "type": "string"
+                },
+                "timeZone": {
                     "type": "string"
                 },
                 "userName": {

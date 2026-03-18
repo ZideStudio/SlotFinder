@@ -918,7 +918,8 @@ const docTemplate = `{
                 "language",
                 "password",
                 "termsAccepted",
-                "termsVersion"
+                "termsVersion",
+                "timeZone"
             ],
             "properties": {
                 "email": {
@@ -945,6 +946,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "termsVersion": {
+                    "type": "string"
+                },
+                "timeZone": {
                     "type": "string"
                 }
             }
@@ -979,6 +983,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "termsVersion": {
+                    "type": "string"
+                },
+                "timeZone": {
                     "type": "string"
                 },
                 "username": {
@@ -1223,6 +1230,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "termsVersion": {
+                    "type": "string"
+                },
+                "timeZone": {
                     "type": "string"
                 },
                 "userName": {

@@ -89,6 +89,11 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 		return tokens, constants.ERR_EMAIL_ALREADY_EXISTS.Err
 	}
 
+	timeZone, err := time.LoadLocation(data.TimeZone)
+	if err != nil {
+		return tokens, errors.New("invalid time zone")
+	}
+
 	// Choose a random color
 	colors := constants.COLORS
 	color := colors[mathrand.Intn(len(colors))]
@@ -104,6 +109,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 		Language:     data.Language,
 		TermsVersion: &data.TermsVersion,
 		AvatarUrl:    s.avatarService.GetGravatarURL(accountId.String()),
+		TimeZone:     *timeZone,
 	}, &account); err != nil {
 		return tokens, err
 	}
@@ -177,6 +183,14 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 	if dto.Email != nil {
 		account.Email = dto.Email
+	}
+
+	if dto.TimeZone != nil {
+		timeZone, err := time.LoadLocation(*dto.TimeZone)
+		if err != nil {
+			return account, nil, errors.New("invalid time zone")
+		}
+		account.TimeZone = timeZone.String()
 	}
 	passwordChanged := false
 	if dto.Password != nil {
