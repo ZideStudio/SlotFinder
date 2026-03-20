@@ -1,42 +1,53 @@
-.PHONY: dev dev-build dev-down clean logs
+.PHONY: start build-start stop down clean logs front back storybook
 
 # Default target
 all: start
 
-# Start development environment
+# Start infrastructure (traefik + postgres)
 start:
 	docker compose -p slotfinder -f docker-compose.dev.yml up -d
-	@echo "\n🚀 Development environment started!"
-	@echo "📱 Front: https://localhost"
-	@echo "📒 Storybook: http://localhost:3002"
-	@echo "🔧 API: https://localhost/api"
-	@echo "🔧 API Doc: https://localhost/api/swagger/index.html"
+	@echo "\n🚀 Infrastructure started!"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"
 	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
+	@echo "\nRun 'make front' to start the frontend, 'make back' to start the backend."
 
-# Build and start development environment
+# Build and start infrastructure
 build-start:
 	docker compose -p slotfinder -f docker-compose.dev.yml up -d --build
-	@echo "\n🚀 Development environment built and started!"
-	@echo "📱 Front: https://localhost"
-	@echo "📒 Storybook: http://localhost:3002"
-	@echo "🔧 API: https://localhost/api"
-	@echo "🔧 API Doc: https://localhost/api/swagger/index.html"
+	@echo "\n🚀 Infrastructure built and started!"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"
 	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
+	@echo "\nRun 'make front' to start the frontend, 'make back' to start the backend."
 
-# Stop development environment
+# Stop infrastructure
 stop:
 	docker compose -p slotfinder -f docker-compose.dev.yml stop
 
-# Stop and remove development environment containers
+# Stop and remove infrastructure containers
 down:
 	docker compose -p slotfinder -f docker-compose.dev.yml down
 
-# Clean development environment (remove containers and volumes)
+# Clean infrastructure (remove containers and volumes)
 clean:
 	docker compose -p slotfinder -f docker-compose.dev.yml down -v --remove-orphans
 
-# Tail logs of backend and frontend services
+# Tail logs of infrastructure services
 logs:
-	docker compose -p slotfinder -f docker-compose.dev.yml logs -f backend frontend
+	docker compose -p slotfinder -f docker-compose.dev.yml logs -f
+
+# Start frontend (auto-installs node_modules if missing)
+front:
+	@cd front && [ -d node_modules ] || npm install
+	@echo "\n📱 Starting frontend on https://localhost"
+	cd front && npm run start
+
+# Start backend with hot reload
+back:
+	@echo "\n🔧 Starting backend on https://localhost/api"
+	cd back && air
+
+# Start storybook (auto-installs node_modules if missing)
+storybook:
+	@cd front && [ -d node_modules ] || npm install
+	@echo "\n📒 Starting Storybook on http://localhost:3002"
+	cd front && npm run start:storybook

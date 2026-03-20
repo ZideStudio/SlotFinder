@@ -5,9 +5,6 @@
   "workspaceFolder": "/workspace",
   "runServices": [
     "traefik",
-    "frontend",
-    "storybook",
-    "backend",
     "postgres",
     "devtools"
   ],
