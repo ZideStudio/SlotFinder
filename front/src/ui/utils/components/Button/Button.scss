@@ -1,0 +1,62 @@
+@use '../../../../utils/sass/mixins/helpers';
+
+.ds-button {
+  display: flex;
+  padding: helpers.px-to-rem(12) helpers.px-to-rem(24);
+  border-radius: helpers.px-to-rem(6);
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  cursor: pointer;
+
+  &__icon {
+    display: inline-flex;
+    width: helpers.px-to-rem(16);
+    height: helpers.px-to-rem(16);
+    margin-right: helpers.px-to-rem(8);
+  }
+
+  &--primary {
+    border: helpers.px-to-rem(2) solid var(--btn-color);
+    color: var(--color-white);
+    background-color: var(--btn-color);
+
+    &:hover {
+      color: var(--btn-color);
+      background-color: transparent;
+    }
+  }
+
+  &--secondary {
+    border: helpers.px-to-rem(2) solid var(--btn-color);
+    color: var(--btn-color);
+    background-color: transparent;
+
+    &:hover {
+      color: var(--color-white);
+      background-color: var(--btn-color);
+    }
+  }
+
+  &--default {
+    --btn-color: var(--color-primary);
+  }
+
+  &--neutral {
+    --btn-color: var(--color-grey-400);
+  }
+
+  &--danger {
+    --btn-color: var(--color-error);
+  }
+
+  &:is([disabled], [aria-disabled='true'], &--disabled) {
+    border-color: transparent;
+    color: var(--color-white);
+    background-color: var(--color-grey-400);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}

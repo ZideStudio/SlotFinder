@@ -1,7 +1,7 @@
 import { CheckboxInputAtom } from '@Front/ui/atoms/Inputs/CheckboxInputAtom/CheckboxInputAtom';
 import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
 import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
-import { Field } from '@Front/ui/utils/components/Field';
+import { Field } from '@Front/ui/utils/components/Field/Field';
 import { type ComponentProps } from 'react';
 import './MonoCheckboxInput.scss';
 
