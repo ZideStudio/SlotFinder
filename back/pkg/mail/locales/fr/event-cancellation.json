@@ -1,0 +1,17 @@
+{
+  "title": "Événement annulé",
+  "greeting": "Bonjour",
+  "cancelledMessageLine1Before": "Le créneau de l'évènement",
+  "cancelledMessageLine1After": "vient d'être annulé.",
+  "cancelledMessageLine2": "L'évènement passe de nouveau dans la phase de collecte des disponibilités.",
+  "when": "📅 Quand :",
+  "cancelledSlot": "Créneau annulé :",
+  "updateAvailability": "Mettre \u00e0 jour vos disponibilit\u00e9s",
+  "whatsNext": "Et ensuite :",
+  "step1": "La collecte des disponibilit\u00e9s est de nouveau ouverte",
+  "step2": "De nouveaux cr\u00e9neaux seront recalcul\u00e9s en cas de changement de disponibilit\u00e9",
+  "step3": "Vous recevrez une nouvelle confirmation lorsqu'un cr\u00e9neau sera valid\u00e9 \u00e0 nouveau",
+  "team": "L'\u00e9quipe SlotFinder",
+  "contact": "Si vous avez des questions, contactez-nous \u00e0 support@slotfinder.com",
+  "automated": "Ceci est un message automatique, merci de ne pas r\u00e9pondre \u00e0 cet email."
+}

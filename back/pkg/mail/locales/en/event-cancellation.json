@@ -1,0 +1,17 @@
+{
+  "title": "Event Cancelled",
+  "greeting": "Hello",
+  "cancelledMessageLine1a": "The slot for your event",
+  "cancelledMessageLine1b": "has just been cancelled.",
+  "cancelledMessageLine2": "The event is now back in the availability collection phase.",
+  "when": "📅 When:",
+  "cancelledSlot": "Cancelled Time Slot:",
+  "updateAvailability": "Update Your Availability",
+  "whatsNext": "What's Next:",
+  "step1": "Availability collection is now open again",
+  "step2": "New time slots will be recalculated in case of a change in availability",
+  "step3": "You'll receive a new confirmation when a slot is validated again",
+  "team": "The SlotFinder Team",
+  "contact": "If you have any questions, contact us at support@slotfinder.com",
+  "automated": "This is an automated message, please do not reply to this email."
+}

@@ -1,0 +1,19 @@
+{
+  "title": "Event Confirmed!",
+  "greeting": "Hello",
+  "ownerMessage": "Great news! Your event has been successfully confirmed and scheduled. Here are the details:",
+  "participantMessageBefore": "Great news! Your event",
+  "participantMessageAfter": "has been scheduled. Here are the details:",
+  "eventPeriod": "📅 Event Period:",
+  "from": "From:",
+  "to": "To:",
+  "when": "📅 When:",
+  "viewEventDetails": "View Event Details",
+  "needChanges": "Need to make changes?",
+  "ownerChangeInfo": "As the event organizer, you can cancel the validated slot in the event settings if needed. This will allow all participants to modify their availability again and a new slot selection process will begin.",
+  "participantChangeInfo": "If you need to modify your availability, you'll need to ask the event organizer to cancel the validated slot first. Once cancelled, you'll be able to update your availability and participate in a new slot selection process.",
+  "organizedBy": "Organized by:",
+  "team": "The SlotFinder Team",
+  "contact": "If you have any questions, contact us at support@slotfinder.com",
+  "automated": "This is an automated message, please do not reply to this email."
+}

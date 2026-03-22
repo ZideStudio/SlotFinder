@@ -43,3 +43,16 @@ func (*AccountEventRepository) FindByAccountAndEventId(accountId, eventId uuid.U
 
 	return nil
 }
+
+func (*AccountEventRepository) FindAccountsByEventId(eventId uuid.UUID, accounts *[]model.Account) error {
+	if err := db.GetDB().
+		Table("account").
+		Joins("JOIN account_event ON account.id = account_event.account_id").
+		Where("account_event.event_id = ?", eventId).
+		Find(accounts).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_ACCOUNTS_BY_EVENT_ID Failed to find accounts by event_id")
+		return err
+	}
+
+	return nil
+}

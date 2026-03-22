@@ -2,7 +2,9 @@ package mail
 
 import (
 	"app/commons/constants"
+	"app/commons/lib"
 	"app/config"
+	model "app/db/models"
 	"bytes"
 	"embed"
 	"encoding/json"
@@ -59,6 +61,126 @@ type EmailParams struct {
 	Subject  string
 	Params   map[string]string
 	Language constants.AccountLanguage
+}
+
+// resolveLanguage returns a supported language with EN fallback.
+// It preserves existing behavior from services which only distinguish FR vs default EN.
+func (s *MailService) resolveLanguage(lang constants.AccountLanguage) constants.AccountLanguage {
+	if lang == constants.ACCOUNT_LANGUAGE_FR {
+		return constants.ACCOUNT_LANGUAGE_FR
+	}
+	return constants.ACCOUNT_LANGUAGE_EN
+}
+
+func (s *MailService) eventUrl(eventId uuid.UUID) string {
+	return fmt.Sprintf("%s/event/%s", s.Config.Origin, eventId.String())
+}
+
+// eventEmailCommonParams builds the shared parameter bag used by both event-confirmation and event-cancellation templates.
+// It keeps keys aligned with existing templates/services.
+func (s *MailService) eventEmailCommonParams(
+	event model.Event,
+	eventId uuid.UUID,
+	startsAt time.Time,
+	endsAt time.Time,
+	lang constants.AccountLanguage,
+) map[string]string {
+	whenFormattedDateTime := lib.Capitalize(lib.FormatLocalizedDate(startsAt, endsAt, lang))
+
+	return map[string]string{
+		"eventName":             event.Name,
+		"eventDescription":      "",
+		"eventUrl":              s.eventUrl(eventId),
+		"whenFormattedDateTime": whenFormattedDateTime,
+	}
+}
+
+// eventEmailEnrichOptionalFields mutates params to include optional fields while preserving previous behavior:
+// - username/owner only set when present
+// - eventDescription only set when present (overrides default empty string)
+func (s *MailService) eventEmailEnrichOptionalFields(
+	params map[string]string,
+	participant model.Account,
+	event model.Event,
+) {
+	if participant.UserName != nil {
+		params["username"] = *participant.UserName
+	}
+	if event.Owner.UserName != nil {
+		params["owner"] = *event.Owner.UserName
+	}
+	if event.Description != nil {
+		params["eventDescription"] = *event.Description
+	}
+}
+
+// SendEventConfirmationEmail sends the "event confirmed" email for a given participant.
+func (s *MailService) SendEventConfirmationEmail(
+	participant model.Account,
+	event model.Event,
+	eventId uuid.UUID,
+	ownerId uuid.UUID,
+	startsAt time.Time,
+	endsAt time.Time,
+) {
+	if participant.Email == nil {
+		return
+	}
+
+	lang := s.resolveLanguage(participant.Language)
+
+	subject := constants.MAIL_SUBJECT_EVENT_CONFIRMATION_EN
+	if lang == constants.ACCOUNT_LANGUAGE_FR {
+		subject = constants.MAIL_SUBJECT_EVENT_CONFIRMATION_FR
+	}
+
+	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, lang)
+	params["isOwner"] = lib.BoolToString(participant.Id == ownerId)
+
+	s.eventEmailEnrichOptionalFields(params, participant, event)
+
+	go s.SendMail(EmailParams{
+		Template: constants.MAIL_TEMPLATE_EVENT_CONFIRMATION,
+		To:       *participant.Email,
+		Subject:  subject,
+		Params:   params,
+		Language: lang,
+	})
+}
+
+// SendEventCancellationEmail sends the "event cancelled" email for a given account.
+// It matches existing behavior from event.service.go.
+func (s *MailService) SendEventCancellationEmail(
+	account model.Account,
+	event model.Event,
+	eventId uuid.UUID,
+	ownerId uuid.UUID,
+	startsAt time.Time,
+	endsAt time.Time,
+) {
+	if account.Email == nil {
+		return
+	}
+
+	lang := s.resolveLanguage(account.Language)
+
+	subject := constants.MAIL_SUBJECT_EVENT_CANCELLATION_EN
+	if lang == constants.ACCOUNT_LANGUAGE_FR {
+		subject = constants.MAIL_SUBJECT_EVENT_CANCELLATION_FR
+	}
+
+	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, lang)
+	params["isOwner"] = lib.BoolToString(account.Id == ownerId)
+
+	s.eventEmailEnrichOptionalFields(params, account, event)
+
+	go s.SendMail(EmailParams{
+		Template: constants.MAIL_TEMPLATE_EVENT_CANCELLATION,
+		To:       *account.Email,
+		Subject:  subject,
+		Params:   params,
+		Language: lang,
+	})
 }
 
 // loadTemplates loads all HTML templates from the templates directory
