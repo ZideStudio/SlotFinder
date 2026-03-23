@@ -18,12 +18,15 @@ definitions:
         type: boolean
       termsVersion:
         type: string
+      timeZone:
+        type: string
     required:
     - email
     - language
     - password
     - termsAccepted
     - termsVersion
+    - timeZone
     type: object
   account.AccountUpdateDto:
     properties:
@@ -45,6 +48,8 @@ definitions:
       termsAccepted:
         type: boolean
       termsVersion:
+        type: string
+      timeZone:
         type: string
       username:
         maxLength: 30
@@ -214,6 +219,8 @@ definitions:
       termsAcceptedAt:
         type: string
       termsVersion:
+        type: string
+      timeZone:
         type: string
       userName:
         type: string
