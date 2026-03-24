@@ -31,7 +31,15 @@ describe('DateInputAtom', () => {
   });
 
   it('should render error message linked with input', () => {
-    render(<DateInput label="Test Label" name="test-input" error="This is an error message" id="custom-test-id" value="2026-01-01" />);
+    render(
+      <DateInput
+        label="Test Label"
+        name="test-input"
+        error="This is an error message"
+        id="custom-test-id"
+        value="2026-01-01"
+      />,
+    );
 
     const errorMessage = screen.getByText('This is an error message');
     expect(errorMessage).toBeInTheDocument();
