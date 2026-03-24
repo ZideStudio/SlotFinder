@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { Button } from '../Button';
+import { render, screen, within } from '@testing-library/react';
+import { Button, SvgIcon } from '../Button';
 
 const CustomButton = ({ children }: { children: React.ReactNode }) => <span>{children}</span>;
 
@@ -16,14 +16,13 @@ describe('Button', () => {
       </Button>,
     );
     const anchorElement = screen.getByText('Button').closest('a');
-    expect(anchorElement).not.toBeNull();
     expect(anchorElement).toHaveAttribute('href', '/test');
   });
 
   it('renders as custom component when as is a component', () => {
     render(<Button as={CustomButton}>Button</Button>);
     const customElement = screen.getByText('Button').closest('span');
-    expect(customElement).not.toBeNull();
+    expect(customElement).toBeInTheDocument();
   });
 
   it('applies variant and color classes', () => {
@@ -44,9 +43,12 @@ describe('Button', () => {
   });
 
   it('renders icon when icon prop is provided', () => {
-    const TestIcon = () => <svg data-testid="test-icon" />;
+    const TestIcon: SvgIcon = props => <svg aria-label="icon" {...props} />;
     render(<Button icon={TestIcon}>Button</Button>);
-    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
+    const buttonElement = screen.getByRole('button', { name: 'Button' });
+    const iconElement = within(buttonElement).getByLabelText('icon');
+    expect(iconElement).toBeInTheDocument();
+    expect(iconElement.closest('.ds-button__icon')).toBeInTheDocument();
   });
 
   it('applies additional class names', () => {
