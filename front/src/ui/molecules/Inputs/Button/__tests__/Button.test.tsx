@@ -6,7 +6,8 @@ const CustomButton = ({ children }: { children: React.ReactNode }) => <span>{chi
 describe('Button', () => {
   it('renders children', () => {
     render(<Button>Button</Button>);
-    expect(screen.getByText('Button')).toBeInTheDocument();
+    const buttonElement = screen.getByRole('button', { name: 'Button' });
+    expect(buttonElement).toBeInTheDocument();
   });
 
   it('renders as anchor when as="a"', () => {
@@ -15,7 +16,7 @@ describe('Button', () => {
         Button
       </Button>,
     );
-    const anchorElement = screen.getByText('Button').closest('a');
+    const anchorElement = screen.getByRole('link', { name: 'Button' });
     expect(anchorElement).toHaveAttribute('href', '/test');
   });
 
@@ -48,7 +49,7 @@ describe('Button', () => {
     const buttonElement = screen.getByRole('button', { name: 'Button' });
     const iconElement = within(buttonElement).getByLabelText('icon');
     expect(iconElement).toBeInTheDocument();
-    expect(iconElement.closest('.ds-button__icon')).toBeInTheDocument();
+    expect(iconElement.closest('.ds-icon')).toBeInTheDocument();
   });
 
   it('applies additional class names', () => {

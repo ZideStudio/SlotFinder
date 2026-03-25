@@ -1,27 +1,36 @@
 @use '../../../../utils/sass/mixins/helpers';
+@use '../../../../utils/sass/mixins/responsive';
 
 .ds-button {
+  --text-font-size: #{helpers.px-to-rem(12)};
+  --icon-size: #{helpers.px-to-rem(16)};
+  --button-primary-color: var(--color-white);
+  --button-secondary-color: var(--color-primary);
+
   display: flex;
+  width: 100%;
   padding: helpers.px-to-rem(12) helpers.px-to-rem(24);
+  border: helpers.px-to-rem(2) solid var(--btn-color);
   border-radius: helpers.px-to-rem(6);
   align-items: center;
   justify-content: center;
+  gap: helpers.px-to-rem(8);
+  font-size: var(--text-font-size);
+  font-weight: 600;
+  color: var(--btn-color);
+  background-color: var(--btn-color);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
   cursor: pointer;
 
-  &__icon {
-    display: inline-flex;
-    width: helpers.px-to-rem(16);
-    height: helpers.px-to-rem(16);
-    margin-right: helpers.px-to-rem(8);
+  .ds-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
   }
 
   &--primary {
-    border: helpers.px-to-rem(2) solid var(--btn-color);
-    color: var(--color-white);
-    background-color: var(--btn-color);
+    color: var(--button-primary-color);
 
     &:hover {
       color: var(--btn-color);
@@ -30,12 +39,11 @@
   }
 
   &--secondary {
-    border: helpers.px-to-rem(2) solid var(--btn-color);
     color: var(--btn-color);
     background-color: transparent;
 
     &:hover {
-      color: var(--color-white);
+      color: var(--button-primary-color);
       background-color: var(--btn-color);
     }
   }
@@ -57,6 +65,10 @@
     color: var(--color-white);
     background-color: var(--color-grey-400);
     cursor: not-allowed;
-    pointer-events: none;
+  }
+
+  @include responsive.media-exceeds-width('desktop-small') {
+    --text-font-size: #{helpers.px-to-rem(14)};
+    --icon-size: #{helpers.px-to-rem(20)};
   }
 }

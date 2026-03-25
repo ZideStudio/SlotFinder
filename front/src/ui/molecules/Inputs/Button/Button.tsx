@@ -19,8 +19,8 @@ export const Button = <Type extends ElementType = 'button'>({ as, className, chi
   const parentClassName = getClassName({
     defaultClassName: 'ds-button',
     modifiers: [
-        variant && `${variant}`,
-        color && `${color}`,
+        variant,
+        color,
         disabled && 'disabled',
     ],
     className,
@@ -28,7 +28,7 @@ export const Button = <Type extends ElementType = 'button'>({ as, className, chi
 
   return (
     <Component className={parentClassName} {...props}>
-      {icon && <span className='ds-button__icon'><Icon icon={icon} /></span>}
+      {icon && <Icon icon={icon} />}
       {children}
     </Component>
   );

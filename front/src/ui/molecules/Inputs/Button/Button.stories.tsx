@@ -1,10 +1,16 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
+import SendIcon from '@material-symbols/svg-400/outlined/send.svg?react';
 import { Button } from './Button';
 
 const meta = {
-  title: 'Utils/Components/Button',
+  title: 'Molecules/Inputs/Button',
   component: Button,
+  args: {
+    children: 'Send message',
+    variant: 'primary',
+    color: 'default',
+    disabled: false,
+  },
   argTypes: {
     children: { control: 'text' },
     variant: { control: 'select', options: ['primary', 'secondary'] },
@@ -27,8 +33,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: args => (
-    <Button {...args} icon={GoogleIcon}>
-      Se connecter avec Google
+    <Button {...args} icon={SendIcon}>
+      {args.children}
     </Button>
   ),
 };
