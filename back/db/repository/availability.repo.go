@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type AvailabilityRepository struct {
@@ -108,7 +109,7 @@ func (r *AvailabilityRepository) Update(availability *model.Availability) error 
 		return errors.New("availability pointer is nil")
 	}
 
-	if err := r.db.Model(&availability).Updates(availability).Error; err != nil {
+	if err := r.db.Model(&availability).Omit(clause.Associations).Updates(availability).Error; err != nil {
 		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::UPDATE Failed to update availability")
 		return err
 	}
