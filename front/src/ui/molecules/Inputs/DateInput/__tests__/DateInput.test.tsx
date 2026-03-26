@@ -5,7 +5,11 @@ describe('DateInputAtom', () => {
   it('should render a date input with label', () => {
     render(<DateInput label="Test Label" name="test-input" value="2026-01-01" />);
 
-    expect(screen.getByDisplayValue('2026-01-01')).toBeInTheDocument();
+    const dateInput = screen.getByLabelText('Test Label');
+    expect(dateInput).toBeInTheDocument();
+    expect(dateInput).toHaveAttribute('type', 'date');
+    expect(dateInput).toHaveAttribute('name', 'test-input');
+    expect(dateInput).toHaveValue('2026-01-01');
   });
 
   it('should render required asterisk when required', () => {
