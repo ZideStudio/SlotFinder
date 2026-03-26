@@ -3,21 +3,21 @@
 # Default target
 all: start
 
-# Start infrastructure (traefik + postgres)
+# Start frontend and backend with combined logs (auto-installs node_modules if missing)
 start:
-	docker compose -p slotfinder -f docker-compose.dev.yml up -d
-	@echo "\n🚀 Infrastructure started!"
-	@echo "📊 Traefik Dashboard: http://localhost:9000"
-	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
-	@echo "\nRun 'make front' to start the frontend, 'make back' to start the backend."
+	@cd front && [ -d node_modules ] || npm install
+	@echo "\n🚀 Starting frontend and backend..."
+	@echo "📱 Front: https://localhost"
+	@echo "🔧 API: https://localhost/api"
+	@echo "🔧 API Doc: https://localhost/api/swagger/index.html\n"
+	@(cd front && npm run start) & (cd back && air); wait
 
-# Build and start infrastructure
+# Start infrastructure (build docker images)
 build-start:
 	docker compose -p slotfinder -f docker-compose.dev.yml up -d --build
 	@echo "\n🚀 Infrastructure built and started!"
 	@echo "📊 Traefik Dashboard: http://localhost:9000"
 	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
-	@echo "\nRun 'make front' to start the frontend, 'make back' to start the backend."
 
 # Stop infrastructure
 stop:
@@ -35,13 +35,13 @@ clean:
 logs:
 	docker compose -p slotfinder -f docker-compose.dev.yml logs -f
 
-# Start frontend (auto-installs node_modules if missing)
+# Start frontend only (auto-installs node_modules if missing)
 front:
 	@cd front && [ -d node_modules ] || npm install
 	@echo "\n📱 Starting frontend on https://localhost"
 	cd front && npm run start
 
-# Start backend with hot reload
+# Start backend only with hot reload
 back:
 	@echo "\n🔧 Starting backend on https://localhost/api"
 	cd back && air
