@@ -3,7 +3,7 @@ import SendIcon from '@material-symbols/svg-400/outlined/send.svg?react';
 import { Button } from './Button';
 
 const meta = {
-  title: 'Molecules/Inputs/Button',
+  title: 'Molecules/Button',
   component: Button,
   args: {
     children: 'Send message',
