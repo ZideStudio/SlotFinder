@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm/clause"
 )
 
 type EventRepository struct{}
@@ -23,7 +24,7 @@ func (*EventRepository) Create(event *model.Event) error {
 }
 
 func (*EventRepository) Updates(event *model.Event) error {
-	if err := db.GetDB().Updates(&event).Error; err != nil {
+	if err := db.GetDB().Omit(clause.Associations).Updates(&event).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::UPDATE Failed to update event")
 		return err
 	}

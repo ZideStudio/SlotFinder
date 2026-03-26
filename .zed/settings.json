@@ -102,12 +102,11 @@
   "lsp": {
     "gopls": {
       "binary": {
-        "path": "/go/bin/gopls",
+        "path": "gopls",
         "arguments": [],
       },
       "settings": {
         "gopls": {
-          "formatting.gofmt": true,
           "ui.completion.usePlaceholders": true,
           "ui.diagnostic.analyses": {
             "unusedparams": true,

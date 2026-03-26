@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm/clause"
 )
 
 type SlotRepository struct{}
@@ -20,7 +21,7 @@ func (*SlotRepository) Create(slot *model.Slot) error {
 }
 
 func (*SlotRepository) Updates(slot *model.Slot) error {
-	if err := db.GetDB().Updates(&slot).Error; err != nil {
+	if err := db.GetDB().Omit(clause.Associations).Updates(&slot).Error; err != nil {
 		log.Error().Err(err).Msg("SLOT_REPOSITORY::UPDATES Failed to update slot")
 		return err
 	}

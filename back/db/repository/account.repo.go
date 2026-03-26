@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type AccountRepository struct{}
@@ -74,7 +75,7 @@ func (*AccountRepository) Updates(account model.Account) error {
 		account.Password = &hashedPasswordToString
 	}
 
-	if err := db.GetDB().Model(&account).Updates(account).Error; err != nil {
+	if err := db.GetDB().Model(&account).Omit(clause.Associations).Updates(account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::UPDATE Failed to update account")
 		return err
 	}

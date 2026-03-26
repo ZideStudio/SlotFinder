@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm/clause"
 )
 
 type AccountEventRepository struct{}
@@ -22,7 +23,7 @@ func (*AccountEventRepository) Create(accountEvent *model.AccountEvent) error {
 }
 
 func (*AccountEventRepository) Updates(accountEvent *model.AccountEvent) error {
-	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountEvent.AccountId, accountEvent.EventId).Updates(&accountEvent).Error; err != nil {
+	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountEvent.AccountId, accountEvent.EventId).Omit(clause.Associations).Updates(&accountEvent).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::UPDATES Failed to update account_event")
 		return err
 	}
