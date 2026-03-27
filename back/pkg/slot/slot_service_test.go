@@ -9,8 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var service = NewSlotService(nil)
-
 func TestFindIntersectingTimeSlots_BasicIntersection(t *testing.T) {
 	// Test basic intersection of two users' availabilities
 	userAvailabilities := map[uuid.UUID][]TimeSlot{
@@ -29,6 +27,7 @@ func TestFindIntersectingTimeSlots_BasicIntersection(t *testing.T) {
 	}
 
 	requiredDuration := 60 * time.Minute
+	service := &SlotService{}
 	result := service.findIntersectingTimeSlots(userAvailabilities, requiredDuration)
 
 	assert.Len(t, result, 1, "Expected 1 common time slot")
@@ -54,6 +53,7 @@ func TestFindIntersectingTimeSlots_NoIntersection(t *testing.T) {
 	}
 
 	requiredDuration := 60 * time.Minute
+	service := &SlotService{}
 	result := service.findIntersectingTimeSlots(userAvailabilities, requiredDuration)
 
 	assert.Len(t, result, 0, "Expected no common time slots")
@@ -77,6 +77,7 @@ func TestFindIntersectingTimeSlots_InsufficientDuration(t *testing.T) {
 	}
 
 	requiredDuration := 60 * time.Minute // 1 hour required, but only 30 minutes overlap
+	service := &SlotService{}
 	result := service.findIntersectingTimeSlots(userAvailabilities, requiredDuration)
 
 	assert.Len(t, result, 0, "Expected no slots due to insufficient duration")
@@ -108,6 +109,7 @@ func TestFindIntersectingTimeSlots_MultipleSlots(t *testing.T) {
 	}
 
 	requiredDuration := 30 * time.Minute
+	service := &SlotService{}
 	result := service.findIntersectingTimeSlots(userAvailabilities, requiredDuration)
 
 	assert.Len(t, result, 2, "Expected 2 common time slots")
@@ -138,6 +140,7 @@ func TestMergeOverlappingTimeSlots(t *testing.T) {
 		},
 	}
 
+	service := &SlotService{}
 	result := service.mergeOverlappingTimeSlots(slots)
 
 	assert.Len(t, result, 2, "Expected 2 merged slots")
@@ -166,6 +169,7 @@ func TestIntersectTimeSlots_SimpleOverlap(t *testing.T) {
 		},
 	}
 
+	service := &SlotService{}
 	result := service.intersectTimeSlots(slots1, slots2)
 
 	assert.Len(t, result, 1, "Expected 1 intersection")
@@ -188,6 +192,7 @@ func TestIntersectTimeSlots_NoOverlap(t *testing.T) {
 		},
 	}
 
+	service := &SlotService{}
 	result := service.intersectTimeSlots(slots1, slots2)
 
 	assert.Len(t, result, 0, "Expected no intersections")
@@ -205,6 +210,7 @@ func TestMergeOverlappingTimeSlots_AdjacentSlots(t *testing.T) {
 		},
 	}
 
+	service := &SlotService{}
 	result := service.mergeOverlappingTimeSlots(slots)
 
 	assert.Len(t, result, 1, "Expected 1 merged slot")
@@ -213,6 +219,9 @@ func TestMergeOverlappingTimeSlots_AdjacentSlots(t *testing.T) {
 }
 
 func TestLoadSlots_ConcurrentCallsDoNotRace(t *testing.T) {
+	service := &SlotService{
+		loadSlotsMutexes: sync.Map{},
+	}
 	eventId := uuid.New()
 
 	// This test verifies that the mutex mechanism in LoadSlots prevents
@@ -262,6 +271,10 @@ func TestLoadSlots_ConcurrentCallsDoNotRace(t *testing.T) {
 }
 
 func TestLoadSlots_ConcurrentCallsDifferentEvents(t *testing.T) {
+	service := &SlotService{
+		loadSlotsMutexes: sync.Map{},
+	}
+
 	// Test that calls to LoadSlots for different events use different mutexes
 	// and can run concurrently without blocking each other
 	const numEvents = 5

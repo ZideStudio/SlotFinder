@@ -11,7 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var service = NewAvailabilityService(nil)
+// NOTE: Do not initialize real services at package init time in unit tests.
+// NewAvailabilityService(nil) wires real dependencies indirectly (via other services),
+// which can crash tests when configuration isn't set.
+// Create the service inside each test instead.
 
 // Helper function to create a mock event for testing
 func createMockEvent() model.Event {
@@ -33,15 +36,14 @@ func alignToFiveMinutes(t time.Time) time.Time {
 
 // TestServiceHasSyncMap verifies that the service has a sync.Map for locking
 func TestServiceHasSyncMap(t *testing.T) {
-	service := NewAvailabilityService(nil)
+	// Minimal service: we only need the sync.Map behavior, not real dependencies.
+	service := &AvailabilityService{}
 
 	// Verify that the service was created successfully
 	assert.NotNil(t, service, "Service should be created")
-	assert.NotNil(t, service.availabilityRepository, "Repository should be initialized")
-	assert.NotNil(t, service.eventRepository, "Event repository should be initialized")
 
-	// The locks field is a sync.Map which is always initialized to its zero value
-	// We can verify it works by storing and loading a value
+	// The locks field is a sync.Map which is always initialized to its zero value.
+	// We can verify it works by storing and loading a value.
 	testKey := "test:key"
 	service.locks.Store(testKey, "test-value")
 	value, ok := service.locks.Load(testKey)
@@ -51,7 +53,8 @@ func TestServiceHasSyncMap(t *testing.T) {
 
 // TestSyncMapLoadOrStore verifies that LoadOrStore works correctly for concurrent access
 func TestSyncMapLoadOrStore(t *testing.T) {
-	service := NewAvailabilityService(nil)
+	// Minimal service: we only need the sync.Map behavior, not real dependencies.
+	service := &AvailabilityService{}
 
 	lockKey := "account1:event1"
 
@@ -75,7 +78,8 @@ func TestSyncMapLoadOrStore(t *testing.T) {
 
 // TestSyncMapConcurrentAccess verifies that multiple goroutines can safely access the sync.Map
 func TestSyncMapConcurrentAccess(t *testing.T) {
-	service := NewAvailabilityService(nil)
+	// Minimal service: we only need the sync.Map behavior, not real dependencies.
+	service := &AvailabilityService{}
 
 	const numGoroutines = 10
 	done := make(chan bool, numGoroutines)
@@ -117,6 +121,9 @@ func TestUpdateDto(t *testing.T) {
 
 // TestValidateAvailabilityTimes_StartAfterEnd tests validation for end date before start date
 func TestValidateAvailabilityTimes_StartAfterEnd(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 	startsAt := event.StartsAt.Add(2 * time.Hour)
 	endsAt := event.StartsAt.Add(1 * time.Hour) // End before start
@@ -128,6 +135,9 @@ func TestValidateAvailabilityTimes_StartAfterEnd(t *testing.T) {
 
 // TestValidateAvailabilityTimes_DurationTooShort tests validation for duration less than 5 minutes
 func TestValidateAvailabilityTimes_DurationTooShort(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 	startsAt := event.StartsAt.Add(1 * time.Hour)
 	endsAt := startsAt.Add(3 * time.Minute) // Less than 5 minutes
@@ -139,6 +149,9 @@ func TestValidateAvailabilityTimes_DurationTooShort(t *testing.T) {
 
 // TestValidateAvailabilityTimes_InvalidTimeInterval tests validation for times not aligned on 5-minute intervals
 func TestValidateAvailabilityTimes_InvalidTimeInterval(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 
 	// Test 1: Time with seconds/nanoseconds should fail
@@ -152,6 +165,9 @@ func TestValidateAvailabilityTimes_InvalidTimeInterval(t *testing.T) {
 
 // TestValidateAvailabilityTimes_InvalidMinuteInterval tests validation for times on wrong minute boundary
 func TestValidateAvailabilityTimes_InvalidMinuteInterval(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 
 	// Time on wrong minute interval (e.g., 13 minutes, not divisible by 5)
@@ -165,6 +181,9 @@ func TestValidateAvailabilityTimes_InvalidMinuteInterval(t *testing.T) {
 
 // TestValidateAvailabilityTimes_StartBeforeEvent tests validation for start time before event start
 func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 	// Use helper to align time to 5-minute boundary
 	startsAt := alignToFiveMinutes(event.StartsAt.Add(-1 * time.Hour)) // Before event start
@@ -177,6 +196,9 @@ func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
 
 // TestValidateAvailabilityTimes_EndAfterEvent tests validation for end time after event end
 func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 	// Use helper to align time to 5-minute boundary
 	startsAt := alignToFiveMinutes(event.EndsAt.Add(-1 * time.Hour))
@@ -189,6 +211,9 @@ func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
 
 // TestValidateAvailabilityTimes_ValidTimes tests validation for valid times
 func TestValidateAvailabilityTimes_ValidTimes(t *testing.T) {
+	// Minimal service: validateAvailabilityTimes doesn't require external dependencies.
+	service := &AvailabilityService{}
+
 	event := createMockEvent()
 	// Use helper to align time to 5-minute boundary
 	startsAt := alignToFiveMinutes(event.StartsAt.Add(1 * time.Hour))

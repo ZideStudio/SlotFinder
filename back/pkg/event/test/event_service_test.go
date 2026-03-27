@@ -250,8 +250,9 @@ func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
 			EndsAt:   baseDate.AddDate(0, 0, 4), // 4 days later
 			Slots:    []model.Slot{*validatedSlot},
 		}
-		// Try to set end date before validated slot
-		newEnd := baseDate.AddDate(0, 0, 1) // Day 1 (before slot on day 2)
+		// Try to set end date before validated slot, while keeping event duration >= 1 day
+		// (otherwise duration validation triggers first and masks the validated-slot validation)
+		newEnd := baseDate.AddDate(0, 0, 1).Add(1 * time.Hour) // Day 1, 1am (before slot on day 2)
 
 		// Act
 		err := event.SetEventDatesFromDto(testEvent, nil, &newEnd)
