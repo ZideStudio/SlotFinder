@@ -63,21 +63,11 @@ type EmailParams struct {
 	Language constants.AccountLanguage
 }
 
-// resolveLanguage returns a supported language with EN fallback.
-// It preserves existing behavior from services which only distinguish FR vs default EN.
-func (s *MailService) resolveLanguage(lang constants.AccountLanguage) constants.AccountLanguage {
-	if lang == constants.ACCOUNT_LANGUAGE_FR {
-		return constants.ACCOUNT_LANGUAGE_FR
-	}
-	return constants.ACCOUNT_LANGUAGE_EN
-}
-
 func (s *MailService) eventUrl(eventId uuid.UUID) string {
 	return fmt.Sprintf("%s/event/%s", s.Config.Origin, eventId.String())
 }
 
 // eventEmailCommonParams builds the shared parameter bag used by both event-confirmation and event-cancellation templates.
-// It keeps keys aligned with existing templates/services.
 func (s *MailService) eventEmailCommonParams(
 	event model.Event,
 	eventId uuid.UUID,
@@ -96,8 +86,6 @@ func (s *MailService) eventEmailCommonParams(
 }
 
 // eventEmailEnrichOptionalFields mutates params to include optional fields while preserving previous behavior:
-// - username/owner only set when present
-// - eventDescription only set when present (overrides default empty string)
 func (s *MailService) eventEmailEnrichOptionalFields(
 	params map[string]string,
 	participant model.Account,
@@ -127,14 +115,12 @@ func (s *MailService) SendEventConfirmationEmail(
 		return
 	}
 
-	lang := s.resolveLanguage(participant.Language)
-
 	subject := constants.MAIL_SUBJECT_EVENT_CONFIRMATION_EN
-	if lang == constants.ACCOUNT_LANGUAGE_FR {
+	if participant.Language == constants.ACCOUNT_LANGUAGE_FR {
 		subject = constants.MAIL_SUBJECT_EVENT_CONFIRMATION_FR
 	}
 
-	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, lang)
+	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, participant.Language)
 	params["isOwner"] = lib.BoolToString(participant.Id == ownerId)
 
 	s.eventEmailEnrichOptionalFields(params, participant, event)
@@ -144,12 +130,11 @@ func (s *MailService) SendEventConfirmationEmail(
 		To:       *participant.Email,
 		Subject:  subject,
 		Params:   params,
-		Language: lang,
+		Language: participant.Language,
 	})
 }
 
 // SendEventCancellationEmail sends the "event cancelled" email for a given account.
-// It matches existing behavior from event.service.go.
 func (s *MailService) SendEventCancellationEmail(
 	account model.Account,
 	event model.Event,
@@ -162,14 +147,12 @@ func (s *MailService) SendEventCancellationEmail(
 		return
 	}
 
-	lang := s.resolveLanguage(account.Language)
-
 	subject := constants.MAIL_SUBJECT_EVENT_CANCELLATION_EN
-	if lang == constants.ACCOUNT_LANGUAGE_FR {
+	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
 		subject = constants.MAIL_SUBJECT_EVENT_CANCELLATION_FR
 	}
 
-	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, lang)
+	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, account.Language)
 	params["isOwner"] = lib.BoolToString(account.Id == ownerId)
 
 	s.eventEmailEnrichOptionalFields(params, account, event)
@@ -179,7 +162,7 @@ func (s *MailService) SendEventCancellationEmail(
 		To:       *account.Email,
 		Subject:  subject,
 		Params:   params,
-		Language: lang,
+		Language: account.Language,
 	})
 }
 

@@ -11,7 +11,6 @@ import (
 	"app/pkg/signin"
 	"app/pkg/slot"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -221,7 +220,6 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 
 	// If status changed, remove validated slot
-	fmt.Println("isStatusChanged", isStatusChanged)
 	if isStatusChanged {
 		var oldSlot model.Slot
 		if err := s.slotRepository.FindValidatedSlotByEventId(eventId, &oldSlot); err != nil {
