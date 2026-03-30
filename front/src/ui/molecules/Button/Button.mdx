@@ -1,0 +1,148 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from './Button.stories';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+A reusable, accessible Button component for interaction. The Button component supports polymorphism through the `as` prop, allowing it to render as different HTML elements while maintaining consistent styling and behavior.
+
+## Usage
+
+```tsx
+<Button>
+  Button content
+</Button>
+
+<Button className="custom-class" icon={GoogleIcon}>
+  Button content with custom class
+</Button>
+```
+
+### As a Link
+
+```tsx
+<Button as="a" href="/about">
+  Go to About
+</Button>
+```
+
+### As a Link with external URL
+
+```tsx
+<Button as="a" href="https://example.com" target="_blank" rel="noopener noreferrer">
+  Visit Example
+</Button>
+```
+
+### As a Span (for custom interactions)
+
+```tsx
+<Button as="span" onClick={() => console.log('Span clicked')}>
+  Custom span button
+</Button>
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th> <th>Type</th> <th>Required</th> <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>as</code>
+      </td>
+      <td>
+        <code>ElementType</code>
+      </td>
+      <td>No</td>
+      <td>HTML element to render as (e.g., 'button', 'a', 'span'). Defaults to 'button'</td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant</code>
+      </td>
+      <td>
+        <code>'primary' | 'secondary'</code>
+      </td>
+      <td>No</td>
+      <td>Visual style variant. Defaults to 'primary'</td>
+    </tr>
+    <tr>
+      <td>
+        <code>color</code>
+      </td>
+      <td>
+        <code>'default' | 'neutral' | 'danger'</code>
+      </td>
+      <td>No</td>
+      <td>Color theme. Defaults to 'default'</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>No</td>
+      <td>Disables the button interaction</td>
+    </tr>
+    <tr>
+      <td>
+        <code>icon</code>
+      </td>
+      <td>
+        <code>SvgIcon</code>
+      </td>
+      <td>No</td>
+      <td>SVG icon component to display</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Content displayed inside the Button</td>
+    </tr>
+  </tbody>
+</table>
+
+## Example
+
+```tsx
+import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
+
+<Button>
+  Button content
+</Button>
+
+<Button className="custom-class" icon={GoogleIcon}>
+  Button content with custom class
+</Button>
+
+```
+
+## Playground
+
+<Canvas of={ButtonStories.Default} sourceState="shown" />
+<Controls of={ButtonStories.Default} />

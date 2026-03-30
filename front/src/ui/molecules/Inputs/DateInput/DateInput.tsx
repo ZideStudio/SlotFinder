@@ -1,7 +1,7 @@
 import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
 import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
 import { DateInputAtom } from '@Front/ui/atoms/Inputs/DateInputAtom/DateInputAtom';
-import { Field } from '@Front/ui/utils/components/Field';
+import { Field } from '@Front/ui/utils/components/Field/Field';
 import { type ComponentProps } from 'react';
 
 type DateInputProps = ComponentProps<typeof DateInputAtom> & {

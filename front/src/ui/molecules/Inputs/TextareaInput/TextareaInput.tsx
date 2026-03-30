@@ -1,7 +1,7 @@
 import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
 import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
 import { TextareaInputAtom } from '@Front/ui/atoms/Inputs/TextareaInputAtom/TextareaInputAtom';
-import { Field } from '@Front/ui/utils/components/Field';
+import { Field } from '@Front/ui/utils/components/Field/Field';
 import { type ComponentProps } from 'react';
 
 type TextareaInputProps = ComponentProps<typeof TextareaInputAtom> & {
