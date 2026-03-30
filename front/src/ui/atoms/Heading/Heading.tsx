@@ -1,10 +1,10 @@
 // oxlint-disable react/jsx-props-no-spreading
 import { getClassName } from '@Front/utils/getClassName';
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import './Heading.scss';
 
 type HeadingTag = 'h1' | 'h2' | 'h3';
-type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
+type HeadingProps = HTMLAttributes<HTMLHeadingElement> & {
   // oxlint-disable-next-line no-magic-numbers
   level: 1 | 2 | 3;
   children: ReactNode;
@@ -17,7 +17,7 @@ export const Heading = ({ level, className, ...props }: HeadingProps) => {
     modifiers: [`level-${level}`],
   });
 
-  const Tag = `h${level}` as HeadingTag;
+  const Tag = `h${level}` satisfies HeadingTag;
 
   return <Tag {...props} className={parentClassName} />;
 };
