@@ -1,23 +1,16 @@
 @use '../../../utils/sass/mixins/helpers';
 
 .ds-spinner {
-  width: 100%;
-  padding: helpers.px-to-rem(8);
   aspect-ratio: 1;
+  padding: helpers.px-to-rem(8);
   border-radius: 50%;
   background: var(--color-primary);
-
-  --_m:
-    conic-gradient(#0000 10%, #000),
-    linear-gradient(#000 0 0) content-box;
-
-  -webkit-mask: var(--_m);
-          mask: var(--_m);
-
-  -webkit-mask-composite: source-out;
-          mask-composite: subtract;
-
+  mask: var(--mask);
+  mask-composite: source-out;
+  mask-composite: subtract;
   animation: ds-spinner-rotate 1s infinite linear;
+
+  --mask: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
 }
 
 @keyframes ds-spinner-rotate {
