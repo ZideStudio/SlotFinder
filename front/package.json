@@ -78,7 +78,7 @@
     "stylelint-scss": "7.0.0",
     "stylelint-webpack-plugin": "5.1.0",
     "tsc-files": "1.1.4",
-    "typescript": "5.9.3",
+    "typescript": "6.0.2",
     "vite-plugin-svgr": "4.5.0",
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "4.1.2",
