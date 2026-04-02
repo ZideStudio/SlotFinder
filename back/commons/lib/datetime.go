@@ -34,11 +34,11 @@ func formatSameDay(start, end time.Time, lang constants.AccountLanguage) string 
 		)
 	default:
 		// Fallback to English
-		// "Monday 06 December from 20:00 to 23:00"
+		// "Thursday, May 14, 17:00–18:00"
 		return fmt.Sprintf(
-			"%s %s from %s to %s",
+			"%s, %s, %s–%s",
 			formatWeekday(start, constants.ACCOUNT_LANGUAGE_EN),
-			formatDayMonth(start, constants.ACCOUNT_LANGUAGE_EN),
+			formatEnglishMonthDay(start),
 			formatTime(start, constants.ACCOUNT_LANGUAGE_EN),
 			formatTime(end, constants.ACCOUNT_LANGUAGE_EN),
 		)
@@ -60,6 +60,7 @@ func formatMultiDay(start, end time.Time, lang constants.AccountLanguage) string
 		)
 	default:
 		// Fallback to English
+		// Keep existing multi-day English format (only same-day format was requested to change)
 		// "From Monday 06 December at 20:00 to Tuesday 07 December at 23:00"
 		return fmt.Sprintf(
 			"From %s %s at %s to %s %s at %s",
@@ -94,6 +95,10 @@ func formatWeekday(t time.Time, lang constants.AccountLanguage) string {
 
 func formatDayMonth(t time.Time, lang constants.AccountLanguage) string {
 	return monday.Format(t, "02 January", mondayLocale(lang))
+}
+
+func formatEnglishMonthDay(t time.Time) string {
+	return monday.Format(t, "January 2", mondayLocale(constants.ACCOUNT_LANGUAGE_EN))
 }
 
 func formatTime(t time.Time, lang constants.AccountLanguage) string {
