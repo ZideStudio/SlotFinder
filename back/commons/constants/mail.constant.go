@@ -17,8 +17,8 @@ const (
 	MAIL_SUBJECT_PASSWORD_RESET_FR         = "Réinitialiser votre mot de passe"
 	MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_EN = "Password reset successful"
 	MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_FR = "Mot de passe réinitialisé avec succès"
-	MAIL_SUBJECT_EVENT_CONFIRMATION_EN           = "Event confirmed"
-	MAIL_SUBJECT_EVENT_CONFIRMATION_FR           = "Événement confirmé"
-	MAIL_SUBJECT_EVENT_CANCELLATION_EN           = "Event cancelled"
-	MAIL_SUBJECT_EVENT_CANCELLATION_FR           = "Événement annulé"
+	MAIL_SUBJECT_EVENT_CONFIRMATION_EN     = "Event confirmed"
+	MAIL_SUBJECT_EVENT_CONFIRMATION_FR     = "Évènement confirmé"
+	MAIL_SUBJECT_EVENT_CANCELLATION_EN     = "Event cancelled"
+	MAIL_SUBJECT_EVENT_CANCELLATION_FR     = "Évènement annulé"
 )
