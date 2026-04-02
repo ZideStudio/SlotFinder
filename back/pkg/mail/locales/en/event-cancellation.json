@@ -1,8 +1,8 @@
 {
   "title": "Event Cancelled",
   "greeting": "Hello",
-  "cancelledMessageLine1a": "The slot for your event",
-  "cancelledMessageLine1b": "has just been cancelled.",
+  "cancelledMessageLine1Before": "The slot for your event",
+  "cancelledMessageLine1After": "has just been cancelled.",
   "cancelledMessageLine2": "The event is now back in the availability collection phase.",
   "when": "📅 When:",
   "cancelledSlot": "Cancelled Time Slot:",
