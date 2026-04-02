@@ -238,7 +238,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 					accountEvent.Account,
 					event,
 					event.Id,
-					event.Owner.Id,
+					event.OwnerId,
 					oldSlot.StartsAt,
 					oldSlot.EndsAt,
 				)
