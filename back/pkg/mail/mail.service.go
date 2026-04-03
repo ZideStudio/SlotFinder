@@ -111,7 +111,7 @@ func (s *MailService) SendEventConfirmationEmail(
 	startsAt time.Time,
 	endsAt time.Time,
 ) {
-	if participant.Email == nil {
+	if participant.Email == nil || participant.UserName == nil {
 		return
 	}
 
@@ -143,7 +143,7 @@ func (s *MailService) SendEventCancellationEmail(
 	startsAt time.Time,
 	endsAt time.Time,
 ) {
-	if account.Email == nil {
+	if account.Email == nil || account.UserName == nil {
 		return
 	}
 
