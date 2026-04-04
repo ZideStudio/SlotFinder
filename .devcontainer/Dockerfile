@@ -71,6 +71,7 @@ RUN curl https://get.volta.sh | bash -s -- --skip-setup
 
 COPY --chown=vscode:vscode front/package.json /tmp/package.json
 RUN NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /tmp/package.json | head -1) && \
+    rm -f /tmp/package.json && \
     volta install node@${NODE_VERSION:-latest} && \
     volta install typescript typescript-language-server vscode-langservers-extracted
 
