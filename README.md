@@ -35,10 +35,17 @@ You have two options to set up your development environment:
 
 3. **Wait for Setup**
    - The container builds automatically
-   - Dependencies install automatically
-   - All services start automatically
+   - Infrastructure services start automatically (Traefik, PostgreSQL)
 
-4. **Start Coding!**
+4. **Start the application**
+
+   Run the following command inside the container (or use the VS Code task `make: start`):
+
+   ```bash
+   make
+   ```
+
+5. **Start Coding!**
 
 ### Option 2: Local Setup
 
@@ -49,25 +56,13 @@ git clone https://github.com/ZideStudio/SlotFinder
 cd SlotFinder
 ```
 
-#### Install frontend dependencies
-
-Install the required packages for the frontend:
-
-```bash
-cd front
-npm install
-cd ..
-```
-
 #### Set up environment variables
 
-Clone the env `backend/.env.model` file to `backend/.env` and modify the variables as needed.
+Clone the env `back/.env.model` file to `back/.env` and modify the variables as needed.
 
 Note that the default values prefixed with `DB_` are already set and work with the dockerized development environment. You can change them if you want to connect to an external database.
 
 #### Start the development environment
-
-Start the development environment with Docker:
 
 ```bash
 make
@@ -84,7 +79,7 @@ Access the application:
 
 ### Database Access
 
-Connect to the development database from your host machine:
+Connect to the development database:
 
 ```
 Host: localhost
@@ -103,13 +98,11 @@ psql -h localhost -p 5432 -U slotfinder -d slotfinder
 ### Available Commands
 
 ```bash
-make                # Start development environment
-make start          # Start development environment
-make start-build    # Build and start development environment
-make stop           # Stop development environment
-make down           # Tear down development environment
-make clean          # Clean development environment (remove containers and volumes)
-make logs           # View logs of frontend and backend services
+make                # Start frontend and backend
+make start          # Start frontend and backend
+make front          # Start frontend only
+make back           # Start backend only (with hot reload)
+make storybook      # Start Storybook
 ```
 
 ## Technology Stack
