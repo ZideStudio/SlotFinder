@@ -5,7 +5,7 @@ all: start
 
 # Start frontend and backend with combined logs (auto-installs node_modules if missing)
 start:
-	@cd front && [ -d node_modules ] || npm install
+	@cd front && npm install
 	@echo "\n🚀 Starting frontend and backend..."
 	@echo "📱 Front: https://localhost"
 	@echo "🔧 API: https://localhost/api"
@@ -37,7 +37,7 @@ logs:
 
 # Start frontend only (auto-installs node_modules if missing)
 front:
-	@cd front && [ -d node_modules ] || npm install
+	@cd front && npm install
 	@echo "\n📱 Starting frontend on https://localhost"
 	cd front && npm run start
 
@@ -48,6 +48,6 @@ back:
 
 # Start storybook (auto-installs node_modules if missing)
 storybook:
-	@cd front && [ -d node_modules ] || npm install
+	@cd front && npm install
 	@echo "\n📒 Starting Storybook on http://localhost:3002"
 	cd front && npm run start:storybook
