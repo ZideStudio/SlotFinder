@@ -4,64 +4,56 @@
     {
       "label": "make: start",
       "type": "shell",
-      "command": "make",
-      "args": ["start"],
-      "problemMatcher": [],
+      "command": "bash",
+      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make start"],
+      "problemMatcher": []
     },
     {
-      "label": "make: build-start",
+      "label": "make: front",
       "type": "shell",
-      "command": "make",
-      "args": ["build-start"],
-      "problemMatcher": [],
+      "command": "bash",
+      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make front"],
+      "problemMatcher": []
     },
     {
-      "label": "make: stop",
+      "label": "make: back",
       "type": "shell",
-      "command": "make",
-      "args": ["stop"],
-      "problemMatcher": [],
+      "command": "bash",
+      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make back"],
+      "problemMatcher": []
     },
     {
-      "label": "make: down",
+      "label": "make: storybook",
       "type": "shell",
-      "command": "make",
-      "args": ["down"],
-      "problemMatcher": [],
-    },
-    {
-      "label": "make: clean",
-      "type": "shell",
-      "command": "make",
-      "args": ["clean"],
-      "problemMatcher": [],
-    },
-    {
-      "label": "make: logs",
-      "type": "shell",
-      "command": "make",
-      "args": ["logs"],
-      "problemMatcher": [],
+      "command": "bash",
+      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make storybook"],
+      "problemMatcher": []
     },
     {
       "label": "backend: test",
       "type": "shell",
       "command": "go",
-      "args": ["test", "./..."],
+      "args": [
+        "test",
+        "./..."
+      ],
       "options": {
-        "cwd": "${workspaceFolder}/back",
+        "cwd": "${workspaceFolder}/back"
       },
-      "problemMatcher": [],
+      "problemMatcher": []
     },
     {
       "label": "backend: format",
       "type": "shell",
       "command": "goimports",
-      "args": ["-w", "."],
+      "args": [
+        "-w",
+        "."
+      ],
       "options": {
-        "cwd": "${workspaceFolder}/back",
+        "cwd": "${workspaceFolder}/back"
       },
-      "problemMatcher": [],
-    },
-  ],
+      "problemMatcher": []
+    }
+  ]
 }

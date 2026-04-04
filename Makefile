@@ -1,4 +1,4 @@
-.PHONY: start build-start stop down clean logs front back storybook
+.PHONY: start front back storybook
 
 # Default target
 all: start
@@ -11,29 +11,6 @@ start:
 	@echo "🔧 API: https://localhost/api"
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html\n"
 	@(cd front && npm run start) & (cd back && air); wait
-
-# Start infrastructure (build docker images)
-build-start:
-	docker compose -p slotfinder -f docker-compose.dev.yml up -d --build
-	@echo "\n🚀 Infrastructure built and started!"
-	@echo "📊 Traefik Dashboard: http://localhost:9000"
-	@echo "🗄️ Database: localhost:5432 (user: slotfinder, password: slotfinder, db: slotfinder)"
-
-# Stop infrastructure
-stop:
-	docker compose -p slotfinder -f docker-compose.dev.yml stop
-
-# Stop and remove infrastructure containers
-down:
-	docker compose -p slotfinder -f docker-compose.dev.yml down
-
-# Clean infrastructure (remove containers and volumes)
-clean:
-	docker compose -p slotfinder -f docker-compose.dev.yml down -v --remove-orphans
-
-# Tail logs of infrastructure services
-logs:
-	docker compose -p slotfinder -f docker-compose.dev.yml logs -f
 
 # Start frontend only (auto-installs node_modules if missing)
 front:
