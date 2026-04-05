@@ -10,7 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var service = NewEventService(nil)
+// NOTE: These tests only validate `Create` input validation.
+// Avoid constructing `EventService` here: `NewEventService(nil)` wires real deps (mail/templates/config)
+// that can crash during test init when config isn't set.
+
+// Keep service creation minimal for unit tests: provide a zero-value service since `Create` validation
+// doesn't rely on repositories/services.
+var service = &EventService{}
 
 var username = "testuser"
 var user = &guard.Claims{

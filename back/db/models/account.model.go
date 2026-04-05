@@ -14,12 +14,12 @@ type Account struct {
 	Email                *string                   `gorm:"column:email;default:null;size:255" json:"email,omitempty"`
 	Password             *string                   `gorm:"column:password;size:255" json:"-"`
 	AvatarUrl            string                    `gorm:"column:avatar_url;size:255;default:null" json:"avatarUrl"`
-	Language             constants.AccountLanguage `gorm:"column:language;type:VARCHAR(10);default:'en'" json:"language"`
+	Language             constants.AccountLanguage `gorm:"column:language;type:VARCHAR(10);default:'en'" json:"language,omitempty"`
 	Color                string                    `gorm:"column:color;size:7" json:"color"`
 	ResetToken           *string                   `gorm:"column:reset_token;size:255;default:null" json:"-"`
 	PasswordResetTokenAt *time.Time                `gorm:"column:password_reset_token_at;default:null" json:"-"`
-	TermsAcceptedAt      *time.Time                `gorm:"column:terms_accepted_at" json:"termsAcceptedAt"`
-	TermsVersion         *string                   `gorm:"column:terms_version;size:10" json:"termsVersion"`
+	TermsAcceptedAt      *time.Time                `gorm:"column:terms_accepted_at" json:"termsAcceptedAt,omitempty"`
+	TermsVersion         *string                   `gorm:"column:terms_version;size:10" json:"termsVersion,omitempty"`
 	Events               []AccountEvent            `gorm:"foreignKey:AccountId;references:Id" json:"events,omitempty"`
 	Providers            []AccountProvider         `gorm:"foreignKey:AccountId;references:Id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"providers,omitempty"`
 	CreatedAt            time.Time                 `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt,omitzero"`

@@ -23,13 +23,13 @@ func (*EventRepository) Create(event *model.Event) error {
 	return nil
 }
 
-func (*EventRepository) Updates(event *model.Event) error {
+func (r *EventRepository) Updates(event *model.Event) error {
 	if err := db.GetDB().Omit(clause.Associations).Updates(&event).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::UPDATE Failed to update event")
 		return err
 	}
 
-	return nil
+	return r.FindOneById(event.Id, event)
 }
 
 func (r *EventRepository) FindOneById(

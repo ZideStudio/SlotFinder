@@ -2,8 +2,10 @@ package slot
 
 import (
 	"app/commons/constants"
+	"app/config"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/mail"
 	"app/pkg/sse"
 	"sort"
 	"sync"
@@ -19,6 +21,8 @@ type SlotService struct {
 	availabilityRepository *repository.AvailabilityRepository
 	accountEventRepository *repository.AccountEventRepository
 	sseService             *sse.SSEService
+	mailService            *mail.MailService
+	config                 *config.Config
 	loadSlotsMutexes       sync.Map // Map of eventId to *sync.Mutex for preventing concurrent LoadSlots
 }
 
@@ -33,7 +37,9 @@ func NewSlotService(service *SlotService) *SlotService {
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
 		accountEventRepository: &repository.AccountEventRepository{},
 		sseService:             sse.GetSSEService(),
+		mailService:            mail.NewMailService(nil),
 		loadSlotsMutexes:       sync.Map{},
+		config:                 config.GetConfig(),
 	}
 }
 
@@ -90,6 +96,23 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	}
 	if err := s.eventRepository.Updates(&event); err != nil {
 		return model.Slot{}, err
+	}
+
+	// Send event confirmation emails to all participants (including owner)
+	var participants []model.Account
+	if err := s.accountEventRepository.FindAccountsByEventId(event.Id, &participants); err != nil {
+		log.Error().Err(err).Str("eventId", event.Id.String()).Msg("Failed to get participants for event confirmation mail")
+	} else {
+		for _, participant := range participants {
+			go s.mailService.SendEventConfirmationEmail(
+				participant,
+				event,
+				event.Id,
+				event.OwnerId,
+				slot.StartsAt,
+				slot.EndsAt,
+			)
+		}
 	}
 
 	return slot, nil
