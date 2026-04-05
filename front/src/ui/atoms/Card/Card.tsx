@@ -1,6 +1,5 @@
 import { getClassName } from '@Front/utils/getClassName';
-import { type ComponentPropsWithoutRef, type ElementType } from 'react';
-
+import type { ComponentPropsWithoutRef, ElementType } from 'react';
 import './Card.scss';
 
 type CardProps<T extends ElementType = 'div'> = {
