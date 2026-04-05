@@ -36,13 +36,7 @@ A reusable, accessible Spinner atom.
 
 ## Accessibility
 
-- It uses `aria-hidden="true"` to hide decorative spinner from assistive technologies.
-
-- It uses `role="presentation"` for purely decorative spinner.
-
-- It uses `aria-live="polite"` to announce state change without interupting user.
-
-- It uses `aria-busy="true"` to indicate that an area is loading.
+- It uses role="status" to politely announce the loading state to assistive technologies, and aria-label to provide a human-readable description (e.g. "Loading...").
 
 ## Example
 

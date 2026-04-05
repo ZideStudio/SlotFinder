@@ -3,17 +3,16 @@ import './Spinner.scss';
 
 type SpinnerProps = {
   className?: string;
+  'aria-label'?: string;
 };
 
-export const Spinner = ({ className }: SpinnerProps) => {
+export const Spinner = ({ className, 'aria-label': ariaLabel = "Chargement en cours" }: SpinnerProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-spinner',
     className,
   });
 
   return (
-    <div aria-label="Chargement en cours..." aria-live="polite" aria-busy="true">
-      <div className={parentClassName} role="presentation" aria-hidden="true"/>
-    </div>
+    <div className={parentClassName} aria-label={ariaLabel} role="status" />
   );
 };
