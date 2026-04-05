@@ -1,0 +1,140 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Utils/Hooks/useModal" />
+
+# useModal
+
+A utility hook that provides imperative open/close helpers for a native HTML `<dialog>` element using the browser's built-in `showModal()` and `close()` APIs.
+
+## Parameters
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>existingModalRef</code>
+      </td>
+      <td>
+        <code>RefObject&lt;HTMLDialogElement | null&gt;</code>
+      </td>
+      <td>No</td>
+      <td>
+        An existing ref pointing to a <code>&lt;dialog&gt;</code> element. If omitted, the hook creates and manages its
+        own internal ref.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Return value
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>modalRef</code>
+      </td>
+      <td>
+        <code>RefObject&lt;HTMLDialogElement | null&gt;</code>
+      </td>
+      <td>
+        The ref to attach to the <code>&lt;dialog&gt;</code> element in the JSX.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>openModal</code>
+      </td>
+      <td>
+        <code>() =&gt; void</code>
+      </td>
+      <td>
+        Opens the dialog as a modal by calling <code>showModal()</code> on the element. Does nothing if the ref is not
+        yet attached.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>closeModal</code>
+      </td>
+      <td>
+        <code>() =&gt; void</code>
+      </td>
+      <td>
+        Closes the dialog by calling <code>close()</code> on the element. Does nothing if the ref is not yet attached.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Usage
+
+### Basic usage
+
+```tsx
+import { useModal } from '@Front/ui/utils/hooks/useModal';
+
+const ConfirmDialog = () => {
+  const { modalRef, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <button type="button" onClick={openModal}>
+        Open dialog
+      </button>
+      <dialog ref={modalRef}>
+        <p>Are you sure?</p>
+        <button type="button" onClick={closeModal}>
+          Cancel
+        </button>
+        <button type="button" onClick={closeModal}>
+          Confirm
+        </button>
+      </dialog>
+    </>
+  );
+};
+```
+
+### With an existing ref
+
+Use this pattern when the ref needs to be shared with another component or managed externally.
+
+```tsx
+import { useRef } from 'react';
+import { useModal } from '@Front/ui/utils/hooks/useModal';
+
+const ConfirmDialog = () => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const { openModal, closeModal } = useModal(dialogRef);
+
+  return (
+    <>
+      <button type="button" onClick={openModal}>
+        Open dialog
+      </button>
+      <dialog ref={dialogRef}>
+        <p>Are you sure?</p>
+        <button type="button" onClick={closeModal}>
+          Close
+        </button>
+      </dialog>
+    </>
+  );
+};
+```
