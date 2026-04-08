@@ -16,4 +16,18 @@ describe('Spinner', () => {
     const spinner = screen.getByRole('status');
     expect(spinner).toHaveClass('ds-spinner', 'my-custom-class');
   });
+
+  it('applies a custom aria-label when provided', () => {
+    render(<Spinner aria-label="Chargement des données" />);
+    const spinner = screen.getByRole('status', {
+      name: 'Chargement des données',
+    });
+    expect(spinner).toHaveAttribute('aria-label', 'Chargement des données');
+  });
+
+  it('applies the size style when size prop is provided', () => {
+    render(<Spinner size="32px" />);
+    const spinner = screen.getByRole('status');
+    expect(spinner).toHaveStyle('--ds-spinner-size: 32px');
+  });
 });

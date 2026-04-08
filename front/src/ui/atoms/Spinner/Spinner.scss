@@ -1,13 +1,16 @@
 @use '../../../utils/sass/mixins/helpers';
 
 .ds-spinner {
+  --ds-spinner-size: helpers.px-to-rem(48px);
+
+  width: var(--ds-spinner-size);
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(farthest-side, var(--color-primary) 94%, #0000) top/helpers.px-to-rem(8px) helpers.px-to-rem(8px)
-      no-repeat,
-    conic-gradient(#0000 30%, var(--color-primary));
-  mask: radial-gradient(farthest-side, #0000 calc(100% - helpers.px-to-rem(8px)), #000 0);
+    radial-gradient(farthest-side, var(--color-primary) 94%, transparent) top/helpers.px-to-rem(8px)
+      helpers.px-to-rem(8px) no-repeat,
+    conic-gradient(transparent 30%, var(--color-primary));
+  mask: radial-gradient(farthest-side, transparent calc(100% - helpers.px-to-rem(8px)), var(--color-black) 0);
   animation: spinner-rotation 1s infinite linear;
 }
 
