@@ -3,7 +3,7 @@
 # Default target
 all: start
 
-# Start frontend and backend with combined logs (auto-installs node_modules if missing)
+# Start frontend and backend with combined logs (installs frontend dependencies)
 start:
 	@cd front && npm install
 	@echo "\n🚀 Starting frontend and backend..."
@@ -12,7 +12,7 @@ start:
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html\n"
 	@(cd front && npm run start) & (cd back && air); wait
 
-# Start frontend only (auto-installs node_modules if missing)
+# Start frontend only (installs frontend dependencies)
 front:
 	@cd front && npm install
 	@echo "\n📱 Starting frontend on https://localhost"
@@ -23,7 +23,7 @@ back:
 	@echo "\n🔧 Starting backend on https://localhost/api"
 	cd back && air
 
-# Start storybook (auto-installs node_modules if missing)
+# Start storybook (installs frontend dependencies)
 storybook:
 	@cd front && npm install
 	@echo "\n📒 Starting Storybook on http://localhost:3002"
