@@ -25,12 +25,12 @@ export class ToastService extends AbstractObserver {
 
     const durationToUse = duration === undefined ? this.defaultDuration : duration;
 
-    const timeout =
-      durationToUse !== null
-        ? setTimeout(() => {
-            this.removeToast(newId);
-          }, durationToUse)
-        : undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    if (durationToUse !== null) {
+      timeout = setTimeout(() => {
+        this.removeToast(newId);
+      }, durationToUse);
+    }
 
     this.toast.set(newId, {
       id: newId,

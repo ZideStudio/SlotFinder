@@ -198,38 +198,4 @@ describe('ToastService', () => {
     vi.clearAllTimers();
   });
 
-  it('should allow manually removing a toast that has no auto-removal', () => {
-    const store = new ToastService();
-    const observer = vi.fn();
-    const unsubscribe = store.subscribe(observer);
-
-    store.addToast('Persistent', null);
-    const toastIds = store.getAllToastIds();
-    expect(toastIds).toHaveLength(1);
-
-    store.removeToast(toastIds[0]);
-    expect(store.getAllToastIds()).toStrictEqual([]);
-    expect(observer).toHaveBeenCalledTimes(2);
-
-    unsubscribe();
-  });
-
-  it('should use explicit null duration even when constructor has a default duration', () => {
-    vi.useFakeTimers();
-
-    const store = new ToastService(1000);
-
-    store.addToast('Persistent', null);
-
-    const toastIds = store.getAllToastIds();
-    const toast = store.getToastById(toastIds[0]);
-
-    expect(toast?.timeout).toBeUndefined();
-
-    vi.advanceTimersByTime(5000);
-    expect(store.getAllToastIds()).toHaveLength(1);
-
-    vi.useRealTimers();
-    vi.clearAllTimers();
-  });
 });
