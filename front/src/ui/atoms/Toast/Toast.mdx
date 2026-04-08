@@ -33,10 +33,10 @@ return <button onClick={() => toastService.addToast('Ceci est un toast')}>Affich
 
 The `addToast` method accepts an optional `duration` argument (in milliseconds) that controls how long the toast is displayed before being automatically removed.
 
-| `duration` value      | Behaviour                                                         |
-|-----------------------|-------------------------------------------------------------------|
-| `undefined` (omitted) | Uses the provider's `defaultDuration` (3 000 ms by default)      |
-| `number`              | Auto-removes after the given number of milliseconds               |
+| `duration` value      | Behaviour                                                               |
+| --------------------- | ----------------------------------------------------------------------- |
+| `undefined` (omitted) | Uses the provider's `defaultDuration` (3 000 ms by default)             |
+| `number`              | Auto-removes after the given number of milliseconds                     |
 | `null`                | **No auto-removal** — the toast stays until the user closes it manually |
 
 ```tsx

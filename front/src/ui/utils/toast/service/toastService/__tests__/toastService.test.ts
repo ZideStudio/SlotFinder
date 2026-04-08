@@ -197,5 +197,4 @@ describe('ToastService', () => {
     vi.useRealTimers();
     vi.clearAllTimers();
   });
-
 });
