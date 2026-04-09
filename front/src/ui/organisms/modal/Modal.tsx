@@ -28,7 +28,7 @@ export const Modal = forwardRef<HTMLDialogElement, ModalProps>(
     };
 
     return (
-      <dialog aria-labelledby={titleId} className={parentClassName} ref={ref} {...props}>
+      <dialog aria-labelledby={titleId} className={parentClassName} ref={ref} {...props} closedby="any">
         <div className="ds-modal__header">
           <Heading level={1} id={titleId}>
             {title}
