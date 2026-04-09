@@ -1,0 +1,56 @@
+@use '../../../utils/sass/mixins/helpers';
+
+.ds-modal {
+  padding: 0;
+  border: none;
+  border: helpers.px-to-rem(1) solid var(--color-black);
+  border-radius: helpers.px-to-rem(10);
+  padding: helpers.px-to-rem(12);
+  background: white;
+  min-width: helpers.px-to-rem(300);
+}
+
+.ds-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: helpers.px-to-rem(12);
+}
+
+.ds-modal__close-button {
+  background: transparent;
+  border: none;
+  font-size: helpers.px-to-rem(20);
+  cursor: pointer;
+  color: var(--color-primary);
+  width: fit-content;
+  padding: helpers.px-to-rem(0);
+  align-self: flex-start;
+  font-weight: 400;
+
+  &:hover {
+    color: var(--color-primary-dark);
+  }
+}
+
+.ds-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: helpers.px-to-rem(8);
+  padding-top: helpers.px-to-rem(12);
+}
+
+.ds-modal__close-action {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: helpers.px-to-rem(14);
+  padding: helpers.px-to-rem(8) helpers.px-to-rem(16);
+  border-radius: helpers.px-to-rem(4);
+
+  &:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+  }
+}
