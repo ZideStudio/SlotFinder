@@ -1,9 +1,19 @@
+@use '../../../utils/sass/mixins/helpers';
+@use '../../../utils/sass/mixins/responsive';
+
 .ds-click-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: none;
   background: none;
   padding: 0;
   cursor: pointer;
+  --icon-size: #{helpers.px-to-rem(20)};
+
+  .ds-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+  }
+
+  @include responsive.media-exceeds-width('desktop-small') {
+    --icon-size: #{helpers.px-to-rem(24)};
+  }
 }

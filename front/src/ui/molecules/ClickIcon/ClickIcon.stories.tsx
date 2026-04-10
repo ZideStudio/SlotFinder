@@ -15,7 +15,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     icon: SendIcon,
-    className: 'custom-class',
-    onClick: () => alert('Icon clicked!'),
+    onClick: { action: true, table: { disable: true } },
   },
 };

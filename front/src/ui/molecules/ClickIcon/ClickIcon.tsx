@@ -7,13 +7,12 @@ import './ClickIcon.scss';
 
 type IconProps = {
   icon: SvgIcon;
-  className?: string;
 } & ComponentPropsWithoutRef<'button'>;
 
-export const ClickIcon = ({ icon, className, ...props }: IconProps) => {
+export const ClickIcon = ({ icon, ...props }: IconProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-click-icon',
-    className: className,
+    className: props.className,
   });
 
   return (
