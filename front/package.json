@@ -69,7 +69,7 @@
     "msw": "2.12.14",
     "oxlint": "1.57.0",
     "prettier": "3.8.1",
-    "prettier-plugin-sh": "0.18.0",
+    "prettier-plugin-sh": "0.18.1",
     "remark-gfm": "4.0.1",
     "storybook": "10.3.4",
     "storybook-react-rsbuild": "3.3.2",
