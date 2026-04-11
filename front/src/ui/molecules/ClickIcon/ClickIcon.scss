@@ -2,10 +2,11 @@
 @use '../../../utils/sass/mixins/responsive';
 
 .ds-click-icon {
+  padding: 0;
   border: none;
   background: none;
-  padding: 0;
   cursor: pointer;
+
   --icon-size: #{helpers.px-to-rem(20)};
 
   .ds-icon {
