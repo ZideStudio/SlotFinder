@@ -74,8 +74,14 @@ func (s *MailService) eventEmailCommonParams(
 	startsAt time.Time,
 	endsAt time.Time,
 	lang constants.AccountLanguage,
+	timeZone string,
 ) map[string]string {
-	whenFormattedDateTime := lib.Capitalize(lib.FormatLocalizedDate(startsAt, endsAt, lang))
+	loc, err := time.LoadLocation(timeZone)
+	if err != nil {
+		loc = time.UTC
+	}
+
+	whenFormattedDateTime := lib.Capitalize(lib.FormatLocalizedDate(startsAt.In(loc), endsAt.In(loc), lang))
 
 	return map[string]string{
 		"eventName":             event.Name,
@@ -120,7 +126,7 @@ func (s *MailService) SendEventConfirmationEmail(
 		subject = constants.MAIL_SUBJECT_EVENT_CONFIRMATION_FR
 	}
 
-	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, participant.Language)
+	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, participant.Language, participant.TimeZone)
 	params["isOwner"] = lib.BoolToString(participant.Id == ownerId)
 
 	s.eventEmailEnrichOptionalFields(params, participant, event)
@@ -152,7 +158,7 @@ func (s *MailService) SendEventCancellationEmail(
 		subject = constants.MAIL_SUBJECT_EVENT_CANCELLATION_FR
 	}
 
-	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, account.Language)
+	params := s.eventEmailCommonParams(event, eventId, startsAt, endsAt, account.Language, account.TimeZone)
 	params["isOwner"] = lib.BoolToString(account.Id == ownerId)
 
 	s.eventEmailEnrichOptionalFields(params, account, event)

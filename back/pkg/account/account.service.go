@@ -358,18 +358,24 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 
 	// Send confirmation email
 	subject := constants.MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_EN
-	timestampFormat := "January 2, 2006 at 15:04 UTC"
+	timestampFormat := "January 2, 2006 at 15:04"
 	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
 		subject = constants.MAIL_SUBJECT_PASSWORD_RESET_CONFIRM_FR
-		timestampFormat = "2 January 2006 à 15:04 UTC"
+		timestampFormat = "2 January 2006 à 15:04"
 	}
+
+	loc, err := time.LoadLocation(account.TimeZone)
+	if err != nil {
+		loc = time.UTC
+	}
+
 	go s.mailService.SendMail(mail.EmailParams{
 		Template: constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
 		To:       *account.Email,
 		Subject:  subject,
 		Language: account.Language,
 		Params: map[string]string{
-			"Timestamp": time.Now().Format(timestampFormat),
+			"Timestamp": time.Now().In(loc).Format(timestampFormat),
 			"LoginUrl":  fmt.Sprintf("%s/login", s.config.Origin),
 		},
 	})
