@@ -4,7 +4,7 @@ FROM traefik:v3.6.12
 RUN apk add --no-cache openssl
 
 # Create certificates and config directories
-RUN mkdir -p /etc/ssl/traefik /etc/traefik
+RUN mkdir -p /etc/ssl/traefik /etc/traefik/conf.d
 
 # Generate self-signed certificate at build time
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
@@ -13,8 +13,8 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -subj "/C=US/ST=Local/L=Local/O=Local/CN=localhost" \
     -addext "subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1,IP:::1"
 
-# Create TLS configuration file
-RUN cat <<'EOF' > /etc/traefik/tls.yml
+# Create TLS configuration file inside the watched directory
+RUN cat <<'EOF' > /etc/traefik/conf.d/tls.yml
 tls:
   stores:
     default:

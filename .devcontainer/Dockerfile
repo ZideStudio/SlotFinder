@@ -71,16 +71,16 @@ RUN curl https://get.volta.sh | bash -s -- --skip-setup
 
 COPY --chown=vscode:vscode front/package.json /tmp/package.json
 RUN NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /tmp/package.json | head -1) && \
+    rm -f /tmp/package.json && \
     volta install node@${NODE_VERSION:-latest} && \
     volta install typescript typescript-language-server vscode-langservers-extracted
 
 RUN npx playwright install --with-deps
 
 # Go
-RUN go install golang.org/x/tools/gopls@v0.21.0 && \
+RUN go install golang.org/x/tools/gopls@v0.21.1 && \
     go install github.com/go-delve/delve/cmd/dlv@v1.26.0 && \
-    go install golang.org/x/tools/cmd/goimports@latest && \
-    go install github.com/air-verse/air@latest
+    go install golang.org/x/tools/cmd/goimports@v0.44.0
 
 RUN cat <<EOF >> /home/vscode/.bashrc
     alias lg="lazygit"

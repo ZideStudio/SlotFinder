@@ -5,15 +5,14 @@ services:
       dockerfile: Dockerfile.traefik
     command:
       - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
+      - --providers.docker=false
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --entrypoints.http.http.redirections.entrypoint.to=https
       - --entrypoints.http.http.redirections.entrypoint.scheme=https
-      - --providers.file.filename=/etc/traefik/tls.yml
+      - --providers.file.directory=/etc/traefik/conf.d
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker/traefik-dynamic.yml:/etc/traefik/conf.d/dynamic.yml:ro
     ports:
       - "80:80"
       - "443:443"
@@ -21,69 +20,6 @@ services:
     restart: unless-stopped
     networks:
       - traefik
-
-  frontend:
-    build:
-      context: ./front
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./front:/app
-    env_file:
-      - path: ./front/.env.development
-        required: true
-    command: ["npm", "run", "start"]
-    ports:
-      - "3000:3000"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`) && !PathPrefix(`/api`)"
-      - "traefik.http.routers.frontend.entrypoints=https"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-    networks:
-      - traefik
-    depends_on:
-      - traefik
-
-  storybook:
-    build:
-      context: ./front
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./front:/app
-    env_file:
-      - path: ./front/.env.development
-        required: true
-    command: ["npm", "run", "start:storybook"]
-    ports:
-      - "3002:3002"
-
-  backend:
-    build:
-      context: ./back
-      dockerfile: Dockerfile
-      target: build
-    volumes:
-      - ./back:/usr/src/app
-      - go-mod-cache:/go/pkg/mod
-    working_dir: /usr/src/app
-    command: ["sh", "-c", "go install github.com/air-verse/air@latest && air"]
-    env_file:
-      - path: ./back/.env
-        required: true
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=https"
-      - "traefik.http.routers.backend.tls=true"
-      - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=backend-stripprefix"
-      - "traefik.http.services.backend.loadbalancer.server.port=3001"
-    networks:
-      - traefik
-    depends_on:
-      - traefik
-      - postgres
 
   postgres:
     image: postgres:18-alpine
@@ -115,6 +51,8 @@ services:
       - ~/.gitconfig:/home/vscode/.gitconfig:ro
       - ~/.ssh:/home/vscode/.ssh:ro
     working_dir: /workspace
+    networks:
+      - traefik
 
 volumes:
   postgres_data:
