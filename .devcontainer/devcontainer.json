@@ -13,8 +13,8 @@
     "DISPLAY": ":99",
     "GOPATH": "/go",
     "GOBIN": "/go/bin",
-    "VOLTA_HOME": "/home/vscode/.volta",
-    "PATH": "/home/vscode/.volta/bin:/go/bin:/usr/local/go/bin:${containerEnv:PATH}"
+    "MISE_HOME": "/home/vscode/.local/share/mise",
+    "PATH": "/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/go/bin:/usr/local/go/bin:${containerEnv:PATH}"
   },
   "customizations": {
     "vscode": {

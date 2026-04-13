@@ -1,6 +1,24 @@
-FROM marcaureln/volta:2.0.2-bookworm-slim AS builder
+FROM ubuntu:24.04 AS builder
 
 WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install mise
+RUN curl https://mise.jdx.dev/install.sh | sh
+
+ENV MISE_HOME="/root/.local/share/mise"
+ENV PATH="/root/.local/share/mise/shims:/root/.local/bin:${PATH}"
+
+# Copy mise configuration
+COPY .mise.toml ./
+
+# Install Node.js and npm via mise
+RUN /root/.local/bin/mise install
 
 COPY package*.json ./
 
