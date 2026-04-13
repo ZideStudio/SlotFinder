@@ -10,7 +10,7 @@ start:
 	@echo "📱 Front: https://localhost"
 	@echo "🔧 API: https://localhost/api"
 	@echo "🔧 API Doc: https://localhost/api/swagger/index.html\n"
-	@(cd front && npm run start) & (cd back && air); wait
+	@(cd front && npm run start) & (cd back && go tool air); wait
 
 # Start frontend only (installs frontend dependencies)
 front:
@@ -21,7 +21,7 @@ front:
 # Start backend only with hot reload
 back:
 	@echo "\n🔧 Starting backend on https://localhost/api"
-	cd back && air
+	cd back && go tool air
 
 # Start storybook (installs frontend dependencies)
 storybook:

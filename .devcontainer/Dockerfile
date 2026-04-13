@@ -78,11 +78,9 @@ RUN NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /tmp/package.json | head -1) &&
 RUN npx playwright install --with-deps
 
 # Go
-RUN go install golang.org/x/tools/gopls@v0.21.0 && \
+RUN go install golang.org/x/tools/gopls@v0.21.1 && \
     go install github.com/go-delve/delve/cmd/dlv@v1.26.0 && \
-    go install golang.org/x/tools/cmd/goimports@v0.44.0 && \
-    go install github.com/air-verse/air@v1.65.0 && \
-    go install github.com/swaggo/swag/cmd/swag@v1.16.6
+    go install golang.org/x/tools/cmd/goimports@v0.44.0
 
 RUN cat <<EOF >> /home/vscode/.bashrc
     alias lg="lazygit"

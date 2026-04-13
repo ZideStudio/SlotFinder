@@ -4,14 +4,10 @@
 
 Clone the env `.env.model` file to `.env` and modify the variables as needed.
 
-```bash
-make install
-```
-
 ## Start
 
 ```bash
-make start
+go tool air
 ```
 
 ## Test
