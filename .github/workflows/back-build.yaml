@@ -124,5 +124,5 @@ jobs:
       - name: Generate Swagger documentation
         working-directory: ${{ env.BACK_FOLDER }}
         run: |
-          swag init
+          go tool swag init
           sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go
