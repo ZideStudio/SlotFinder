@@ -1,9 +1,9 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ClickIcon } from '../ClickIcon';
 
 describe('ClickIcon', () => {
   it('applies the custom class name', () => {
-    const { container } = render(
+    render(
       <ClickIcon
         icon={props => (
           <svg {...props}>
@@ -13,12 +13,13 @@ describe('ClickIcon', () => {
         className="custom-class"
       />,
     );
-    expect(container.firstChild).toHaveClass('custom-class');
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('custom-class');
   });
 
   it('applies props to the button element', () => {
     const onClick = vitest.fn();
-    const { getByRole } = render(
+    render(
       <ClickIcon
         icon={props => (
           <svg {...props}>
@@ -28,7 +29,7 @@ describe('ClickIcon', () => {
         onClick={onClick}
       />,
     );
-    const button = getByRole('button');
+    const button = screen.getByRole('button');
     button.click();
     expect(onClick).toHaveBeenCalled();
   });

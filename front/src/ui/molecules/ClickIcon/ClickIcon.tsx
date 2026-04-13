@@ -9,10 +9,10 @@ type IconProps = {
   icon: SvgIcon;
 } & ComponentPropsWithoutRef<'button'>;
 
-export const ClickIcon = ({ icon, ...props }: IconProps) => {
+export const ClickIcon = ({ icon, className, ...props }: IconProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-click-icon',
-    className: props.className,
+    className: className,
   });
 
   return (

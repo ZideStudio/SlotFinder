@@ -8,6 +8,7 @@ const meta = {
   component: ClickIcon,
   argTypes: {
     onClick: { action: true, table: { disable: true } },
+    className: { control: 'text' },
   },
 } satisfies Meta<typeof ClickIcon>;
 
