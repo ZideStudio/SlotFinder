@@ -77,7 +77,6 @@
         "go.formatTool": "goimports",
         "go.lintOnSave": "workspace",
         "gopls": {
-          "formatting.gofmt": true,
           "ui.completion.usePlaceholders": true,
           "ui.diagnostic.analyses": {
             "unusedparams": true,
