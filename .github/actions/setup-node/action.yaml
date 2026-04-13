@@ -4,13 +4,13 @@ description: 'setup node'
 runs:
   using: 'composite'
   steps:
-    - name: Set Node.js version from volta
+    - name: Set Node.js version from mise
       shell: bash
-      run: echo "NODE_VERSION=$(jq -r .volta.node front/package.json)" >> $GITHUB_ENV
+      run: echo "NODE_VERSION=$(grep -oP '^\s*node\s*=\s*"\K[^"]+' front/.mise.toml)" >> $GITHUB_ENV
 
-    - name: Get npm version from volta
+    - name: Get npm version from mise
       shell: bash
-      run: echo "NPM_VERSION=$(jq -r .volta.npm front/package.json)" >> $GITHUB_ENV
+      run: echo "NPM_VERSION=$(grep -oP '^\s*npm\s*=\s*"\K[^"]+' front/.mise.toml)" >> $GITHUB_ENV
 
     - name: Setup Node.js
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6

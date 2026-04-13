@@ -44,7 +44,7 @@ services:
     environment:
       - GOPATH=/go
       - GOBIN=/go/bin
-      - PATH=/home/vscode/.volta/bin:/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - PATH=/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
       - ./:/workspace
       - go-mod-cache:/home/vscode/go/pkg/mod
