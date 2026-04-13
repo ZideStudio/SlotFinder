@@ -17,7 +17,7 @@ type Event struct {
 	EndsAt      time.Time             `gorm:"column:ends_at" json:"endsAt"`
 	CreatedAt   time.Time             `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"createdAt"`
 	OwnerId     uuid.UUID             `gorm:"column:owner_id;type:uuid;primaryKey" json:"-"`
-	Status      constants.EventStatus `gorm:"column:status" json:"status"`
+	Status      constants.EventStatus `gorm:"type:event_status;column:status" json:"status"`
 
 	// Relations
 	Owner          Account        `gorm:"foreignKey:OwnerId;references:Id" json:"owner"`
