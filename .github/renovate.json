@@ -36,6 +36,18 @@
         "github.com/swaggo/files"
       ],
       "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "minimumConfidence": "neutral",
+      "automerge": true,
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "minimumConfidence": "high",
+      "automerge": true,
+      "minimumReleaseAge": "5 days"
     }
   ]
 }
