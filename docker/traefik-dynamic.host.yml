@@ -1,0 +1,34 @@
+http:
+  routers:
+    frontend:
+      rule: "Host(`localhost`) && !PathPrefix(`/api`)"
+      service: frontend
+      entryPoints:
+        - https
+      tls: true
+
+    backend:
+      rule: "Host(`localhost`) && PathPrefix(`/api`)"
+      service: backend
+      entryPoints:
+        - https
+      tls: true
+      middlewares:
+        - backend-stripprefix
+
+  middlewares:
+    backend-stripprefix:
+      stripPrefix:
+        prefixes:
+          - /api
+
+  services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3000"
+
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3001"

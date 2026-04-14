@@ -1,4 +1,4 @@
-.PHONY: start front back storybook
+.PHONY: start front back storybook docker-deps docker-deps-down
 
 # Default target
 all: start
@@ -28,3 +28,18 @@ storybook:
 	@cd front && npm install
 	@echo "\n📒 Starting Storybook on http://localhost:3002"
 	cd front && npm run start:storybook
+
+# Start dockerized dependencies (host mode)
+docker-deps:
+	@echo "\n🐳 Starting dockerized dependencies..."
+	@docker compose -f docker-compose.dev.yml -f docker-compose.traefik-host.yml up -d traefik postgres
+	@echo "✅ Traefik is starting on https://localhost (dashboard: http://localhost:9000)"
+	@echo "✅ Postgres is starting on localhost:5432"
+	@echo "📝 Make sure your frontend is running on http://localhost:3000"
+	@echo "📝 Make sure your backend is running on http://localhost:3001"
+
+# Stop dockerized dependencies (host mode)
+docker-deps-down:
+	@echo "\n🐳 Stopping dockerized dependencies..."
+	@docker compose -f docker-compose.dev.yml -f docker-compose.traefik-host.yml down
+	@echo "🛑 Dependencies stopped"
