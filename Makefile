@@ -1,4 +1,4 @@
-.PHONY: start front back storybook docker-deps docker-deps-down docker-deps-logs docker-deps-host docker-deps-host-down docker-deps-host-logs
+.PHONY: start front back storybook docker-deps docker-deps-down
 
 # Default target
 all: start
