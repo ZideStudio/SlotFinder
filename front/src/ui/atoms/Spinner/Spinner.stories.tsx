@@ -6,7 +6,6 @@ const meta = {
   component: Spinner,
   args: {
     className: 'custom-class',
-    size: '24px',
   },
   decorators: [
     Story => (
@@ -21,8 +20,4 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {
-    size: '240px',
-  },
-};
+export const Default: Story = {};

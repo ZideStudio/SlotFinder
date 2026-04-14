@@ -1,17 +1,32 @@
 @use '../../../utils/sass/mixins/helpers';
+@use '../../../utils/sass/mixins/responsive';
 
 .ds-spinner {
-  --ds-spinner-size: helpers.px-to-rem(48px);
+  --ds-spinner-size: #{helpers.px-to-rem(16)};
 
   width: var(--ds-spinner-size);
+  height: var(--ds-spinner-size);
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(farthest-side, var(--color-primary) 94%, transparent) top/helpers.px-to-rem(8px)
-      helpers.px-to-rem(8px) no-repeat,
+    radial-gradient(farthest-side, var(--color-primary) 94%, transparent) top/helpers.px-to-rem(4) helpers.px-to-rem(4)
+      no-repeat,
     conic-gradient(transparent 30%, var(--color-primary));
-  mask: radial-gradient(farthest-side, transparent calc(100% - helpers.px-to-rem(8px)), var(--color-black) 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - helpers.px-to-rem(4)), var(--color-black) 0);
   animation: spinner-rotation 1s infinite linear;
+
+  &__label {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @include responsive.media-exceeds-width('desktop-small') {
+    --ds-spinner-size: #{helpers.px-to-rem(20)};
+  }
 }
 
 @keyframes spinner-rotation {
