@@ -1,0 +1,6 @@
+services:
+  traefik:
+    volumes:
+      - ./docker/traefik-dynamic.host.yml:/etc/traefik/conf.d/dynamic.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -47,7 +47,7 @@ You have two options to set up your development environment:
 
 5. **Start Coding!**
 
-### Option 2: Local Setup
+### Option 2: Local Setup (with Docker)
 
 #### Clone the repository
 
@@ -65,7 +65,11 @@ Note that the default values prefixed with `DB_` are already set and work with t
 #### Start the development environment
 
 ```bash
-make
+make docker-deps
+```
+
+```bash
+make start
 ```
 
 Access the application:
@@ -74,6 +78,12 @@ Access the application:
 - **Storybook**: http://localhost:3002
 - **Backend API**: https://localhost/api
 - **Traefik Dashboard**: http://localhost:9000
+
+To stop infrastructure:
+
+```bash
+make docker-deps-down
+```
 
 **Note**: The development environment uses self-signed certificates. Your browser will show a security warning - this is normal for local development. You can safely proceed by clicking "Advanced" > "Proceed to localhost".
 
@@ -95,7 +105,18 @@ Example connection:
 psql -h localhost -p 5432 -U slotfinder -d slotfinder
 ```
 
-### Available Commands
+### Infrastructure Commands
+
+Start and stop Docker services (Traefik + PostgreSQL):
+
+**Host Mode** (use when running frontend & backend on your machine, not in a dev container):
+
+```bash
+make docker-deps       # Start Traefik + PostgreSQL
+make docker-deps-down  # Stop services
+```
+
+### Application Commands
 
 ```bash
 make                # Start frontend and backend
