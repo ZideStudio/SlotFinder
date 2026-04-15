@@ -41,16 +41,32 @@ func ensureEventStatusEnumType() error {
 		quoted = append(quoted, fmt.Sprintf("'%s'", strings.ReplaceAll(string(s), "'", "''")))
 	}
 	enumValues := strings.Join(quoted, ", ")
+	enumArrayValues := strings.Join(quoted, ", ")
 
 	sql := fmt.Sprintf(`
 	DO $$
+	DECLARE
+ 		status_label text;
 	BEGIN
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_status') THEN
 			CREATE TYPE event_status AS ENUM (%s);
+ 		ELSE
+ 			FOREACH status_label IN ARRAY ARRAY[%s]
+ 			LOOP
+ 				IF NOT EXISTS (
+ 					SELECT 1
+ 					FROM pg_type t
+ 					JOIN pg_enum e ON e.enumtypid = t.oid
+ 					WHERE t.typname = 'event_status'
+ 					  AND e.enumlabel = status_label
+ 				) THEN
+ 					EXECUTE format('ALTER TYPE event_status ADD VALUE %%L', status_label);
+ 				END IF;
+ 			END LOOP;
 		END IF;
-	END
+	END;
 	$$;
-	`, enumValues)
+	`, enumValues, enumArrayValues)
 
 	return conn.Exec(sql).Error
 }
