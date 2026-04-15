@@ -34,6 +34,5 @@ func (ct *EventStatus) Scan(value any) error {
 }
 
 func (ct EventStatus) Value() (driver.Value, error) {
-	fmt.Println("B")
 	return string(ct), nil
 }
