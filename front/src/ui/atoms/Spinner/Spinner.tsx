@@ -3,10 +3,10 @@ import './Spinner.scss';
 
 type SpinnerProps = {
   className?: string;
-  'aria-label'?: string;
+  label?: string;
 };
 
-export const Spinner = ({ className, 'aria-label': ariaLabel = "Chargement en cours" }: SpinnerProps) => {
+export const Spinner = ({ className, label = "Chargement en cours" }: SpinnerProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-spinner',
     className,
@@ -14,7 +14,7 @@ export const Spinner = ({ className, 'aria-label': ariaLabel = "Chargement en co
 
   return (
     <div className={parentClassName} role="status">
-      <span className='ds-spinner__label'>{ariaLabel}</span>
+      <span className='ds-spinner__label'>{label}</span>
     </div>
   );
 };

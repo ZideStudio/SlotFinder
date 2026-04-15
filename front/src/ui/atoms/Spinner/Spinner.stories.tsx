@@ -6,6 +6,7 @@ const meta = {
   component: Spinner,
   args: {
     className: 'custom-class',
+    label: 'Loading data',
   },
   decorators: [
     Story => (

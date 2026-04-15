@@ -16,8 +16,8 @@ describe('Spinner', () => {
     expect(spinner).toHaveClass('ds-spinner', 'my-custom-class');
   });
 
-  it('applies a custom aria-label when provided', () => {
-    render(<Spinner aria-label="Chargement des données" />);
+  it('applies a custom label when provided', () => {
+    render(<Spinner label="Chargement des données" />);
     const spinner = screen.getByText('Chargement des données');
     expect(spinner).toHaveClass('ds-spinner__label');
   });
