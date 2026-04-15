@@ -11,7 +11,6 @@ import (
 	"app/pkg/signin"
 	"app/pkg/slot"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -272,7 +271,6 @@ func (s *EventService) GetUserEvents(
 	user *guard.Claims,
 	pagination *lib.Pagination[model.Event],
 ) error {
-	fmt.Println(1)
 	events, total, err := s.eventRepository.FindEventsByAccountId(user.Id, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return err
@@ -280,14 +278,12 @@ func (s *EventService) GetUserEvents(
 	pagination.Total = total
 	pagination.Data = events
 
-	fmt.Println(2)
 	for i := range pagination.Data {
 		// Update event status if needed
 		if _, err := pagination.Data[i].CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
 			return err
 		}
 	}
-	fmt.Println(3)
 
 	return nil
 }
