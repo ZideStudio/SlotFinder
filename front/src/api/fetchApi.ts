@@ -34,21 +34,22 @@ export const fetchApi = async <
     mergeHeaders.append(HEADERS.contentType, MIME_TYPES.json);
   }
 
-  const makeRequest = async (): Promise<globalThis.Response> => {
-    return await fetch(path, {
+  const makeRequest = async (): Promise<globalThis.Response> =>
+    await fetch(path, {
       method,
       ...(data && { body: JSON.stringify(data) }),
       headers: mergeHeaders,
     });
-  };
 
   let response = await makeRequest();
 
   // Handle 498 status code from api (expired access token)
   const apiUrlFull = `${import.meta.env.FRONT_DOMAIN}${import.meta.env.FRONT_BACKEND_URL}`;
+  // oxlint-disable-next-line no-magic-numbers
   if (response.status === 498 && response.url.startsWith(apiUrlFull)) {
     await tokenRefreshManager.refreshToken();
-    response = await makeRequest(); // Retry the original request
+    // Retry the original request
+    response = await makeRequest();
   }
 
   const content = await response.text();

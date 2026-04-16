@@ -18,11 +18,13 @@ describe('bootstrap', () => {
   let container: HTMLElement;
   const render = vi.fn();
   const unmount = vi.fn();
-  (createRoot as Mock).mockImplementation(() => ({
+  // oxlint-disable-next-line jest/require-hook
+  (createRoot as Mock).mockReturnValue({
     render,
     unmount,
-  }));
+  });
 
+  // oxlint-disable-next-line jest/require-hook
   customElements.define('bootstrap-html-element', bootstrap);
 
   beforeEach(() => {
@@ -37,7 +39,7 @@ describe('bootstrap', () => {
     document.body.appendChild(container);
 
     expect(createRoot as Mock).toHaveBeenCalledWith(expect.anything());
-    expect(render).toBeCalledWith(
+    expect(render).toHaveBeenCalledWith(
       <StrictMode>
         <App basename="" />
       </StrictMode>,

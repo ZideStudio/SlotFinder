@@ -1,3 +1,4 @@
+// oxlint-disable-next-line import/no-namespace
 import * as authenticationContextHook from '@Front/hooks/useAuthenticationContext';
 import { appRoutes } from '@Front/routing/appRoutes';
 import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender/customRender';
@@ -14,13 +15,13 @@ const renderRouteOptions: RenderRouteOptions = {
   routesOptions: { initialEntries: [appRoutes.signUp()] },
 };
 
-afterEach(() => {
-  server.resetHandlers();
-});
-
 describe('SignUp', () => {
   beforeEach(() => {
     server.use(postAccount201);
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
   });
 
   it('renders all form fields, submit button and oauth', () => {
@@ -39,7 +40,7 @@ describe('SignUp', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
-    expect(await screen.findByText('signUp.requiredUsername')).toBeInTheDocument();
+    await expect(screen.findByText('signUp.requiredUsername')).resolves.toBeInTheDocument();
     expect(screen.getByText('signUp.requiredEmail')).toBeInTheDocument();
     expect(screen.getByText('signUp.requiredPassword')).toBeInTheDocument();
     expect(screen.getByText('signUp.requiredConfirmPassword')).toBeInTheDocument();
@@ -80,7 +81,7 @@ describe('SignUp', () => {
     await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), password);
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
-    expect(await screen.findByText(expectedError)).toBeInTheDocument();
+    await expect(screen.findByText(expectedError)).resolves.toBeInTheDocument();
   });
 
   it('shows accessible error when confirm password field does not match with password field', async () => {
@@ -119,7 +120,7 @@ describe('SignUp', () => {
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
     await waitFor(() => {
-      expect(checkAuthentication).toHaveBeenCalled();
+      expect(checkAuthentication).toHaveBeenCalledOnce();
     });
   });
 });
@@ -138,6 +139,6 @@ describe('SignUp error handling', () => {
     await userEvent.type(screen.getByLabelText('signUp.confirmPassword'), 'Password1!');
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
-    expect(await screen.findByText(`signUp.error.${accountErrorFixture.code}`)).toBeInTheDocument();
+    await expect(screen.findByText(`signUp.error.${accountErrorFixture.code}`)).resolves.toBeInTheDocument();
   });
 });

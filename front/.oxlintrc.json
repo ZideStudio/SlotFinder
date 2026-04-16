@@ -5,10 +5,11 @@
     "style": "warn",
     "pedantic": "warn"
   },
-  "plugins": ["react", "typescript", "import", "jsx-a11y"],
+  "plugins": ["react", "typescript", "import", "jsx-a11y", "jest"],
   "rules": {
     "react/jsx-key": "error",
     "react/jsx-no-duplicate-props": "error",
+    "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",
     "react/no-unescaped-entities": "off",
     "react/no-unknown-property": "warn",
@@ -25,7 +26,6 @@
     "import/no-unresolved": "warn",
     "import/no-duplicates": "warn",
     "import/no-named-export": "off",
-    "import/order": "warn",
     "import/prefer-default-export": "off",
     "typescript/no-unused-vars": "warn",
     "typescript/no-explicit-any": "warn",
@@ -36,10 +36,27 @@
         "fixStyle": "inline-type-imports"
       }
     ],
+    "jest/max-expects": [
+      "warn",
+      {
+        "max": 10
+      }
+    ],
+    "jest/no-hooks": "off",
+    "jest/no-untyped-mock-factory": "off",
+    "jest/prefer-lowercase-title": "off",
+    "jest/prefer-strict-equal": "warn",
     "eslint/max-lines-per-function": "off",
     "eslint/no-ternary": "off",
     "eslint/sort-imports": "off",
     "eslint/sort-keys": "off",
+    "eslint/max-statements": [
+      "warn",
+      {
+        "max": 20
+      }
+    ],
+    "eslint/id-length": "off",
     "no-console": "warn",
     "no-debugger": "error"
   }

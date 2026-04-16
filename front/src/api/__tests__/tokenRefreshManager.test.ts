@@ -12,10 +12,10 @@ describe('TokenRefreshManager', () => {
   const mockLocationReload = vi.fn();
 
   const originalLocation = globalThis.location;
-  vi.spyOn(globalThis, 'location', 'get').mockImplementation(() => ({
+  vi.spyOn(globalThis, 'location', 'get').mockReturnValue({
     ...originalLocation,
     reload: mockLocationReload,
-  }));
+  });
 
   afterEach(() => {
     vi.clearAllMocks();
@@ -35,7 +35,7 @@ describe('TokenRefreshManager', () => {
 
       await expect(tokenRefreshManager.refreshToken()).rejects.toThrow('Token refresh failed');
 
-      expect(mockLocationReload).toHaveBeenCalledTimes(1);
+      expect(mockLocationReload).toHaveBeenCalledOnce();
     });
 
     it('should handle multiple simultaneous refresh requests without duplicate API calls', async () => {
@@ -56,6 +56,7 @@ describe('TokenRefreshManager', () => {
       await Promise.all(refreshPromises);
 
       expect(mockLocationReload).not.toHaveBeenCalled();
+      // oxlint-disable-next-line no-magic-numbers
       expect(requestCount).toBe(1);
     });
 
