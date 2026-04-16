@@ -20,11 +20,11 @@
     justify-content: flex-end;
     gap: helpers.px-to-rem(8);
 
-    .ds-button.ds-modal__close-button {
+    .ds-button.ds-modal__button--close {
       width: fit-content;
     }
 
-    .ds-button.ds-modal__action-button {
+    .ds-button.ds-modal__button--action {
       width: fit-content;
     }
   }

@@ -46,7 +46,7 @@ export const Modal = ({
         <ClickIcon
           aria-label="Fermer la fenêtre"
           onClick={closeModal}
-          className="ds-modal__close-button"
+          className="ds-modal__button--close"
           icon={Close}
         />
       </div>
@@ -56,13 +56,13 @@ export const Modal = ({
       <div className="ds-modal__footer">
         {secondaryButtonProps && (
           <Button
-            className="ds-modal__close-button"
+            className="ds-modal__button--close"
             {...secondaryButtonProps}
             variant="secondary"
             onClick={closeModal}
           />
         )}
-        <Button className="ds-modal__action-button" {...primaryButtonProps} />
+        <Button className="ds-modal__button--action" {...primaryButtonProps} />
       </div>
     </dialog>
   );
