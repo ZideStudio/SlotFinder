@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import SendIcon from '@material-symbols/svg-400/outlined/send.svg?react';
+import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
 import { Button } from './Button';
 
 const meta = {
@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: args => (
-    <Button {...args} icon={SendIcon}>
+    <Button {...args} icon={PaletteIcon}>
       {args.children}
     </Button>
   ),

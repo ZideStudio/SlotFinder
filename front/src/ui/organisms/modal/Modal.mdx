@@ -1,0 +1,143 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ModalStories from './Modal.stories';
+
+<Meta of={ModalStories} />
+
+# Modal
+
+A reusable dialog component built on top of the native HTML `<dialog>` element for confirmation flows and focused interactions.
+
+## Usage
+
+```tsx
+import { useModal } from '@Front/ui/utils/hooks/useModal';
+import { Modal } from '@Front/ui/organisms/modal/Modal';
+
+const Example = () => {
+  const { modalRef, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <button type="button" onClick={openModal}>
+        Open Modal
+      </button>
+
+      <Modal
+        ref={modalRef}
+        title="Modal title"
+        primaryButtonProps={{
+          children: 'Action',
+          onClick: closeModal,
+        }}
+        secondaryButtonProps={{
+          children: 'Close'
+        }}
+      >
+        Modal's content
+      </Modal>
+    </>
+  );
+};
+```
+
+The component is designed to be controlled with a dialog ref (for example via `useModal`).
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>title</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        Modal heading text, linked to the dialog through <code>aria-labelledby</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Content rendered inside the modal body.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>primaryButtonProps</code>
+      </td>
+      <td>
+        <code>Omit&lt;ComponentProps&lt;typeof Button&gt;, 'className'&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Props forwarded to the primary footer action button.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>secondaryButtonProps</code>
+      </td>
+      <td>
+        <code>Omit&lt;ComponentProps&lt;typeof Button&gt;, 'className'&gt;</code>
+      </td>
+      <td>No</td>
+      <td>
+        Optional props for a secondary footer action button (typically close/cancel). Its visual variant is always
+        forced to <code>secondary</code> by the component.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Additional class applied to the root dialog element.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>DialogHTMLAttributes&lt;HTMLDialogElement&gt;</code>
+      </td>
+      <td>No</td>
+      <td>
+        Native dialog props (for example <code>onClose</code>, <code>open</code>, <code>aria-*</code>). The
+        component also sets <code>closedby="any"</code> on the native dialog element.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Uses a native `<dialog>` element and links the title to the dialog with <code>aria-labelledby</code>.
+- Includes a header close icon button and an optional footer secondary action for closing flows.
+- All actions are keyboard-operable through native button semantics.
+
+## Playground
+
+<Canvas of={ModalStories.Default} sourceState="shown" />
+<Controls of={ModalStories.Default} />
