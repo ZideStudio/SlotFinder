@@ -4,35 +4,38 @@ export type Toast = {
   id: string;
   message: string;
   duration?: number;
-  timeout: ReturnType<typeof setTimeout>;
+  timeout?: ReturnType<typeof setTimeout>;
 };
 
 export class ToastService extends AbstractObserver {
-  private readonly defaultDuration: number;
+  private readonly defaultDuration: number | null;
 
   private readonly toast = new Map<string, Toast>();
 
   private cachedAllToastIds: string[] = [];
 
-  constructor(duration: number = 3000) {
+  constructor(duration: number | null = 3000) {
     super();
 
     this.defaultDuration = duration;
   }
 
-  addToast(toast: string, duration?: number) {
+  addToast(toast: string, duration?: number | null) {
     const newId = globalThis.crypto.randomUUID();
 
-    const durationToUse = duration || this.defaultDuration;
+    const durationToUse = duration === undefined ? this.defaultDuration : duration;
 
-    const timeout = setTimeout(() => {
-      this.removeToast(newId);
-    }, durationToUse);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    if (durationToUse !== null) {
+      timeout = setTimeout(() => {
+        this.removeToast(newId);
+      }, durationToUse);
+    }
 
     this.toast.set(newId, {
       id: newId,
       message: toast,
-      duration: durationToUse,
+      duration: durationToUse ?? undefined,
       timeout,
     });
 

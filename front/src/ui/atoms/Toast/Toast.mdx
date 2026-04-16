@@ -6,7 +6,7 @@ import { Toast } from './Toast';
 
 # Toast
 
-A notification component used to display brief, temporary messages to the user without interrupting their workflow.
+A notification component used to display brief, temporary messages to the user without interrupting their workflow. Toasts can be configured to auto-dismiss after a delay or remain visible until manually closed.
 
 ## Usage
 
@@ -25,8 +25,38 @@ const App = () => (
 // 2. Trigger a toast (you must be within the ToastProvider context)
 const toastService = useToastService();
 
-  return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
+return <button onClick={() => toastService.addToast('Ceci est un toast')}>Afficher le toast</button>;
 };
+```
+
+## Duration
+
+The `addToast` method accepts an optional `duration` argument (in milliseconds) that controls how long the toast is displayed before being automatically removed.
+
+| `duration` value      | Behaviour                                                               |
+| --------------------- | ----------------------------------------------------------------------- |
+| `undefined` (omitted) | Uses the provider's `defaultDuration` (3 000 ms by default)             |
+| `number`              | Auto-removes after the given number of milliseconds                     |
+| `null`                | **No auto-removal** — the toast stays until the user closes it manually |
+
+```tsx
+// Auto-removes after the default 3 seconds
+toastService.addToast('Saved!');
+
+// Auto-removes after 5 seconds
+toastService.addToast('Processing…', 5000);
+
+// Persistent — stays until the user closes it
+toastService.addToast('Action required', null);
+```
+
+The `defaultDuration` prop on `ToastProvider` follows the same convention: pass `null` to make all toasts persistent by default.
+
+```tsx
+// All toasts are persistent unless a duration is explicitly provided
+<ToastProvider defaultDuration={null}>
+  <RestOfYourApp />
+</ToastProvider>
 ```
 
 ## Accessibility

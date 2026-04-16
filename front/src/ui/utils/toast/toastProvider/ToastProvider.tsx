@@ -4,7 +4,7 @@ import { ToastContext } from '@Front/contexts/toastContext';
 import { ToastContainer } from './ToastContainer';
 
 export type ToastProviderProps = PropsWithChildren & {
-  defaultDuration?: number;
+  defaultDuration?: number | null;
 };
 
 export const ToastProvider = ({ children, defaultDuration }: ToastProviderProps) => {
