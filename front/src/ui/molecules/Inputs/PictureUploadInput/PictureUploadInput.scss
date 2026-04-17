@@ -1,0 +1,12 @@
+@use '../../../../utils/sass/mixins/helpers';
+
+.ds-picture-upload-input {
+  display: flex;
+  flex-direction: column;
+  gap: helpers.px-to-rem(8);
+
+  &__preview {
+    width: helpers.px-to-rem(200);
+    height: helpers.px-to-rem(200);
+  }
+}
