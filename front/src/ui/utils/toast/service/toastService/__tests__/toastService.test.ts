@@ -49,7 +49,6 @@ describe('ToastService', () => {
     store.addToast('C');
 
     const toastIds = store.getAllToastIds();
-    // oxlint-disable-next-line no-magic-numbers
     expect(toastIds).toHaveLength(3);
   });
 
