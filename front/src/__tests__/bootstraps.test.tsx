@@ -18,16 +18,18 @@ describe('bootstrap', () => {
   let container: HTMLElement;
   const render = vi.fn();
   const unmount = vi.fn();
-  // oxlint-disable-next-line jest/require-hook
-  (createRoot as Mock).mockReturnValue({
-    render,
-    unmount,
-  });
-
-  // oxlint-disable-next-line jest/require-hook
-  customElements.define('bootstrap-html-element', bootstrap);
 
   beforeEach(() => {
+    render.mockReset();
+    unmount.mockReset();
+    (createRoot as Mock).mockReset();
+    (createRoot as Mock).mockReturnValue({
+      render,
+      unmount,
+    });
+    if (!customElements.get('bootstrap-html-element')) {
+      customElements.define('bootstrap-html-element', bootstrap);
+    }
     container = document.createElement('bootstrap-html-element');
   });
 
