@@ -6,10 +6,9 @@ const enableMock = async () => {
       onUnhandledRequest: 'warn',
     });
   }
-
-  return Promise.resolve();
 };
 
+// oxlint-disable-next-line jest/require-hook
 enableMock().then(() => {
   import('./bootstrap').then(({ default: AppReact }) => {
     customElements.define('app-react', AppReact);

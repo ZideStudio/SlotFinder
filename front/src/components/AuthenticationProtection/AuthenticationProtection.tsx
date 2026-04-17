@@ -20,7 +20,7 @@ export const AuthenticationProtection = ({ children }: AuthenticationProtectionP
       setPostAuthRedirectPath(pathname);
     }
 
-    if (isAuthenticated && postAuthRedirectPath) {
+    if (currentMatch?.handle?.mustBeAuthenticate === false && isAuthenticated && postAuthRedirectPath) {
       resetPostAuthRedirectPath();
     }
 

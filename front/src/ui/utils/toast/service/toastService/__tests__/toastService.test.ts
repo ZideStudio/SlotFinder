@@ -163,7 +163,7 @@ describe('ToastService', () => {
     const toast = store.getToastById(toastIds[0]);
 
     expect(toast).toBeDefined();
-    expect(toast?.message).toStrictEqual('Persistent');
+    expect(toast?.message).toBe('Persistent');
     expect(toast?.duration).toBeUndefined();
     expect(toast?.timeout).toBeUndefined();
 

@@ -13,6 +13,6 @@ describe('Dashboard', () => {
   it('renders the dashboard heading', async () => {
     renderRoute(renderRouteOptions);
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'dashboard.title' })).toBeInTheDocument();
+    await expect(screen.findByRole('heading', { level: 1, name: 'dashboard.title' })).resolves.toBeInTheDocument();
   });
 });

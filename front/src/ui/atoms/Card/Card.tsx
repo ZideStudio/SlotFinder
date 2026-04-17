@@ -1,5 +1,6 @@
-import { ElementType, ComponentPropsWithoutRef, ReactNode } from 'react';
 import { getClassName } from '@Front/utils/getClassName';
+import { type ComponentPropsWithoutRef, type ElementType } from 'react';
+
 import './Card.scss';
 
 type CardProps<T extends ElementType = 'div'> = {
@@ -7,7 +8,7 @@ type CardProps<T extends ElementType = 'div'> = {
 } & ComponentPropsWithoutRef<T>;
 
 export const Card = <T extends ElementType = 'div'>({ as, className, children, ...props }: CardProps<T>) => {
-  const Component = as || 'div';
+  const Component = as ?? 'div';
 
   const parentClassName = getClassName({
     defaultClassName: 'ds-card',

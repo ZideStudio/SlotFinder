@@ -6,7 +6,7 @@ import enError from './locales/en/error.json';
 import enSignUp from './locales/en/signUp.json';
 import enWelcome from './locales/en/welcome.json';
 
-// oxlint-disable-next-line no-named-as-default-member
+// oxlint-disable-next-line import/no-named-as-default-member jest/require-hook
 i18n.use(initReactI18next).init({
   resources: {
     en: {

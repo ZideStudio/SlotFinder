@@ -1,11 +1,12 @@
-import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
 import { Toast } from '@Front/ui/atoms/Toast/Toast';
+import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
 
 import './ToastContainer.scss';
 
 export const ToastContainer = () => {
   const toastIds = useToastSelector(toast => toast.getAllToastIds());
 
+  // oxlint-disable-next-line no-magic-numbers
   if (toastIds.length === 0) {
     return null;
   }

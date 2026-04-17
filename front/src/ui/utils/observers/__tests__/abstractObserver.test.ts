@@ -14,7 +14,7 @@ describe('AbstractObserver', () => {
     observerTest.subscribe(listener);
     observerTest.triggerNotify();
 
-    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledOnce();
   });
 
   it('should remove listener when unsubscribe is called', () => {
@@ -41,7 +41,7 @@ describe('AbstractObserver', () => {
     observerTest.triggerNotify();
 
     expect(listener1).not.toHaveBeenCalled();
-    expect(listener2).toHaveBeenCalledTimes(1);
-    expect(listener3).toHaveBeenCalledTimes(1);
+    expect(listener2).toHaveBeenCalledOnce();
+    expect(listener3).toHaveBeenCalledOnce();
   });
 });

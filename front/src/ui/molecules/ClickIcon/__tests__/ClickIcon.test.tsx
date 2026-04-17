@@ -31,6 +31,6 @@ describe('ClickIcon', () => {
     );
     const button = screen.getByRole('button');
     button.click();
-    expect(onClick).toHaveBeenCalled();
+    expect(onClick).toHaveBeenCalledOnce();
   });
 });
