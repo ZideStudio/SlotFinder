@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { isInternalUrl } from '../isInternalUrl';
 
 describe('isInternalUrl', () => {

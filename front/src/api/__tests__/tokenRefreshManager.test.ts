@@ -5,7 +5,6 @@ import {
 } from '@Mocks/handlers/tokenRefreshHandlers';
 import { server } from '@Mocks/server';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it, vi } from 'vitest';
 import { tokenRefreshManager } from '../tokenRefreshManager';
 
 describe('TokenRefreshManager', () => {
@@ -35,7 +34,7 @@ describe('TokenRefreshManager', () => {
 
       await expect(tokenRefreshManager.refreshToken()).rejects.toThrow('Token refresh failed');
 
-      expect(mockLocationReload).toHaveBeenCalledOnce();
+      expect(mockLocationReload).toHaveBeenCalledTimes(1);
     });
 
     it('should handle multiple simultaneous refresh requests without duplicate API calls', async () => {
@@ -56,7 +55,6 @@ describe('TokenRefreshManager', () => {
       await Promise.all(refreshPromises);
 
       expect(mockLocationReload).not.toHaveBeenCalled();
-      // oxlint-disable-next-line no-magic-numbers
       expect(requestCount).toBe(1);
     });
 

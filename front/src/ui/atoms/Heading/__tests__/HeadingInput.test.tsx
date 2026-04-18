@@ -2,7 +2,6 @@ import { render } from '@testing-library/react';
 import { Heading } from '../Heading';
 
 describe('Heading', () => {
-  // oxlint-disable-next-line no-magic-numbers
   it.each([1, 2, 3] as const)('renders the correct heading level %i', (level: 1 | 2 | 3) => {
     const { getByText } = render(<Heading level={level}>Test Heading</Heading>);
     const headingElement = getByText('Test Heading');

@@ -12,7 +12,6 @@ const meta = {
     level: {
       control: {
         type: 'select',
-        // oxlint-disable-next-line no-magic-numbers
         options: [1, 2, 3],
       },
     },

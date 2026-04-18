@@ -23,7 +23,7 @@ describe('SelectInputAtom', () => {
     expect(placeholder).toHaveProperty('selected', true);
 
     const renderedOptions = screen.getAllByRole('option');
-    // oxlint-disable-next-line no-magic-numbers
+
     expect(renderedOptions).toHaveLength(options.length + 1);
   });
 

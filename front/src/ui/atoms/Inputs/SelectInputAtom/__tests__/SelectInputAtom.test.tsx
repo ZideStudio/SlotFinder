@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { SelectInputAtom } from '../SelectInputAtom';
 
 describe('SelectInputAtom', () => {
@@ -23,7 +22,7 @@ describe('SelectInputAtom', () => {
     expect(placeholder).toHaveProperty('selected', true);
 
     const renderedOptions = screen.getAllByRole('option');
-    // oxlint-disable-next-line no-magic-numbers
+
     expect(renderedOptions).toHaveLength(options.length + 1);
   });
 

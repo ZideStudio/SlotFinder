@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import type { ComponentProps } from 'react';
-import { describe, expect, it } from 'vitest';
 import { Field } from '../Field';
 
 const MockInput = (props: ComponentProps<'input'>) => <input {...props} />;

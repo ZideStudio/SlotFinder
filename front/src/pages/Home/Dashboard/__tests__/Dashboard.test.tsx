@@ -1,7 +1,6 @@
 import { appRoutes } from '@Front/routing/appRoutes';
 import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender/customRender';
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { homeRoutes } from '../../routes';
 
 const renderRouteOptions: RenderRouteOptions = {

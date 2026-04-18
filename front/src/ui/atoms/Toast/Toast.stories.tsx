@@ -21,7 +21,6 @@ const meta = {
     },
     duration: {
       control: { type: 'select' },
-      // oxlint-disable-next-line no-magic-numbers
       options: [null, 1000, 2000, 3000, 4000, 5000],
       description: 'Duration in milliseconds (1000 to 5000) or null for persistent toast',
     },

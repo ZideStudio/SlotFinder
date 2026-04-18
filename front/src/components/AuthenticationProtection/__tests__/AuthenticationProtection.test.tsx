@@ -11,10 +11,9 @@ describe('AuthenticationProtection', () => {
 
   const renderRouteWithAuthContext = (initialEntry: TestRoute) =>
     renderRoute({
-      initialEntry: initialEntry,
+      initialEntry,
       routes: [
         {
-          // oxlint-disable-next-line no-magic-numbers
           ...routeObject[0],
           index: false,
           children: [
@@ -104,7 +103,7 @@ describe('AuthenticationProtection', () => {
       });
 
       await expectDisplayedText('/needNoAuthentication', 'home');
-      expect(mockResetPostAuthRedirectPath).toHaveBeenCalledOnce();
+      expect(mockResetPostAuthRedirectPath).toHaveBeenCalledTimes(1);
     });
 
     it('should not reset postAuthRedirectPath on a neutral route without authentication requirement metadata', async () => {

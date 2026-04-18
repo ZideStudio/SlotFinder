@@ -11,7 +11,7 @@ type IconProps = {
 export const ClickIcon = ({ icon, className, ...props }: IconProps) => {
   const parentClassName = getClassName({
     defaultClassName: 'ds-click-icon',
-    className: className,
+    className,
   });
 
   return (

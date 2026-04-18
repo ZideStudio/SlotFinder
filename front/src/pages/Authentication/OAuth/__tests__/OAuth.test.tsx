@@ -3,7 +3,6 @@ import { AuthenticationContextProvider } from '@Front/contexts/AuthenticationCon
 import * as useAuthenticationContext from '@Front/hooks/useAuthenticationContext';
 import { renderWithQueryClient } from '@Front/utils/testsUtils/customRender/customRender';
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { oauthProvidersData } from '../constants';
 import { OAuth } from '../OAuth';
 

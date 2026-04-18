@@ -7,7 +7,6 @@ import { postAccount201, postAccount400 } from '@Mocks/handlers/accountHandlers'
 import { server } from '@Mocks/server';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
 import { authenticationRoutes } from '../../routes';
 
 const renderRouteOptions: RenderRouteOptions = {
@@ -120,7 +119,7 @@ describe('SignUp', () => {
     await userEvent.click(screen.getByRole('button', { name: 'signUp.submit' }));
 
     await waitFor(() => {
-      expect(checkAuthentication).toHaveBeenCalledOnce();
+      expect(checkAuthentication).toHaveBeenCalledTimes(1);
     });
   });
 });

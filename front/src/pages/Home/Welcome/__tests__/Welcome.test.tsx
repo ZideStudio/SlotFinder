@@ -3,7 +3,6 @@ import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/cu
 import { getAuthStatus400 } from '@Mocks/handlers/authStatusHandlers';
 import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { homeRoutes } from '../../routes';
 
 const renderRouteOptions: RenderRouteOptions = {

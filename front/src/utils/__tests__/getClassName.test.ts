@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { clsx, getClassName } from '../getClassName';
 
 describe('clsx', () => {

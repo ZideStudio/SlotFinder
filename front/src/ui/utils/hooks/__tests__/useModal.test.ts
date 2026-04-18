@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import { type RefObject, createRef } from 'react';
-import { describe, expect, it, vi } from 'vitest';
 import { useModal } from '../useModal';
 
 describe('useModal', () => {
@@ -31,7 +30,7 @@ describe('useModal', () => {
 
       result.current.openModal();
 
-      expect(showModal).toHaveBeenCalledOnce();
+      expect(showModal).toHaveBeenCalledTimes(1);
     });
 
     it('should do nothing when modalRef.current is null', () => {
@@ -51,7 +50,7 @@ describe('useModal', () => {
 
       result.current.closeModal();
 
-      expect(close).toHaveBeenCalledOnce();
+      expect(close).toHaveBeenCalledTimes(1);
     });
 
     it('should do nothing when modalRef.current is null', () => {

@@ -45,7 +45,7 @@ export const fetchApi = async <
 
   // Handle 498 status code from api (expired access token)
   const apiUrlFull = `${import.meta.env.FRONT_DOMAIN}${import.meta.env.FRONT_BACKEND_URL}`;
-  // oxlint-disable-next-line no-magic-numbers
+
   if (response.status === 498 && response.url.startsWith(apiUrlFull)) {
     await tokenRefreshManager.refreshToken();
     // Retry the original request

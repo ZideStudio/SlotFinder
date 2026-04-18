@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { AbstractObserver } from '../abstractObserver';
 
 class AbstractObserverTest extends AbstractObserver {
@@ -14,7 +13,7 @@ describe('AbstractObserver', () => {
     observerTest.subscribe(listener);
     observerTest.triggerNotify();
 
-    expect(listener).toHaveBeenCalledOnce();
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 
   it('should remove listener when unsubscribe is called', () => {
@@ -41,7 +40,7 @@ describe('AbstractObserver', () => {
     observerTest.triggerNotify();
 
     expect(listener1).not.toHaveBeenCalled();
-    expect(listener2).toHaveBeenCalledOnce();
-    expect(listener3).toHaveBeenCalledOnce();
+    expect(listener2).toHaveBeenCalledTimes(1);
+    expect(listener3).toHaveBeenCalledTimes(1);
   });
 });

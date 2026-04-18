@@ -1,4 +1,3 @@
-// oxlint-disable no-magic-numbers
 export const getContrastTextColor = (hex: string): '#000000' | '#FFFFFF' => {
   const cleanHex = hex.replace('#', '');
 

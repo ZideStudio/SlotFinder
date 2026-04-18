@@ -3,7 +3,6 @@ import { homeRoutes } from '@Front/pages/Home';
 import { appRoutes } from '@Front/routing/appRoutes';
 import { renderRoute } from '@Front/utils/testsUtils/customRender/customRender';
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { oauthCallbackRoutes } from '../routes';
 
 const renderOAuthCallback = (params?: { error?: string; returnUrl?: string }) =>

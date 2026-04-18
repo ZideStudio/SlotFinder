@@ -1,5 +1,3 @@
-// oxlint-disable no-magic-numbers
-import { describe, expect, it, vi } from 'vitest';
 import { ToastService } from '../toastService';
 
 describe('ToastService', () => {

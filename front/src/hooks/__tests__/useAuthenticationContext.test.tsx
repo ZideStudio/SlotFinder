@@ -2,7 +2,6 @@ import { AuthenticationContextProvider } from '@Front/contexts/AuthenticationCon
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { type PropsWithChildren } from 'react';
-import { describe, expect, it, vi } from 'vitest';
 import { useAuthenticationContext } from '../useAuthenticationContext';
 
 describe('useAuthenticationContext', () => {
