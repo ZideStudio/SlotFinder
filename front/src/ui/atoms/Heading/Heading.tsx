@@ -1,4 +1,3 @@
-// oxlint-disable react/jsx-props-no-spreading
 import { getClassName } from '@Front/utils/getClassName';
 import type { HTMLAttributes, ReactNode } from 'react';
 import './Heading.scss';

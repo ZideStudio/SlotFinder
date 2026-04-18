@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
+// oxlint-disable jest/require-hook
 import concurrently from 'concurrently';
 
 const args = process.argv.slice(2);

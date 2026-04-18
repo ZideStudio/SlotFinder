@@ -1,4 +1,3 @@
-// oxlint-disable no-magic-numbers
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 
 import { Heading } from './Heading';
@@ -13,6 +12,7 @@ const meta = {
     level: {
       control: {
         type: 'select',
+        // oxlint-disable-next-line no-magic-numbers
         options: [1, 2, 3],
       },
     },
