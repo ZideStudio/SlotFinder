@@ -64,6 +64,7 @@ USER vscode
 
 # Mise
 ENV MISE_HOME="/home/vscode/.local/share/mise"
+ENV MISE_TRUSTED_CONFIG_PATHS="/workspace"
 ENV PATH="/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/usr/local/go/bin:/go/bin:${PATH}"
 RUN curl https://mise.jdx.dev/install.sh | sh
 
@@ -72,8 +73,8 @@ RUN mkdir -p /tmp/front-mise /tmp/back-mise
 COPY --chown=vscode:vscode front/.mise.toml /tmp/front-mise/.mise.toml
 COPY --chown=vscode:vscode back/.mise.toml /tmp/back-mise/.mise.toml
 
-RUN cd /tmp/front-mise && /home/vscode/.local/bin/mise install
-RUN cd /tmp/back-mise && /home/vscode/.local/bin/mise install
+RUN cd /tmp/front-mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
+RUN cd /tmp/back-mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
 
 RUN /home/vscode/.local/bin/mise exec -C /tmp/front-mise -- npx playwright install --with-deps
 
@@ -83,8 +84,9 @@ RUN go install golang.org/x/tools/gopls@v0.21.1 && \
     go install golang.org/x/tools/cmd/goimports@v0.44.0
 
 RUN cat <<EOF >> /home/vscode/.bashrc
-    alias lg="lazygit"
-    export DISPLAY=:99
+alias lg="lazygit"
+export DISPLAY=:99
+eval "\$(\$HOME/.local/bin/mise activate bash)"
 EOF
 
 WORKDIR /workspace
