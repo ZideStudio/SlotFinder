@@ -5,17 +5,16 @@ import {
 } from '@Mocks/handlers/tokenRefreshHandlers';
 import { server } from '@Mocks/server';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it, vi } from 'vitest';
 import { tokenRefreshManager } from '../tokenRefreshManager';
 
 describe('TokenRefreshManager', () => {
   const mockLocationReload = vi.fn();
 
   const originalLocation = globalThis.location;
-  vi.spyOn(globalThis, 'location', 'get').mockImplementation(() => ({
+  vi.spyOn(globalThis, 'location', 'get').mockReturnValue({
     ...originalLocation,
     reload: mockLocationReload,
-  }));
+  });
 
   afterEach(() => {
     vi.clearAllMocks();

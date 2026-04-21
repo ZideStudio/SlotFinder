@@ -1,5 +1,5 @@
-import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
 import { Toast } from '@Front/ui/atoms/Toast/Toast';
+import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
 
 import './ToastContainer.scss';
 

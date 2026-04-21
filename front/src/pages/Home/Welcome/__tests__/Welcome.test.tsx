@@ -3,7 +3,6 @@ import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/cu
 import { getAuthStatus400 } from '@Mocks/handlers/authStatusHandlers';
 import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { homeRoutes } from '../../routes';
 
 const renderRouteOptions: RenderRouteOptions = {
@@ -18,10 +17,10 @@ describe('Welcome', () => {
   });
 
   it('renders the home heading', async () => {
-    expect(await screen.findByRole('heading', { level: 1, name: 'welcome.title' })).toBeInTheDocument();
+    await expect(screen.findByRole('heading', { level: 1, name: 'welcome.title' })).resolves.toBeInTheDocument();
   });
 
   it('renders the sign up link', async () => {
-    expect(await screen.findByRole('link', { name: 'Sign Up' })).toHaveAttribute('href', appRoutes.signUp());
+    await expect(screen.findByRole('link', { name: 'Sign Up' })).resolves.toHaveAttribute('href', appRoutes.signUp());
   });
 });

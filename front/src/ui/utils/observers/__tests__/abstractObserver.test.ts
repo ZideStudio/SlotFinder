@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { AbstractObserver } from '../abstractObserver';
 
 class AbstractObserverTest extends AbstractObserver {

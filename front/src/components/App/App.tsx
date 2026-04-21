@@ -9,10 +9,10 @@ type AppProps = {
   basename?: string;
 };
 
-const AppWithProviders = withProvider(RouterProvider);
+const AppWithProviders = withProvider(RouterProvider, queryClient);
 
 export const App = ({ basename }: AppProps) => {
   const router = createRouter({ basename });
 
-  return <AppWithProviders queryClient={queryClient} router={router} />;
+  return <AppWithProviders router={router} />;
 };

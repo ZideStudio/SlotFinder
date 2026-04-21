@@ -7,6 +7,8 @@ export type Toast = {
   timeout?: ReturnType<typeof setTimeout>;
 };
 
+const DEFAULT_TOAST_DURATION = 3000;
+
 export class ToastService extends AbstractObserver {
   private readonly defaultDuration: number | null;
 
@@ -14,7 +16,7 @@ export class ToastService extends AbstractObserver {
 
   private cachedAllToastIds: string[] = [];
 
-  constructor(duration: number | null = 3000) {
+  constructor(duration: number | null = DEFAULT_TOAST_DURATION) {
     super();
 
     this.defaultDuration = duration;
@@ -25,6 +27,7 @@ export class ToastService extends AbstractObserver {
 
     const durationToUse = duration === undefined ? this.defaultDuration : duration;
 
+    // oxlint-disable-next-line init-declarations
     let timeout: ReturnType<typeof setTimeout> | undefined;
     if (durationToUse !== null) {
       timeout = setTimeout(() => {

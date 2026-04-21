@@ -1,8 +1,8 @@
 import { AuthenticationContextProvider } from '@Front/contexts/AuthenticationContext/AuthenticationContextProvider';
+// oxlint-disable-next-line import/no-namespace
 import * as useAuthenticationContext from '@Front/hooks/useAuthenticationContext';
 import { renderWithQueryClient } from '@Front/utils/testsUtils/customRender/customRender';
 import { screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { oauthProvidersData } from '../constants';
 import { OAuth } from '../OAuth';
 

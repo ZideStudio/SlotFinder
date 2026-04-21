@@ -18,7 +18,7 @@ describe('ClickIcon', () => {
   });
 
   it('applies props to the button element', () => {
-    const onClick = vitest.fn();
+    const onClick = vi.fn();
     render(
       <ClickIcon
         icon={props => (
@@ -31,6 +31,6 @@ describe('ClickIcon', () => {
     );
     const button = screen.getByRole('button');
     button.click();
-    expect(onClick).toHaveBeenCalled();
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

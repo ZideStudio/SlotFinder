@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { ToastService } from '../toastService';
 
 describe('ToastService', () => {
@@ -18,8 +17,8 @@ describe('ToastService', () => {
 
     expect(toast).toBeDefined();
     expect(toast?.id).toStrictEqual(toastIds[0]);
-    expect(toast?.message).toStrictEqual('Hello World');
-    expect(toast?.duration).toStrictEqual(3000);
+    expect(toast?.message).toBe('Hello World');
+    expect(toast?.duration).toBe(3000);
   });
 
   it('should accept custom duration when adding a toast', () => {
@@ -28,7 +27,7 @@ describe('ToastService', () => {
     store.addToast('Short', 1500);
 
     const toastIds = store.getAllToastIds();
-    expect(store.getToastById(toastIds[0])?.duration).toStrictEqual(1500);
+    expect(store.getToastById(toastIds[0])?.duration).toBe(1500);
   });
 
   it('should use constructor default duration when provided', () => {
@@ -37,7 +36,7 @@ describe('ToastService', () => {
     store.addToast('Long');
 
     const toastIds = store.getAllToastIds();
-    expect(store.getToastById(toastIds[0])?.duration).toStrictEqual(10000);
+    expect(store.getToastById(toastIds[0])?.duration).toBe(10000);
   });
 
   it('should return all toast ids after adding multiple toasts', () => {
@@ -48,7 +47,7 @@ describe('ToastService', () => {
     store.addToast('C');
 
     const toastIds = store.getAllToastIds();
-    expect(toastIds.length).toBe(3);
+    expect(toastIds).toHaveLength(3);
   });
 
   it('should remove toast and update ids', () => {
@@ -101,11 +100,13 @@ describe('ToastService', () => {
     const observerAuto = vi.fn();
     const unsubscribeAuto = storeAuto.subscribe(observerAuto);
 
+    // Add
     storeAuto.addToast('Auto');
-    expect(observerAuto).toHaveBeenCalledTimes(1); // Add
+    expect(observerAuto).toHaveBeenCalledTimes(1);
 
+    // Removal after timeout
     vi.advanceTimersByTime(3000);
-    expect(observerAuto).toHaveBeenCalledTimes(2); // Removal after timeout
+    expect(observerAuto).toHaveBeenCalledTimes(2);
 
     // Verify the toast was actually removed
     const toastIds = storeAuto.getAllToastIds();
@@ -128,7 +129,7 @@ describe('ToastService', () => {
     expect(observer).toHaveBeenCalledTimes(1);
     const ids = store.getAllToastIds();
     expect(ids).toHaveLength(1);
-    const toastId = ids[0];
+    const toastId = structuredClone(ids[0]);
 
     vi.advanceTimersByTime(100);
     store.removeToast(toastId);
@@ -159,7 +160,7 @@ describe('ToastService', () => {
     const toast = store.getToastById(toastIds[0]);
 
     expect(toast).toBeDefined();
-    expect(toast?.message).toStrictEqual('Persistent');
+    expect(toast?.message).toBe('Persistent');
     expect(toast?.duration).toBeUndefined();
     expect(toast?.timeout).toBeUndefined();
 

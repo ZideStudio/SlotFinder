@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { isInternalUrl } from '../isInternalUrl';
 
 describe('isInternalUrl', () => {
@@ -22,14 +21,15 @@ describe('isInternalUrl', () => {
     it('should reject absolute URLs with protocols', () => {
       expect(isInternalUrl('http://evil.com')).toBe(false);
       expect(isInternalUrl('https://evil.com')).toBe(false);
+      // oxlint-disable-next-line no-script-url
       expect(isInternalUrl('javascript:alert(1)')).toBe(false);
       expect(isInternalUrl('data:text/html,<script>alert(1)</script>')).toBe(false);
     });
 
     it('should reject URLs with backslashes', () => {
-      expect(isInternalUrl('\\evil.com')).toBe(false);
-      expect(isInternalUrl('/\\evil.com')).toBe(false);
-      expect(isInternalUrl('/\\\\evil.com')).toBe(false);
+      expect(isInternalUrl(String.raw`\evil.com`)).toBe(false);
+      expect(isInternalUrl(String.raw`/\evil.com`)).toBe(false);
+      expect(isInternalUrl(String.raw`/\\evil.com`)).toBe(false);
     });
 
     it('should reject invalid path formats', () => {

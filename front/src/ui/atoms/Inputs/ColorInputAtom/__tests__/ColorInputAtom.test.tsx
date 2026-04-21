@@ -1,6 +1,5 @@
 import { ColorInputAtom } from '../ColorInputAtom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 
 describe('ColorInput', () => {
   it('renders the color input with default value', () => {

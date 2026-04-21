@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import concurrently from 'concurrently';
 
 const args = process.argv.slice(2);

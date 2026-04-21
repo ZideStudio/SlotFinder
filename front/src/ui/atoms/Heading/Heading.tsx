@@ -1,11 +1,9 @@
-// oxlint-disable react/jsx-props-no-spreading
 import { getClassName } from '@Front/utils/getClassName';
 import type { HTMLAttributes, ReactNode } from 'react';
 import './Heading.scss';
 
 type HeadingTag = 'h1' | 'h2' | 'h3';
 type HeadingProps = HTMLAttributes<HTMLHeadingElement> & {
-  // oxlint-disable-next-line no-magic-numbers
   level: 1 | 2 | 3;
   children: ReactNode;
 };

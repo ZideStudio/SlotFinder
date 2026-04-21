@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { Button, SvgIcon } from '../Button';
+import { Button, type SvgIcon } from '../Button';
 
 const CustomButton = ({ children }: { children: React.ReactNode }) => <span>{children}</span>;
 

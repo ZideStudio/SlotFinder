@@ -6,6 +6,7 @@ describe('SelectInputAtom', () => {
     { label: 'One', value: '1' },
     { label: 'Two', value: '2', disabled: true },
   ];
+
   it('should render a Select input with label and options', () => {
     render(<SelectInput label="Test Label" name="test-input" options={options} />);
 
@@ -22,6 +23,7 @@ describe('SelectInputAtom', () => {
     expect(placeholder).toHaveProperty('selected', true);
 
     const renderedOptions = screen.getAllByRole('option');
+
     expect(renderedOptions).toHaveLength(options.length + 1);
   });
 

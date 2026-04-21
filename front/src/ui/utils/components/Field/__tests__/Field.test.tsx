@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import type { ComponentProps } from 'react';
 import { Field } from '../Field';
 
-const MockInput = (props: any) => <input {...props} />;
+const MockInput = (props: ComponentProps<'input'>) => <input {...props} />;
 
 describe('Field Component', () => {
   it('Must link the label to the input via a generated ID', () => {

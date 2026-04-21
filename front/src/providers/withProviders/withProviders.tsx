@@ -1,22 +1,22 @@
 import { QueryClientProvider } from '@Front/providers/QueryClientProvider';
-import type { ComponentProps, ComponentType } from 'react';
+import { type ComponentProps, type ComponentType, createElement } from 'react';
 import { AuthenticationContextProvider } from '../../contexts/AuthenticationContext/AuthenticationContextProvider';
 import { ToastProvider } from '../../ui/utils/toast/toastProvider/ToastProvider';
 
-type WithRootProps = {
-  queryClient: ComponentProps<typeof QueryClientProvider>['client'];
-};
-
-export const withProvider = <WithProviderProps extends object>(Component: ComponentType<WithProviderProps>) => {
-  const WithProvider = ({ queryClient, ...props }: WithProviderProps & WithRootProps) => (
-    <QueryClientProvider client={queryClient}>
+export const withProvider = <WithProviderProps extends object>(
+  Component: ComponentType<WithProviderProps>,
+  queryClient: ComponentProps<typeof QueryClientProvider>['client'],
+) => {
+  const WithProvider = (props: WithProviderProps) =>
+    createElement(
+      QueryClientProvider,
+      { client: queryClient },
       <AuthenticationContextProvider>
         <ToastProvider>
-          <Component {...(props as WithProviderProps)} />
+          <Component {...props} />
         </ToastProvider>
-      </AuthenticationContextProvider>
-    </QueryClientProvider>
-  );
+      </AuthenticationContextProvider>,
+    );
 
   WithProvider.displayName = `withProvider(${Component.displayName || Component.name})`;
 

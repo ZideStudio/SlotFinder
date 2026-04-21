@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
 import { InputErrorMessage } from '../InputErrorMessage';
 
 describe('InputErrorMessage', () => {
