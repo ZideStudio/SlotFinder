@@ -48,6 +48,7 @@ export const Modal = ({
           onClick={closeModal}
           className="ds-modal__button--close"
           icon={Close}
+          type="button"
         />
       </div>
 
