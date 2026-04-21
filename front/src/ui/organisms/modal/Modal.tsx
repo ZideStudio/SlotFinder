@@ -14,11 +14,10 @@ type ButtonProps = ComponentProps<typeof Button>;
 type ModalProps = {
   title: string;
   children: ReactNode;
-  className?: string;
   primaryButtonProps: Omit<ButtonProps, 'className'>;
   secondaryButtonProps?: Omit<ButtonProps, 'className'>;
   ref?: RefObject<HTMLDialogElement | null>;
-} & ComponentPropsWithoutRef<'dialog'>;
+} & Omit<ComponentPropsWithoutRef<'dialog'>, 'children' | 'title'>;
 
 export const Modal = ({
   title,
@@ -55,22 +54,14 @@ export const Modal = ({
       {children}
 
       <div className="ds-modal__footer">
-        {secondaryButtonProps && (() => {
-          const { onClick, ...secondaryButtonRestProps } = secondaryButtonProps;
-
-          return (
-            <Button
-              className="ds-modal__close-button"
-              {...secondaryButtonRestProps}
-              variant="secondary"
-              onClick={(event) => {
-                onClick?.(event);
-                closeModal();
-              }}
-            />
-          );
-        })()}
-        <Button className="ds-modal__button--action" {...primaryButtonProps} />
+        {secondaryButtonProps && (
+          <Button
+            type="button"
+            className="ds-modal__footer-button"
+            {...secondaryButtonProps}
+          />
+        )}
+        <Button type="button" className="ds-modal__footer-button" {...primaryButtonProps} />
       </div>
     </dialog>
   );

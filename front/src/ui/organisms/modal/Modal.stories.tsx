@@ -1,4 +1,6 @@
+import { fn } from 'storybook/test';
 import { useModal } from '@Front/ui/utils/hooks/useModal';
+import type { ComponentProps } from 'react';
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { Modal } from './Modal';
 
@@ -8,61 +10,38 @@ const meta = {
   args: {
     title: 'Modal title',
     children: "Modal's content",
-    primaryButtonProps: { children: 'Action' },
-    secondaryButtonProps: { children: 'Close' },
+    primaryButtonProps: { children: 'Action', onClick: fn() },
+    secondaryButtonProps: { children: 'Close', onClick: fn() },
   },
   argTypes: {
     title: { control: 'text' },
     children: { control: 'text' },
-    className: { table: { disable: true } },
     primaryButtonProps: { table: { disable: true } },
     secondaryButtonProps: { table: { disable: true } },
+  },
+  render: (args: ComponentProps<typeof Modal>) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { modalRef, openModal } = useModal();
+
+    return (
+      <>
+        <button type="button" onClick={openModal}>
+          Open Modal
+        </button>
+        <Modal ref={modalRef} {...args} />
+      </>
+    );
   },
 } satisfies Meta<typeof Modal>;
 
 export default meta;
 
-const DefaultModalStory = () => {
-  const { modalRef, openModal } = useModal();
-
-  return (
-    <>
-      <button type="button" onClick={openModal}>
-        Open Modal
-      </button>
-      <Modal
-        ref={modalRef}
-        title="Modal title"
-        primaryButtonProps={{ children: 'Action' }}
-        secondaryButtonProps={{ children: 'Close' }}
-      >
-        Modal's content
-      </Modal>
-    </>
-  );
-};
-
-const WithOnlyOneButtonModalStory = () => {
-  const { modalRef, openModal } = useModal();
-
-  return (
-    <>
-      <button type="button" onClick={openModal}>
-        Open Modal
-      </button>
-      <Modal ref={modalRef} title="Modal title" primaryButtonProps={{ children: 'Action' }}>
-        Modal's content
-      </Modal>
-    </>
-  );
-}; 
-
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  render: () => <DefaultModalStory />,
-};
+export const Default: Story = {};
 
 export const WithOnlyOneButton: Story = {
-  render: () => <WithOnlyOneButtonModalStory />,
+  args: {
+    secondaryButtonProps: undefined,
+  },
 };

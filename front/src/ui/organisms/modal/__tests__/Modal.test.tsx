@@ -37,13 +37,13 @@ describe('Modal', () => {
   });
 
   it('should link dialog label to the title heading and set closedby attribute', () => {
-    const { container } = render(
+    render(
       <Modal open title="Modal title" primaryButtonProps={{ children: 'Action' }}>
         Modal content
       </Modal>,
     );
 
-    const dialog = container.querySelector('dialog');
+    const dialog = screen.getByRole('dialog', { hidden: true });
     const heading = screen.getByRole('heading', { name: 'Modal title' });
 
     expect(dialog).toBeInTheDocument();
@@ -51,13 +51,13 @@ describe('Modal', () => {
     expect(dialog).toHaveAttribute('closedby', 'any');
   });
 
-  it('should force secondary button variant to secondary', () => {
+  it('should apply the variant passed via secondaryButtonProps', () => {
     render(
       <Modal
         open
         title="Modal title"
         primaryButtonProps={{ children: 'Action' }}
-        secondaryButtonProps={{ children: 'Close', variant: 'primary' }}
+        secondaryButtonProps={{ children: 'Close', variant: 'secondary' }}
       >
         Modal content
       </Modal>,
@@ -68,14 +68,24 @@ describe('Modal', () => {
 
   it('should forward native dialog attributes', () => {
     const onClose = vi.fn();
-    const { container } = render(
+    render(
       <Modal title="Modal title" primaryButtonProps={{ children: 'Action' }} open onClose={onClose}>
         Modal content
       </Modal>,
     );
 
-    const dialog = container.querySelector('dialog');
+    expect(screen.getByRole('dialog', { hidden: true })).toHaveAttribute('open');
+  });
 
-    expect(dialog).toHaveAttribute('open');
+  it('should apply a custom className alongside the default class', () => {
+    render(
+      <Modal open title="Modal title" primaryButtonProps={{ children: 'Action' }} className="custom-modal">
+        Modal content
+      </Modal>,
+    );
+
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    expect(dialog).toHaveClass('ds-modal');
+    expect(dialog).toHaveClass('custom-modal');
   });
 });

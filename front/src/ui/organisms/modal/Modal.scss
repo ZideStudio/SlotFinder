@@ -1,30 +1,35 @@
 @use '../../../utils/sass/mixins/helpers';
+@use '../../../utils/sass/mixins/responsive';
 
 .ds-modal {
-  min-width: helpers.px-to-rem(300);
+  display: grid;
+  gap: helpers.px-to-rem(12);
   padding: helpers.px-to-rem(12);
-  border: helpers.px-to-rem(1) solid var(--color-black);
-  border-radius: helpers.px-to-rem(10);
-  background: white;
+  width: 100%;
+  margin: auto auto 0;
+  border: helpers.px-to-rem(1) solid var(--color-grey-300);
+  border-radius: helpers.px-to-rem(10) helpers.px-to-rem(10) 0 0;
+  background: var(--color-white);
+
+  @include responsive.media-exceeds-width(tablet) {
+    min-width: helpers.px-to-rem(300);
+    width: fit-content;
+    margin: auto;
+    border-radius: helpers.px-to-rem(10);
+  }
 
   &__header {
     display: flex;
-    padding-bottom: helpers.px-to-rem(12);
     align-items: center;
     justify-content: space-between;
   }
 
   &__footer {
     display: flex;
-    padding-top: helpers.px-to-rem(12);
     justify-content: flex-end;
     gap: helpers.px-to-rem(8);
 
-    .ds-button.ds-modal__button--close {
-      width: fit-content;
-    }
-
-    .ds-button.ds-modal__button--action {
+    .ds-modal__footer-button {
       width: fit-content;
     }
   }
