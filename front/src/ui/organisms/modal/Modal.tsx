@@ -55,14 +55,21 @@ export const Modal = ({
       {children}
 
       <div className="ds-modal__footer">
-        {secondaryButtonProps && (
-          <Button
-            className="ds-modal__button--close"
-            {...secondaryButtonProps}
-            variant="secondary"
-            onClick={closeModal}
-          />
-        )}
+        {secondaryButtonProps && (() => {
+          const { onClick, ...secondaryButtonRestProps } = secondaryButtonProps;
+
+          return (
+            <Button
+              className="ds-modal__close-button"
+              {...secondaryButtonRestProps}
+              variant="secondary"
+              onClick={(event) => {
+                onClick?.(event);
+                closeModal();
+              }}
+            />
+          );
+        })()}
         <Button className="ds-modal__button--action" {...primaryButtonProps} />
       </div>
     </dialog>
