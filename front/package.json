@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@pplancq/postcss-config": "3.0.4",
-    "@pplancq/prettier-config": "2.0.0",
+    "@pplancq/prettier-config": "2.0.1",
     "@pplancq/stylelint-config": "5.0.2",
     "@rsbuild/core": "1.7.5",
     "@rsbuild/plugin-react": "1.4.6",
