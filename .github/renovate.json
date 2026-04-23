@@ -49,8 +49,7 @@
     },
     {
       "matchUpdateTypes": ["patch"],
-      "minimumConfidence": "high",
-      "automerge": true,
+      "matchConfidence": ["high", "very high"],
       "automergeType": "branch",
       "minimumReleaseAge": "5 days"
     }
