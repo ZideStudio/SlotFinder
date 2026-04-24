@@ -1,4 +1,3 @@
-// oxlint-disable react/jsx-props-no-spreading
 import { getClassName } from '@Front/utils/getClassName';
 import type { ComponentPropsWithoutRef, ElementType } from 'react';
 import './Card.scss';
