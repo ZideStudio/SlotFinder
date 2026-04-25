@@ -1,0 +1,39 @@
+@use '../../../utils/sass/mixins/helpers';
+@use '../../../utils/sass/mixins/responsive';
+
+.ds-modal {
+  width: 100%;
+  margin: auto auto 0;
+  padding: helpers.px-to-rem(12);
+  border: helpers.px-to-rem(1) solid var(--color-grey-300);
+  border-radius: helpers.px-to-rem(10) helpers.px-to-rem(10) 0 0;
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+    row-gap: helpers.px-to-rem(12);
+  }
+
+  @include responsive.media-exceeds-width(tablet) {
+    width: fit-content;
+    min-width: helpers.px-to-rem(300);
+    margin: auto;
+    border-radius: helpers.px-to-rem(10);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: helpers.px-to-rem(8);
+  }
+
+  &__footer > button {
+    width: fit-content;
+  }
+}

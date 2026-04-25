@@ -5,28 +5,40 @@
       "label": "make: start",
       "type": "shell",
       "command": "bash",
-      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make start"],
+      "args": [
+        "-c",
+        "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make start"
+      ],
       "problemMatcher": []
     },
     {
       "label": "make: front",
       "type": "shell",
       "command": "bash",
-      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make front"],
+      "args": [
+        "-c",
+        "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make front"
+      ],
       "problemMatcher": []
     },
     {
       "label": "make: back",
       "type": "shell",
       "command": "bash",
-      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make back"],
+      "args": [
+        "-c",
+        "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make back"
+      ],
       "problemMatcher": []
     },
     {
       "label": "make: storybook",
       "type": "shell",
       "command": "bash",
-      "args": ["-c", "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make storybook"],
+      "args": [
+        "-c",
+        "f(){ kill 0; }; trap f SIGTERM SIGINT EXIT; make storybook"
+      ],
       "problemMatcher": []
     },
     {
