@@ -11,15 +11,19 @@ type PictureUploadInputProps = ComponentProps<typeof FileUploadInputAtom> & {
   error?: ComponentProps<typeof InputErrorMessage>['children'];
 };
 
+const FIRST_FILE_INDEX = 0;
+
 export const PictureUploadInput = ({ onChange, className, ...props }: PictureUploadInputProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+      const file = event.target.files?.[FIRST_FILE_INDEX];
 
       setPreviewUrl(prev => {
-        if (prev) URL.revokeObjectURL(prev);
+        if (prev) {
+          URL.revokeObjectURL(prev);
+        }
         return file?.type.startsWith('image/') ? URL.createObjectURL(file) : null;
       });
 
@@ -29,13 +33,13 @@ export const PictureUploadInput = ({ onChange, className, ...props }: PictureUpl
   );
 
   useEffect(() => {
-    return () => {
       setPreviewUrl(prev => {
-        if (prev) URL.revokeObjectURL(prev);
+        if (prev) {
+          URL.revokeObjectURL(prev);
+        }
         return null;
       });
-    };
-  }, []);
+    }, []);
 
   const parentClassName = getClassName({
     defaultClassName: 'ds-picture-upload-input',
