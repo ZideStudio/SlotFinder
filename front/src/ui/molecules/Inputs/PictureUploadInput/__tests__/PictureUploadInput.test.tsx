@@ -32,28 +32,28 @@ describe('PictureUploadInput', () => {
   });
 
   it('should render image preview when a valid image file is selected', async () => {
-  const user = userEvent.setup();
-  render(<PictureUploadInput label="Test Label" name="test-input" />);
+    const user = userEvent.setup();
+    render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-  const input = screen.getByLabelText('Test Label');
-  const file = new File(['test'], 'test-image.png', { type: 'image/png' });
+    const input = screen.getByLabelText('Test Label');
+    const file = new File(['test'], 'test-image.png', { type: 'image/png' });
 
-  await user.upload(input, file);
+    await user.upload(input, file);
 
-  const img = screen.getByAltText('Preview');
-  expect(img).toBeInTheDocument();
-  expect(img).toHaveAttribute('src', 'blob:http://localhost/fake-url');
-});
+    const img = screen.getByAltText('Preview');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', 'blob:http://localhost/fake-url');
+  });
 
-it('should not render image preview when a non-image file is selected', async () => {
-  const user = userEvent.setup();
-  render(<PictureUploadInput label="Test Label" name="test-input" />);
+  it('should not render image preview when a non-image file is selected', async () => {
+    const user = userEvent.setup();
+    render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-  const input = screen.getByLabelText('Test Label');
-  const file = new File(['dummy content'], 'document.pdf', { type: 'application/pdf' });
+    const input = screen.getByLabelText('Test Label');
+    const file = new File(['dummy content'], 'document.pdf', { type: 'application/pdf' });
 
-  await user.upload(input, file);
+    await user.upload(input, file);
 
-  expect(screen.queryByAltText('Preview')).toHaveAttribute('hidden');
-});
+    expect(screen.queryByAltText('Preview')).toHaveAttribute('hidden');
+  });
 });
