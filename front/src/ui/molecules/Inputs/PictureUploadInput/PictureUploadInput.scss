@@ -1,4 +1,5 @@
 @use '../../../../utils/sass/mixins/helpers';
+@use '../../../../utils/sass/mixins/responsive';
 
 .ds-picture-upload-input {
   display: flex;
@@ -6,7 +7,11 @@
   gap: helpers.px-to-rem(8);
 
   &__preview {
-    width: helpers.px-to-rem(200);
-    height: helpers.px-to-rem(200);
+    max-width: helpers.px-to-rem(100);
+    object-fit: cover;
+
+    @include responsive.media-exceeds-width('desktop-small') {
+      max-width: helpers.px-to-rem(200);
+    }
   }
 }

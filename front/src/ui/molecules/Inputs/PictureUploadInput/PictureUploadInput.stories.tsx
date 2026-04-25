@@ -5,7 +5,7 @@ import { PictureUploadInput } from './PictureUploadInput';
 const meta = {
   title: 'Molecules/Inputs/PictureUploadInput',
   component: PictureUploadInput,
-  args: { label: 'Label', name: 'picture-upload-input', required: false, className: 'custom-class' },
+  args: { label: 'Label', name: 'picture-upload-input', required: false, previewText: 'Preview', className: 'custom-class' },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },

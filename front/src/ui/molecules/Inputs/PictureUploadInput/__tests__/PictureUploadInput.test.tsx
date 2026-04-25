@@ -1,10 +1,11 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { PictureUploadInput } from '../PictureUploadInput';
+import userEvent from '@testing-library/user-event';
 
 describe('PictureUploadInput', () => {
   beforeAll(() => {
-    URL.createObjectURL = vi.fn(() => 'blob:http://localhost/fake-url');
-    URL.revokeObjectURL = vi.fn();
+    URL.createObjectURL = vi.spyOn(URL, 'createObjectURL').mockImplementation(() => 'blob:http://localhost/fake-url');
+    URL.revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
   });
 
   afterAll(() => {
@@ -30,27 +31,29 @@ describe('PictureUploadInput', () => {
     expect(screen.getByText('This is an error message')).toBeInTheDocument();
   });
 
-  it('should render image preview when a valid image file is selected', () => {
-    render(<PictureUploadInput label="Test Label" name="test-input" />);
+  it('should render image preview when a valid image file is selected', async () => {
+  const user = userEvent.setup();
+  render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-    const input = screen.getByLabelText('Test Label') as HTMLInputElement;
-    const file = new File(['test'], 'test-image.png', { type: 'image/png' });
+  const input = screen.getByLabelText('Test Label');
+  const file = new File(['test'], 'test-image.png', { type: 'image/png' });
 
-    fireEvent.change(input, { target: { files: [file] } });
+  await user.upload(input, file);
 
-    const img = screen.getByAltText('Preview') as HTMLImageElement;
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute('src', 'blob:http://localhost/fake-url');
-  });
+  const img = screen.getByAltText('Preview');
+  expect(img).toBeInTheDocument();
+  expect(img).toHaveAttribute('src', 'blob:http://localhost/fake-url');
+});
 
-  it('should not render image preview when a non-image file is selected', () => {
-    render(<PictureUploadInput label="Test Label" name="test-input" />);
+it('should not render image preview when a non-image file is selected', async () => {
+  const user = userEvent.setup();
+  render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-    const input = screen.getByLabelText('Test Label') as HTMLInputElement;
-    const file = new File(['dummy content'], 'document.pdf', { type: 'application/pdf' });
+  const input = screen.getByLabelText('Test Label');
+  const file = new File(['dummy content'], 'document.pdf', { type: 'application/pdf' });
 
-    fireEvent.change(input, { target: { files: [file] } });
+  await user.upload(input, file);
 
-    expect(screen.queryByAltText('Preview')).not.toBeInTheDocument();
-  });
+  expect(screen.queryByAltText('Preview')).toHaveAttribute('hidden');
+});
 });

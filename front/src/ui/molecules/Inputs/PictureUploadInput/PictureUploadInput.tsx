@@ -3,43 +3,81 @@ import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage
 import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
 import { Field } from '@Front/ui/utils/components/Field/Field';
 import { getClassName } from '@Front/utils/getClassName';
-import { type ChangeEvent, type ComponentProps, useCallback, useEffect, useState } from 'react';
+import { type ChangeEvent, type ComponentProps, useCallback, useRef } from 'react';
 import './PictureUploadInput.scss';
 
 type PictureUploadInputProps = ComponentProps<typeof FileUploadInputAtom> & {
   label: ComponentProps<typeof LabelInput>['children'];
   error?: ComponentProps<typeof InputErrorMessage>['children'];
+  previewText?: string;
+  defaultPreviewUrl?: string;
 };
 
-const FIRST_FILE_INDEX = 0;
+export const PictureUploadInput = ({
+  onChange,
+  className,
+  previewText,
+  defaultPreviewUrl,
+  ...props
+}: PictureUploadInputProps) => {
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const urlRef = useRef<string | null>(null);
 
-export const PictureUploadInput = ({ onChange, className, ...props }: PictureUploadInputProps) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  /**
+   * React 19 ref callback attached to the <img> element.
+   *
+   * - On mount: stores the node and applies defaultPreviewUrl if provided.
+   * - Returns a cleanup function called by React on unmount, which revokes
+   *   any pending object URL to prevent memory leaks. React 19 never calls
+   *   this callback with null when a cleanup function is returned, so no
+   *   null guard is needed.
+   */
+
+  const imgCallbackRef = useCallback(
+    (node: HTMLImageElement) => {
+      imgRef.current = node;
+      if (defaultPreviewUrl) {
+        node.src = defaultPreviewUrl;
+        node.hidden = false;
+      }
+      return () => {
+        if (urlRef.current) {
+          URL.revokeObjectURL(urlRef.current);
+          urlRef.current = null;
+        }
+      };
+    },
+    [defaultPreviewUrl],
+  );
+
+  /**
+   * Handles file selection changes.
+   *
+   * Revokes the previous object URL (if any) before creating a new one to
+   * avoid memory leaks. Updates the <img> node directly — no state update,
+   * no re-render. Non-image files hide the preview.
+   */
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[FIRST_FILE_INDEX];
+      const file = event.target.files?.[0];
 
-      setPreviewUrl(prev => {
-        if (prev) {
-          URL.revokeObjectURL(prev);
-        }
-        return file?.type.startsWith('image/') ? URL.createObjectURL(file) : null;
-      });
+      if (urlRef.current) {
+        URL.revokeObjectURL(urlRef.current);
+      }
 
+      const newUrl = file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+      urlRef.current = newUrl;
+
+      const img = imgRef.current;
+      if (img) {
+        img.src = newUrl ?? '';
+        img.hidden = !newUrl;
+      }
       onChange?.(event);
     },
     [onChange],
   );
-
-  useEffect(() => {
-      setPreviewUrl(prev => {
-        if (prev) {
-          URL.revokeObjectURL(prev);
-        }
-        return null;
-      });
-    }, []);
 
   const parentClassName = getClassName({
     defaultClassName: 'ds-picture-upload-input',
@@ -48,8 +86,14 @@ export const PictureUploadInput = ({ onChange, className, ...props }: PictureUpl
 
   return (
     <div className={parentClassName}>
-      <Field input={FileUploadInputAtom} onChange={handleChange} {...props} />
-      {previewUrl && <img className="ds-picture-upload-input__preview" src={previewUrl} alt="Preview" />}
+      <Field
+        input={FileUploadInputAtom}
+        onChange={handleChange}
+        accept="image/jpeg,image/png"
+        multiple={false}
+        {...props}
+      />
+      <img ref={imgCallbackRef} className="ds-picture-upload-input__preview" alt={previewText || 'Preview'} hidden />
     </div>
   );
 };
