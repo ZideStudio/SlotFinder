@@ -21,6 +21,7 @@ const meta = {
     ref: { table: { disable: true } },
   },
   render: (args: ComponentProps<typeof Modal>) => {
+    // oxlint-disable-next-line react-hooks/rules-of-hooks
     const { modalRef, openModal } = useModal();
 
     return (
