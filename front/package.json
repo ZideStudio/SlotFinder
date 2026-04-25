@@ -68,7 +68,7 @@
     "monocart-coverage-reports": "2.12.10",
     "msw": "2.13.4",
     "oxlint": "1.60.0",
-    "prettier": "3.8.1",
+    "prettier": "3.8.3",
     "prettier-plugin-sh": "0.18.1",
     "remark-gfm": "4.0.1",
     "storybook": "10.3.5",
