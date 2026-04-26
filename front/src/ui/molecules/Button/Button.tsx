@@ -1,4 +1,5 @@
 import { Icon } from '@Front/ui/atoms/Icon/Icon';
+import { Spinner } from '@Front/ui/atoms/Spinner/Spinner';
 import { getClassName } from '@Front/utils/getClassName';
 import type { ComponentPropsWithoutRef, ElementType, FC, SVGProps } from 'react';
 import './Button.scss';
@@ -11,6 +12,7 @@ type ButtonProps<Type extends ElementType = 'button'> = {
   color?: 'default' | 'neutral' | 'danger';
   icon?: SvgIcon;
   disabled?: boolean;
+  isLoading?: boolean;
 } & ComponentPropsWithoutRef<Type>;
 
 export const Button = <Type extends ElementType = 'button'>({
@@ -21,10 +23,14 @@ export const Button = <Type extends ElementType = 'button'>({
   color = 'default',
   icon,
   disabled,
+  isLoading,
   ...props
 }: ButtonProps<Type>) => {
   const Component = as ?? 'button';
   const isNativeButton = !as || as === 'button';
+   if (isLoading) {
+    disabled = true;
+  }
 
   const parentClassName = getClassName({
     defaultClassName: 'ds-button',
@@ -34,6 +40,7 @@ export const Button = <Type extends ElementType = 'button'>({
 
   return (
     <Component className={parentClassName} {...(isNativeButton && { type: 'button' })} {...props}>
+      {isLoading && <Spinner />}
       {icon && <Icon icon={icon} />}
       {children}
     </Component>

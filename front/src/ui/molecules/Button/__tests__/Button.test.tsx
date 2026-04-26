@@ -82,4 +82,14 @@ describe('Button', () => {
       expect(screen.getByRole('link', { name: 'Button' })).not.toHaveAttribute('type');
     });
   });
+
+  it('disables button and shows spinner when isLoading is true', () => {
+    render(<Button isLoading>Button</Button>);
+    const buttonElement = screen.getByRole('button', {
+      name: 'Chargement en cours Button',
+    });
+    expect(buttonElement).toHaveClass('ds-button--disabled');
+    const spinnerElement = within(buttonElement).getByRole('status');
+    expect(spinnerElement).toBeInTheDocument();
+  });
 });
