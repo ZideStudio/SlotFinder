@@ -40,8 +40,8 @@ export const OverlayContent = ({
     <div className="ds-overlay-content__body">{children}</div>
 
     <footer className="ds-overlay-content__footer">
-      {secondaryButtonProps && <Button type="button" {...secondaryButtonProps} />}
-      <Button type="button" {...primaryButtonProps} />
+      {secondaryButtonProps && <Button {...secondaryButtonProps} />}
+      <Button {...primaryButtonProps} />
     </footer>
   </>
 );

@@ -56,4 +56,30 @@ describe('Button', () => {
     render(<Button className="custom-class">Button</Button>);
     expect(screen.getByText('Button')).toHaveClass('custom-class');
   });
+
+  describe('type attribute', () => {
+    it('has type="button" by default', () => {
+      render(<Button>Button</Button>);
+      expect(screen.getByRole('button', { name: 'Button' })).toHaveAttribute('type', 'button');
+    });
+
+    it('has type="button" when as="button"', () => {
+      render(<Button as="button">Button</Button>);
+      expect(screen.getByRole('button', { name: 'Button' })).toHaveAttribute('type', 'button');
+    });
+
+    it('respects an explicit type prop', () => {
+      render(<Button type="submit">Button</Button>);
+      expect(screen.getByRole('button', { name: 'Button' })).toHaveAttribute('type', 'submit');
+    });
+
+    it('does not set type when rendered as an anchor', () => {
+      render(
+        <Button as="a" href="/test">
+          Button
+        </Button>,
+      );
+      expect(screen.getByRole('link', { name: 'Button' })).not.toHaveAttribute('type');
+    });
+  });
 });
