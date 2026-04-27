@@ -1,0 +1,101 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as PictureUploadInputStories from './PictureUploadInput.stories';
+
+<Meta of={PictureUploadInputStories} />
+
+# PictureUploadInput
+
+A reusable, accessible picture upload input with implemented preview of uploaded image for forms and UI elements.
+
+## Usage
+
+```tsx
+<PictureUploadInput label="Input Label" name="input-name" className="custom-class" />
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input label for accessibility and user understanding</td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>No</td>
+      <td>Error message to display when input is invalid</td>
+    </tr>
+    <tr>
+      <td>
+        <code>previewText</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom text for image preview</td>
+    </tr>
+    <tr>
+      <td>
+        <code>defaultPreviewUrl</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Previewed image's URL</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>Custom class for styling</td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>input props (HTMLInput)</code>
+      </td>
+      <td>No</td>
+      <td>All standard input props (e.g. value, onChange, placeholder)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- Designed with accessibility in mind, including keyboard support and form labeling.
+- Accessibility conformance should be verified in context through manual and automated testing.
+
+## Playground
+
+<Canvas of={PictureUploadInputStories.Default} sourceState="shown" />
+<Controls of={PictureUploadInputStories.Default} />
