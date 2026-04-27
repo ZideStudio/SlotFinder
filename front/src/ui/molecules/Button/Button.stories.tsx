@@ -10,12 +10,14 @@ const meta = {
     variant: 'primary',
     color: 'default',
     disabled: false,
+    isLoading: false,
   },
   argTypes: {
     children: { control: 'text' },
     variant: { control: 'select', options: ['primary', 'secondary'] },
     color: { control: 'select', options: ['default', 'neutral', 'danger'] },
     disabled: { control: 'boolean' },
+    isLoading: { control: 'boolean' },
     as: { table: { disable: true } },
     icon: { table: { disable: true } },
   },
@@ -32,17 +34,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  render: args => (
-    <Button {...args} icon={PaletteIcon}>
-      {args.children}
-    </Button>
-  ),
+  args: {
+    icon: PaletteIcon,
+  },
 };
 
 export const Loading: Story = {
-  render: args => (
-    <Button {...args} isLoading>
-      {args.children}
-    </Button>
-  ),
+  args: {
+    isLoading: true,
+  },
 };
