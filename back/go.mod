@@ -10,7 +10,7 @@ require (
 	github.com/goodsign/monday v1.0.2
 	github.com/joho/godotenv v1.5.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/rs/zerolog v1.35.0
+	github.com/rs/zerolog v1.35.1
 	github.com/swaggo/files v1.0.1
 	golang.org/x/image v0.39.0
 	gorm.io/driver/postgres v1.6.0
