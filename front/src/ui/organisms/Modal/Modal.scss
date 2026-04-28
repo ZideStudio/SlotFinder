@@ -20,20 +20,4 @@
     margin: auto;
     border-radius: helpers.px-to-rem(10);
   }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  &__footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: helpers.px-to-rem(8);
-  }
-
-  &__footer > button {
-    width: fit-content;
-  }
 }

@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 
 import { Modal } from '../Modal';
 
@@ -21,18 +22,6 @@ describe('Modal', () => {
     expect(within(dialog).getByText('Modal content')).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Action' })).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Close' })).toBeInTheDocument();
-  });
-
-  it('should not render secondary action when secondaryButtonProps is not provided', () => {
-    render(
-      <Modal open title="Modal title" primaryButtonProps={{ children: 'Action' }}>
-        Modal content
-      </Modal>,
-    );
-
-    const dialog = screen.getByRole('dialog', { hidden: true });
-    expect(within(dialog).getByRole('button', { name: 'Action' })).toBeInTheDocument();
-    expect(within(dialog).queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
   });
 
   it('should link dialog label to the title heading and set closedby attribute', () => {
@@ -86,5 +75,23 @@ describe('Modal', () => {
     const dialog = screen.getByRole('dialog', { hidden: true });
     expect(dialog).toHaveClass('ds-modal');
     expect(dialog).toHaveClass('custom-modal');
+  });
+
+  it('should call closeModal when the close button is clicked', async () => {
+    const close = vi.fn();
+    Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+      value: close,
+      configurable: true,
+      writable: true,
+    });
+
+    render(
+      <Modal open title="Modal title" primaryButtonProps={{ children: 'Action' }}>
+        Modal content
+      </Modal>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Fermer la fenêtre' }));
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

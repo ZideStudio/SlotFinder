@@ -137,6 +137,42 @@ The component is designed to be controlled with a dialog ref (for example via `u
 - Includes a header close icon button and an optional footer secondary action for closing flows.
 - All actions are keyboard-operable through native button semantics.
 
+## Portal rendering
+
+`Modal` should be rendered via a **React Portal** into `document.body`. This ensures the dialog always renders above the rest of the page regardless of any ancestor's stacking context, and keeps it outside any landmark or sectioning element that could pollute the page's landmark structure.
+
+```tsx
+import { createPortal } from 'react-dom';
+import { useModal } from '@Front/ui/utils/hooks/useModal';
+import { Modal } from '@Front/ui/organisms/modal/Modal';
+
+const Example = () => {
+  const { modalRef, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <button type="button" onClick={openModal}>
+        Open Modal
+      </button>
+
+      {createPortal(
+        <Modal
+          ref={modalRef}
+          title="Modal title"
+          primaryButtonProps={{
+            children: 'Action',
+            onClick: closeModal,
+          }}
+        >
+          Modal's content
+        </Modal>,
+        document.body,
+      )}
+    </>
+  );
+};
+```
+
 ## Playground
 
 <Canvas of={ModalStories.Default} sourceState="shown" />

@@ -1,0 +1,152 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as OverlayContentStories from './OverlayContent.stories';
+
+<Meta of={OverlayContentStories} />
+
+# OverlayContent
+
+A reusable content shell shared by overlay components such as `Modal` and `Popover`. It renders a structured layout with a header (title + close button), a main body, and a footer (primary and optional secondary actions).
+
+## Usage
+
+```tsx
+import { OverlayContent } from '@Front/ui/organisms/OverlayContent/OverlayContent';
+
+const Example = () => (
+  <OverlayContent
+    title="Confirmation"
+    primaryButtonProps={{
+      children: 'Confirm',
+      onClick: () => {},
+    }}
+    secondaryButtonProps={{
+      children: 'Cancel',
+      variant: 'secondary',
+      onClick: () => {},
+    }}
+    closeOverlay={() => {}}
+  >
+    Are you sure you want to proceed?
+  </OverlayContent>
+);
+```
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>title</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Heading text displayed in the header.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>titleId</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>
+        Optional <code>id</code> applied to the heading element. Should be provided by the parent overlay component
+        (e.g., <code>Modal</code>) to link the heading via <code>aria-labelledby</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Content rendered inside the body.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>primaryButtonProps</code>
+      </td>
+      <td>
+        <code>ComponentProps&lt;typeof Button&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Props forwarded to the primary footer action button.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>secondaryButtonProps</code>
+      </td>
+      <td>
+        <code>ComponentProps&lt;typeof Button&gt;</code>
+      </td>
+      <td>No</td>
+      <td>Optional props for a secondary footer action button (typically cancel/close).</td>
+    </tr>
+    <tr>
+      <td>
+        <code>closeOverlay</code>
+      </td>
+      <td>
+        <code>() =&gt; void</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        Callback invoked when the close button in the header is clicked. Provided by the parent overlay component.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- The title is rendered as an `<h1>` and can be linked to the parent overlay via `aria-labelledby` using `titleId`.
+- The close button has an explicit accessible name (`Fermer la fenêtre`).
+- Uses semantic structure: `<header>` for the title area, `<div>` for the body, and `<footer>` for actions.
+- `<header>` and `<footer>` lose their global `banner`/`contentinfo` landmark roles when nested inside a sectioning root such as `<dialog>`. When `OverlayContent` is used inside a non-sectioning element (e.g., `<div popover>` for a future Popover), prefer replacing them with `<div>` elements to avoid unintended global landmarks.
+- All interactive elements are keyboard-operable through native button semantics.
+
+## Portal rendering
+
+Overlay components that use `OverlayContent` (such as `Modal`) should be rendered via a **React Portal** into `document.body`. Refer to each component's own documentation for implementation details.
+
+## Layout notes
+
+`OverlayContent` does not manage the gap between the header, body, and footer. This is intentional: in the case of a `<dialog>`, spacing should only be applied when the element is open (e.g. via `&[open] { gap: ... }`). The parent component is responsible for defining this spacing.
+
+```scss
+// Example in Modal.scss
+.ds-modal {
+  &[open] {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.75rem;
+  }
+}
+```
+
+## Playground
+
+<Canvas of={OverlayContentStories.Default} sourceState="shown" />
+<Controls of={OverlayContentStories.Default} />
