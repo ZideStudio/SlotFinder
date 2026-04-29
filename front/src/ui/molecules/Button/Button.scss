@@ -61,11 +61,15 @@
     --btn-color: var(--color-error);
   }
 
-  &:is([disabled], [aria-disabled='true'], &--disabled) {
+  &:is([disabled], [aria-disabled='true']) {
     border-color: transparent;
     color: var(--color-white);
     background-color: var(--color-grey-400);
     cursor: not-allowed;
+
+    .ds-spinner {
+      --ds-spinner-color: currentcolor;
+    }
   }
 
   @include responsive.media-exceeds-width('desktop-small') {
