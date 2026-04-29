@@ -22,24 +22,25 @@ export const Button = <Type extends ElementType = 'button'>({
   variant = 'primary',
   color = 'default',
   icon,
-  disabled,
   isLoading,
   ...props
 }: ButtonProps<Type>) => {
   const Component = as ?? 'button';
   const isNativeButton = !as || as === 'button';
-   if (isLoading) {
-    disabled = true;
-  }
 
   const parentClassName = getClassName({
     defaultClassName: 'ds-button',
-    modifiers: [variant, color, disabled && 'disabled'],
+    modifiers: [variant, color],
     className,
   });
 
   return (
-    <Component className={parentClassName} {...(isNativeButton && { type: 'button' })} {...props}>
+    <Component
+      className={parentClassName}
+      {...(isNativeButton && { type: 'button' })}
+      {...props}
+      disabled={props.disabled || isLoading}
+    >
       {isLoading && <Spinner />}
       {icon && <Icon icon={icon} />}
       {children}

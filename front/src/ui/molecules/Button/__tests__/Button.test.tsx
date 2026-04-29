@@ -37,12 +37,6 @@ describe('Button', () => {
     expect(buttonElement).toHaveClass('ds-button--danger');
   });
 
-  it('applies disabled class when disabled', () => {
-    render(<Button disabled>Button</Button>);
-    const buttonElement = screen.getByText('Button');
-    expect(buttonElement).toHaveClass('ds-button--disabled');
-  });
-
   it('renders icon when icon prop is provided', () => {
     const TestIcon: SvgIcon = props => <svg aria-label="icon" {...props} />;
     render(<Button icon={TestIcon}>Button</Button>);
@@ -88,7 +82,7 @@ describe('Button', () => {
     const buttonElement = screen.getByRole('button', {
       name: 'Chargement en cours Button',
     });
-    expect(buttonElement).toHaveClass('ds-button--disabled');
+    expect(buttonElement).toBeDisabled();
     const spinnerElement = within(buttonElement).getByRole('status');
     expect(spinnerElement).toBeInTheDocument();
   });

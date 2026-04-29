@@ -61,7 +61,7 @@
     --btn-color: var(--color-error);
   }
 
-  &:is([disabled], [aria-disabled='true'], &--disabled) {
+  &:is([disabled], [aria-disabled='true']) {
     border-color: transparent;
     color: var(--color-white);
     background-color: var(--color-grey-400);
