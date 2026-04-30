@@ -39,7 +39,7 @@ export const Modal = ({
         titleId={titleId}
         primaryButtonProps={primaryButtonProps}
         secondaryButtonProps={secondaryButtonProps}
-        closeOverlay={closeModal}
+        closeButtonProps={{ onClick: closeModal }}
       >
         {children}
       </OverlayContent>

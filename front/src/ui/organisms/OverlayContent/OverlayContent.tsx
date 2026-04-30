@@ -10,18 +10,18 @@ type OverlayContentProps = {
   title: string;
   titleId?: string;
   children: ReactNode;
+  closeButtonProps?: Partial<ComponentProps<typeof ClickIcon>>;
   primaryButtonProps: ComponentProps<typeof Button>;
   secondaryButtonProps?: ComponentProps<typeof Button>;
-  closeOverlay: () => void;
 };
 
 export const OverlayContent = ({
   title,
   titleId,
   children,
+  closeButtonProps,
   primaryButtonProps,
   secondaryButtonProps,
-  closeOverlay,
 }: OverlayContentProps) => (
   <>
     <header className="ds-overlay-content__header">
@@ -30,10 +30,10 @@ export const OverlayContent = ({
       </Heading>
       <ClickIcon
         aria-label="Fermer la fenêtre"
-        onClick={closeOverlay}
         className="ds-overlay-content__button--close"
         icon={Close}
         type="button"
+        {...closeButtonProps}
       />
     </header>
 

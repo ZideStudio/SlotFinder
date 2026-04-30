@@ -11,7 +11,6 @@ describe('OverlayContent', () => {
           title="Content title"
           primaryButtonProps={{ children: 'Confirm' }}
           secondaryButtonProps={{ children: 'Cancel' }}
-          closeOverlay={vi.fn()}
         >
           Body content
         </OverlayContent>,
@@ -25,7 +24,7 @@ describe('OverlayContent', () => {
 
     it('should not render secondary button when secondaryButtonProps is not provided', () => {
       render(
-        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }} closeOverlay={vi.fn()}>
+        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }}>
           Body content
         </OverlayContent>,
       );
@@ -36,7 +35,7 @@ describe('OverlayContent', () => {
 
     it('should render a close button with accessible name and structural sections', () => {
       render(
-        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }} closeOverlay={vi.fn()}>
+        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }}>
           Body content
         </OverlayContent>,
       );
@@ -61,7 +60,6 @@ describe('OverlayContent', () => {
           title="Content title"
           titleId="custom-title-id"
           primaryButtonProps={{ children: 'Confirm' }}
-          closeOverlay={vi.fn()}
         >
           Body content
         </OverlayContent>,
@@ -72,7 +70,7 @@ describe('OverlayContent', () => {
 
     it('should not set the id attribute on the heading when titleId is not provided', () => {
       render(
-        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }} closeOverlay={vi.fn()}>
+        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }}>
           Body content
         </OverlayContent>,
       );
@@ -82,17 +80,17 @@ describe('OverlayContent', () => {
   });
 
   describe('interactions', () => {
-    it('should call closeOverlay when the close button is clicked', async () => {
-      const closeOverlay = vi.fn();
+    it('should call closeButtonProps.onClick when the close button is clicked', async () => {
+      const onClick = vi.fn();
 
       render(
-        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }} closeOverlay={closeOverlay}>
+        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }} closeButtonProps={{ onClick }}>
           Body content
         </OverlayContent>,
       );
 
       await userEvent.click(screen.getByRole('button', { name: 'Fermer la fenêtre' }));
-      expect(closeOverlay).toHaveBeenCalledTimes(1);
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
 
     it('should call primaryButtonProps onClick when primary button is clicked', async () => {
@@ -102,7 +100,6 @@ describe('OverlayContent', () => {
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: 'Confirm', onClick }}
-          closeOverlay={vi.fn()}
         >
           Body content
         </OverlayContent>,
@@ -120,7 +117,6 @@ describe('OverlayContent', () => {
           title="Content title"
           primaryButtonProps={{ children: 'Confirm' }}
           secondaryButtonProps={{ children: 'Cancel', onClick }}
-          closeOverlay={vi.fn()}
         >
           Body content
         </OverlayContent>,
