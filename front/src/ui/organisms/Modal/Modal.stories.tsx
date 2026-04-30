@@ -1,4 +1,4 @@
-import { useModal } from '@Front/ui/utils/hooks/useModal';
+import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
 import type { ComponentProps } from 'react';
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 import { fn } from 'storybook/test';
