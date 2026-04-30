@@ -56,11 +56,7 @@ describe('OverlayContent', () => {
   describe('titleId', () => {
     it('should set the id attribute on the heading when titleId is provided', () => {
       render(
-        <OverlayContent
-          title="Content title"
-          titleId="custom-title-id"
-          primaryButtonProps={{ children: 'Confirm' }}
-        >
+        <OverlayContent title="Content title" titleId="custom-title-id" primaryButtonProps={{ children: 'Confirm' }}>
           Body content
         </OverlayContent>,
       );
@@ -84,7 +80,11 @@ describe('OverlayContent', () => {
       const onClick = vi.fn();
 
       render(
-        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm' }} closeButtonProps={{ onClick }}>
+        <OverlayContent
+          title="Content title"
+          primaryButtonProps={{ children: 'Confirm' }}
+          closeButtonProps={{ onClick }}
+        >
           Body content
         </OverlayContent>,
       );
@@ -97,10 +97,7 @@ describe('OverlayContent', () => {
       const onClick = vi.fn();
 
       render(
-        <OverlayContent
-          title="Content title"
-          primaryButtonProps={{ children: 'Confirm', onClick }}
-        >
+        <OverlayContent title="Content title" primaryButtonProps={{ children: 'Confirm', onClick }}>
           Body content
         </OverlayContent>,
       );

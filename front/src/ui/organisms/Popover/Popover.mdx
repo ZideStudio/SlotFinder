@@ -118,7 +118,9 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
         <code>string</code>
       </td>
       <td>No</td>
-      <td>Additional class applied to the root section element alongside the default <code>ds-popover</code> class.</td>
+      <td>
+        Additional class applied to the root section element alongside the default <code>ds-popover</code> class.
+      </td>
     </tr>
     <tr>
       <td>
@@ -129,8 +131,8 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
       </td>
       <td>No</td>
       <td>
-        Native popover attribute. Defaults to <code>"auto"</code>, which closes the popover when the user clicks
-        outside it or presses <kbd>Escape</kbd>.
+        Native popover attribute. Defaults to <code>"auto"</code>, which closes the popover when the user clicks outside
+        it or presses <kbd>Escape</kbd>.
       </td>
     </tr>
     <tr>
@@ -142,8 +144,8 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
       </td>
       <td>No</td>
       <td>
-        Native section props (for example <code>style</code>, <code>{'aria-*'}</code>, <code>{'data-*'}</code>). When using{' '}
-        <code>usePopover</code>, the <code>style</code> for CSS Anchor Positioning is injected via{' '}
+        Native section props (for example <code>style</code>, <code>{'aria-*'}</code>, <code>{'data-*'}</code>). When
+        using <code>usePopover</code>, the <code>style</code> for CSS Anchor Positioning is injected via{' '}
         <code>popoverProps.style</code>.
       </td>
     </tr>
@@ -169,12 +171,14 @@ For the same reason as `Modal`, `Popover` should be rendered via a **React Porta
 ```tsx
 import { createPortal } from 'react-dom';
 
-{createPortal(
-  <Popover {...popoverProps} title="Confirmation" primaryButtonProps={{ children: 'Confirm' }}>
-    Content
-  </Popover>,
-  document.body,
-)}
+{
+  createPortal(
+    <Popover {...popoverProps} title="Confirmation" primaryButtonProps={{ children: 'Confirm' }}>
+      Content
+    </Popover>,
+    document.body,
+  );
+}
 ```
 
 ## Playground

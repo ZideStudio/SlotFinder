@@ -40,10 +40,20 @@ const meta = {
     title: { control: 'text' },
     children: { control: 'text' },
     ref: { table: { disable: true } },
-    primaryButtonProps: { table: { disable: true } },
-    secondaryButtonProps: { table: { disable: true } },
   },
-  render: (args: ComponentProps<typeof Modal>) => <ModalStory {...args} />,
+  render: (args: ComponentProps<typeof Modal>) => {
+    // oxlint-disable-next-line react-hooks/rules-of-hooks
+    const { modalRef, openModal } = useModal();
+
+    return (
+      <>
+        <Button onClick={openModal} style={{ width: '300px' }}>
+          Open Modal
+        </Button>
+        <Modal ref={modalRef} {...args} />
+      </>
+    );
+  },
 } satisfies Meta<typeof Modal>;
 
 export default meta;
