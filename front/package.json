@@ -86,10 +86,6 @@
     "vitest-browser-react": "2.2.0",
     "vitest-sonar-reporter": "3.0.0"
   },
-  "volta": {
-    "node": "24.15.0",
-    "npm": "11.13.0"
-  },
   "msw": {
     "workerDirectory": [
       "./public"

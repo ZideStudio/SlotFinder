@@ -1,26 +1,15 @@
 name: 'setup-node'
-description: 'setup node'
+description: 'setup node using mise'
 
 runs:
   using: 'composite'
   steps:
-    - name: Set Node.js version from volta
-      shell: bash
-      run: echo "NODE_VERSION=$(jq -r .volta.node front/package.json)" >> $GITHUB_ENV
-
-    - name: Get npm version from volta
-      shell: bash
-      run: echo "NPM_VERSION=$(jq -r .volta.npm front/package.json)" >> $GITHUB_ENV
-
-    - name: Setup Node.js
-      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+    - name: Setup Node and npm with mise
+      uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151
       with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    - name: Setup npm version
-      if: ${{ env.NPM_VERSION }}
-      shell: bash
-      run: npm install -g npm@${{ env.NPM_VERSION }}
+        cache: true
+        install: true
+        working_directory: front
 
     - name: Cache node modules
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5

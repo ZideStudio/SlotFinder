@@ -51,8 +51,6 @@ RUN echo '#!/bin/sh\nexec "$@"' > /usr/local/bin/docker-entrypoint.sh && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
 
 RUN echo '#!/bin/bash\n\
-    export VOLTA_HOME="/home/vscode/.volta"\n\
-    export PATH="$VOLTA_HOME/bin:$PATH"\n\
     cd /workspace/front 2>/dev/null || cd .\n\
     if [ -f "./node_modules/.bin/prettier" ]; then\n\
     exec ./node_modules/.bin/prettier "$@"\n\
@@ -64,18 +62,21 @@ RUN echo '#!/bin/bash\n\
 # Tools
 USER vscode
 
-# Volta
-ENV VOLTA_HOME="/home/vscode/.volta"
-ENV PATH="${VOLTA_HOME}/bin:${PATH}"
-RUN curl https://get.volta.sh | bash -s -- --skip-setup
+# Mise
+ENV MISE_HOME="/home/vscode/.local/share/mise"
+ENV MISE_TRUSTED_CONFIG_PATHS="/workspace"
+ENV PATH="/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/usr/local/go/bin:/go/bin:${PATH}"
+RUN curl https://mise.jdx.dev/install.sh | sh
 
-COPY --chown=vscode:vscode front/package.json /tmp/package.json
-RUN NODE_VERSION=$(grep -oP '"node":\s*"\K[^"]+' /tmp/package.json | head -1) && \
-    rm -f /tmp/package.json && \
-    volta install node@${NODE_VERSION:-latest} && \
-    volta install typescript typescript-language-server vscode-langservers-extracted
+RUN mkdir -p /tmp/front-mise /tmp/back-mise
 
-RUN npx playwright install --with-deps
+COPY --chown=vscode:vscode front/.mise.toml /tmp/front-mise/.mise.toml
+COPY --chown=vscode:vscode back/.mise.toml /tmp/back-mise/.mise.toml
+
+RUN cd /tmp/front-mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
+RUN cd /tmp/back-mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
+
+RUN /home/vscode/.local/bin/mise exec -C /tmp/front-mise -- npx playwright install --with-deps
 
 # Go
 RUN go install golang.org/x/tools/gopls@v0.21.1 && \
@@ -83,8 +84,9 @@ RUN go install golang.org/x/tools/gopls@v0.21.1 && \
     go install golang.org/x/tools/cmd/goimports@v0.44.0
 
 RUN cat <<EOF >> /home/vscode/.bashrc
-    alias lg="lazygit"
-    export DISPLAY=:99
+alias lg="lazygit"
+export DISPLAY=:99
+eval "\$(\$HOME/.local/bin/mise activate bash)"
 EOF
 
 WORKDIR /workspace
