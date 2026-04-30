@@ -17,8 +17,6 @@ const meta = {
     title: { control: 'text' },
     titleId: { control: 'text' },
     children: { control: 'text' },
-    primaryButtonProps: { table: { disable: true } },
-    secondaryButtonProps: { table: { disable: true } },
     closeButtonProps: { table: { disable: true } },
   },
 } satisfies Meta<typeof OverlayContent>;
@@ -32,5 +30,8 @@ export const Default: Story = {};
 export const WithOnlyOneButton: Story = {
   args: {
     secondaryButtonProps: undefined,
+  },
+  argTypes: {
+    secondaryButtonProps: { table: { disable: true } },
   },
 };

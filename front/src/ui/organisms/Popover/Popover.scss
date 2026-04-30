@@ -1,0 +1,58 @@
+@use '../../../utils/sass/mixins/helpers';
+@use '../../../utils/sass/mixins/responsive';
+
+[data-popover-trigger] {
+  anchor-name: var(--popover-anchor-name);
+}
+
+.ds-popover {
+  --card-color-background: var(--color-white);
+  --popover-row-gap: #{helpers.px-to-rem(12)};
+  --popover-width: 100%;
+  --popover-border-radius: #{helpers.px-to-rem(10)} #{helpers.px-to-rem(10)} 0 0;
+
+  position: fixed;
+  inset-inline: 0;
+  inset-block: auto 0;
+  display: revert;
+  box-sizing: border-box;
+
+  &:popover-open {
+    display: flex;
+    flex-direction: column;
+    row-gap: var(--popover-row-gap);
+
+    @include responsive.media-exceeds-width('desktop-small') {
+      --popover-row-gap: #{helpers.px-to-rem(16)};
+    }
+  }
+
+  &.ds-card {
+    width: var(--popover-width);
+    border-radius: var(--popover-border-radius);
+  }
+
+  @include responsive.media-exceeds-width('tablet') {
+    --popover-width: fit-content;
+    --popover-border-radius: #{helpers.px-to-rem(8)};
+
+    inset-inline: anchor(right) auto;
+    inset-block: anchor(top) auto;
+    position-anchor: var(--popover-anchor-name);
+    max-width: helpers.px-to-rem(300);
+    position-try-fallbacks: --ds-popover-flip-left, --ds-popover-flip-up, --ds-popover-flip-left-up;
+  }
+}
+
+@position-try --ds-popover-flip-left {
+  inset-inline: auto anchor(left);
+}
+
+@position-try --ds-popover-flip-up {
+  inset-block: auto anchor(bottom);
+}
+
+@position-try --ds-popover-flip-left-up {
+  inset-inline: auto anchor(left);
+  inset-block: auto anchor(bottom);
+}

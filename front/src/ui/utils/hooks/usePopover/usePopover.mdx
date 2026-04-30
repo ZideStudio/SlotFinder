@@ -1,0 +1,110 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Utils/Hooks/usePopover" />
+
+# usePopover
+
+A utility hook that generates a unique ID and CSS anchor name to link a trigger element with its `Popover` component. It returns ready-to-spread props for both the trigger and the popover, keeping them decoupled in the DOM while maintaining the CSS Anchor Positioning association.
+
+## Return value
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>triggerProps</code>
+      </td>
+      <td>
+        <code>{'{ popoverTarget: string; data-popover-trigger: \'\'; style: CSSProperties }'}</code>
+      </td>
+      <td>
+        Props to spread on the trigger element. Sets <code>popoverTarget</code> for the Popover API, a{' '}
+        <code>data-popover-trigger</code> attribute used by SCSS to apply <code>anchor-name</code>, and an inline style
+        with the CSS custom property <code>--popover-anchor-name</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>popoverProps</code>
+      </td>
+      <td>
+        <code>{'{ id: string; style: CSSProperties }'}</code>
+      </td>
+      <td>
+        Props to spread on the <code>Popover</code> component. Sets the matching <code>id</code> and the same{' '}
+        <code>--popover-anchor-name</code> inline style so CSS Anchor Positioning can resolve the anchor reference.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Usage
+
+### Basic usage
+
+```tsx
+import { usePopover } from '@Front/ui/utils/hooks/usePopover/usePopover';
+import { Popover } from '@Front/ui/organisms/Popover/Popover';
+
+const Example = () => {
+  const { triggerProps, popoverProps } = usePopover();
+
+  return (
+    <>
+      <button type="button" {...triggerProps}>
+        Open popover
+      </button>
+
+      <Popover
+        {...popoverProps}
+        title="Confirmation"
+        primaryButtonProps={{ children: 'Confirm', onClick: () => {} }}
+      >
+        Are you sure you want to proceed?
+      </Popover>
+    </>
+  );
+};
+```
+
+### Multiple popovers on the same page
+
+Each `usePopover` call generates a distinct `--popover-anchor-name` and `popoverTarget`. There is no risk of collision.
+
+```tsx
+const { triggerProps: trigger1Props, popoverProps: popover1Props } = usePopover();
+const { triggerProps: trigger2Props, popoverProps: popover2Props } = usePopover();
+
+<button {...trigger1Props}>Open popover 1</button>
+<Popover {...popover1Props} title="Popover 1" primaryButtonProps={{ children: 'OK' }}>
+  Content 1
+</Popover>
+
+<button {...trigger2Props}>Open popover 2</button>
+<Popover {...popover2Props} title="Popover 2" primaryButtonProps={{ children: 'OK' }}>
+  Content 2
+</Popover>
+```
+
+## How CSS Anchor Positioning works here
+
+The hook injects a `--popover-anchor-name` CSS custom property (e.g. `--popover-r1`) into the inline styles of both the trigger and the popover. The SCSS then reads this variable:
+
+```scss
+[data-popover-trigger] {
+  anchor-name: var(--popover-anchor-name);
+}
+
+.ds-popover {
+  position-anchor: var(--popover-anchor-name);
+}
+```
+
+Because each instance has a unique value for `--popover-anchor-name`, multiple popovers on the same page each resolve their own anchor independently.
