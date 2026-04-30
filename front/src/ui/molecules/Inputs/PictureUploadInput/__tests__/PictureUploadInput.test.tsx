@@ -4,8 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 describe('PictureUploadInput', () => {
   beforeAll(() => {
-    URL.createObjectURL = vi.spyOn(URL, 'createObjectURL').mockImplementation(() => 'blob:http://localhost/fake-url');
-    URL.revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    URL.createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:http://localhost/fake-url');
+    URL.revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockReturnValue(undefined);
   });
 
   afterAll(() => {
