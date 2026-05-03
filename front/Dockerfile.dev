@@ -9,7 +9,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install mise
-RUN curl https://mise.jdx.dev/install.sh | sh
+RUN curl -fsSL https://github.com/jdx/mise/releases/download/v2026.4.26/mise-v2026.4.26-linux-x64 -o /tmp/mise && \
+    echo "CHECKSUM_HERE /tmp/mise" | sha256sum -c - && \
+    mv /tmp/mise /usr/local/bin/mise && \
+    chmod +x /usr/local/bin/mise
 
 ENV MISE_HOME="/root/.local/share/mise"
 ENV PATH="/root/.local/share/mise/shims:/root/.local/bin:${PATH}"
