@@ -5,12 +5,24 @@ import * as ClickIconStories from './ClickIcon.stories';
 
 # ClickIcon
 
-A reusable ClickIcon molecule for Ui elements.
+A reusable ClickIcon molecule for Ui elements. The ClickIcon component supports polymorphism through the `as` prop, allowing it to render as different HTML elements while maintaining consistent styling and behavior.
 
 ## Usage
 
 ```tsx
 <ClickIcon icon={GoogleIcon} />
+```
+
+### As a Link
+
+```tsx
+<ClickIcon as="a" icon={SendIcon} href="/about" />
+```
+
+### As a Span (for custom interactions)
+
+```tsx
+<ClickIcon as="span" icon={SendIcon} onClick={() => console.log('Span clicked')} />
 ```
 
 ## Props
@@ -25,6 +37,16 @@ A reusable ClickIcon molecule for Ui elements.
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td>
+        <code>as</code>
+      </td>
+      <td>
+        <code>ElementType</code>
+      </td>
+      <td>No</td>
+      <td>HTML element to render as (e.g., 'button', 'a', 'span'). Defaults to 'button'</td>
+    </tr>
     <tr>
       <td>
         <code>icon</code>
@@ -47,13 +69,17 @@ A reusable ClickIcon molecule for Ui elements.
     </tr>
     <tr>
       <td>
-        <code>props</code>
+        <code>...props</code>
       </td>
       <td>
-        <code>native button element props</code>
+        <code>native element props</code>
       </td>
       <td>No</td>
-      <td>props of the native button</td>
+      <td>
+        All props of the underlying HTML element determined by the <code>as</code> prop (defaults to <code>button</code>{' '}
+        props, e.g. <code>onClick</code>, <code>type</code>, <code>aria-{'*'}</code>). When rendered as a native{' '}
+        <code>button</code>, <code>type</code> defaults to <code>"button"</code> unless explicitly overridden.
+      </td>
     </tr>
   </tbody>
 </table>
@@ -66,6 +92,7 @@ import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
 
 <ClickIcon icon={SendIcon} />
 <ClickIcon icon={GoogleIcon} className="custom className" />
+<ClickIcon as="a" icon={SendIcon} href="/about" />
 ```
 
 ## Playground
