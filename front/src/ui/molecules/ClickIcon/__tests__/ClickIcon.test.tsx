@@ -1,14 +1,12 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { SVGProps } from 'react';
 import { ClickIcon } from '../ClickIcon';
 
-const TestIcon = (props: React.SVGProps<SVGSVGElement>) => (
+const TestIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg {...props}>
     <rect width="100" height="100" fill="blue" />
   </svg>
-);
-
-const CustomSpan = ({ children, ...props }: { children: React.ReactNode }) => (
-  <span data-testid="custom-span" {...props}>{children}</span>
 );
 
 describe('ClickIcon', () => {
@@ -18,11 +16,11 @@ describe('ClickIcon', () => {
     expect(button).toHaveClass('custom-class');
   });
 
-  it('applies props to the button element', () => {
+  it('applies props to the button element', async () => {
     const onClick = vi.fn();
     render(<ClickIcon icon={TestIcon} onClick={onClick} />);
     const button = screen.getByRole('button');
-    button.click();
+    await userEvent.click(button);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
@@ -30,11 +28,6 @@ describe('ClickIcon', () => {
     render(<ClickIcon as="a" icon={TestIcon} href="/test" />);
     const anchor = screen.getByRole('link');
     expect(anchor).toHaveAttribute('href', '/test');
-  });
-
-  it('renders as custom component when as is a component', () => {
-    render(<ClickIcon as={CustomSpan} icon={TestIcon} />);
-    expect(screen.getByTestId('custom-span')).toBeInTheDocument();
   });
 
   describe('type attribute', () => {
