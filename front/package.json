@@ -47,7 +47,7 @@
     "@pplancq/stylelint-config": "5.0.3",
     "@rsbuild/core": "2.0.2",
     "@rsbuild/plugin-react": "2.0.0",
-    "@rsbuild/plugin-sass": "1.5.1",
+    "@rsbuild/plugin-sass": "1.5.2",
     "@rsbuild/plugin-svgr": "2.0.1",
     "@storybook/addon-a11y": "10.3.5",
     "@storybook/addon-docs": "10.3.5",
