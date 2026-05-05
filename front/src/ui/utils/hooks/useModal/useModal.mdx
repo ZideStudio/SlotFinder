@@ -87,7 +87,7 @@ A utility hook that provides imperative open/close helpers for a native HTML `<d
 ### Basic usage
 
 ```tsx
-import { useModal } from '@Front/ui/utils/hooks/useModal';
+import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
 
 const ConfirmDialog = () => {
   const { modalRef, openModal, closeModal } = useModal();
@@ -117,7 +117,7 @@ Use this pattern when the ref needs to be shared with another component or manag
 
 ```tsx
 import { useRef } from 'react';
-import { useModal } from '@Front/ui/utils/hooks/useModal';
+import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
 
 const ConfirmDialog = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);

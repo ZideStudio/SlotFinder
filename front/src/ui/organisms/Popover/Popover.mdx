@@ -1,0 +1,187 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as PopoverStories from './Popover.stories';
+
+<Meta of={PopoverStories} />
+
+# Popover
+
+A reusable popover component built on top of the native HTML [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API). It is designed to be used alongside the [`usePopover`](?path=/docs/utils-hooks-usepopover--docs) hook, which links the trigger and the popover and sets up [CSS Anchor Positioning](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning) automatically.
+
+## Usage
+
+```tsx
+import { usePopover } from '@Front/ui/utils/hooks/usePopover/usePopover';
+import { Popover } from '@Front/ui/organisms/Popover/Popover';
+
+const Example = () => {
+  const { triggerProps, popoverProps } = usePopover();
+
+  return (
+    <>
+      <button type="button" {...triggerProps}>
+        Open popover
+      </button>
+
+      <Popover
+        {...popoverProps}
+        title="Confirmation"
+        primaryButtonProps={{ children: 'Confirm', onClick: () => {} }}
+        secondaryButtonProps={{ children: 'Cancel' }}
+      >
+        Are you sure you want to proceed?
+      </Popover>
+    </>
+  );
+};
+```
+
+Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`. The hook takes care of generating a unique ID and setting up the CSS anchor link between the two elements.
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>id</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        HTML id of the popover element. Provided automatically when using <code>usePopover</code> via{' '}
+        <code>popoverProps.id</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>title</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Popover heading text.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Content rendered inside the popover body.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>primaryButtonProps</code>
+      </td>
+      <td>
+        <code>ComponentProps&lt;typeof Button&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Props forwarded to the primary footer action button.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>secondaryButtonProps</code>
+      </td>
+      <td>
+        <code>ComponentProps&lt;typeof Button&gt;</code>
+      </td>
+      <td>No</td>
+      <td>Optional props for a secondary footer action button (typically cancel/close).</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>No</td>
+      <td>
+        Additional class applied to the root section element alongside the default <code>ds-popover</code> class.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>popover</code>
+      </td>
+      <td>
+        <code>"auto" | "manual" | ""</code>
+      </td>
+      <td>No</td>
+      <td>
+        Native popover attribute. Defaults to <code>"auto"</code>, which closes the popover when the user clicks outside
+        it or presses <kbd>Escape</kbd>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>...props</code>
+      </td>
+      <td>
+        <code>HTMLAttributes&lt;HTMLElement&gt;</code>
+      </td>
+      <td>No</td>
+      <td>
+        Native section props (for example <code>style</code>, <code>{'aria-*'}</code>, <code>{'data-*'}</code>). When
+        using <code>usePopover</code>, the <code>style</code> for CSS Anchor Positioning is injected via{' '}
+        <code>popoverProps.style</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibility
+
+- The close icon button has a built-in accessible name ("Fermer la fenêtre") and uses `popovertargetaction="hide"` to dismiss the popover via the native Popover API.
+- The `popover="auto"` default enables light-dismiss (click outside or <kbd>Escape</kbd>), improving keyboard and pointer accessibility.
+- The trigger element receives a `data-popover-trigger` attribute and `popoverTarget` linking it to the popover, satisfying the programmatic association requirement for assistive technologies.
+
+## CSS Anchor Positioning
+
+`Popover` uses [CSS Anchor Positioning](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning) to position itself relative to its trigger. The `usePopover` hook injects a `--popover-anchor-name` CSS custom property on both elements so each popover instance resolves its own anchor independently. The component includes four automatic fallback positions: right (default), left, above-right, and above-left.
+
+> **Browser support:** CSS Anchor Positioning requires Chrome 125+. In unsupported browsers the popover will appear in its default (centered) browser position.
+
+## Portal rendering
+
+For the same reason as `Modal`, `Popover` should be rendered via a **React Portal** into `document.body` when stacking context or landmark pollution is a concern:
+
+```tsx
+import { createPortal } from 'react-dom';
+
+{
+  createPortal(
+    <Popover {...popoverProps} title="Confirmation" primaryButtonProps={{ children: 'Confirm' }}>
+      Content
+    </Popover>,
+    document.body,
+  );
+}
+```
+
+## Playground
+
+<Canvas of={PopoverStories.Default} sourceState="shown" />
+<Controls of={PopoverStories.Default} />

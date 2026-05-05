@@ -1,4 +1,4 @@
-import { useModal } from '@Front/ui/utils/hooks/useModal';
+import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
 import { getClassName } from '@Front/utils/getClassName';
 import { useId, type ComponentProps, type ComponentPropsWithoutRef, type ReactNode, type RefObject } from 'react';
 import { OverlayContent } from '../OverlayContent/OverlayContent';
@@ -39,7 +39,7 @@ export const Modal = ({
         titleId={titleId}
         primaryButtonProps={primaryButtonProps}
         secondaryButtonProps={secondaryButtonProps}
-        closeOverlay={closeModal}
+        closeButtonProps={{ onClick: closeModal }}
       >
         {children}
       </OverlayContent>

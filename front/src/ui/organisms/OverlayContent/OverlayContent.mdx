@@ -24,7 +24,7 @@ const Example = () => (
       variant: 'secondary',
       onClick: () => {},
     }}
-    closeOverlay={() => {}}
+    closeButtonProps={{ onClick: () => {} }}
   >
     Are you sure you want to proceed?
   </OverlayContent>
@@ -104,16 +104,15 @@ const Example = () => (
     </tr>
     <tr>
       <td>
-        <code>closeOverlay</code>
+        <code>closeButtonProps</code>
       </td>
       <td>
-        <code>() =&gt; void</code>
+        <code>Partial&lt;ComponentProps&lt;typeof ClickIcon&gt;&gt;</code>
       </td>
+      <td>No</td>
       <td>
-        <strong>Yes</strong>
-      </td>
-      <td>
-        Callback invoked when the close button in the header is clicked. Provided by the parent overlay component.
+        Optional props forwarded to the close button in the header. Use <code>onClick</code> to handle the close action.
+        Provided by the parent overlay component.
       </td>
     </tr>
   </tbody>

@@ -11,15 +11,13 @@ const meta = {
     children: "OverlayContent's body",
     primaryButtonProps: { children: 'Confirm', onClick: fn() },
     secondaryButtonProps: { children: 'Cancel', onClick: fn(), variant: 'secondary' },
-    closeOverlay: fn(),
+    closeButtonProps: { onClick: fn() },
   },
   argTypes: {
     title: { control: 'text' },
     titleId: { control: 'text' },
     children: { control: 'text' },
-    primaryButtonProps: { table: { disable: true } },
-    secondaryButtonProps: { table: { disable: true } },
-    closeOverlay: { table: { disable: true } },
+    closeButtonProps: { table: { disable: true } },
   },
 } satisfies Meta<typeof OverlayContent>;
 
@@ -32,5 +30,8 @@ export const Default: Story = {};
 export const WithOnlyOneButton: Story = {
   args: {
     secondaryButtonProps: undefined,
+  },
+  argTypes: {
+    secondaryButtonProps: { table: { disable: true } },
   },
 };
