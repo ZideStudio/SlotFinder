@@ -9,6 +9,7 @@ const meta = {
   argTypes: {
     onClick: { action: true, table: { disable: true } },
     className: { control: 'text' },
+    as: { table: { disable: true } },
   },
 } satisfies Meta<typeof ClickIcon>;
 
