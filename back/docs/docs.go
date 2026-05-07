@@ -806,7 +806,50 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                },
+                }
+            }
+        },
+        "/api/v1/slots/{slotId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Slot"
+                ],
+                "summary": "Cancel a validated slot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Slot Id",
+                        "name": "slotId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/slots/{slotId}/confirm": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -1148,16 +1191,6 @@ const docTemplate = `{
                 },
                 "startsAt": {
                     "type": "string"
-                },
-                "status": {
-                    "enum": [
-                        "IN_DECISION"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/constants.EventStatus"
-                        }
-                    ]
                 }
             }
         },

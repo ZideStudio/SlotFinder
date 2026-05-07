@@ -118,6 +118,59 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	return slot, nil
 }
 
+func (s *SlotService) UnconfirmSlot(slotId uuid.UUID, userId uuid.UUID) error {
+	var selectedSlot model.Slot
+	if err := s.slotRepository.FindOneById(slotId, &selectedSlot); err != nil {
+		return constants.ERR_SLOT_NOT_FOUND.Err
+	}
+
+	// Check if user is admin of the event
+	if !selectedSlot.Event.IsOwner(&userId) {
+		return constants.ERR_EVENT_ACCESS_DENIED.Err
+	}
+
+	if !selectedSlot.IsValidated {
+		return constants.ERR_SLOT_NOT_FOUND.Err
+	}
+
+	// Remove validated slot
+	err := s.slotRepository.DeleteValidatedSlotByEventId(selectedSlot.EventId)
+	if err != nil {
+		return err
+	}
+
+	// Update event status
+	event := model.Event{
+		Id:     selectedSlot.EventId,
+		Status: constants.EVENT_STATUS_IN_DECISION,
+	}
+	if err := s.eventRepository.Updates(&event); err != nil {
+		return err
+	}
+
+	// Send cancellation emails
+	var participants []model.Account
+	if err := s.accountEventRepository.FindAccountsByEventId(event.Id, &participants); err != nil {
+		log.Error().Err(err).Str("eventId", event.Id.String()).Msg("Failed to get participants for event cancellation mail")
+	} else {
+		for _, participant := range participants {
+			go s.mailService.SendEventCancellationEmail(
+				participant,
+				selectedSlot.Event,
+				event.Id,
+				selectedSlot.Event.OwnerId,
+				selectedSlot.StartsAt,
+				selectedSlot.EndsAt,
+			)
+		}
+	}
+
+	// Recalculate slots
+	go s.LoadSlots(selectedSlot.EventId)
+
+	return nil
+}
+
 // Recalculates and recreates all slots for an event
 func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 	// Acquire per-event mutex to prevent concurrent slot recalculations for the same event

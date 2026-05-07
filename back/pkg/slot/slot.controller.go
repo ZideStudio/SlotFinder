@@ -54,3 +54,29 @@ func (ctl *SlotController) ConfirmSlot(c *gin.Context) {
 	slots, err := ctl.slotService.ConfirmSlot(data, slotId, user.Id)
 	helpers.HandleJSONResponse(c, slots, err)
 }
+
+// @Summary Cancel a validated slot
+// @Tags Slot
+// @Param slotId path string true "Slot Id"
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError
+// @Router /api/v1/slots/{slotId} [delete]
+func (ctl *SlotController) CancelSlot(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	slotId, err := uuid.Parse(c.Param("slotId"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_SLOT_NOT_FOUND.Err)
+		return
+	}
+
+	err = ctl.slotService.UnconfirmSlot(slotId, user.Id)
+	helpers.HandleJSONResponse(c, nil, err)
+}
