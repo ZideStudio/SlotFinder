@@ -78,6 +78,10 @@ func (s *MailService) eventEmailCommonParams(
 ) map[string]string {
 	loc, err := time.LoadLocation(timeZone)
 	if err != nil {
+		log.Error().
+			Str("timeZone", timeZone).
+			Err(err).
+			Msg("failed to load account time zone in eventEmailCommonParams, falling back to UTC")
 		loc = time.UTC
 	}
 

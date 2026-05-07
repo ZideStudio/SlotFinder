@@ -366,6 +366,10 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 
 	loc, err := time.LoadLocation(account.TimeZone)
 	if err != nil {
+		log.Error().
+			Str("timeZone", account.TimeZone).
+			Err(err).
+			Msg("Failed to load account time zone for password reset confirmation email, defaulting to UTC")
 		loc = time.UTC
 	}
 
