@@ -46,6 +46,11 @@
       "automerge": true,
       "automergeType": "branch",
       "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["indirect"],
+      "enabled": true
     }
   ]
 }
