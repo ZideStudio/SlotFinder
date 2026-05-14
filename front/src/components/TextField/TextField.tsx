@@ -1,32 +1,22 @@
 import { TextInput } from '@Front/ui/molecules/Inputs/TextInput/TextInput';
-import { useController, type UseControllerProps, type FieldValues } from 'react-hook-form';
+import { RegisterOptions, useFormContext } from 'react-hook-form';
 
-type TextInputProps<Type extends FieldValues> = UseControllerProps<Type> & 
-  Omit<React.ComponentProps<typeof TextInput>, 'value' | 'onChange' | 'onBlur' | 'error'>;
+type TextInputProps = Omit<React.ComponentProps<typeof TextInput>, 'value' | 'onChange' | 'onBlur' | 'error'> & {
+  name: string;
+  rules?: RegisterOptions;
+};
 
-export const TextField = <Type extends FieldValues>({
-  name,
-  control,
-  rules,
-  defaultValue,
-  ...props
-}: TextInputProps<Type>) => {
-  const {
-    field,
-    fieldState: { error },
-  } = useController({
-    name,
-    control,
-    rules,
-    defaultValue,
-  });
+export const TextField = ({ name, rules, id, ...props }: TextInputProps) => {
+  const { register, formState } = useFormContext();
+  const { errors } = formState;
 
   return (
     <TextInput
       {...props}
-      {...field}
-      error={error?.message}
-      required={props.required}
+      {...(register(name, { ...rules }) as Partial<TextInputProps>)}
+      id={id ?? name}
+      name={name}
+      error={errors[name]?.message as string}
     />
   );
 };
