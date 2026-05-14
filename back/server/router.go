@@ -108,7 +108,7 @@ func NewRouter() *gin.Engine {
 			slotRouter := slot.NewSlotController(nil)
 
 			slotGroup.POST("/:slotId/confirm", guard.AuthCheck(nil), slotRouter.ConfirmSlot)
-			slotGroup.DELETE("/:slotId", guard.AuthCheck(nil), slotRouter.CancelSlot)
+			slotGroup.DELETE("/:slotId", guard.AuthCheck(nil), slotRouter.RemoveValidatedSlot)
 		}
 	}
 

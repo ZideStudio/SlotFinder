@@ -118,7 +118,7 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 	return slot, nil
 }
 
-func (s *SlotService) UnconfirmSlot(slotId uuid.UUID, userId uuid.UUID) error {
+func (s *SlotService) RemoveValidatedSlot(slotId uuid.UUID, userId uuid.UUID) error {
 	var selectedSlot model.Slot
 	if err := s.slotRepository.FindOneById(slotId, &selectedSlot); err != nil {
 		return constants.ERR_SLOT_NOT_FOUND.Err
