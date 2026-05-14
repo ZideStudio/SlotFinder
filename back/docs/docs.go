@@ -54,11 +54,6 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "security": [
-                    {
-                        "AccessTokenCookie": []
-                    }
-                ],
                 "description": "Update own account",
                 "consumes": [
                     "application/json"
@@ -94,16 +89,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/account/avatar": {
-            "patch": {
+                },
                 "security": [
                     {
                         "AccessTokenCookie": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/account/avatar": {
+            "patch": {
                 "description": "UploadAvatar the avatar image of the current user",
                 "consumes": [
                     "multipart/form-data"
@@ -140,7 +135,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "AccessTokenCookie": []
+                    }
+                ]
             }
         },
         "/api/v1/account/forgot-password": {
@@ -182,11 +182,6 @@ const docTemplate = `{
         },
         "/api/v1/account/me": {
             "get": {
-                "security": [
-                    {
-                        "AccessTokenCookie": []
-                    }
-                ],
                 "description": "Get the account information of the current user.",
                 "consumes": [
                     "application/json"
@@ -211,7 +206,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "AccessTokenCookie": []
+                    }
+                ]
             }
         },
         "/api/v1/account/reset-password": {
@@ -253,11 +253,6 @@ const docTemplate = `{
         },
         "/api/v1/auth/logout": {
             "post": {
-                "security": [
-                    {
-                        "AccessTokenCookie": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -278,7 +273,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "AccessTokenCookie": []
+                    }
+                ]
             }
         },
         "/api/v1/auth/refresh": {
@@ -416,11 +416,6 @@ const docTemplate = `{
         },
         "/api/v1/availabilities/{availabilityId}": {
             "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -450,14 +445,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            },
-            "patch": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "patch": {
                 "consumes": [
                     "application/json"
                 ],
@@ -499,16 +494,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/events": {
-            "get": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/events": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],
@@ -548,14 +543,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -590,7 +585,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/api/v1/events/{eventId}": {
@@ -630,11 +630,6 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -673,16 +668,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/events/{eventId}/availability": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/events/{eventId}/availability": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -724,16 +719,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/events/{eventId}/join": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/events/{eventId}/join": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -763,16 +758,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/events/{eventId}/profile": {
-            "patch": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/events/{eventId}/profile": {
+            "patch": {
                 "consumes": [
                     "application/json"
                 ],
@@ -811,16 +806,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/slots/{slotId}/confirm": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/slots/{slotId}/confirm": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -862,7 +857,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/events/{eventId}/sse": {
