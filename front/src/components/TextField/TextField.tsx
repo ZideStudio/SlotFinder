@@ -1,7 +1,8 @@
 import { TextInput } from '@Front/ui/molecules/Inputs/TextInput/TextInput';
+import { type ComponentProps } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-type TextInputProps = Omit<React.ComponentProps<typeof TextInput>, 'error'>;
+type TextInputProps = Omit<ComponentProps<typeof TextInput>, 'error'>;
 
 export const TextField = (props : TextInputProps) => {
   const { register, formState } = useFormContext();
