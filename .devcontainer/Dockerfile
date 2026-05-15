@@ -50,15 +50,6 @@ RUN mkdir -p /go/bin /go/pkg /go/src && chown -R vscode:vscode /go
 RUN echo '#!/bin/sh\nexec "$@"' > /usr/local/bin/docker-entrypoint.sh && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN echo '#!/bin/bash\n\
-    cd /workspace/front 2>/dev/null || cd .\n\
-    if [ -f "./node_modules/.bin/prettier" ]; then\n\
-    exec ./node_modules/.bin/prettier "$@"\n\
-    else\n\
-    exec npx prettier "$@"\n\
-    fi' > /usr/local/bin/prettier && \
-    chmod +x /usr/local/bin/prettier
-
 # Tools
 USER vscode
 
