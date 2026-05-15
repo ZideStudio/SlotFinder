@@ -13,14 +13,14 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN curl -fsSL https://mise.run | sh
 
-ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
-ENV PATH="/root/.local/share/mise/shims:$PATH"
+ENV PATH="/root/.local/share/mise/shims:/root/.local/bin:$PATH"
+ENV MISE_TRUSTED_CONFIG_PATHS="/app"
 
 # Copy mise configuration
 COPY .mise.toml ./
 
 # Install Node.js and npm via mise
-RUN /root/.local/bin/mise install
+RUN mise install
 
 # Copy application
 COPY front/ ./
