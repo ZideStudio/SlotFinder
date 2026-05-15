@@ -4,7 +4,7 @@ ARG TARGETARCH
 ENV GOTOOLCHAIN=local
 ENV GOPATH=/go
 ENV GOBIN=/go/bin
-ENV PATH="/usr/local/go/bin:/go/bin:${PATH}"
+ENV PATH="/go/bin:${PATH}"
 
 # System
 USER root
@@ -29,11 +29,6 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 COPY .devcontainer/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Go
-COPY back/go.mod /tmp/go.mod
-RUN GO_VERSION=$(grep -oP '^go\s+\K[\d.]+' /tmp/go.mod) && \
-    curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz" | tar -C /usr/local -xz
-
 # Git
 ARG LAZYGIT_VERSION=0.44.1
 RUN if [ "$TARGETARCH" = "amd64" ]; then LG_ARCH="x86_64"; else LG_ARCH=$TARGETARCH; fi && \
@@ -56,7 +51,7 @@ USER vscode
 # Mise
 ENV MISE_HOME="/home/vscode/.local/share/mise"
 ENV MISE_TRUSTED_CONFIG_PATHS="/workspace"
-ENV PATH="/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/usr/local/go/bin:/go/bin:${PATH}"
+ENV PATH="/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/go/bin:${PATH}"
 RUN curl https://mise.jdx.dev/install.sh | sh
 
 RUN mkdir -p /tmp/mise
@@ -68,7 +63,8 @@ RUN cd /tmp/mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscod
 RUN /home/vscode/.local/bin/mise exec -C /tmp/mise -- npx playwright install --with-deps
 
 # Go
-RUN go install golang.org/x/tools/gopls@v0.21.1 && \
+RUN cd /tmp/mise && \
+    go install golang.org/x/tools/gopls@v0.21.1 && \
     go install github.com/go-delve/delve/cmd/dlv@v1.26.0 && \
     go install golang.org/x/tools/cmd/goimports@v0.44.0
 
