@@ -1,4 +1,3 @@
-// oxlint-disable no-magic-numbers
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 
 import { Heading } from './Heading';
