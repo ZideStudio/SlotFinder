@@ -9,4 +9,3 @@ runs:
       with:
         cache: true
         install: true
-        working_directory: back

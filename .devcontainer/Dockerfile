@@ -68,15 +68,13 @@ ENV MISE_TRUSTED_CONFIG_PATHS="/workspace"
 ENV PATH="/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/usr/local/go/bin:/go/bin:${PATH}"
 RUN curl https://mise.jdx.dev/install.sh | sh
 
-RUN mkdir -p /tmp/front-mise /tmp/back-mise
+RUN mkdir -p /tmp/mise
 
-COPY --chown=vscode:vscode front/.mise.toml /tmp/front-mise/.mise.toml
-COPY --chown=vscode:vscode back/.mise.toml /tmp/back-mise/.mise.toml
+COPY --chown=vscode:vscode .mise.toml /tmp/mise/.mise.toml
 
-RUN cd /tmp/front-mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
-RUN cd /tmp/back-mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
+RUN cd /tmp/mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
 
-RUN /home/vscode/.local/bin/mise exec -C /tmp/front-mise -- npx playwright install --with-deps
+RUN /home/vscode/.local/bin/mise exec -C /tmp/mise -- npx playwright install --with-deps
 
 # Go
 RUN go install golang.org/x/tools/gopls@v0.21.1 && \
