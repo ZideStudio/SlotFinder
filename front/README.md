@@ -16,13 +16,9 @@ git clone https://github.com/votre-utilisateur/mon-projet-awesome.git mon-projet
 cd mon-projet
 ```
 
-2. Install Node.js and npm using mise (if not already installed):
+1. Install Node.js and npm from the repository root using mise:
 
 ```bash
-# Install mise
-curl https://mise.jdx.dev/install.sh | sh
-
-# Install Node.js and npm from .mise.toml
 mise install
 ```
 
