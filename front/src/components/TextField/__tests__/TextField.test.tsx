@@ -19,31 +19,13 @@ describe('TextField', () => {
   it('renders without crashing', () => {
     render(
       <FormWrapper>
-        <TextField name="username" label="Username" />
+        <TextField name="email" label="Email" placeholder="Enter your email" />
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText('Username')).toBeInTheDocument();
-  });
-
-  it('renders with the correct name attribute', () => {
-    render(
-      <FormWrapper>
-        <TextField name="email" label="Email" />
-      </FormWrapper>,
-    );
-
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'email');
-  });
-
-  it('passes extra props down to TextInput', () => {
-    render(
-      <FormWrapper>
-        <TextField name="search" label="Search" placeholder="Search…" />
-      </FormWrapper>,
-    );
-
-    expect(screen.getByPlaceholderText('Search…')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter your email')).toBeInTheDocument();
   });
 
   it('displays the error message from form state when validation fails', async () => {
