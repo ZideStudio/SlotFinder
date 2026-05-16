@@ -1,34 +1,55 @@
-import { appRoutes } from '@Front/routing/appRoutes';
-import { renderRoute, type RenderRouteOptions } from '@Front/utils/testsUtils/customRender/customRender';
-import { getAuthStatus400 } from '@Mocks/handlers/authStatusHandlers';
+import { renderRoute } from '@Front/utils/testsUtils/customRender/customRender';
+import { getAuthStatus200 } from '@Mocks/handlers/authStatusHandlers';
 import { server } from '@Mocks/server';
 import { screen } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
 import { routeObject } from '../../../routing/routes';
 
-const renderRouteOptions: RenderRouteOptions = {
-  routes: routeObject,
-  routesOptions: { initialEntries: [appRoutes.home()] },
-};
-
 describe('Layout', () => {
+  type TestRoute = '/withHeader' | '/withoutHeader';
+
+  const renderLayoutRoute = (initialEntry: TestRoute) =>
+    renderRoute({
+      initialEntry,
+      routes: [
+        {
+          ...routeObject[0],
+          index: false,
+          children: [
+            {
+              path: '/withHeader',
+              element: <p>with header</p>,
+            },
+            {
+              path: '/withoutHeader',
+              element: <p>without header</p>,
+              handle: {
+                hideHeader: true,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
   describe('when the route has no hideHeader handle', () => {
     it('should render the header banner', async () => {
-      renderRoute(renderRouteOptions);
+      expect.assertions(1);
+      server.use(getAuthStatus200);
+
+      renderLayoutRoute('/withHeader');
 
       await expect(screen.findByRole('banner')).resolves.toBeInTheDocument();
     });
   });
 
   describe('when the route has hideHeader: true', () => {
-    beforeEach(() => {
-      server.use(getAuthStatus400);
-    });
-
     it('should not render the header banner', async () => {
-      renderRoute(renderRouteOptions);
+      expect.assertions(1);
+      server.use(getAuthStatus200);
 
-      await screen.findByRole('heading', { level: 1 });
+      renderLayoutRoute('/withoutHeader');
+
+      await screen.findByText('without header');
 
       expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     });

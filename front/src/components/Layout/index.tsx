@@ -14,7 +14,7 @@ export const Layout = () => {
 
   return (
     <div>
-      {hideHeader ? null : <Header />}
+      {!hideHeader && <Header />}
       <Grid component="main" container>
         <Outlet />
       </Grid>
