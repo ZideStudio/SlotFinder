@@ -8,17 +8,17 @@
   padding: #{helpers.px-to-rem(20)};
   align-items: center;
   justify-content: space-between;
-}
 
-.logo {
-  width: #{helpers.px-to-rem(50)};
-}
+  &__logo {
+    width: #{helpers.px-to-rem(50)};
+  }
 
-.buttons {
-  display: flex;
-  gap: #{helpers.px-to-rem(10)};
-}
+  &__buttons {
+    display: flex;
+    gap: #{helpers.px-to-rem(10)};
+  }
 
-.button {
-  padding: #{helpers.px-to-rem(10)};
+  &__button {
+    padding: #{helpers.px-to-rem(10)};
+  }
 }

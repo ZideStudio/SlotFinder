@@ -4,4 +4,7 @@ import { Home } from './Home';
 export const homeRoutes: RouteObject = {
   index: true,
   element: <Home />,
+  handle: {
+    hideHeader: true,
+  },
 };
