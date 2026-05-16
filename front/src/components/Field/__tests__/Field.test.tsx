@@ -9,12 +9,20 @@ type MockInputProps = ComponentProps<'input'> & {
   label: string;
 };
 
-const MockInput = ({ error, label, ...props }: MockInputProps) => (
-  <>
-    <input aria-label={label} {...props} />
-    {error && <p>{error}</p>}
-  </>
-);
+const MockInput = ({ error, label, ...props }: MockInputProps) => {
+  const errorId = error ? `${props.name}-error` : undefined;
+
+  return (
+    <>
+      <input aria-label={label} aria-describedby={errorId} {...props} />
+      {error && (
+        <p id={errorId} role="alert">
+          {error}
+        </p>
+      )}
+    </>
+  );
+};
 
 const FormWrapper = ({ children }: { children: ReactNode }) => {
   const methods = useForm({ defaultValues: { user: { email: '' } } });
@@ -47,7 +55,8 @@ describe('Field', () => {
 
     render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Trigger error' }));
 
     await expect(screen.findByText('Invalid email')).resolves.toBeInTheDocument();
   });
