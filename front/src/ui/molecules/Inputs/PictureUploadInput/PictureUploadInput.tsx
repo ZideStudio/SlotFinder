@@ -84,12 +84,13 @@ export const PictureUploadInput = ({
     className,
   });
 
-  return (
-    <div className={parentClassName}>
-      <Input        input={FileUploadInputAtom}
-        onChange={handleChange}
-        accept="image/jpeg,image/png"
-        multiple={false}
+    return (
+      <div className={parentClassName}>
+        <Input
+          input={FileUploadInputAtom}
+          onChange={handleChange}
+          accept="image/jpeg,image/png"
+          multiple={false}
         {...props}
       />
       <img ref={imgCallbackRef} className="ds-picture-upload-input__preview" alt={previewText || 'Preview'} hidden />

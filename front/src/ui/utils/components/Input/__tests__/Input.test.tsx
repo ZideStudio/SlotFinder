@@ -4,18 +4,18 @@ import { Input } from '../Input';
 
 const MockInput = (props: ComponentProps<'input'>) => <input {...props} />;
 
-describe('Input Component', () => {
-  it('Must link the label to the input via a generated ID', () => {
+describe('Input', () => {
+  it('should link the label to the input via a generated ID', () => {
     render(<Input input={MockInput} label="Nom d'utilisateur" />);
 
-    const label = screen.getByText("Nom d'utilisateur");
     const input = screen.getByRole('textbox', { name: "Nom d'utilisateur" });
+    const label = screen.getByText("Nom d'utilisateur");
 
     expect(label).toHaveAttribute('for', input.id);
     expect(input.id).toBeDefined();
   });
 
-  it('Must use the manually provided ID instead of the generated one', () => {
+  it('should use the manually provided ID instead of the generated one', () => {
     const manualId = 'custom-id';
     render(<Input input={MockInput} label="Email" id={manualId} />);
 
@@ -23,7 +23,7 @@ describe('Input Component', () => {
     expect(input.id).toBe(manualId);
   });
 
-  it('Must display an error and configure the ARIA attributes', () => {
+  it('should display an error and configure the ARIA attributes', () => {
     const errorMessage = 'This field is required';
     render(<Input input={MockInput} label="Test" error={errorMessage} />);
 
@@ -34,7 +34,7 @@ describe('Input Component', () => {
     expect(input).toHaveAttribute('aria-describedby', errorElement.id);
   });
 
-  it('Must not have aria-describedby if no error is present', () => {
+  it('should not have aria-describedby if no error is present', () => {
     render(<Input input={MockInput} label="Test" />);
     const input = screen.getByRole('textbox', { name: 'Test' });
 
@@ -42,7 +42,7 @@ describe('Input Component', () => {
     expect(input).toHaveAttribute('aria-invalid', 'false');
   });
 
-  it('Must pass additional props to the input', () => {
+  it('should pass additional props to the input', () => {
     render(<Input input={MockInput} placeholder="Enter your text" name="username" label="Username" />);
 
     const input = screen.getByRole('textbox', { name: 'Username' });
@@ -50,7 +50,7 @@ describe('Input Component', () => {
     expect(input).toHaveAttribute('name', 'username');
   });
 
-  it('Must apply the CSS classes correctly', () => {
+  it('should apply the CSS classes correctly', () => {
     const { container } = render(<Input input={MockInput} className="custom-class" />);
 
     const wrapper = container.firstChild;
