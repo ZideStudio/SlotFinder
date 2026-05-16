@@ -19,7 +19,7 @@ describe('usePopover', () => {
       const { result } = renderHook(() => usePopover());
       const anchorName = (result.current.triggerProps.style as Record<string, string>)['--popover-anchor-name'];
 
-      expect(anchorName).toMatch(/^--popover-/);
+      expect(anchorName).toMatch(/^--popover-/u);
       expect(anchorName).not.toContain(':');
     });
   });
@@ -28,7 +28,7 @@ describe('usePopover', () => {
     it('should set id to a non-empty string', () => {
       const { result } = renderHook(() => usePopover());
 
-      expect(result.current.popoverProps.id).toMatch(/^popover-/);
+      expect(result.current.popoverProps.id).toMatch(/^popover-/u);
     });
 
     it('should share the same anchor name CSS custom property as triggerProps', () => {

@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import { use } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enAuthentication from './locales/en/authentication.json';
 import enDashboard from './locales/en/dashboard.json';
@@ -6,8 +6,8 @@ import enError from './locales/en/error.json';
 import enSignUp from './locales/en/signUp.json';
 import enWelcome from './locales/en/welcome.json';
 
-// oxlint-disable-next-line import/no-named-as-default-member jest/require-hook
-i18n.use(initReactI18next).init({
+// oxlint-disable-next-line vitest/require-hook, react-hooks/rules-of-hooks
+use(initReactI18next).init({
   resources: {
     en: {
       authentication: enAuthentication,
