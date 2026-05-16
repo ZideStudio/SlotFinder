@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Field } from './Field';
+import { Input } from './Input';
 import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
 
 const meta = {
-  title: 'Utils/Components/Field',
-  component: Field,
+  title: 'Utils/Components/Input',
+  component: Input,
   args: {
     label: "Nom d'utilisateur",
     input: TextInputAtom,
@@ -24,7 +24,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof Field>;
+} satisfies Meta<typeof Input>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

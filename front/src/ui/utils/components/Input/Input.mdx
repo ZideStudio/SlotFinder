@@ -1,16 +1,16 @@
 import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as FieldStories from './Field.stories';
+import * as InputStories from './Input.stories';
 import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
 
-<Meta of={FieldStories} />
+<Meta of={InputStories} />
 
-# Field
+# Input
 
 A reusable, accessible field wrapper component that links an input with its label and error message for forms and UI elements.
 
 ## Purpose
 
-The Field component is designed to:
+The Input component is designed to:
 
 - Receive an input component and render it with proper accessibility attributes
 - Link the input with a label using proper HTML associations
@@ -21,7 +21,7 @@ The Field component is designed to:
 ## Usage
 
 ```tsx
-<Field input={TextInputAtom} label="Username" error="This field is required" required className="custom-class" />
+<Input input={TextInputAtom} label="Username" error="This field is required" required className="custom-class" />
 ```
 
 ## Props
@@ -131,31 +131,31 @@ The Field component is designed to:
 
 ## Examples
 
-### Basic Field with Label
+### Basic Input with Label
 
 ```tsx
-<Field input={TextInputAtom} label="Email Address" placeholder="Enter your email" />
+<Input input={TextInputAtom} label="Email Address" placeholder="Enter your email" />
 ```
 
-### Field with Error
+### Input with Error
 
 ```tsx
-<Field input={TextInputAtom} label="Email Address" error="Invalid email format" placeholder="Enter your email" />
+<Input input={TextInputAtom} label="Email Address" error="Invalid email format" placeholder="Enter your email" />
 ```
 
-### Required Field
+### Required Input
 
 ```tsx
-<Field input={TextInputAtom} label="Username" required placeholder="Choose a username" />
+<Input input={TextInputAtom} label="Username" required placeholder="Choose a username" />
 ```
 
-### Field with Custom Styling
+### Input with Custom Styling
 
 ```tsx
-<Field input={TextInputAtom} label="Custom Field" className="my-custom-class" placeholder="Enter value" />
+<Input input={TextInputAtom} label="Custom Field" className="my-custom-class" placeholder="Enter value" />
 ```
 
 ## Playground
 
-<Canvas of={FieldStories.Default} sourceState="shown" />
-<Controls of={FieldStories.Default} />
+<Canvas of={InputStories.Default} sourceState="shown" />
+<Controls of={InputStories.Default} />
