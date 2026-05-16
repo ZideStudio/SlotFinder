@@ -5,7 +5,7 @@ describe('Header', () => {
   it('renders the header with logo and buttons', () => {
     render(<Header />);
 
-    const logo = screen.getByAltText('Slot Finder');
+    const logo = screen.getByAltText('Slot Finder logo');
     expect(logo).toBeInTheDocument();
 
     const buttons = screen.getAllByRole('button');
