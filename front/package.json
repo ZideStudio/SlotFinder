@@ -67,7 +67,7 @@
     "jsdom": "29.1.1",
     "monocart-coverage-reports": "2.12.11",
     "msw": "2.14.4",
-    "oxlint": "1.62.0",
+    "oxlint": "1.63.0",
     "prettier": "3.8.3",
     "prettier-plugin-sh": "0.18.1",
     "remark-gfm": "4.0.1",

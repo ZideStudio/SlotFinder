@@ -32,17 +32,6 @@
     "import/no-duplicates": "warn",
     "import/no-named-export": "off",
     "import/prefer-default-export": "off",
-    "jest/max-expects": [
-      "warn",
-      {
-        "max": 8
-      }
-    ],
-    "jest/no-hooks": "off",
-    "jest/no-untyped-mock-factory": "off",
-    "jest/prefer-ending-with-an-expect": "off",
-    "jest/prefer-importing-jest-globals": "off",
-    "jest/prefer-lowercase-title": "off",
     "typescript/no-unused-vars": "warn",
     "typescript/no-explicit-any": "warn",
     "typescript/consistent-type-definitions": "off",
@@ -66,9 +55,19 @@
     "eslint/id-length": "off",
     "no-console": "warn",
     "no-debugger": "error",
+    "vitest/max-expects": [
+      "warn",
+      {
+        "max": 8
+      }
+    ],
+    "vitest/no-hooks": "off",
     "vitest/prefer-called-once": "off",
     "vitest/prefer-describe-function-title": "off",
+    "vitest/prefer-expect-assertions": "off",
     "vitest/prefer-importing-vitest-globals": "off",
+    "vitest/prefer-import-in-mock": "off",
+    "vitest/prefer-lowercase-title": "off",
     "vitest/prefer-to-be-truthy": "off",
     "vitest/prefer-to-be-falsy": "off",
     "vitest/require-mock-type-parameters": "off"
