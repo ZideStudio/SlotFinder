@@ -51,7 +51,7 @@ describe('Input', () => {
   });
 
   it('should apply the CSS classes correctly', () => {
-    const { container } = render(<Input input={MockInput} className="custom-class" />);
+    const { container } = render(<Input input={MockInput} label="Test" className="custom-class" />);
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass('ds-field');
