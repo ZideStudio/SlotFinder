@@ -56,7 +56,7 @@ describe('NumberField', () => {
     );
 
     const input = screen.getByLabelText('Number');
-    await userEvent.type(input, "1");
+    await userEvent.type(input, '1');
 
     expect(input).toHaveValue(1);
   });
