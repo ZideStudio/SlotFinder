@@ -46,7 +46,7 @@ describe('TextField', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
 
-    expect(await screen.findByText('This field is required')).toBeInTheDocument();
+    await expect(screen.findByText('This field is required')).resolves.toBeInTheDocument();
   });
 
   it('updates the input value on user typing', async () => {

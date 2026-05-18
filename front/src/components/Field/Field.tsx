@@ -1,5 +1,5 @@
-import { type ComponentProps, type ElementType } from 'react';
-import { get, type FieldValues, type Path, useFormContext } from 'react-hook-form';
+import { createElement, type ComponentProps, type ElementType } from 'react';
+import { get, useFormContext, type FieldError, type FieldValues, type Path } from 'react-hook-form';
 
 type FieldProps<ComponentType extends ElementType, FormValues extends FieldValues = FieldValues> = {
   input: ComponentType;
@@ -11,12 +11,11 @@ export const Field = <ComponentType extends ElementType, FormValues extends Fiel
   name,
   ...props
 }: FieldProps<ComponentType, FormValues>) => {
-  const { register, formState } = useFormContext<FormValues>();
-  const { errors } = formState;
-  const error = get(errors, name)?.message;
-  const message = typeof error === 'string' ? error : undefined;
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<FormValues>();
+  const fieldError: FieldError | undefined = get(errors, name);
 
-  const Component = Input as ElementType;
-
-  return <Component {...props} {...register(name)} error={message} />;
+  return createElement(Input, { ...props, ...register(name), error: fieldError?.message });
 };
