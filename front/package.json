@@ -88,7 +88,7 @@
   },
   "volta": {
     "node": "24.15.0",
-    "npm": "11.14.0"
+    "npm": "11.14.1"
   },
   "msw": {
     "workerDirectory": [
