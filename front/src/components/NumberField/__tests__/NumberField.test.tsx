@@ -28,6 +28,8 @@ describe('NumberField', () => {
   });
 
   it('displays the error message from form state when validation fails', async () => {
+    const user = userEvent.setup();
+
     const WrapperWithError = () => {
       const methods = useForm({ defaultValues: { number: '' } });
 
@@ -43,13 +45,14 @@ describe('NumberField', () => {
 
     render(<WrapperWithError />);
 
-    const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Trigger error' }));
 
     expect(await screen.findByText('This field is required')).toBeInTheDocument();
   });
 
   it('updates the input value on user typing', async () => {
+    const user = userEvent.setup();
+
     render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
@@ -57,7 +60,6 @@ describe('NumberField', () => {
     );
 
     const input = screen.getByLabelText('Number');
-    const user = userEvent.setup();
     await user.type(input, '1');
 
     expect(input).toHaveValue(1);
