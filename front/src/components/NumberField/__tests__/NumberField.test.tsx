@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { useForm, FormProvider } from 'react-hook-form';
 import { type ReactNode } from 'react';
 import { NumberField } from '../NumberField';
@@ -43,7 +43,8 @@ describe('NumberField', () => {
 
     render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Trigger error' }));
 
     expect(await screen.findByText('This field is required')).toBeInTheDocument();
   });
@@ -56,7 +57,8 @@ describe('NumberField', () => {
     );
 
     const input = screen.getByLabelText('Number');
-    await userEvent.type(input, '1');
+    const user = userEvent.setup();
+    await user.type(input, '1');
 
     expect(input).toHaveValue(1);
   });
