@@ -16,7 +16,7 @@ const FormWrapper = ({
 };
 
 describe('NumberField', () => {
-  it('renders without crashing', () => {
+  it('should render number input with correct label and name attribute', () => {
     render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
@@ -31,7 +31,7 @@ describe('NumberField', () => {
     const user = userEvent.setup();
 
     const WrapperWithError = () => {
-      const methods = useForm({ defaultValues: { number: '' } });
+      const methods = useForm({ defaultValues: { number: 0 } });
 
       const { setError } = methods;
 
