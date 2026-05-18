@@ -1,7 +1,7 @@
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { getClassName } from "@Front/utils/getClassName";
-import { type ElementType, useId, type ReactNode, type ComponentProps } from "react";
+import { useId, type ComponentProps, type ElementType, type ReactNode } from 'react';
 import './Input.scss';
 
 type InputProps<ComponentType extends ElementType> = {
@@ -21,7 +21,7 @@ export const Input = <ComponentType extends ElementType>({
   label,
   required,
   className,
-  defaultClassName = 'ds-field',
+  defaultClassName = 'ds-input',
   ...props
 }: InputProps<ComponentType>) => {
   const generatedId = useId();

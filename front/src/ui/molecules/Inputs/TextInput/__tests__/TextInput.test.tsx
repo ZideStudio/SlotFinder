@@ -27,7 +27,7 @@ describe('TextInputAtom', () => {
     const input = screen.getByRole('textbox');
 
     const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-field custom-class');
+    expect(inputContainer).toHaveClass('ds-input custom-class');
   });
 
   it('should render error message linked with input', () => {

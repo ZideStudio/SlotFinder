@@ -54,7 +54,7 @@ describe('Input', () => {
     const { container } = render(<Input input={MockInput} label="Test" className="custom-class" />);
 
     const wrapper = container.firstChild;
-    expect(wrapper).toHaveClass('ds-field');
+    expect(wrapper).toHaveClass('ds-input');
     expect(wrapper).toHaveClass('custom-class');
   });
 });

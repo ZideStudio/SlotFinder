@@ -31,7 +31,7 @@ describe('DateInputAtom', () => {
     const input = screen.getByDisplayValue('2026-01-01');
 
     const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-field custom-class');
+    expect(inputContainer).toHaveClass('ds-input custom-class');
   });
 
   it('should render error message linked with input', () => {

@@ -1,6 +1,6 @@
 @use '../../../../utils/sass/mixins/helpers';
 
-.ds-field {
+.ds-input {
   display: flex;
   flex-direction: column;
   gap: helpers.px-to-rem(8);
