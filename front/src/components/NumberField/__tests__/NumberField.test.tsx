@@ -1,0 +1,63 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useForm, FormProvider } from 'react-hook-form';
+import { type ReactNode } from 'react';
+import { NumberField } from '../NumberField';
+
+const FormWrapper = ({
+  children,
+  defaultValues = {},
+}: {
+  children: ReactNode;
+  defaultValues?: Record<string, unknown>;
+}) => {
+  const methods = useForm({ defaultValues });
+  return <FormProvider {...methods}>{children}</FormProvider>;
+};
+
+describe('NumberField', () => {
+  it('renders without crashing', () => {
+    render(
+      <FormWrapper>
+        <NumberField name="number" label="Number" />
+      </FormWrapper>,
+    );
+
+    expect(screen.getByLabelText('Number')).toBeInTheDocument();
+    expect(screen.getByLabelText('Number')).toHaveAttribute('name', 'number');
+  });
+
+  it('displays the error message from form state when validation fails', async () => {
+    const WrapperWithError = () => {
+      const methods = useForm({ defaultValues: { number: '' } });
+
+      const { setError } = methods;
+
+      return (
+        <FormProvider {...methods}>
+          <NumberField name="number" label="Number" />
+          <button onClick={() => setError('number', { message: 'This field is required' })}>Trigger error</button>
+        </FormProvider>
+      );
+    };
+
+    render(<WrapperWithError />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
+
+    expect(await screen.findByText('This field is required')).toBeInTheDocument();
+  });
+
+  it('updates the input value on user typing', async () => {
+    render(
+      <FormWrapper>
+        <NumberField name="number" label="Number" />
+      </FormWrapper>,
+    );
+
+    const input = screen.getByLabelText('Number');
+    await userEvent.type(input, "1");
+
+    expect(input).toHaveValue(1);
+  });
+});
