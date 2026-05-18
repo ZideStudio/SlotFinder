@@ -47,7 +47,12 @@ describe('NumberField', () => {
 
     await user.click(screen.getByRole('button', { name: 'Trigger error' }));
 
-    expect(await screen.findByText('This field is required')).toBeInTheDocument();
+    const errorMessage = await screen.findByText('This field is required');
+    const input = screen.getByRole('spinbutton', { name: 'Number' });
+
+    expect(errorMessage).toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAttribute('aria-describedby', errorMessage.id);
   });
 
   it('updates the input value on user typing', async () => {
