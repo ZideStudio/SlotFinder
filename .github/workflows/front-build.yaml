@@ -11,6 +11,9 @@ on:
   merge_group:
     branches: ["main"]
 
+permissions:
+  contents: read
+
 env:
   FRONT_FOLDER: ./front
 

@@ -11,6 +11,9 @@ on:
   merge_group:
     branches: ["main"]
 
+permissions:
+  contents: read
+
 jobs:
   detect-changes:
     name: Detect Docker Changes
