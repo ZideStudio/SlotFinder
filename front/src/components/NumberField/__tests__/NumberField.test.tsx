@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { useForm, FormProvider } from 'react-hook-form';
 import { type ReactNode } from 'react';
 import { NumberField } from '../NumberField';
@@ -16,7 +16,7 @@ const FormWrapper = ({
 };
 
 describe('NumberField', () => {
-  it('renders without crashing', () => {
+  it('should render number input with correct label and name attribute', () => {
     render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
@@ -28,8 +28,10 @@ describe('NumberField', () => {
   });
 
   it('displays the error message from form state when validation fails', async () => {
+    const user = userEvent.setup();
+
     const WrapperWithError = () => {
-      const methods = useForm({ defaultValues: { number: '' } });
+      const methods = useForm({ defaultValues: { number: 0 } });
 
       const { setError } = methods;
 
@@ -43,12 +45,19 @@ describe('NumberField', () => {
 
     render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
+    await user.click(screen.getByRole('button', { name: 'Trigger error' }));
 
-    expect(await screen.findByText('This field is required')).toBeInTheDocument();
+    const errorMessage = await screen.findByText('This field is required');
+    const input = screen.getByRole('spinbutton', { name: 'Number' });
+
+    expect(errorMessage).toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAttribute('aria-describedby', errorMessage.id);
   });
 
   it('updates the input value on user typing', async () => {
+    const user = userEvent.setup();
+
     render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
@@ -56,7 +65,7 @@ describe('NumberField', () => {
     );
 
     const input = screen.getByLabelText('Number');
-    await userEvent.type(input, '1');
+    await user.type(input, '1');
 
     expect(input).toHaveValue(1);
   });

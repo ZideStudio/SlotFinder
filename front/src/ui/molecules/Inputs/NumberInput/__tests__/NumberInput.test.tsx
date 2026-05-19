@@ -27,7 +27,7 @@ describe('NumberInput', () => {
     const input = screen.getByRole('spinbutton');
 
     const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-field custom-class');
+    expect(inputContainer).toHaveClass('ds-input custom-class');
   });
 
   it('should render error message linked with input', () => {

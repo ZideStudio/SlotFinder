@@ -1,10 +1,10 @@
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { getClassName } from "@Front/utils/getClassName";
-import { type ElementType, useId, type ReactNode, type ComponentProps } from "react";
-import './Field.scss';
+import { useId, type ComponentProps, type ElementType, type ReactNode } from 'react';
+import './Input.scss';
 
-type FieldProps<ComponentType extends ElementType> = {
+type InputProps<ComponentType extends ElementType> = {
   input: ComponentType;
   id?: string;
   label?: ReactNode;
@@ -14,16 +14,16 @@ type FieldProps<ComponentType extends ElementType> = {
   className?: string;
 } & Omit<ComponentProps<ComponentType>, 'id' | 'aria-describedby' | 'aria-invalid' | 'required'>;
 
-export const Field = <ComponentType extends ElementType>({
-  input: Input,
+export const Input = <ComponentType extends ElementType>({
+  input: InputComponent,
   id,
   error,
   label,
   required,
   className,
-  defaultClassName = 'ds-field',
+  defaultClassName = 'ds-input',
   ...props
-}: FieldProps<ComponentType>) => {
+}: InputProps<ComponentType>) => {
   const generatedId = useId();
   const inputId = id || generatedId;
   const errorId = `${inputId}-error`;
@@ -33,7 +33,7 @@ export const Field = <ComponentType extends ElementType>({
     className,
   });
 
-  const Component = Input as React.ElementType;
+  const Component = InputComponent as React.ElementType;
 
   return (
     <div className={parentClassName}>

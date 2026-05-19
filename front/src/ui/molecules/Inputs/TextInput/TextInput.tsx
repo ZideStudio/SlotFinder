@@ -1,7 +1,7 @@
 import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
 import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
 import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
-import { Field } from '@Front/ui/utils/components/Field/Field';
+import { Input } from '@Front/ui/utils/components/Input/Input';
 import { type ComponentProps } from 'react';
 
 type TextInputProps = ComponentProps<typeof TextInputAtom> & {
@@ -9,4 +9,4 @@ type TextInputProps = ComponentProps<typeof TextInputAtom> & {
   error?: ComponentProps<typeof InputErrorMessage>['children'];
 };
 
-export const TextInput = (props: TextInputProps) => <Field input={TextInputAtom} {...props} />;
+export const TextInput = (props: TextInputProps) => <Input input={TextInputAtom} {...props} />;

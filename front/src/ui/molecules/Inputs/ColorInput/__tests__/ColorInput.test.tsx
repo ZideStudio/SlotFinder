@@ -24,7 +24,7 @@ describe('ColorInput', () => {
     render(<ColorInput label="Test Label" name="test-input" description="Choose a color" className="custom-class" />);
     const input = screen.getByLabelText('Test Label');
     const inputContainer = input.closest('div');
-    expect(inputContainer).toHaveClass('ds-field custom-class');
+    expect(inputContainer).toHaveClass('ds-input custom-class');
   });
 
   it('should render error message linked with input', () => {
