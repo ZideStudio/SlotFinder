@@ -4,6 +4,12 @@
 
 Clone the env `.env.model` file to `.env` and modify the variables as needed.
 
+Install the toolchain from the repository root with [mise](https://mise.jdx.dev/):
+
+```bash
+mise install
+```
+
 ## Start
 
 ```bash

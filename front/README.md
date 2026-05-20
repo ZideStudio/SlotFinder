@@ -4,7 +4,7 @@ This project was bootstrapped with [@pplancq/create-react-app](https://github.co
 
 ### 🧾 Prerequisites
 
-- Node.js : [Download here](https://nodejs.org/) (Preferably, use [Volta](https://volta.sh/))
+- Node.js : [Download here](https://nodejs.org/) (Preferably, use [mise](https://mise.jdx.dev/))
 - npm (Node Package Manager)
 
 ### 🛠️ Installation
@@ -16,7 +16,13 @@ git clone https://github.com/votre-utilisateur/mon-projet-awesome.git mon-projet
 cd mon-projet
 ```
 
-2. Install dependencies.
+1. Install Node.js and npm from the repository root using mise:
+
+```bash
+mise install
+```
+
+3. Install dependencies.
 
 ```bash
 # Install project dependencies

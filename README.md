@@ -56,6 +56,12 @@ git clone https://github.com/ZideStudio/SlotFinder
 cd SlotFinder
 ```
 
+#### Install toolchain versions with [mise](https://mise.jdx.dev/) (Node, npm, Go)
+
+```bash
+mise install
+```
+
 #### Set up environment variables
 
 Clone the env `back/.env.model` file to `back/.env` and modify the variables as needed.
