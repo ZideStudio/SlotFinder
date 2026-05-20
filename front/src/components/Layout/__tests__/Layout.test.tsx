@@ -32,10 +32,10 @@ describe('Layout', () => {
     });
 
   describe('when the route has no hideHeader handle', () => {
-    it('should render the header banner', async () => {
-      expect.assertions(1);
+    beforeEach(() => {
       server.use(getAuthStatus200);
-
+    });
+    it('should render the header banner', async () => {
       renderLayoutRoute('/withHeader');
 
       await expect(screen.findByRole('banner')).resolves.toBeInTheDocument();
@@ -44,9 +44,6 @@ describe('Layout', () => {
 
   describe('when the route has hideHeader: true', () => {
     it('should not render the header banner', async () => {
-      expect.assertions(1);
-      server.use(getAuthStatus200);
-
       renderLayoutRoute('/withoutHeader');
 
       await screen.findByText('without header');
