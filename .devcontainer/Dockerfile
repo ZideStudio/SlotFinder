@@ -74,6 +74,16 @@ export DISPLAY=:99
 eval "\$(\$HOME/.local/bin/mise activate bash)"
 EOF
 
+# Make mise-managed node available to VS Code extension host processes.
+# Symlink directly to the installed binaries (not mise shims) to avoid
+# mise trust checks that fail in subprocesses without the full environment.
+USER root
+RUN NODE_BIN="$(find /home/vscode/.local/share/mise/installs/node -name node -maxdepth 4 \( -type f -o -type l \) | head -1)" \
+    && NODE_DIR="$(dirname "$NODE_BIN")" \
+    && ln -sf "$NODE_BIN" /usr/local/bin/node \
+    && ln -sf "$NODE_DIR/npm" /usr/local/bin/npm \
+    && ln -sf "$NODE_DIR/npx" /usr/local/bin/npx
+    
 WORKDIR /workspace
 USER vscode
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
