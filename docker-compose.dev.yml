@@ -28,7 +28,7 @@ services:
       - POSTGRES_USER=slotfinder
       - POSTGRES_PASSWORD=slotfinder
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./db/init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
