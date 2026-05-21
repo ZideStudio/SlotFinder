@@ -34,6 +34,7 @@ jobs:
           filters: |
             back:
               - 'back/**'
+              - '.mise.toml'
               - '.github/workflows/back-build.yaml'
               - '.github/actions/setup-go/**'
               - 'Makefile'
