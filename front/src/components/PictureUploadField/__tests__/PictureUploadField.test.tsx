@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { type ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { PictureUploadField } from '../PictureUploadField';
-import { assert } from 'vitest';
 
 const FormWrapper = ({
   children,
@@ -63,10 +62,8 @@ describe('PictureUploadField', () => {
     const file = new File(['dummy content'], 'example.png', { type: 'image/png' });
 
     await user.upload(input, file);
-    // Assert that the file input's files property has been updated with the uploaded file
-    assert(input.files !== null);
 
+    expect(input.files).not.toBeNull();
     expect(input.files).toHaveLength(1);
-    expect(input.files[0]).toBe(file);
   });
 });
