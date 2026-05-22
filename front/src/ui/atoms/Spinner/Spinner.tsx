@@ -13,8 +13,9 @@ export const Spinner = ({ className, label = "Chargement en cours" }: SpinnerPro
   });
 
   return (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
     <div className={parentClassName} role="status">
-      <span className='ds-spinner__label'>{label}</span>
+      <span className="ds-spinner__label">{label}</span>
     </div>
   );
 };

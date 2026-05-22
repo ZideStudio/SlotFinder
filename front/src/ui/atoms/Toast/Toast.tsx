@@ -24,6 +24,7 @@ const ToastComponent = ({ className, id }: ToastProps) => {
   });
 
   return (
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
     <div className={parentClassName} role="status">
       <span className="ds-toast__content">{toast.message}</span>
       <button
