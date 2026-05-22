@@ -806,16 +806,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/slots/{slotId}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/slots/{slotId}": {
+            "delete": {
                 "consumes": [
                     "application/json"
                 ],
@@ -825,7 +825,7 @@ const docTemplate = `{
                 "tags": [
                     "Slot"
                 ],
-                "summary": "Cancel a validated slot",
+                "summary": "Remove a validated slot",
                 "parameters": [
                     {
                         "type": "string",
@@ -845,11 +845,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/slots/{slotId}/confirm": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []

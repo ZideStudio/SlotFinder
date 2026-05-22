@@ -858,7 +858,7 @@ paths:
             $ref: '#/definitions/helpers.ApiError'
       security:
       - BearerAuth: []
-      summary: Cancel a validated slot
+      summary: Remove a validated slot
       tags:
       - Slot
   /api/v1/slots/{slotId}/confirm:

@@ -798,16 +798,16 @@
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/slots/{slotId}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/api/v1/slots/{slotId}": {
+            "delete": {
                 "consumes": [
                     "application/json"
                 ],
@@ -817,7 +817,7 @@
                 "tags": [
                     "Slot"
                 ],
-                "summary": "Cancel a validated slot",
+                "summary": "Remove a validated slot",
                 "parameters": [
                     {
                         "type": "string",
@@ -837,11 +837,7 @@
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
-            }
-        },
-        "/api/v1/slots/{slotId}/confirm": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
