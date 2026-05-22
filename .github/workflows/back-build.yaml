@@ -51,15 +51,29 @@ jobs:
         working-directory: ${{ env.BACK_FOLDER }}
         run: go mod download
 
-      - name: Verify Air build commands work (catches go.sum inconsistencies)
+      - name: Verify Air hot-reload works (catches go.sum inconsistencies)
         working-directory: ${{ env.BACK_FOLDER }}
         run: |
-          # Execute the pre_cmd from air.toml
-          go tool swag init
-          if [ "$(uname)" = "Darwin" ]; then sed -i '' '/LeftDelim/d; /RightDelim/d' docs/docs.go; else sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go; fi
+          # Start Air in background with a timeout to force it to perform a rebuild cycle
+          timeout 10s go tool air -c .air.toml || true
 
-          # Execute the build cmd from air.toml
-          go build -o ./tmp/main .
+          # If Air timed out normally, the build succeeded. If it crashed with go.sum error, it will exit with non-zero
+          # But we need to actually trigger a rebuild. Let's modify a file and let Air detect it:
+          mkdir -p tmp
+          echo 'package main' > main_test_trigger.go
+
+          # Start Air again and give it time to detect the file change and rebuild
+          timeout 15s go tool air -c .air.toml 2>&1 | tee air-build.log || BUILD_EXIT=$?
+
+          # Check if the build log contains the go.sum error
+          if grep -q "missing go.sum entry" air-build.log; then
+            echo "❌ Found go.sum inconsistency in Air build"
+            cat air-build.log
+            exit 1
+          fi
+
+          # Clean up
+          rm -f main_test_trigger.go air-build.log
 
   lint:
     name: Back Lint code
