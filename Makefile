@@ -31,7 +31,7 @@ storybook:
 	@mise install
 	@cd front && npm install
 	@echo "\n📒 Starting Storybook on http://localhost:3002"
-	cd front && npm run start:storybook
+	@cd front && npm run start:storybook
 
 # Start dockerized dependencies (host mode)
 docker-deps:
