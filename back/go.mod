@@ -56,7 +56,8 @@ require (
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/tdewolff/parse/v2 v2.8.12 // indirect
-	github.com/urfave/cli/v2 v2.3.0 // indirect
+	github.com/urfave/cli/v2 v2.27.7 // indirect
+	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
