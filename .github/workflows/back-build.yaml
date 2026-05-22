@@ -51,6 +51,16 @@ jobs:
         working-directory: ${{ env.BACK_FOLDER }}
         run: go mod download
 
+      - name: Verify Air build commands work (catches go.sum inconsistencies)
+        working-directory: ${{ env.BACK_FOLDER }}
+        run: |
+          # Execute the pre_cmd from air.toml
+          go tool swag init
+          if [ "$(uname)" = "Darwin" ]; then sed -i '' '/LeftDelim/d; /RightDelim/d' docs/docs.go; else sed -i '/LeftDelim/d; /RightDelim/d' docs/docs.go; fi
+
+          # Execute the build cmd from air.toml
+          go build -o ./tmp/main .
+
   lint:
     name: Back Lint code
     needs: [detect-changes, install]
