@@ -186,9 +186,6 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 			data.Description = nil
 		}
 	}
-	if data.Status != nil && *data.Status != constants.EVENT_STATUS_IN_DECISION {
-		return errors.New("only status 'in_decision' can be set manually")
-	}
 	var isBreakingSlots bool
 	if data.StartsAt != nil || data.EndsAt != nil {
 		if err := SetEventDatesFromDto(&event, data.StartsAt, data.EndsAt); err != nil {
@@ -208,42 +205,10 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 		event.Duration = *data.Duration
 		isBreakingSlots = true
 	}
-	var isStatusChanged bool
-	if data.Status != nil {
-		event.Status = *data.Status
-		isStatusChanged = true
-	}
 
 	// Update event in repository
 	if err := s.eventRepository.Updates(&event); err != nil {
 		return err
-	}
-
-	// If status changed, remove validated slot
-	if isStatusChanged {
-		var oldSlot model.Slot
-		if err := s.slotRepository.FindValidatedSlotByEventId(eventId, &oldSlot); err != nil {
-			return err
-		}
-
-		err := s.slotRepository.DeleteValidatedSlotByEventId(event.Id)
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-
-		// Send cancellation emails
-		if oldSlot.Id != uuid.Nil {
-			for _, accountEvent := range oldSlot.Event.AccountEvents {
-				go s.mailService.SendEventCancellationEmail(
-					accountEvent.Account,
-					event,
-					event.Id,
-					event.OwnerId,
-					oldSlot.StartsAt,
-					oldSlot.EndsAt,
-				)
-			}
-		}
 	}
 
 	// If dates are not being updated, return

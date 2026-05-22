@@ -806,6 +806,45 @@
                 ]
             }
         },
+        "/api/v1/slots/{slotId}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Slot"
+                ],
+                "summary": "Remove a validated slot",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Slot Id",
+                        "name": "slotId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/slots/{slotId}/confirm": {
             "post": {
                 "consumes": [
@@ -1140,16 +1179,6 @@
                 },
                 "startsAt": {
                     "type": "string"
-                },
-                "status": {
-                    "enum": [
-                        "IN_DECISION"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/constants.EventStatus"
-                        }
-                    ]
                 }
             }
         },

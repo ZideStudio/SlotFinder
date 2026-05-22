@@ -166,11 +166,6 @@ definitions:
         type: string
       startsAt:
         type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/constants.EventStatus'
-        enum:
-        - IN_DECISION
     type: object
   helpers.ApiError:
     properties:
@@ -842,6 +837,30 @@ paths:
       summary: Update event profile
       tags:
       - Event
+  /api/v1/slots/{slotId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Slot Id
+        in: path
+        name: slotId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
+      summary: Remove a validated slot
+      tags:
+      - Slot
   /api/v1/slots/{slotId}/confirm:
     post:
       consumes:
