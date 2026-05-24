@@ -1,16 +1,16 @@
 const enableMock = async () => {
-  if (import.meta.env.FRONT_MOCK_ENABLE === 'true') {
-    const { worker } = await import('@Mocks/browser');
+  if (import.meta.env.FRONT_MOCK_ENABLE === "true") {
+    const { worker } = await import("@Mocks/browser");
 
     return worker.start({
-      onUnhandledRequest: 'warn',
+      onUnhandledRequest: "warn",
     });
   }
 };
 
 // oxlint-disable-next-line jest/require-hook
 enableMock().then(() => {
-  import('./bootstrap').then(({ default: AppReact }) => {
-    customElements.define('app-react', AppReact);
+  import("./bootstrap").then(({ default: AppReact }) => {
+    customElements.define("app-react", AppReact);
   });
 });

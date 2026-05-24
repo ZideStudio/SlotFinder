@@ -20,7 +20,7 @@ The "components" folder is a crucial element of any React application. It is use
 Suppose you have a "Header.js" component in the "components" folder. You can import and use it in other parts of your application like this:
 
 ```javascript
-import Header from '@Front/components/Header';
+import Header from "@Front/components/Header";
 
 export const App = () => {
   return (

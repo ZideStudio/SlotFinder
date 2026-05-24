@@ -1,20 +1,20 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { TextInputAtom } from './TextInputAtom';
+import { TextInputAtom } from "./TextInputAtom";
 
 const meta = {
-  title: 'Atoms/Inputs/TextInputAtom',
+  title: "Atoms/Inputs/TextInputAtom",
   component: TextInputAtom,
-  args: { name: 'text-input', className: 'custom-class' },
+  args: { name: "text-input", className: "custom-class" },
   argTypes: {
-    'aria-invalid': {
-      control: { type: 'boolean' },
+    "aria-invalid": {
+      control: { type: "boolean" },
     },
     onChange: { action: true, table: { disable: true } },
   },
   decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
+    (Story) => (
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -27,6 +27,6 @@ export const Default: StoryObj<typeof meta> = {};
 
 export const Invalid: StoryObj<typeof meta> = {
   args: {
-    'aria-invalid': 'true',
+    "aria-invalid": "true",
   },
 };

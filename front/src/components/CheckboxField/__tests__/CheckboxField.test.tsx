@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
-import { useForm, FormProvider } from 'react-hook-form';
-import { CheckboxField } from '../CheckboxField';
-import { type ReactNode } from 'react';
+import { render, screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { useForm, FormProvider } from "react-hook-form";
+import { CheckboxField } from "../CheckboxField";
+import { type ReactNode } from "react";
 
 const FormWrapper = ({
   children,
@@ -15,19 +15,22 @@ const FormWrapper = ({
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
-describe('CheckboxField', () => {
-  it('should render checkbox input with correct label and name attribute', () => {
+describe("CheckboxField", () => {
+  it("should render checkbox input with correct label and name attribute", () => {
     render(
       <FormWrapper>
         <CheckboxField name="acceptTerms" label="Accept Terms" />
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText('Accept Terms')).toBeInTheDocument();
-    expect(screen.getByLabelText('Accept Terms')).toHaveAttribute('name', 'acceptTerms');
+    expect(screen.getByLabelText("Accept Terms")).toBeInTheDocument();
+    expect(screen.getByLabelText("Accept Terms")).toHaveAttribute(
+      "name",
+      "acceptTerms",
+    );
   });
 
-  it('displays the error message from form state when validation fails', async () => {
+  it("displays the error message from form state when validation fails", async () => {
     const user = userEvent.setup();
 
     const WrapperWithError = () => {
@@ -38,24 +41,30 @@ describe('CheckboxField', () => {
       return (
         <FormProvider {...methods}>
           <CheckboxField name="acceptTerms" label="Accept Terms" />
-          <button onClick={() => setError('acceptTerms', { message: 'This field is required' })}>Trigger error</button>
+          <button
+            onClick={() =>
+              setError("acceptTerms", { message: "This field is required" })
+            }
+          >
+            Trigger error
+          </button>
         </FormProvider>
       );
     };
 
     render(<WrapperWithError />);
 
-    await user.click(screen.getByRole('button', { name: 'Trigger error' }));
+    await user.click(screen.getByRole("button", { name: "Trigger error" }));
 
-    const errorMessage = await screen.findByText('This field is required');
-    const input = screen.getByRole('checkbox', { name: 'Accept Terms' });
+    const errorMessage = await screen.findByText("This field is required");
+    const input = screen.getByRole("checkbox", { name: "Accept Terms" });
 
     expect(errorMessage).toBeInTheDocument();
-    expect(input).toHaveAttribute('aria-invalid', 'true');
-    expect(input).toHaveAttribute('aria-describedby', errorMessage.id);
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveAttribute("aria-describedby", errorMessage.id);
   });
 
-  it('updates the input checked state on user click', async () => {
+  it("updates the input checked state on user click", async () => {
     const user = userEvent.setup();
 
     render(
@@ -64,7 +73,7 @@ describe('CheckboxField', () => {
       </FormWrapper>,
     );
 
-    const checkbox = screen.getByLabelText('Accept Terms');
+    const checkbox = screen.getByLabelText("Accept Terms");
     await user.click(checkbox);
 
     expect(checkbox).toBeChecked();

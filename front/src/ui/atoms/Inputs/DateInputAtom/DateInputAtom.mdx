@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as DateInputAtomStories from './DateInputAtom.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as DateInputAtomStories from "./DateInputAtom.stories";
 
 <Meta of={DateInputAtomStories} />
 
@@ -10,7 +10,12 @@ A reusable, accessible date input atom for forms and UI elements.
 ## Usage
 
 ```tsx
-<DateInputAtom name="date-input" value={value} onChange={handleChange} className="custom-class" />
+<DateInputAtom
+  name="date-input"
+  value={value}
+  onChange={handleChange}
+  className="custom-class"
+/>
 ```
 
 ## Props

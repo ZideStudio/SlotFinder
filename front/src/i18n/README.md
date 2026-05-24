@@ -39,11 +39,11 @@ src/i18n/
 ## Example
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
-const { t } = useTranslation('home');
+const { t } = useTranslation("home");
 
-t('welcome');
+t("welcome");
 ```
 
 ## Adding or Updating Translations

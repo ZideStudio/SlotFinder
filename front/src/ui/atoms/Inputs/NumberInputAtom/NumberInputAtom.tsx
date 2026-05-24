@@ -1,15 +1,18 @@
-import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithRef } from 'react';
+import { getClassName } from "@Front/utils/getClassName";
+import type { ComponentPropsWithRef } from "react";
 
-import './NumberInputAtom.scss';
+import "./NumberInputAtom.scss";
 
-type NumberInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
+type NumberInputAtomProps = Omit<ComponentPropsWithRef<"input">, "name"> & {
   name: string;
 };
 
-export const NumberInputAtom = ({ className, ...props }: NumberInputAtomProps) => {
+export const NumberInputAtom = ({
+  className,
+  ...props
+}: NumberInputAtomProps) => {
   const parentClassName = getClassName({
-    defaultClassName: 'ds-number-input-atom',
+    defaultClassName: "ds-number-input-atom",
     className,
   });
 

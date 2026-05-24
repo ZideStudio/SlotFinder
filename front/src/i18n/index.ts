@@ -1,10 +1,10 @@
-import { use } from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import enAuthentication from './locales/en/authentication.json';
-import enDashboard from './locales/en/dashboard.json';
-import enError from './locales/en/error.json';
-import enSignUp from './locales/en/signUp.json';
-import enWelcome from './locales/en/welcome.json';
+import { use } from "i18next";
+import { initReactI18next } from "react-i18next";
+import enAuthentication from "./locales/en/authentication.json";
+import enDashboard from "./locales/en/dashboard.json";
+import enError from "./locales/en/error.json";
+import enSignUp from "./locales/en/signUp.json";
+import enWelcome from "./locales/en/welcome.json";
 
 // oxlint-disable-next-line vitest/require-hook, react-hooks/rules-of-hooks
 use(initReactI18next).init({
@@ -17,7 +17,7 @@ use(initReactI18next).init({
       welcome: enWelcome,
     },
   },
-  lng: 'en',
-  fallbackLng: 'en',
+  lng: "en",
+  fallbackLng: "en",
   interpolation: { escapeValue: false },
 });

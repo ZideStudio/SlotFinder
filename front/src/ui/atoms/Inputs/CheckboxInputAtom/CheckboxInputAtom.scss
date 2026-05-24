@@ -25,8 +25,9 @@
     border-right: 2px solid var(--color-grey-100);
     border-bottom: 2px solid var(--color-grey-100);
     opacity: 0;
-    transform: rotate(45deg) translateY(var(--checkbox-check-offset)) translateX(var(--checkbox-check-offset));
-    content: '';
+    transform: rotate(45deg) translateY(var(--checkbox-check-offset))
+      translateX(var(--checkbox-check-offset));
+    content: "";
   }
 
   &:checked {
@@ -46,7 +47,7 @@
     outline: 1px solid var(--checkbox-atom-color);
   }
 
-  &[aria-invalid='true'] {
+  &[aria-invalid="true"] {
     --checkbox-atom-color: var(--color-error);
   }
 }

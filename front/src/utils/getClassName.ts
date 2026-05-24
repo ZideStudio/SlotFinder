@@ -1,4 +1,5 @@
-export const clsx = (...classNames: (string | boolean | undefined)[]) => classNames.filter(Boolean).join(' ');
+export const clsx = (...classNames: (string | boolean | undefined)[]) =>
+  classNames.filter(Boolean).join(" ");
 
 type getClassNameParams = {
   defaultClassName: string;
@@ -6,9 +7,17 @@ type getClassNameParams = {
   className?: string;
 };
 
-export const getClassName = ({ defaultClassName, modifiers = [], className }: getClassNameParams) => {
-  const formattedModifiers = Array.isArray(modifiers) ? modifiers : modifiers.trim().split(' ');
-  const parsedModifiers = formattedModifiers.filter(Boolean).map(modifier => `${defaultClassName}--${modifier}`);
+export const getClassName = ({
+  defaultClassName,
+  modifiers = [],
+  className,
+}: getClassNameParams) => {
+  const formattedModifiers = Array.isArray(modifiers)
+    ? modifiers
+    : modifiers.trim().split(" ");
+  const parsedModifiers = formattedModifiers
+    .filter(Boolean)
+    .map((modifier) => `${defaultClassName}--${modifier}`);
 
   return clsx(defaultClassName, ...parsedModifiers, className);
 };

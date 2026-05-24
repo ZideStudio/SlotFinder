@@ -1,13 +1,13 @@
-import { Grid } from '@Front/components/Grid/Grid';
-import { Outlet } from 'react-router';
-import { OAuth } from './OAuth/OAuth';
+import { Grid } from "@Front/components/Grid/Grid";
+import { Outlet } from "react-router";
+import { OAuth } from "./OAuth/OAuth";
 
 export const Authentication = () => (
   <Grid
     component="section"
     container
     colSpan={{
-      'desktop-small': 12,
+      "desktop-small": 12,
       tablet: 8,
       mobile: 4,
     }}
@@ -15,7 +15,7 @@ export const Authentication = () => (
     <Grid
       component="h1"
       colSpan={{
-        'desktop-small': 12,
+        "desktop-small": 12,
         tablet: 8,
         mobile: 4,
       }}
@@ -23,8 +23,8 @@ export const Authentication = () => (
       Authentication Page
     </Grid>
     <Grid
-      colSpan={{ 'desktop-small': 2, tablet: 2, mobile: 4 }}
-      colStart={{ 'desktop-small': 6, tablet: 4, mobile: 1 }}
+      colSpan={{ "desktop-small": 2, tablet: 2, mobile: 4 }}
+      colStart={{ "desktop-small": 6, tablet: 4, mobile: 1 }}
     >
       <Outlet />
     </Grid>

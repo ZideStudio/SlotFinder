@@ -55,7 +55,7 @@ In our project, we use Atomic Design to organize our reusable components into le
 "Atoms" are basic components that don't depend on other components. In our "ui/atoms" folder, we have the "Button" component. It's a simple UI element that we can use as follows:
 
 ```javascript
-import { Button } from '@Front/ui/atoms/Button';
+import { Button } from "@Front/ui/atoms/Button";
 
 export const MyComponent = () => {
   return (
@@ -72,7 +72,7 @@ export const MyComponent = () => {
 "Molecules" are more complex components that group atoms to form a functional set. In our "ui/molecules" folder, we have the "SearchBar" component that uses the atomic "Button":
 
 ```javascript
-import { SearchBar } from '@Front/ui/molecules/SearchBar';
+import { SearchBar } from "@Front/ui/molecules/SearchBar";
 
 export const MyComponent = () => {
   return (
@@ -91,7 +91,7 @@ The "SearchBar" component is a molecule because it combines the "Button" atom wi
 "Organisms" are even more complex components that combine molecules and atoms to create self-contained parts of the UI. In our "ui/organisms" folder, we have the "Header" component that might include the molecular "SearchBar":
 
 ```javascript
-import Header from '@Front/ui/organisms/Header';
+import Header from "@Front/ui/organisms/Header";
 
 export const MyComponent = () => {
   return (
@@ -112,10 +112,16 @@ The "Header" component is an organism because it combines the molecular "SearchB
 In our "ui/templates" folder, we have the "PageTemplate" component that defines the placement of the "topBar," "body," and "footer" to create a complete page:
 
 ```javascript
-import PageTemplate from '@Front/ui/templates/PageTemplate';
+import PageTemplate from "@Front/ui/templates/PageTemplate";
 
 export const MyComponent = () => {
-  return <PageTemplate topBar={<div>TopBar</div>} body={<div>Boby</div>} footer={<div>Footer</div>} />;
+  return (
+    <PageTemplate
+      topBar={<div>TopBar</div>}
+      body={<div>Boby</div>}
+      footer={<div>Footer</div>}
+    />
+  );
 };
 ```
 

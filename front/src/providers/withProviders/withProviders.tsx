@@ -1,11 +1,11 @@
-import { QueryClientProvider } from '@Front/providers/QueryClientProvider';
-import { type ComponentProps, type ComponentType, createElement } from 'react';
-import { AuthenticationContextProvider } from '../../contexts/AuthenticationContext/AuthenticationContextProvider';
-import { ToastProvider } from '../../ui/utils/toast/toastProvider/ToastProvider';
+import { QueryClientProvider } from "@Front/providers/QueryClientProvider";
+import { type ComponentProps, type ComponentType, createElement } from "react";
+import { AuthenticationContextProvider } from "../../contexts/AuthenticationContext/AuthenticationContextProvider";
+import { ToastProvider } from "../../ui/utils/toast/toastProvider/ToastProvider";
 
 export const withProvider = <WithProviderProps extends object>(
   Component: ComponentType<WithProviderProps>,
-  queryClient: ComponentProps<typeof QueryClientProvider>['client'],
+  queryClient: ComponentProps<typeof QueryClientProvider>["client"],
 ) => {
   const WithProvider = (props: WithProviderProps) =>
     createElement(

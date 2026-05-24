@@ -1,11 +1,13 @@
-import { Button } from '@Front/ui/molecules/Button/Button';
-import { usePopover } from '@Front/ui/utils/hooks/usePopover/usePopover';
-import { type ComponentProps, useEffect } from 'react';
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import { fn } from 'storybook/test';
-import { Popover } from './Popover';
+import { Button } from "@Front/ui/molecules/Button/Button";
+import { usePopover } from "@Front/ui/utils/hooks/usePopover/usePopover";
+import { type ComponentProps, useEffect } from "react";
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
+import { fn } from "storybook/test";
+import { Popover } from "./Popover";
 
-type PopoverStoryProps = ComponentProps<typeof Popover> & { openOnMount?: boolean };
+type PopoverStoryProps = ComponentProps<typeof Popover> & {
+  openOnMount?: boolean;
+};
 
 const PopoverStory = ({ openOnMount = false, ...args }: PopoverStoryProps) => {
   const { triggerProps, popoverProps } = usePopover();
@@ -19,7 +21,10 @@ const PopoverStory = ({ openOnMount = false, ...args }: PopoverStoryProps) => {
 
   return (
     <>
-      <Button {...triggerProps} style={{ ...triggerProps.style, width: '300px' }}>
+      <Button
+        {...triggerProps}
+        style={{ ...triggerProps.style, width: "300px" }}
+      >
         Open popover
       </Button>
       <Popover {...args} {...popoverProps} />
@@ -28,18 +33,22 @@ const PopoverStory = ({ openOnMount = false, ...args }: PopoverStoryProps) => {
 };
 
 const meta = {
-  title: 'Organisms/Popover',
+  title: "Organisms/Popover",
   component: Popover,
   args: {
-    id: 'story-popover',
-    title: 'Popover title',
+    id: "story-popover",
+    title: "Popover title",
     children: "I'm a popover",
-    primaryButtonProps: { children: 'Confirm', onClick: fn() },
-    secondaryButtonProps: { children: 'Cancel', onClick: fn(), variant: 'secondary' },
+    primaryButtonProps: { children: "Confirm", onClick: fn() },
+    secondaryButtonProps: {
+      children: "Cancel",
+      onClick: fn(),
+      variant: "secondary",
+    },
   },
   argTypes: {
     id: { table: { disable: true } },
-    children: { control: 'text' },
+    children: { control: "text" },
     primaryButtonProps: { table: { disable: true } },
     secondaryButtonProps: { table: { disable: true } },
   },
@@ -62,5 +71,7 @@ export const WithOnlyPrimaryButton: Story = {
 };
 
 export const OpenByDefault: Story = {
-  render: (args: ComponentProps<typeof Popover>) => <PopoverStory {...args} openOnMount />,
+  render: (args: ComponentProps<typeof Popover>) => (
+    <PopoverStory {...args} openOnMount />
+  ),
 };

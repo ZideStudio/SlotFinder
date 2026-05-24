@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
-import { useForm, FormProvider } from 'react-hook-form';
-import { type ReactNode } from 'react';
-import { NumberField } from '../NumberField';
+import { render, screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { useForm, FormProvider } from "react-hook-form";
+import { type ReactNode } from "react";
+import { NumberField } from "../NumberField";
 
 const FormWrapper = ({
   children,
@@ -15,19 +15,19 @@ const FormWrapper = ({
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
-describe('NumberField', () => {
-  it('should render number input with correct label and name attribute', () => {
+describe("NumberField", () => {
+  it("should render number input with correct label and name attribute", () => {
     render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText('Number')).toBeInTheDocument();
-    expect(screen.getByLabelText('Number')).toHaveAttribute('name', 'number');
+    expect(screen.getByLabelText("Number")).toBeInTheDocument();
+    expect(screen.getByLabelText("Number")).toHaveAttribute("name", "number");
   });
 
-  it('displays the error message from form state when validation fails', async () => {
+  it("displays the error message from form state when validation fails", async () => {
     const user = userEvent.setup();
 
     const WrapperWithError = () => {
@@ -38,24 +38,30 @@ describe('NumberField', () => {
       return (
         <FormProvider {...methods}>
           <NumberField name="number" label="Number" />
-          <button onClick={() => setError('number', { message: 'This field is required' })}>Trigger error</button>
+          <button
+            onClick={() =>
+              setError("number", { message: "This field is required" })
+            }
+          >
+            Trigger error
+          </button>
         </FormProvider>
       );
     };
 
     render(<WrapperWithError />);
 
-    await user.click(screen.getByRole('button', { name: 'Trigger error' }));
+    await user.click(screen.getByRole("button", { name: "Trigger error" }));
 
-    const errorMessage = await screen.findByText('This field is required');
-    const input = screen.getByRole('spinbutton', { name: 'Number' });
+    const errorMessage = await screen.findByText("This field is required");
+    const input = screen.getByRole("spinbutton", { name: "Number" });
 
     expect(errorMessage).toBeInTheDocument();
-    expect(input).toHaveAttribute('aria-invalid', 'true');
-    expect(input).toHaveAttribute('aria-describedby', errorMessage.id);
+    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(input).toHaveAttribute("aria-describedby", errorMessage.id);
   });
 
-  it('updates the input value on user typing', async () => {
+  it("updates the input value on user typing", async () => {
     const user = userEvent.setup();
 
     render(
@@ -64,8 +70,8 @@ describe('NumberField', () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText('Number');
-    await user.type(input, '1');
+    const input = screen.getByLabelText("Number");
+    await user.type(input, "1");
 
     expect(input).toHaveValue(1);
   });

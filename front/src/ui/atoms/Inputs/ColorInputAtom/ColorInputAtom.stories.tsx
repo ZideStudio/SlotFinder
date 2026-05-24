@@ -1,16 +1,19 @@
-import { type ComponentProps, useState } from 'react';
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import { type ComponentProps, useState } from "react";
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { ColorInputAtom } from './ColorInputAtom';
-import { fn } from 'storybook/test';
+import { fn } from "storybook/test";
+import { ColorInputAtom } from "./ColorInputAtom";
 
-const ColorInputAtomStory = ({ onChange, ...args }: ComponentProps<typeof ColorInputAtom>) => {
-  const [value, setValue] = useState('');
+const ColorInputAtomStory = ({
+  onChange,
+  ...args
+}: ComponentProps<typeof ColorInputAtom>) => {
+  const [value, setValue] = useState("");
   return (
     <ColorInputAtom
       {...args}
       value={value}
-      onChange={e => {
+      onChange={(e) => {
         setValue(e.target.value);
         onChange?.(e);
       }}
@@ -19,18 +22,18 @@ const ColorInputAtomStory = ({ onChange, ...args }: ComponentProps<typeof ColorI
 };
 
 const meta = {
-  title: 'Atoms/Inputs/ColorInputAtom',
+  title: "Atoms/Inputs/ColorInputAtom",
   component: ColorInputAtom,
   args: {
-    name: 'colorInput',
-    value: '',
+    name: "colorInput",
+    value: "",
     onChange: fn(),
   },
   argTypes: {
     value: { table: { disable: true } },
     onChange: { action: true, table: { disable: true } },
   },
-  render: args => <ColorInputAtomStory {...args} />,
+  render: (args) => <ColorInputAtomStory {...args} />,
 } satisfies Meta<typeof ColorInputAtom>;
 
 export default meta;
@@ -38,12 +41,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { description: 'Choisir une couleur' },
+  args: { description: "Choisir une couleur" },
 };
 
 export const Error: Story = {
   args: {
-    'aria-invalid': 'true',
-    description: 'Erreur de couleur',
+    "aria-invalid": "true",
+    description: "Erreur de couleur",
   },
 };

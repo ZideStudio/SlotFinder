@@ -1,19 +1,28 @@
-import { AuthenticationContextProvider } from '@Front/contexts/AuthenticationContext/AuthenticationContextProvider';
-import { routeObject } from '@Front/routing/routes';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, type RenderOptions } from '@testing-library/react';
-import type { ComponentProps, ReactNode } from 'react';
-import { createMemoryRouter, RouterProvider, type MemoryRouterOpts, type RouteObject } from 'react-router';
+import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
+import { routeObject } from "@Front/routing/routes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, type RenderOptions } from "@testing-library/react";
+import type { ComponentProps, ReactNode } from "react";
+import {
+  createMemoryRouter,
+  RouterProvider,
+  type MemoryRouterOpts,
+  type RouteObject,
+} from "react-router";
 
 export type RenderWithQueryClientOptions = {
-  renderOptions?: Omit<RenderOptions, 'queries'>;
-  queryClientProviderOptions?: Partial<ComponentProps<typeof QueryClientProvider>>;
+  renderOptions?: Omit<RenderOptions, "queries">;
+  queryClientProviderOptions?: Partial<
+    ComponentProps<typeof QueryClientProvider>
+  >;
 };
 
 export type RenderRouteOptions = {
   routes?: RouteObject[];
-  renderOptions?: Omit<RenderOptions, 'queries'>;
-  queryClientProviderOptions?: Partial<ComponentProps<typeof QueryClientProvider>>;
+  renderOptions?: Omit<RenderOptions, "queries">;
+  queryClientProviderOptions?: Partial<
+    ComponentProps<typeof QueryClientProvider>
+  >;
 } & (
   | {
       initialEntry: string;
@@ -27,7 +36,10 @@ export type RenderRouteOptions = {
 
 export const renderWithQueryClient = (
   ui: ReactNode,
-  { queryClientProviderOptions, renderOptions }: RenderWithQueryClientOptions = {},
+  {
+    queryClientProviderOptions,
+    renderOptions,
+  }: RenderWithQueryClientOptions = {},
 ) => {
   const queryClient = new QueryClient({
     defaultOptions: {

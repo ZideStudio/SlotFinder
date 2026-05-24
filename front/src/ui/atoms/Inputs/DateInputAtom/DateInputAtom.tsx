@@ -1,15 +1,15 @@
-import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithRef } from 'react';
+import { getClassName } from "@Front/utils/getClassName";
+import type { ComponentPropsWithRef } from "react";
 
-import './DateInputAtom.scss';
+import "./DateInputAtom.scss";
 
-type DateInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
+type DateInputAtomProps = Omit<ComponentPropsWithRef<"input">, "name"> & {
   name: string;
 };
 
 export const DateInputAtom = ({ className, ...props }: DateInputAtomProps) => {
   const parentClassName = getClassName({
-    defaultClassName: 'ds-date-input-atom',
+    defaultClassName: "ds-date-input-atom",
     className,
   });
 

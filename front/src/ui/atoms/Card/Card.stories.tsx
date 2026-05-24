@@ -1,22 +1,22 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { Card } from './Card';
+import { Card } from "./Card";
 
 const meta = {
-  title: 'Atoms/Card',
+  title: "Atoms/Card",
   component: Card,
   args: {
-    children: 'Card',
-    className: 'custom-class',
+    children: "Card",
+    className: "custom-class",
   },
   argTypes: {
     children: {
-      control: { type: 'text' },
+      control: { type: "text" },
     },
   },
   decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
+    (Story) => (
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -29,6 +29,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Card',
+    children: "Card",
   },
 };

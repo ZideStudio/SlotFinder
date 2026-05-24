@@ -1,17 +1,17 @@
-@use 'sass:meta';
-@use 'sass:math';
-@use 'sass:list';
+@use "sass:meta";
+@use "sass:math";
+@use "sass:list";
 
 $root-font-size: 16px;
 
 @function px-to-rem($value) {
-  @if meta.type-of($value) != 'number' and meta.type-of($value) != 'dimension' {
+  @if meta.type-of($value) != "number" and meta.type-of($value) != "dimension" {
     @error "The value #{$value} is not a valid number or dimension.";
   }
 
   $number: $value;
 
-  @if math.unit($value) == 'px' {
+  @if math.unit($value) == "px" {
     $number: math.div($value, 1px);
   }
 
@@ -21,7 +21,7 @@ $root-font-size: 16px;
 }
 
 @function split-list($list, $limit) {
-  @if meta.type-of($list) != 'list' {
+  @if meta.type-of($list) != "list" {
     @error "The value #{$list} is not a valid list.";
   }
 

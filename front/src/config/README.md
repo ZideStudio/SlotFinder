@@ -35,13 +35,13 @@ When you need to access a specific configuration in your code, import the approp
 
 ```javascript
 // Example of using an API configuration
-import { apiEndpoint } from '@Front/config/apiConfig';
+import { apiEndpoint } from "@Front/config/apiConfig";
 
 // Example of using a react-query configuration
-import { queryClient } from '@Front/config/queryConfig';
+import { queryClient } from "@Front/config/queryConfig";
 
 // Example of using a general application configuration
-import { appName } from '@Front/config/appConfig';
+import { appName } from "@Front/config/appConfig";
 ```
 
 ## <span id="best-practice">🎖️ Best Practice</span>

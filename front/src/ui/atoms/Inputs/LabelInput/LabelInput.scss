@@ -1,5 +1,5 @@
-@use '../../../../utils/sass/mixins/helpers';
-@use '../../../../utils/sass/mixins/responsive';
+@use "../../../../utils/sass/mixins/helpers";
+@use "../../../../utils/sass/mixins/responsive";
 
 .ds-label-input {
   --font-size: #{helpers.px-to-rem(16)};
@@ -9,7 +9,7 @@
   font-size: var(--font-size);
   font-weight: 600;
 
-  @include responsive.media-exceeds-width('desktop-small') {
+  @include responsive.media-exceeds-width("desktop-small") {
     --font-size: #{helpers.px-to-rem(18)};
   }
 

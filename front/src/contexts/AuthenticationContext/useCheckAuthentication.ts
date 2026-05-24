@@ -1,8 +1,8 @@
-import { authStatusApi } from '@Front/api/authentication/authStatusApi';
-import type { AuthStatusResponseType } from '@Front/types/Authentication/authStatus/authStatus.types';
-import type { AuthStatusErrorResponse } from '@Front/types/Authentication/authStatus/AuthStatusErrorResponse';
-import { useMutation, type UseMutateFunction } from '@tanstack/react-query';
-import { useLayoutEffect } from 'react';
+import { authStatusApi } from "@Front/api/authentication/authStatusApi";
+import type { AuthStatusResponseType } from "@Front/types/Authentication/authStatus/authStatus.types";
+import type { AuthStatusErrorResponse } from "@Front/types/Authentication/authStatus/AuthStatusErrorResponse";
+import { useMutation, type UseMutateFunction } from "@tanstack/react-query";
+import { useLayoutEffect } from "react";
 
 type UseCheckAuthenticationProps = {
   onSuccess: () => void;
@@ -10,20 +10,27 @@ type UseCheckAuthenticationProps = {
 };
 
 export type UseCheckAuthenticationReturn = {
-  checkAuthentication: UseMutateFunction<null, AuthStatusErrorResponse, void, unknown>;
+  checkAuthentication: UseMutateFunction<
+    null,
+    AuthStatusErrorResponse,
+    void,
+    unknown
+  >;
 };
 
 export const useCheckAuthentication = ({
   onSuccess,
   onError,
 }: UseCheckAuthenticationProps): UseCheckAuthenticationReturn => {
-  const mutation = useMutation<AuthStatusResponseType, AuthStatusErrorResponse>({
-    mutationFn: authStatusApi,
-    retry: false,
-    gcTime: 0,
-    onSuccess,
-    onError,
-  });
+  const mutation = useMutation<AuthStatusResponseType, AuthStatusErrorResponse>(
+    {
+      mutationFn: authStatusApi,
+      retry: false,
+      gcTime: 0,
+      onSuccess,
+      onError,
+    },
+  );
 
   useLayoutEffect(() => {
     mutation.mutate();

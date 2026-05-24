@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { Heading } from './Heading';
+import { Heading } from "./Heading";
 
 const meta = {
   component: Heading,
-  title: 'Atoms/Heading',
+  title: "Atoms/Heading",
   args: {
     level: 1,
   },
   argTypes: {
     level: {
       control: {
-        type: 'select',
+        type: "select",
         options: [1, 2, 3],
       },
     },
@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Heading 1',
-    className: 'custom-class',
+    children: "Heading 1",
+    className: "custom-class",
   },
 };

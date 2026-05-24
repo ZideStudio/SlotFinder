@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as ButtonStories from './Button.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as ButtonStories from "./Button.stories";
 
 <Meta of={ButtonStories} />
 
@@ -30,7 +30,12 @@ A reusable, accessible Button component for interaction. The Button component su
 ### As a Link with external URL
 
 ```tsx
-<Button as="a" href="https://example.com" target="_blank" rel="noopener noreferrer">
+<Button
+  as="a"
+  href="https://example.com"
+  target="_blank"
+  rel="noopener noreferrer"
+>
   Visit Example
 </Button>
 ```
@@ -38,7 +43,7 @@ A reusable, accessible Button component for interaction. The Button component su
 ### As a Span (for custom interactions)
 
 ```tsx
-<Button as="span" onClick={() => console.log('Span clicked')}>
+<Button as="span" onClick={() => console.log("Span clicked")}>
   Custom span button
 </Button>
 ```
@@ -60,7 +65,10 @@ A reusable, accessible Button component for interaction. The Button component su
         <code>ElementType</code>
       </td>
       <td>No</td>
-      <td>HTML element to render as (e.g., 'button', 'a', 'span'). Defaults to 'button'</td>
+      <td>
+        HTML element to render as (e.g., 'button', 'a', 'span'). Defaults to
+        'button'
+      </td>
     </tr>
     <tr>
       <td>
@@ -143,9 +151,11 @@ A reusable, accessible Button component for interaction. The Button component su
       </td>
       <td>No</td>
       <td>
-        All props of the underlying HTML element determined by the <code>as</code> prop (defaults to <code>button</code>{' '}
-        props, e.g. <code>onClick</code>, <code>type</code>, <code>aria-{'*'}</code>). When rendered as a native{' '}
-        <code>button</code>, <code>type</code> defaults to <code>"button"</code> unless explicitly overridden.
+        All props of the underlying HTML element determined by the{" "}
+        <code>as</code> prop (defaults to <code>button</code> props, e.g.{" "}
+        <code>onClick</code>, <code>type</code>, <code>aria-{"*"}</code>). When
+        rendered as a native <code>button</code>, <code>type</code> defaults to{" "}
+        <code>"button"</code> unless explicitly overridden.
       </td>
     </tr>
   </tbody>

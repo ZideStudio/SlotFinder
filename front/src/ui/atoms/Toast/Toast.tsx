@@ -1,9 +1,9 @@
-import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
-import { useToastService } from '@Front/ui/utils/toast/hooks/useToastService';
-import { getClassName } from '@Front/utils/getClassName';
-import { memo } from 'react';
+import { useToastSelector } from "@Front/ui/utils/toast/hooks/useToastSelector";
+import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
+import { getClassName } from "@Front/utils/getClassName";
+import { memo } from "react";
 
-import './Toast.scss';
+import "./Toast.scss";
 
 type ToastProps = {
   className?: string;
@@ -11,7 +11,7 @@ type ToastProps = {
 };
 
 const ToastComponent = ({ className, id }: ToastProps) => {
-  const toast = useToastSelector(t => t.getToastById(id));
+  const toast = useToastSelector((t) => t.getToastById(id));
   const toastService = useToastService();
 
   if (!toast) {
@@ -19,7 +19,7 @@ const ToastComponent = ({ className, id }: ToastProps) => {
   }
 
   const parentClassName = getClassName({
-    defaultClassName: 'ds-toast',
+    defaultClassName: "ds-toast",
     className,
   });
 

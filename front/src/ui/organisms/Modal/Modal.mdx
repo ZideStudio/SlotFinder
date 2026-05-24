@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as ModalStories from './Modal.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as ModalStories from "./Modal.stories";
 
 <Meta of={ModalStories} />
 
@@ -10,8 +10,8 @@ A reusable dialog component built on top of the native HTML `<dialog>` element f
 ## Usage
 
 ```tsx
-import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
-import { Modal } from '@Front/ui/organisms/modal/Modal';
+import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
+import { Modal } from "@Front/ui/organisms/modal/Modal";
 
 const Example = () => {
   const { modalRef, openModal, closeModal } = useModal();
@@ -26,11 +26,11 @@ const Example = () => {
         ref={modalRef}
         title="Modal title"
         primaryButtonProps={{
-          children: 'Action',
+          children: "Action",
           onClick: closeModal,
         }}
         secondaryButtonProps={{
-          children: 'Close',
+          children: "Close",
         }}
       >
         Modal's content
@@ -65,7 +65,8 @@ The component is designed to be controlled with a dialog ref (for example via `u
         <strong>Yes</strong>
       </td>
       <td>
-        Modal heading text, linked to the dialog through <code>aria-labelledby</code>.
+        Modal heading text, linked to the dialog through{" "}
+        <code>aria-labelledby</code>.
       </td>
     </tr>
     <tr>
@@ -85,7 +86,9 @@ The component is designed to be controlled with a dialog ref (for example via `u
         <code>primaryButtonProps</code>
       </td>
       <td>
-        <code>Omit&lt;ComponentProps&lt;typeof Button&gt;, 'className'&gt;</code>
+        <code>
+          Omit&lt;ComponentProps&lt;typeof Button&gt;, 'className'&gt;
+        </code>
       </td>
       <td>
         <strong>Yes</strong>
@@ -97,12 +100,15 @@ The component is designed to be controlled with a dialog ref (for example via `u
         <code>secondaryButtonProps</code>
       </td>
       <td>
-        <code>Omit&lt;ComponentProps&lt;typeof Button&gt;, 'className'&gt;</code>
+        <code>
+          Omit&lt;ComponentProps&lt;typeof Button&gt;, 'className'&gt;
+        </code>
       </td>
       <td>No</td>
       <td>
-        Optional props for a secondary footer action button (typically close/cancel). Its visual variant is always
-        forced to <code>secondary</code> by the component.
+        Optional props for a secondary footer action button (typically
+        close/cancel). Its visual variant is always forced to{" "}
+        <code>secondary</code> by the component.
       </td>
     </tr>
     <tr>
@@ -124,8 +130,9 @@ The component is designed to be controlled with a dialog ref (for example via `u
       </td>
       <td>No</td>
       <td>
-        Native dialog props (for example <code>onClose</code>, <code>open</code>, <code>aria-*</code>). The component
-        also sets <code>closedby="any"</code> on the native dialog element.
+        Native dialog props (for example <code>onClose</code>, <code>open</code>
+        , <code>aria-*</code>). The component also sets{" "}
+        <code>closedby="any"</code> on the native dialog element.
       </td>
     </tr>
   </tbody>
@@ -142,9 +149,9 @@ The component is designed to be controlled with a dialog ref (for example via `u
 `Modal` should be rendered via a **React Portal** into `document.body`. This ensures the dialog always renders above the rest of the page regardless of any ancestor's stacking context, and keeps it outside any landmark or sectioning element that could pollute the page's landmark structure.
 
 ```tsx
-import { createPortal } from 'react-dom';
-import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
-import { Modal } from '@Front/ui/organisms/modal/Modal';
+import { createPortal } from "react-dom";
+import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
+import { Modal } from "@Front/ui/organisms/modal/Modal";
 
 const Example = () => {
   const { modalRef, openModal, closeModal } = useModal();
@@ -160,7 +167,7 @@ const Example = () => {
           ref={modalRef}
           title="Modal title"
           primaryButtonProps={{
-            children: 'Action',
+            children: "Action",
             onClick: closeModal,
           }}
         >

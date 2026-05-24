@@ -1,8 +1,13 @@
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { getClassName } from "@Front/utils/getClassName";
-import { useId, type ComponentProps, type ElementType, type ReactNode } from 'react';
-import './Input.scss';
+import {
+  useId,
+  type ComponentProps,
+  type ElementType,
+  type ReactNode,
+} from "react";
+import "./Input.scss";
 
 type InputProps<ComponentType extends ElementType> = {
   input: ComponentType;
@@ -12,7 +17,10 @@ type InputProps<ComponentType extends ElementType> = {
   defaultClassName?: string;
   required?: boolean;
   className?: string;
-} & Omit<ComponentProps<ComponentType>, 'id' | 'aria-describedby' | 'aria-invalid' | 'required'>;
+} & Omit<
+  ComponentProps<ComponentType>,
+  "id" | "aria-describedby" | "aria-invalid" | "required"
+>;
 
 export const Input = <ComponentType extends ElementType>({
   input: InputComponent,
@@ -21,7 +29,7 @@ export const Input = <ComponentType extends ElementType>({
   label,
   required,
   className,
-  defaultClassName = 'ds-input',
+  defaultClassName = "ds-input",
   ...props
 }: InputProps<ComponentType>) => {
   const generatedId = useId();

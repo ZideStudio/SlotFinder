@@ -1,29 +1,29 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
-import { Button } from './Button';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
+import PaletteIcon from "@material-symbols/svg-400/outlined/palette.svg?react";
+import { Button } from "./Button";
 
 const meta = {
-  title: 'Molecules/Button',
+  title: "Molecules/Button",
   component: Button,
   args: {
-    children: 'Send message',
-    variant: 'primary',
-    color: 'default',
+    children: "Send message",
+    variant: "primary",
+    color: "default",
     disabled: false,
     isLoading: false,
   },
   argTypes: {
-    children: { control: 'text' },
-    variant: { control: 'select', options: ['primary', 'secondary'] },
-    color: { control: 'select', options: ['default', 'neutral', 'danger'] },
-    disabled: { control: 'boolean' },
-    isLoading: { control: 'boolean' },
+    children: { control: "text" },
+    variant: { control: "select", options: ["primary", "secondary"] },
+    color: { control: "select", options: ["default", "neutral", "danger"] },
+    disabled: { control: "boolean" },
+    isLoading: { control: "boolean" },
     as: { table: { disable: true } },
     icon: { table: { disable: true } },
   },
   decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
+    (Story) => (
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),

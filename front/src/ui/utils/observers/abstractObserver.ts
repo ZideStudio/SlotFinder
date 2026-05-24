@@ -12,6 +12,6 @@ export abstract class AbstractObserver {
   }
 
   protected notifyObservers(): void {
-    this.observers.forEach(observer => observer());
+    this.observers.forEach((observer) => observer());
   }
 }

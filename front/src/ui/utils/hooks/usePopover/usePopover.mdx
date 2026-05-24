@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Utils/Hooks/usePopover" />
 
@@ -22,12 +22,17 @@ A utility hook that generates a unique ID and CSS anchor name to link a trigger 
         <code>triggerProps</code>
       </td>
       <td>
-        <code>{"{ popoverTarget: string; data-popover-trigger: ''; style: CSSProperties }"}</code>
+        <code>
+          {
+            "{ popoverTarget: string; data-popover-trigger: ''; style: CSSProperties }"
+          }
+        </code>
       </td>
       <td>
-        Props to spread on the trigger element. Sets <code>popoverTarget</code> for the Popover API, a{' '}
-        <code>data-popover-trigger</code> attribute used by SCSS to apply <code>anchor-name</code>, and an inline style
-        with the CSS custom property <code>--popover-anchor-name</code>.
+        Props to spread on the trigger element. Sets <code>popoverTarget</code>{" "}
+        for the Popover API, a <code>data-popover-trigger</code> attribute used
+        by SCSS to apply <code>anchor-name</code>, and an inline style with the
+        CSS custom property <code>--popover-anchor-name</code>.
       </td>
     </tr>
     <tr>
@@ -35,11 +40,12 @@ A utility hook that generates a unique ID and CSS anchor name to link a trigger 
         <code>popoverProps</code>
       </td>
       <td>
-        <code>{'{ id: string; style: CSSProperties }'}</code>
+        <code>{"{ id: string; style: CSSProperties }"}</code>
       </td>
       <td>
-        Props to spread on the <code>Popover</code> component. Sets the matching <code>id</code> and the same{' '}
-        <code>--popover-anchor-name</code> inline style so CSS Anchor Positioning can resolve the anchor reference.
+        Props to spread on the <code>Popover</code> component. Sets the matching{" "}
+        <code>id</code> and the same <code>--popover-anchor-name</code> inline
+        style so CSS Anchor Positioning can resolve the anchor reference.
       </td>
     </tr>
   </tbody>
@@ -50,8 +56,8 @@ A utility hook that generates a unique ID and CSS anchor name to link a trigger 
 ### Basic usage
 
 ```tsx
-import { usePopover } from '@Front/ui/utils/hooks/usePopover/usePopover';
-import { Popover } from '@Front/ui/organisms/Popover/Popover';
+import { usePopover } from "@Front/ui/utils/hooks/usePopover/usePopover";
+import { Popover } from "@Front/ui/organisms/Popover/Popover";
 
 const Example = () => {
   const { triggerProps, popoverProps } = usePopover();
@@ -62,7 +68,11 @@ const Example = () => {
         Open popover
       </button>
 
-      <Popover {...popoverProps} title="Confirmation" primaryButtonProps={{ children: 'Confirm', onClick: () => {} }}>
+      <Popover
+        {...popoverProps}
+        title="Confirmation"
+        primaryButtonProps={{ children: "Confirm", onClick: () => {} }}
+      >
         Are you sure you want to proceed?
       </Popover>
     </>

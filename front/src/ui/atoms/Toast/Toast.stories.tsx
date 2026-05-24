@@ -1,7 +1,7 @@
-import { Button } from '@Front/ui/molecules/Button/Button';
-import { useToastService } from '@Front/ui/utils/toast/hooks/useToastService';
-import { ToastProvider } from '@Front/ui/utils/toast/toastProvider/ToastProvider';
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import { Button } from "@Front/ui/molecules/Button/Button";
+import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
+import { ToastProvider } from "@Front/ui/utils/toast/toastProvider/ToastProvider";
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
 type ToastStoryArgs = {
   label: string;
@@ -9,20 +9,21 @@ type ToastStoryArgs = {
 };
 
 const meta = {
-  title: 'Atoms/Toast',
+  title: "Atoms/Toast",
   args: {
-    label: 'This is a toast',
+    label: "This is a toast",
     duration: 3000,
   },
   argTypes: {
     label: {
-      control: { type: 'text' },
-      description: 'Toast message content',
+      control: { type: "text" },
+      description: "Toast message content",
     },
     duration: {
-      control: { type: 'select' },
+      control: { type: "select" },
       options: [null, 1000, 2000, 3000, 4000, 5000],
-      description: 'Duration in milliseconds (1000 to 5000) or null for persistent toast',
+      description:
+        "Duration in milliseconds (1000 to 5000) or null for persistent toast",
     },
   },
 } satisfies Meta<ToastStoryArgs>;
@@ -33,7 +34,10 @@ const ToastStoryContent = ({ label, duration }: ToastStoryArgs) => {
   const toastService = useToastService();
 
   return (
-    <Button onClick={() => toastService.addToast(label, duration)} style={{ width: '300px' }}>
+    <Button
+      onClick={() => toastService.addToast(label, duration)}
+      style={{ width: "300px" }}
+    >
       Ajouter un toast
     </Button>
   );

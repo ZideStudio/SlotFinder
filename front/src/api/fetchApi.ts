@@ -1,14 +1,16 @@
-import type { Json } from '@Front/types/api.types';
-import { ErrorResponse } from '@Front/types/ErrorResponse';
-import { HEADERS, METHODS, MIME_TYPES } from './constant';
-import { tokenRefreshManager } from './tokenRefreshManager';
+import type { Json } from "@Front/types/api.types";
+import { ErrorResponse } from "@Front/types/ErrorResponse";
+import { HEADERS, METHODS, MIME_TYPES } from "./constant";
+import { tokenRefreshManager } from "./tokenRefreshManager";
 
 type FetchApiError = Error & {
   code?: number;
   contentType?: MIME_TYPES;
 };
 
-type ErrorResponseClass<ErrorCodeType extends string> = new (message: string) => ErrorResponse<ErrorCodeType>;
+type ErrorResponseClass<ErrorCodeType extends string> = new (
+  message: string,
+) => ErrorResponse<ErrorCodeType>;
 
 type FetchApiProps<CustomErrorResponseCodeType extends string> = {
   path: string;
@@ -57,12 +59,14 @@ export const fetchApi = async <
   if (!response.ok) {
     const error: FetchApiError = new CustomErrorResponse(content);
     error.code = response.status;
-    error.contentType = (response.headers.get(HEADERS.contentType) as MIME_TYPES) ?? MIME_TYPES.text;
+    error.contentType =
+      (response.headers.get(HEADERS.contentType) as MIME_TYPES) ??
+      MIME_TYPES.text;
 
     throw error;
   }
 
-  if ((response.headers.get(HEADERS.contentType) ?? '').includes('json')) {
+  if ((response.headers.get(HEADERS.contentType) ?? "").includes("json")) {
     return JSON.parse(content) as Response;
   }
 
