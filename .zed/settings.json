@@ -3,123 +3,166 @@
     "Go": {
       "format_on_save": "on",
       "formatter": "language_server",
-      "language_servers": ["gopls"],
+      "language_servers": ["gopls"]
     },
     "TypeScript": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
+          "command": "npx",
           "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
             "--stdin-filepath",
             "{buffer_path}",
-            "--config",
-            "/workspace/front/prettier.config.mjs",
-          ],
-        },
-      },
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
     },
     "TSX": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
+          "command": "npx",
           "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
             "--stdin-filepath",
             "{buffer_path}",
-            "--config",
-            "/workspace/front/prettier.config.mjs",
-          ],
-        },
-      },
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
     },
     "JavaScript": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
+          "command": "npx",
           "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
             "--stdin-filepath",
             "{buffer_path}",
-            "--config",
-            "/workspace/front/prettier.config.mjs",
-          ],
-        },
-      },
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
     },
     "JSON": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
+          "command": "npx",
           "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
             "--stdin-filepath",
             "{buffer_path}",
-            "--parser",
-            "json",
-          ],
-        },
-      },
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
     },
     "CSS": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
-          "arguments": ["--stdin-filepath", "{buffer_path}", "--parser", "css"],
-        },
-      },
+          "command": "npx",
+          "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
+            "--stdin-filepath",
+            "{buffer_path}",
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
+    },
+    "SCSS": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "npx",
+          "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
+            "--stdin-filepath",
+            "{buffer_path}",
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
     },
     "Markdown": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
+          "command": "npx",
           "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
             "--stdin-filepath",
             "{buffer_path}",
-            "--parser",
-            "markdown",
-          ],
-        },
-      },
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
     },
     "YAML": {
       "format_on_save": "on",
       "formatter": {
         "external": {
-          "command": "prettier",
+          "command": "npx",
           "arguments": [
+            "--prefix",
+            "/workspace/front",
+            "oxfmt",
             "--stdin-filepath",
             "{buffer_path}",
-            "--parser",
-            "yaml",
-          ],
-        },
-      },
-    },
+            "-c",
+            "/workspace/front/.oxfmtrc.json"
+          ]
+        }
+      }
+    }
   },
   "lsp": {
     "gopls": {
       "binary": {
         "path": "gopls",
-        "arguments": [],
+        "arguments": []
       },
       "settings": {
         "gopls": {
           "ui.completion.usePlaceholders": true,
           "ui.diagnostic.analyses": {
             "unusedparams": true,
-            "shadow": true,
-          },
-        },
-      },
-    },
+            "shadow": true
+          }
+        }
+      }
+    }
   },
   "terminal": {
-    "working_directory": "current_project_directory",
+    "working_directory": "current_project_directory"
   },
   "code_actions_on_format": {
-    "source.organizeImports": true,
-  },
+    "source.organizeImports": true
+  }
 }

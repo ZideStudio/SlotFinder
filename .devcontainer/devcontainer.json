@@ -3,11 +3,7 @@
   "dockerComposeFile": ["../docker-compose.dev.yml"],
   "service": "devtools",
   "workspaceFolder": "/workspace",
-  "runServices": [
-    "traefik",
-    "postgres",
-    "devtools"
-  ],
+  "runServices": ["traefik", "postgres", "devtools"],
   "shutdownAction": "stopCompose",
   "remoteEnv": {
     "DISPLAY": ":99",
@@ -20,56 +16,53 @@
     "vscode": {
       "extensions": [
         "golang.go",
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
         "ms-azuretools.vscode-docker",
         "eamodio.gitlens",
         "vitest.explorer",
         "github.copilot-chat",
-        "oxc.oxc-vscode"
+        "oxc.oxc-vscode",
+        "stylelint.vscode-stylelint"
       ],
       "settings": {
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
-          "source.organizeImports": "explicit"
+          "source.format.oxc": "always",
+          "source.fixAll.oxc": "always"
         },
         "[go]": {
           "editor.defaultFormatter": "golang.go",
           "editor.formatOnSave": true
         },
         "[typescript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[typescriptreact]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[javascript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[javascriptreact]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.formatOnSave": true
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[json]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[jsonc]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[css]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[scss]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[markdown]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[yaml]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
+          "editor.defaultFormatter": "oxc.oxc-vscode",
+          "editor.formatOnSave": true
         },
         "go.gopath": "/go",
         "go.toolsGopath": "/go",
@@ -85,8 +78,10 @@
         },
         "go.lintTool": "golangci-lint",
         "go.toolsManagement.autoUpdate": true,
-        "prettier.configPath": "front/prettier.config.mjs",
-        "prettier.prettierPath": "front/node_modules/prettier",
+        "oxc.fmt.configPath": "front/.oxfmtrc.json",
+        "stylelint.validate": ["css", "scss"],
+        "stylelint.stylelintPath": "front/node_modules/stylelint",
+        "stylelint.configFile": "/workspace/front/stylelint.config.mjs",
         "typescript.tsdk": "front/node_modules/typescript/lib",
         "typescript.enablePromptUseWorkspaceTsdk": true,
         "debug.javascript.autoAttachFilter": "disabled",
