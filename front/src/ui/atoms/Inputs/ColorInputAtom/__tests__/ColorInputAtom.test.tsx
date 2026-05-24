@@ -1,9 +1,17 @@
-import { ColorInputAtom } from '../ColorInputAtom';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
+import { ColorInputAtom } from '../ColorInputAtom';
+
+const ControlledColorInputAtom = ({ description }: { description: string }) => {
+  const [value, setValue] = useState('');
+  return (
+    <ColorInputAtom name="color" description={description} value={value} onChange={e => setValue(e.target.value)} />
+  );
+};
 
 describe('ColorInput', () => {
   it('renders the color input with default value', () => {
-    render(<ColorInputAtom name="color" description="Choisir une couleur" />);
+    render(<ColorInputAtom name="color" description="Choisir une couleur" value="" onChange={vi.fn()} />);
 
     expect(screen.getByText('Choisir une couleur')).toBeInTheDocument();
 
@@ -13,7 +21,7 @@ describe('ColorInput', () => {
   });
 
   it('updates the value when a new color is selected', () => {
-    render(<ColorInputAtom name="color" description="Choisir une couleur" />);
+    render(<ControlledColorInputAtom description="Choisir une couleur" />);
 
     const input = screen.getByLabelText('Choisir une couleur');
 
@@ -25,7 +33,7 @@ describe('ColorInput', () => {
   });
 
   it('applies extra props to the input', () => {
-    render(<ColorInputAtom name="color" disabled description="La couleur" />);
+    render(<ColorInputAtom name="color" disabled description="La couleur" readOnly value="" onChange={vi.fn()} />);
 
     const input = screen.getByLabelText('La couleur');
 
@@ -33,7 +41,7 @@ describe('ColorInput', () => {
   });
 
   it('change description when color is selected', () => {
-    render(<ColorInputAtom name="color" description="Choisir une couleur" />);
+    render(<ControlledColorInputAtom description="Choisir une couleur" />);
 
     const input = screen.getByLabelText('Choisir une couleur');
 
