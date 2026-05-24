@@ -5,6 +5,6 @@ export const homeRoutes: RouteObject = {
   index: true,
   element: <Home />,
   handle: {
-    hideHeader: true,
+    hideHeader: false,
   },
 };
