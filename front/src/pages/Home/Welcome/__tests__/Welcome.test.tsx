@@ -23,4 +23,8 @@ describe('Welcome', () => {
   it('renders the sign up link', async () => {
     await expect(screen.findByRole('link', { name: 'Sign Up' })).resolves.toHaveAttribute('href', appRoutes.signUp());
   });
+
+  it('does not render the header banner', () => {
+    expect(screen.queryByRole('banner')).toBeNull();
+  });
 });

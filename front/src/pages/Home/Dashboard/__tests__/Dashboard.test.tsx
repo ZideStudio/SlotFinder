@@ -9,9 +9,15 @@ const renderRouteOptions: RenderRouteOptions = {
 };
 
 describe('Dashboard', () => {
-  it('renders the dashboard heading', async () => {
+  it('should render the dashboard heading', async () => {
     renderRoute(renderRouteOptions);
 
     await expect(screen.findByRole('heading', { level: 1, name: 'dashboard.title' })).resolves.toBeInTheDocument();
+  });
+
+  it('should render the header banner', async () => {
+    renderRoute(renderRouteOptions);
+
+    await expect(screen.findByRole('banner')).resolves.toBeInTheDocument();
   });
 });

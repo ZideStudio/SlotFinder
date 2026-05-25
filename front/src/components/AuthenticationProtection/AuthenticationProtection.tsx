@@ -1,5 +1,6 @@
 import { useAuthenticationContext } from '@Front/hooks/useAuthenticationContext';
 import { appRoutes } from '@Front/routing/appRoutes';
+import type { RouteHandle } from '@Front/routing/routeHandle';
 import { useMemo, type ReactNode } from 'react';
 import { Navigate, useLocation, useMatches, type UIMatch } from 'react-router';
 
@@ -11,7 +12,7 @@ export const AuthenticationProtection = ({ children }: AuthenticationProtectionP
   const { isAuthenticated, postAuthRedirectPath, setPostAuthRedirectPath, resetPostAuthRedirectPath } =
     useAuthenticationContext();
   const { pathname } = useLocation();
-  const matches = useMatches() as UIMatch<unknown, { mustBeAuthenticate?: boolean }>[];
+  const matches = useMatches() as UIMatch<unknown, RouteHandle>[];
 
   const mustBeAuthenticate = useMemo(() => {
     const currentMatch = matches.find(match => match.pathname === pathname);
