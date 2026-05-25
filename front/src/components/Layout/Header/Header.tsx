@@ -1,11 +1,11 @@
+import type { RouteHandle } from '@Front/routing/routeHandle';
 import { Button } from '@Front/ui/molecules/Button/Button';
 import AddCalendarIcon from '@material-symbols/svg-400/outlined/calendar_add_on.svg?react';
 import Person from '@material-symbols/svg-400/outlined/person.svg?react';
+import { useMemo } from 'react';
+import { type UIMatch, useMatches } from 'react-router';
 import logo from '../../../../public/assets/logo.png';
 
-import { RouteHandle } from '@Front/routing/routeHandle';
-import { useMemo } from 'react';
-import { UIMatch, useMatches } from 'react-router';
 import './Header.scss';
 
 export const Header = () => {

@@ -2,7 +2,7 @@ import { routeObject } from '@Front/routing/routes';
 import { renderRoute } from '@Front/utils/testsUtils/customRender/customRender';
 import { getAuthStatus200 } from '@Mocks/handlers/authStatusHandlers';
 import { server } from '@Mocks/server';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { Header } from '../Header';
 
 describe('Header', () => {
