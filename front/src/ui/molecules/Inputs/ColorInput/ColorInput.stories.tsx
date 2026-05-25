@@ -1,8 +1,8 @@
 import { type ComponentProps, useState } from 'react';
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
 
-import { ColorInput } from './ColorInput';
 import { fn } from 'storybook/test';
+import { ColorInput } from './ColorInput';
 
 const ColorInputStory = ({ onChange, ...args }: ComponentProps<typeof ColorInput>) => {
   const [value, setValue] = useState('');
@@ -31,6 +31,7 @@ const meta = {
     className: 'custom-class',
   },
   argTypes: {
+    value: { table: { disable: true } },
     onChange: { action: true, table: { disable: true } },
   },
   render: args => <ColorInputStory {...args} />,

@@ -19,7 +19,9 @@ export const ColorField = <FormValues extends FieldValues = FieldValues>({
     <Controller
       name={name}
       control={control}
-      render={({ field, fieldState: { error } }) => <ColorInput {...props} {...field} error={error?.message} />}
+      render={({ field, fieldState: { error } }) => (
+        <ColorInput {...props} {...field} value={field.value ?? ''} error={error?.message} />
+      )}
     />
   );
 };

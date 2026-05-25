@@ -27,6 +27,7 @@ const meta = {
     onChange: fn(),
   },
   argTypes: {
+    value: { table: { disable: true } },
     onChange: { action: true, table: { disable: true } },
   },
   render: args => <ColorInputAtomStory {...args} />,
