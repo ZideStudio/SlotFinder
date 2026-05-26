@@ -31,16 +31,19 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=zide-traefik-n"
       - "traefik.http.services.slotfinder-prd-backend.loadbalancer.server.port=3000"
-      - "traefik.http.routers.slotfinder-prd-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.slotfinder-prd-backend.entrypoints=websecure"
-      - "traefik.http.routers.slotfinder-prd-backend.tls.certresolver=zideresolver"
-      - "traefik.http.routers.slotfinder-prd-backend.service=slotfinder-prd-backend"
-      - "traefik.http.routers.slotfinder-prd-backend.middlewares=slotfinder-prd-backend-stripprefix"
-      - "traefik.http.middlewares.slotfinder-prd-backend-stripprefix.stripprefix.prefixes=/api"
+      # HTTPS route
+      - "traefik.http.routers.slotfinder-prd-backend-https.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-prd-backend-https.entrypoints=websecure"
+      - "traefik.http.routers.slotfinder-prd-backend-https.tls.certresolver=zideresolver"
+      - "traefik.http.routers.slotfinder-prd-backend-https.service=slotfinder-prd-backend"
+      - "traefik.http.routers.slotfinder-prd-backend-https.middlewares=slotfinder-prd-backend-stripprefix"
+      # HTTP route
       - "traefik.http.routers.slotfinder-prd-backend-http.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-prd-backend-http.entrypoints=web"
       - "traefik.http.routers.slotfinder-prd-backend-http.service=slotfinder-prd-backend"
       - "traefik.http.routers.slotfinder-prd-backend-http.middlewares=slotfinder-prd-backend-stripprefix"
+      # Middleware
+      - "traefik.http.middlewares.slotfinder-prd-backend-stripprefix.stripprefix.prefixes=/api"
 
 networks:
   zide-traefik-n:
