@@ -17,7 +17,7 @@ Frontend (Node/React) + Backend (Go)
    Staging/Production
 ```
 
-**Note**: L'application utilise un réseau Traefik externe (`slotfinder-traefik-n`) partagé. Assurez-vous que ce réseau existe et est configuré correctement.
+**Note**: L'application utilise le réseau Traefik externe existant (`zide-traefik-n`) partagé. Assurez-vous que ce réseau existe et est configuré correctement.
 
 ## Déploiement Staging
 
@@ -86,14 +86,14 @@ PRD_DOMAIN: slotfinder.fr
 
 ## Configuration Traefik
 
-L'application utilise un **réseau Traefik externe** (`slotfinder-traefik-n`). Les routes et middlewares sont configurés via les **labels Docker** dans les fichiers `docker-compose`.
+L'application utilise le **réseau Traefik externe partagé** (`zide-traefik-n`). Les routes et middlewares sont configurés via les **labels Docker** dans les fichiers `docker-compose`.
 
 ### Prérequis
 
 Le réseau Traefik doit exister et être accessible:
 
 ```bash
-docker network create slotfinder-traefik-n
+docker network create zide-traefik-n
 ```
 
 ### Configuration des routes
@@ -133,8 +133,8 @@ Chaque environnement (`docker-compose-stg.yml` et `docker-compose-prd.yml`) cont
 ### Réseau
 
 Les deux services sont connectés au réseau Traefik externe:
-- **Staging**: `slotfinder-traefik-n`
-- **Production**: `slotfinder-traefik-n`
+- **Staging**: `zide-traefik-n`
+- **Production**: `zide-traefik-n`
 
 **Aucun port n'est exposé directement** - tout le trafic passe par Traefik.
 

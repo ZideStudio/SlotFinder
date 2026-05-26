@@ -6,10 +6,10 @@ services:
     container_name: slotfinder-prd-frontend
     restart: unless-stopped
     networks:
-      - slotfinder-traefik-n
+      - zide-traefik-n
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=slotfinder-traefik-n"
+      - "traefik.docker.network=zide-traefik-n"
       - "traefik.http.services.slotfinder-prd-frontend.loadbalancer.server.port=80"
       - "traefik.http.routers.slotfinder-prd-frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-prd-frontend.entrypoints=websecure"
@@ -24,13 +24,13 @@ services:
     container_name: slotfinder-prd-backend
     restart: unless-stopped
     networks:
-      - slotfinder-traefik-n
+      - zide-traefik-n
     environment:
       - PORT=3000
       - HOST=0.0.0.0
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=slotfinder-traefik-n"
+      - "traefik.docker.network=zide-traefik-n"
       - "traefik.http.services.slotfinder-prd-backend.loadbalancer.server.port=3000"
       - "traefik.http.routers.slotfinder-prd-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-prd-backend.entrypoints=websecure"
@@ -44,5 +44,5 @@ services:
       - "traefik.http.routers.slotfinder-prd-backend-http.middlewares=slotfinder-prd-backend-stripprefix"
 
 networks:
-  slotfinder-traefik-n:
+  zide-traefik-n:
     external: true
