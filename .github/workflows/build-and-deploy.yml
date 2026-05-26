@@ -28,19 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Front Docker Image for Staging
-        run: |
-          docker build \
-            -f front/Dockerfile.prod \
-            -t stg-${IMAGE_NAME}-front:${{ github.sha }} \
-            .
-
-      - name: Build Back Docker Image for Staging
-        run: |
-          docker build \
-            -f back/Dockerfile \
-            -t stg-${IMAGE_NAME}-back:${{ github.sha }} \
-            .
+      - name: Build Staging Images
+        run: docker compose -f docker-compose-build-stg.yml build
+        env:
+          IMAGE_TAG: ${{ github.sha }}
 
   deploy-staging:
     name: Deploy to Staging
@@ -55,13 +46,7 @@ jobs:
           export DOMAIN=${STG_DOMAIN}
           export FRONT_IMAGE=stg-${IMAGE_NAME}-front:${{ github.sha }}
           export BACK_IMAGE=stg-${IMAGE_NAME}-back:${{ github.sha }}
-
-          # Pull the latest images to ensure they're available
-          docker pull ${FRONT_IMAGE} || true
-          docker pull ${BACK_IMAGE} || true
-
-          # Deploy using docker-compose
-          docker-compose -f docker-compose-stg.yml up -d
+          docker compose -f docker-compose-stg.yml up -d
         env:
           COMPOSE_PROJECT_NAME: slotfinder-stg
 
@@ -73,19 +58,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Front Docker Image for Production
-        run: |
-          docker build \
-            -f front/Dockerfile.prod \
-            -t prd-${IMAGE_NAME}-front:${{ github.ref_name }} \
-            .
-
-      - name: Build Back Docker Image for Production
-        run: |
-          docker build \
-            -f back/Dockerfile \
-            -t prd-${IMAGE_NAME}-back:${{ github.ref_name }} \
-            .
+      - name: Build Production Images
+        run: docker compose -f docker-compose-build-prd.yml build
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
 
   deploy-production:
     name: Deploy to Production
@@ -100,12 +76,6 @@ jobs:
           export DOMAIN=${PRD_DOMAIN}
           export FRONT_IMAGE=prd-${IMAGE_NAME}-front:${{ github.ref_name }}
           export BACK_IMAGE=prd-${IMAGE_NAME}-back:${{ github.ref_name }}
-
-          # Pull the latest images to ensure they're available
-          docker pull ${FRONT_IMAGE} || true
-          docker pull ${BACK_IMAGE} || true
-
-          # Deploy using docker-compose
-          docker-compose -f docker-compose-prd.yml up -d
+          docker compose -f docker-compose-prd.yml up -d
         env:
           COMPOSE_PROJECT_NAME: slotfinder-prd
