@@ -1,0 +1,82 @@
+name: Develop Pipeline
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: develop-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  back-ci:
+    name: Back CI
+    uses: ./.github/workflows/back-build.yaml
+    with:
+      base_ref: ${{ github.event.before }}
+    secrets: inherit
+
+  front-ci:
+    name: Front CI
+    uses: ./.github/workflows/front-build.yaml
+    with:
+      base_ref: ${{ github.event.before }}
+    secrets: inherit
+
+  docker-ci:
+    name: Docker CI
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      base_ref: ${{ github.event.before }}
+    secrets: inherit
+
+  build-staging:
+    name: Build Staging Images
+    needs: [back-ci, front-ci, docker-ci]
+    if: github.actor != 'renovate[bot]'
+    runs-on: self-hosted
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create JWT keys for staging
+        run: |
+          mkdir -p back/config/jwt
+          echo "${{ secrets.JWT_PRIVATE_KEY_STG }}" > back/config/jwt/private.pem
+          echo "${{ secrets.JWT_PUBLIC_KEY_STG }}" > back/config/jwt/public.pem
+          chmod 644 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/public.pem
+
+      - name: Create .env for frontend staging
+        run: echo "${{ secrets.FRONT_ENV_STG }}" > .env
+
+      - name: Build Staging Images
+        run: docker compose -f docker-compose-build-stg.yml build
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-staging
+    if: github.actor != 'renovate[bot]'
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env for backend staging
+        run: echo "${{ secrets.BACK_ENV_STG }}" > .env
+
+      - name: Deploy Staging Services
+        run: |
+          export DOMAIN=stg.slotfinder.fr
+          export FRONT_IMAGE=stg-slotfinder-front:${{ github.sha }}
+          export BACK_IMAGE=stg-slotfinder-back:${{ github.sha }}
+          docker compose -f docker-compose-stg.yml up -d
+        env:
+          COMPOSE_PROJECT_NAME: slotfinder-stg

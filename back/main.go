@@ -32,8 +32,8 @@ func main() {
 	}
 
 	err := godotenv.Load()
-	if err != nil {
-		log.Error().Msg("Error loading .env file")
+	if err != nil && !os.IsNotExist(err) {
+		log.Error().Err(err).Msg("Error loading .env file")
 		panic(err)
 	}
 
