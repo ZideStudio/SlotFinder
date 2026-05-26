@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:3.2.2
+    command:
+      - --api.insecure=false
+      - --providers.docker=false
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.http.http.redirections.entrypoint.scheme=https
+      - --providers.file.directory=/etc/traefik/conf.d
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
+      - --certificatesresolvers.letsencrypt.acme.email=admin@stg.slotfinder.fr
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
+    volumes:
+      - ./docker/traefik-dynamic.stg.yml:/etc/traefik/conf.d/dynamic.yml:ro
+      - traefik_acme:/acme
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    networks:
+      - slotfinder
+
+  frontend:
+    image: ${FRONT_IMAGE}
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - slotfinder
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.stg-frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)
+      - traefik.http.routers.stg-frontend.entrypoints=https
+      - traefik.http.routers.stg-frontend.tls=true
+      - traefik.http.routers.stg-frontend.tls.certresolver=letsencrypt
+      - traefik.http.services.stg-frontend.loadbalancer.server.port=80
+
+  backend:
+    image: ${BACK_IMAGE}
+    expose:
+      - "3000"
+    restart: unless-stopped
+    networks:
+      - slotfinder
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.stg-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)
+      - traefik.http.routers.stg-backend.entrypoints=https
+      - traefik.http.routers.stg-backend.tls=true
+      - traefik.http.routers.stg-backend.tls.certresolver=letsencrypt
+      - traefik.http.routers.stg-backend.middlewares=stg-backend-stripprefix
+      - traefik.http.middlewares.stg-backend-stripprefix.stripprefix.prefixes=/api
+      - traefik.http.services.stg-backend.loadbalancer.server.port=3000
+
+volumes:
+  traefik_acme:
+
+networks:
+  slotfinder:
+    name: slotfinder-stg
+    driver: bridge

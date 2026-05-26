@@ -1,0 +1,36 @@
+http:
+  routers:
+    frontend:
+      rule: "Host(`stg.slotfinder.fr`) && !PathPrefix(`/api`)"
+      service: frontend
+      entryPoints:
+        - https
+      tls:
+        certResolver: letsencrypt
+
+    backend:
+      rule: "Host(`stg.slotfinder.fr`) && PathPrefix(`/api`)"
+      service: backend
+      entryPoints:
+        - https
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - backend-stripprefix
+
+  middlewares:
+    backend-stripprefix:
+      stripPrefix:
+        prefixes:
+          - /api
+
+  services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:80"
+
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://backend:3000"
