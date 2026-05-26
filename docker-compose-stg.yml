@@ -13,7 +13,7 @@ services:
       - "traefik.http.services.slotfinder-stg-frontend.loadbalancer.server.port=80"
       - "traefik.http.routers.slotfinder-stg-frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-stg-frontend.entrypoints=websecure"
-      - "traefik.http.routers.slotfinder-stg-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.slotfinder-stg-frontend.tls.certresolver=zideresolver"
       - "traefik.http.routers.slotfinder-stg-frontend.service=slotfinder-stg-frontend"
       - "traefik.http.routers.slotfinder-stg-frontend-http.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-stg-frontend-http.entrypoints=web"
@@ -25,16 +25,15 @@ services:
     restart: unless-stopped
     networks:
       - zide-traefik-n
-    environment:
-      - PORT=3000
-      - HOST=0.0.0.0
+    env_file:
+      - .env
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=zide-traefik-n"
       - "traefik.http.services.slotfinder-stg-backend.loadbalancer.server.port=3000"
       - "traefik.http.routers.slotfinder-stg-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-stg-backend.entrypoints=websecure"
-      - "traefik.http.routers.slotfinder-stg-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.slotfinder-stg-backend.tls.certresolver=zideresolver"
       - "traefik.http.routers.slotfinder-stg-backend.service=slotfinder-stg-backend"
       - "traefik.http.routers.slotfinder-stg-backend.middlewares=slotfinder-stg-backend-stripprefix"
       - "traefik.http.middlewares.slotfinder-stg-backend-stripprefix.stripprefix.prefixes=/api"

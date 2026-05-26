@@ -138,9 +138,91 @@ Les deux services sont connectés au réseau Traefik externe:
 
 **Aucun port n'est exposé directement** - tout le trafic passe par Traefik.
 
-## Secrets requis
+## Gestion des variables d'environnement
 
-**Note**: Le workflow utilise `self-hosted` runners. Assurez-vous que les secrets nécessaires sont configurés sur votre serveur.
+### Frontend
+- Les variables sont chargées depuis le fichier `.env` **au moment du build**
+- Toutes les variables avec le prefix `FRONT_` sont injectées dans le bundle JavaScript
+- Format: `FRONT_API_URL=https://stg.slotfinder.fr/api`
+- Ces variables sont statiques dans le bundle final
+- **Le `.env` du frontend n'inclut QUE les variables frontend**
+
+### Backend
+- Les variables sont passées via un fichier `.env` **au déploiement**
+- Docker Compose charge dynamiquement toutes les variables pour le container
+- Format: `DB_HOST=postgres`, `DB_PORT=5432`, etc.
+- Ces variables sont chargées par `godotenv.Load()` au startup du backend
+- **Le `.env` du backend n'inclut QUE les variables backend**
+
+## Secrets GitHub
+
+Quatre secrets doivent être créés dans GitHub:
+
+### `FRONT_ENV_STG` (Frontend Staging)
+```
+FRONT_API_URL=https://stg.slotfinder.fr/api
+FRONT_OTHER_VAR=value
+FRONT_DEBUG=true
+```
+
+### `BACK_ENV_STG` (Backend Staging)
+```
+DB_HOST=postgres-stg
+DB_PORT=5432
+DB_USER=slotfinder
+DB_PASSWORD=secret
+DB_NAME=slotfinder_stg
+APP_HOST=0.0.0.0
+APP_PORT=3000
+ENV=staging
+IMAGBB_API_KEY=your-key
+ORIGIN=https://stg.slotfinder.fr
+DOMAIN=stg.slotfinder.fr
+```
+
+### `FRONT_ENV_PRD` (Frontend Production)
+```
+FRONT_API_URL=https://slotfinder.fr/api
+FRONT_OTHER_VAR=value
+FRONT_DEBUG=false
+```
+
+### `BACK_ENV_PRD` (Backend Production)
+```
+DB_HOST=postgres-prd
+DB_PORT=5432
+DB_USER=slotfinder
+DB_PASSWORD=secret
+DB_NAME=slotfinder_prd
+APP_HOST=0.0.0.0
+APP_PORT=3000
+ENV=production
+IMAGBB_API_KEY=your-key
+ORIGIN=https://slotfinder.fr
+DOMAIN=slotfinder.fr
+```
+
+## Workflow
+
+### Build
+1. Crée un fichier `.env` depuis le secret `FRONT_ENV_STG` ou `FRONT_ENV_PRD`
+2. Lance `docker compose build` avec le `.env` disponible
+3. Le frontend copie le `.env` et l'utilise au build (inject dans le JS)
+4. Le `.env` n'est **PAS** inclus dans l'image frontend (seulement les variables injectées)
+
+### Déploiement
+1. Crée un fichier `.env` depuis le secret `BACK_ENV_STG` ou `BACK_ENV_PRD`
+2. Lance `docker compose up -d` avec le `.env`
+3. Docker Compose charge les variables pour le container backend
+4. Le `.env` reste sur le serveur pour les redémarrages
+
+## Séparation des secrets
+
+**Avantages:**
+- ✅ Le frontend ne connaît PAS les variables backend (DB credentials, etc.)
+- ✅ Le backend ne connaît PAS les variables frontend inutilisées
+- ✅ Plus sécurisé : chaque composant n'a accès qu'à ce qu'il lui faut
+- ✅ Facile de rotation des secrets indépendamment
 
 ## Considérations de sécurité
 

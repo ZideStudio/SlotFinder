@@ -19,6 +19,9 @@ ENV MISE_TRUSTED_CONFIG_PATHS="/app"
 # Copy mise configuration
 COPY .mise.toml ./
 
+# Copy .env for build
+COPY .env* ./
+
 # Install Node.js and npm via mise
 RUN mise install
 

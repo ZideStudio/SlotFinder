@@ -28,6 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env for frontend staging
+        run: echo "${{ secrets.FRONT_ENV_STG }}" > .env
+
       - name: Build Staging Images
         run: docker compose -f docker-compose-build-stg.yml build
         env:
@@ -40,6 +43,9 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create .env for backend staging
+        run: echo "${{ secrets.BACK_ENV_STG }}" > .env
 
       - name: Deploy Staging Services
         run: |
@@ -58,6 +64,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env for frontend production
+        run: echo "${{ secrets.FRONT_ENV_PRD }}" > .env
+
       - name: Build Production Images
         run: docker compose -f docker-compose-build-prd.yml build
         env:
@@ -70,6 +79,9 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create .env for backend production
+        run: echo "${{ secrets.BACK_ENV_PRD }}" > .env
 
       - name: Deploy Production Services
         run: |
