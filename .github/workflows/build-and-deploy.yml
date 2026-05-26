@@ -28,6 +28,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create JWT keys for staging
+        run: |
+          mkdir -p back/config/jwt
+          echo "${{ secrets.JWT_PRIVATE_KEY_STG }}" > back/config/jwt/private.pem
+          echo "${{ secrets.JWT_PUBLIC_KEY_STG }}" > back/config/jwt/public.pem
+          chmod 600 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/public.pem
+
       - name: Create .env for frontend staging
         run: echo "${{ secrets.FRONT_ENV_STG }}" > .env
 
@@ -63,6 +71,14 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create JWT keys for production
+        run: |
+          mkdir -p back/config/jwt
+          echo "${{ secrets.JWT_PRIVATE_KEY_PRD }}" > back/config/jwt/private.pem
+          echo "${{ secrets.JWT_PUBLIC_KEY_PRD }}" > back/config/jwt/public.pem
+          chmod 600 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/public.pem
 
       - name: Create .env for frontend production
         run: echo "${{ secrets.FRONT_ENV_PRD }}" > .env
