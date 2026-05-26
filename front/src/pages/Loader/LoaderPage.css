@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Classe pour le loader SVG */
+.svg-loader {
+  width: 300px; /* Ajustez la taille selon vos besoins */
+  height: auto;
+}
+
+/* --- Adaptation du CSS de cssloader --- */
+.animated-path {
+  /* 1. Transparence de base et Contour */
+  stroke: #000000;
+  stroke-width: 20px; /* Augmenté car la viewBox du SVG est immense (5335px) */
+  fill: none; /* Ajustez l'épaisseur du contour */
+
+  /* 2. Application du Masque (pour l'effet de remplissage) */
+  mask: url(#wave-mask);
+}
+
+/* Définition de l'onde dans le masque (équivalent du gradient CSS) */
+#wave-rect {
+  animation: wave-animation 2s linear infinite;
+}
+
+/* 3. L'Animation (adaptée pour SVG) */
+@keyframes wave-animation {
+  from {
+    x: -320px; /* Commence décalé à gauche (taille du motif) */
+  }
+  to {
+    x: 0; /* Revient à la position initiale */
+  }
+}
