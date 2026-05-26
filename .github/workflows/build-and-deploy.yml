@@ -33,7 +33,7 @@ jobs:
           mkdir -p back/config/jwt
           echo "${{ secrets.JWT_PRIVATE_KEY_STG }}" > back/config/jwt/private.pem
           echo "${{ secrets.JWT_PUBLIC_KEY_STG }}" > back/config/jwt/public.pem
-          chmod 600 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/private.pem
           chmod 644 back/config/jwt/public.pem
 
       - name: Create .env for frontend staging
@@ -53,12 +53,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create .env for backend staging
-        run: |
-          {
-            echo "${{ secrets.BACK_ENV_STG }}"
-            echo "AUTH_PRIVATE_KEY_B64=$(base64 -i <(echo \"${{ secrets.JWT_PRIVATE_KEY_STG }}\" | tr -d '\r') | tr -d '\n')"
-            echo "AUTH_PUBLIC_KEY_B64=$(base64 -i <(echo \"${{ secrets.JWT_PUBLIC_KEY_STG }}\" | tr -d '\r') | tr -d '\n')"
-          } > .env
+        run: echo "${{ secrets.BACK_ENV_STG }}" > .env
 
       - name: Deploy Staging Services
         run: |
@@ -82,7 +77,7 @@ jobs:
           mkdir -p back/config/jwt
           echo "${{ secrets.JWT_PRIVATE_KEY_PRD }}" > back/config/jwt/private.pem
           echo "${{ secrets.JWT_PUBLIC_KEY_PRD }}" > back/config/jwt/public.pem
-          chmod 600 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/private.pem
           chmod 644 back/config/jwt/public.pem
 
       - name: Create .env for frontend production
@@ -102,12 +97,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create .env for backend production
-        run: |
-          {
-            echo "${{ secrets.BACK_ENV_PRD }}"
-            echo "AUTH_PRIVATE_KEY_B64=$(base64 -i <(echo \"${{ secrets.JWT_PRIVATE_KEY_PRD }}\" | tr -d '\r') | tr -d '\n')"
-            echo "AUTH_PUBLIC_KEY_B64=$(base64 -i <(echo \"${{ secrets.JWT_PUBLIC_KEY_PRD }}\" | tr -d '\r') | tr -d '\n')"
-          } > .env
+        run: echo "${{ secrets.BACK_ENV_PRD }}" > .env
 
       - name: Deploy Production Services
         run: |

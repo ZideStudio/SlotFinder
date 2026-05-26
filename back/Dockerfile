@@ -29,6 +29,9 @@ RUN go tool swag init && \
 # compile application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app/slotfinder
 
+# ensure jwt directory exists with correct permissions
+RUN mkdir -p /usr/src/app/config/jwt && chmod 755 /usr/src/app/config/jwt
+
 ##
 ## STEP 2 - DEPLOY
 ##
@@ -37,6 +40,7 @@ FROM scratch
 COPY --from=build /usr/src/app/slotfinder /slotfinder
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/
+COPY --chown=1001:0 --from=build /usr/src/app/config/jwt/ /config/jwt/
 
 USER appuser
 
