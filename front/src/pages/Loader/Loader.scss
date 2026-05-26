@@ -1,0 +1,11 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__spinner {
+    --ds-spinner-size: 4rem;
+  }
+}
