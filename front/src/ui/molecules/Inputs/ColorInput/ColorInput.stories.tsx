@@ -1,5 +1,22 @@
+import { type ComponentProps, useState } from 'react';
 import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+
+import { fn } from 'storybook/test';
 import { ColorInput } from './ColorInput';
+
+const ColorInputStory = ({ onChange, ...args }: ComponentProps<typeof ColorInput>) => {
+  const [value, setValue] = useState('');
+  return (
+    <ColorInput
+      {...args}
+      value={value}
+      onChange={e => {
+        setValue(e.target.value);
+        onChange?.(e);
+      }}
+    />
+  );
+};
 
 const meta = {
   title: 'Molecules/Inputs/ColorInput',
@@ -8,12 +25,16 @@ const meta = {
     label: 'Label',
     name: 'color-input',
     description: 'Choisir une couleur',
+    value: '',
+    onChange: fn(),
     required: false,
     className: 'custom-class',
   },
   argTypes: {
+    value: { table: { disable: true } },
     onChange: { action: true, table: { disable: true } },
   },
+  render: args => <ColorInputStory {...args} />,
 } satisfies Meta<typeof ColorInput>;
 
 export default meta;

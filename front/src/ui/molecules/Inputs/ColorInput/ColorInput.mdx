@@ -10,8 +10,19 @@ Combines the `ColorInputAtom` with a label and error message via the `Field` uti
 
 ## Usage
 
+`ColorInput` is a **controlled component**: the parent is responsible for managing the selected color via `value` and `onChange`.
+
 ```tsx
-<ColorInput label="Input Label" name="color-input" description="Choisir une couleur" className="custom-class" />
+const [color, setColor] = useState('');
+
+<ColorInput
+  label="Input Label"
+  name="color-input"
+  description="Choisir une couleur"
+  value={color}
+  onChange={e => setColor(e.target.value)}
+  className="custom-class"
+/>;
 ```
 
 ## Props
@@ -28,18 +39,6 @@ Combines the `ColorInputAtom` with a label and error message via the `Field` uti
   <tbody>
     <tr>
       <td>
-        <code>label</code>
-      </td>
-      <td>
-        <code>ReactNode</code>
-      </td>
-      <td>
-        <strong>Yes</strong>
-      </td>
-      <td>Input label for accessibility and user understanding</td>
-    </tr>
-    <tr>
-      <td>
         <code>name</code>
       </td>
       <td>
@@ -52,6 +51,18 @@ Combines the `ColorInputAtom` with a label and error message via the `Field` uti
     </tr>
     <tr>
       <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>Input label for accessibility and user understanding</td>
+    </tr>
+    <tr>
+      <td>
         <code>description</code>
       </td>
       <td>
@@ -61,6 +72,36 @@ Combines the `ColorInputAtom` with a label and error message via the `Field` uti
         <strong>Yes</strong>
       </td>
       <td>Placeholder text displayed before a color is selected</td>
+    </tr>
+    <tr>
+      <td>
+        <code>value</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        The currently selected color as a hex string (e.g. <code>#ff0000</code>). Pass an empty string <code>''</code>{' '}
+        to render as white — both the preview background and the native color picker will use <code>#ffffff</code>. The
+        parent must update this value via <code>onChange</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>onChange</code>
+      </td>
+      <td>
+        <code>ChangeEventHandler&lt;HTMLInputElement&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        Callback fired when the user selects a new color. The parent is responsible for updating <code>value</code>.
+      </td>
     </tr>
     <tr>
       <td>
@@ -90,7 +131,10 @@ Combines the `ColorInputAtom` with a label and error message via the `Field` uti
         <code>input props (HTMLInput)</code>
       </td>
       <td>No</td>
-      <td>All standard input props except type and name (e.g. disabled, required, onBlur)</td>
+      <td>
+        All standard input props except <code>type</code>, <code>name</code>, <code>value</code> and{' '}
+        <code>onChange</code> (e.g. <code>disabled</code>, <code>required</code>, <code>onBlur</code>)
+      </td>
     </tr>
   </tbody>
 </table>

@@ -14,8 +14,17 @@ with the selected background color.
 
 ## Usage
 
+`ColorInputAtom` is a **controlled component**: the parent is responsible for managing the selected color via `value` and `onChange`.
+
 ```tsx
-<ColorInput name="primaryColor" />
+const [color, setColor] = useState('');
+
+<ColorInputAtom
+  name="primaryColor"
+  description="Choisir une couleur"
+  value={color}
+  onChange={e => setColor(e.target.value)}
+/>;
 ```
 
 ---
@@ -43,6 +52,35 @@ with the selected background color.
     </tr>
     <tr>
       <td>
+        <code>value</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        The currently selected color as a hex string (e.g. <code>#ff0000</code>). Pass an empty string <code>''</code>{' '}
+        to render as white. The parent must update this value via <code>onChange</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>onChange</code>
+      </td>
+      <td>
+        <code>ChangeEventHandler&lt;HTMLInputElement&gt;</code>
+      </td>
+      <td>
+        <strong>Yes</strong>
+      </td>
+      <td>
+        Callback fired when the user selects a new color. The parent is responsible for updating <code>value</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
         <code>className</code>
       </td>
       <td>
@@ -59,8 +97,8 @@ with the selected background color.
       </td>
       <td>No</td>
       <td>
-        All standard input props except <code>type</code> and <code>name</code> (e.g. <code>disabled</code>,
-        <code>required</code>, <code>onBlur</code>)
+        All standard input props except <code>type</code>, <code>name</code>, <code>value</code> and{' '}
+        <code>onChange</code> (e.g. <code>disabled</code>,<code>required</code>, <code>onBlur</code>)
       </td>
     </tr>
   </tbody>
@@ -68,13 +106,15 @@ with the selected background color.
 
 ---
 
-# behavior
+# Behavior
+
+- **Controlled component**: the displayed color and preview are driven entirely by the `value` prop. Internal state is not managed.
 
 - Displays the currently selected color as a background.
 
-- Shows the hexadecimal value of the color.
+- Shows the hexadecimal value of the color, or the `description` when no color is selected.
 
-- A utomatically computes a readable text and icon color using contrast detection.
+- Automatically computes a readable text and icon color using contrast detection.
 
 - Clicking the component opens the native color picker.
 
