@@ -20,9 +20,7 @@ describe("Dashboard", () => {
     ).resolves.toBeInTheDocument();
   });
 
-  it("should render the header banner", async () => {
-    renderRoute(renderRouteOptions);
-
-    await expect(screen.findByRole("banner")).resolves.toBeInTheDocument();
+  it('does not render the header banner', () => {
+    expect(screen.queryByRole('banner')).toBeNull();
   });
 });
