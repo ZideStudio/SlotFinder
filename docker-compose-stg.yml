@@ -1,69 +1,48 @@
 version: "3.8"
 
 services:
-  traefik:
-    image: traefik:3.2.2
-    command:
-      - --api.insecure=false
-      - --providers.docker=false
-      - --entrypoints.http.address=:80
-      - --entrypoints.https.address=:443
-      - --entrypoints.http.http.redirections.entrypoint.to=https
-      - --entrypoints.http.http.redirections.entrypoint.scheme=https
-      - --providers.file.directory=/etc/traefik/conf.d
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=http
-      - --certificatesresolvers.letsencrypt.acme.email=admin@stg.slotfinder.fr
-      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
-    volumes:
-      - ./docker/traefik-dynamic.stg.yml:/etc/traefik/conf.d/dynamic.yml:ro
-      - traefik_acme:/acme
-    ports:
-      - "80:80"
-      - "443:443"
-    restart: unless-stopped
-    networks:
-      - slotfinder
-
   frontend:
     image: ${FRONT_IMAGE}
-    expose:
-      - "80"
+    container_name: slotfinder-stg-frontend
     restart: unless-stopped
     networks:
-      - slotfinder
+      - slotfinder-traefik-n
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.stg-frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)
-      - traefik.http.routers.stg-frontend.entrypoints=https
-      - traefik.http.routers.stg-frontend.tls=true
-      - traefik.http.routers.stg-frontend.tls.certresolver=letsencrypt
-      - traefik.http.services.stg-frontend.loadbalancer.server.port=80
+      - "traefik.enable=true"
+      - "traefik.docker.network=slotfinder-traefik-n"
+      - "traefik.http.services.slotfinder-stg-frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.slotfinder-stg-frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-frontend.entrypoints=websecure"
+      - "traefik.http.routers.slotfinder-stg-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.slotfinder-stg-frontend.service=slotfinder-stg-frontend"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.entrypoints=web"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.service=slotfinder-stg-frontend"
 
   backend:
     image: ${BACK_IMAGE}
-    expose:
-      - "3000"
+    container_name: slotfinder-stg-backend
     restart: unless-stopped
     networks:
-      - slotfinder
+      - slotfinder-traefik-n
     environment:
       - PORT=3000
       - HOST=0.0.0.0
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.stg-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)
-      - traefik.http.routers.stg-backend.entrypoints=https
-      - traefik.http.routers.stg-backend.tls=true
-      - traefik.http.routers.stg-backend.tls.certresolver=letsencrypt
-      - traefik.http.routers.stg-backend.middlewares=stg-backend-stripprefix
-      - traefik.http.middlewares.stg-backend-stripprefix.stripprefix.prefixes=/api
-      - traefik.http.services.stg-backend.loadbalancer.server.port=3000
-
-volumes:
-  traefik_acme:
+      - "traefik.enable=true"
+      - "traefik.docker.network=slotfinder-traefik-n"
+      - "traefik.http.services.slotfinder-stg-backend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.slotfinder-stg-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-backend.entrypoints=websecure"
+      - "traefik.http.routers.slotfinder-stg-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.slotfinder-stg-backend.service=slotfinder-stg-backend"
+      - "traefik.http.routers.slotfinder-stg-backend.middlewares=slotfinder-stg-backend-stripprefix"
+      - "traefik.http.middlewares.slotfinder-stg-backend-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.slotfinder-stg-backend-http.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-backend-http.entrypoints=web"
+      - "traefik.http.routers.slotfinder-stg-backend-http.service=slotfinder-stg-backend"
+      - "traefik.http.routers.slotfinder-stg-backend-http.middlewares=slotfinder-stg-backend-stripprefix"
 
 networks:
-  slotfinder:
-    name: slotfinder-stg
-    driver: bridge
+  slotfinder-traefik-n:
+    external: true

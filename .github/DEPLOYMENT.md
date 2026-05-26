@@ -11,19 +11,22 @@ Frontend (Node/React) + Backend (Go)
          ↓
     Docker Build
          ↓
-   Traefik Router
+    External Traefik
+    (centralized router)
          ↓
    Staging/Production
 ```
 
+**Note**: L'application utilise un réseau Traefik externe (`slotfinder-traefik-n`) partagé. Assurez-vous que ce réseau existe et est configuré correctement.
+
 ## Déploiement Staging
 
-**Déclencheur:** Push sur la branche `main`
+**Déclencheur:** Push sur la branche `ci/cd` (test) ou `main` (production)
 
-1. **Build**: Les images Docker du frontend et backend sont construites
+1. **Build**: Les images Docker du frontend et backend sont construites avec le tag du commit SHA
 2. **Deploy**: Les services sont déployés via `docker-compose-stg.yml`
 3. **Domaine**: `stg.slotfinder.fr`
-4. **Routing**: 
+4. **Routing**: Via labels Docker Traefik, sans ports exposés
    - Frontend: `https://stg.slotfinder.fr/`
    - Backend API: `https://stg.slotfinder.fr/api/*`
 
@@ -31,10 +34,10 @@ Frontend (Node/React) + Backend (Go)
 
 **Déclencheur:** Création d'un tag `v*` (ex: `v1.0.0`, `v2.1.3`)
 
-1. **Build**: Les images Docker du frontend et backend sont construites
+1. **Build**: Les images Docker du frontend et backend sont construites avec le tag de version
 2. **Deploy**: Les services sont déployés via `docker-compose-prd.yml`
 3. **Domaine**: `slotfinder.fr` (sans sous-domaine)
-4. **Routing**:
+4. **Routing**: Via labels Docker Traefik, sans ports exposés
    - Frontend: `https://slotfinder.fr/`
    - Backend API: `https://slotfinder.fr/api/*`
 
@@ -43,15 +46,15 @@ Frontend (Node/React) + Backend (Go)
 ### Staging
 
 ```
-git push main
+git push origin ci/cd (ou main)
     ↓
 setup job
     ↓
-build-staging (frontend + backend images)
+build-staging (images avec tag SHA)
     ↓
 deploy-staging (docker-compose-stg.yml up -d)
     ↓
-✅ Application disponible sur stg.slotfinder.fr
+✅ Application disponible sur stg.slotfinder.fr via Traefik
 ```
 
 ### Production
@@ -62,11 +65,11 @@ git push origin v1.0.0
     ↓
 setup job
     ↓
-build-production (frontend + backend images with tag)
+build-production (images avec tag version)
     ↓
 deploy-production (docker-compose-prd.yml up -d)
     ↓
-✅ Application disponible sur slotfinder.fr
+✅ Application disponible sur slotfinder.fr via Traefik
 ```
 
 ## Configuration des environnements
@@ -81,19 +84,23 @@ STG_DOMAIN: stg.slotfinder.fr
 PRD_DOMAIN: slotfinder.fr
 ```
 
-### Configuration Traefik
+## Configuration Traefik
 
-Chaque environnement a sa propre configuration Traefik:
+L'application utilise un **réseau Traefik externe** (`slotfinder-traefik-n`). Les routes et middlewares sont configurés via les **labels Docker** dans les fichiers `docker-compose`.
 
-- **Staging**: `docker/traefik-dynamic.stg.yml`
-- **Production**: `docker/traefik-dynamic.prd.yml`
+### Prérequis
 
-Les routes sont configurées pour:
-- Diriger les requêtes sans `/api` vers le frontend
-- Diriger les requêtes avec `/api` vers le backend
-- Retirer automatiquement le préfixe `/api` lors du routage vers le backend
+Le réseau Traefik doit exister et être accessible:
 
-## Images Docker
+```bash
+docker network create slotfinder-traefik-n
+```
+
+### Configuration des routes
+
+Chaque container expose ses services via des labels Traefik:
+- **Frontend**: Port 80, route sans `/api`
+- **Backend**: Port 3000, route avec `/api` + middleware stripprefix
 
 Les images Docker sont tagées de la façon suivante:
 
@@ -105,28 +112,31 @@ Les images Docker sont tagées de la façon suivante:
 - Frontend: `prd-slotfinder-front:<tag-version>`
 - Backend: `prd-slotfinder-back:<tag-version>`
 
-## Fichiers Docker
-
-- **Frontend**: `front/Dockerfile.prod` (utilisé pour le build)
-- **Backend**: `back/Dockerfile`
+Le workflow utilise `docker compose build` pour construire les images, identique au CI existant (`docker-build.yml`).
 
 ## Architecture docker-compose
 
 ### Services
 
-1. **Traefik**: Reverse proxy et routeur
-   - Port HTTP: 80
-   - Port HTTPS: 443
-   - Gère les certificats SSL avec Let's Encrypt
+Chaque environnement (`docker-compose-stg.yml` et `docker-compose-prd.yml`) contient:
 
-2. **Frontend**: Application React
-   - Serveur Nginx
-   - Port 80 (interne)
-   - Accessible via Traefik
+1. **Frontend**: Application React servie par Nginx
+   - Port interne: 80
+   - Accessible via: `https://<domain>/`
+   - Labels Traefik pour routage HTTP/HTTPS
 
-3. **Backend**: API Go
-   - Port 3000 (interne)
-   - Accessible via Traefik avec préfixe `/api`
+2. **Backend**: API Go
+   - Port interne: 3000
+   - Accessible via: `https://<domain>/api/*`
+   - Labels Traefik avec middleware stripprefix pour `/api`
+
+### Réseau
+
+Les deux services sont connectés au réseau Traefik externe:
+- **Staging**: `slotfinder-traefik-n`
+- **Production**: `slotfinder-traefik-n`
+
+**Aucun port n'est exposé directement** - tout le trafic passe par Traefik.
 
 ## Secrets requis
 
