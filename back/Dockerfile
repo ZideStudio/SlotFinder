@@ -29,9 +29,6 @@ RUN go tool swag init && \
 # compile application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app/slotfinder
 
-# copy JWT keys (they will be available in the build context)
-COPY ./back/config/jwt/ /usr/src/app/config/jwt/
-
 ##
 ## STEP 2 - DEPLOY
 ##
@@ -40,7 +37,6 @@ FROM scratch
 COPY --from=build /usr/src/app/slotfinder /slotfinder
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/
-COPY --from=build /usr/src/app/config/jwt/ /config/jwt/
 
 USER appuser
 

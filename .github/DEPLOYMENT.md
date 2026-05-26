@@ -140,6 +140,22 @@ Les deux services sont connectés au réseau Traefik externe:
 
 ## Gestion des variables d'environnement
 
+### JWT Keys (Base64 Encoding)
+
+Les clés JWT sont gérées de façon sécurisée via les variables d'environnement :
+
+1. **Stockage**: Les clés PEM complètes sont stockées dans des secrets GitHub distincts (`JWT_PRIVATE_KEY_STG`, `JWT_PUBLIC_KEY_STG`, `JWT_PRIVATE_KEY_PRD`, `JWT_PUBLIC_KEY_PRD`)
+
+2. **Encoding**: Le workflow GitHub Actions encode automatiquement les clés en base64 et les injecte dans les variables `AUTH_PRIVATE_KEY_B64` et `AUTH_PUBLIC_KEY_B64`
+
+3. **Runtime**: Le backend lit les clés depuis les variables d'environnement en base64 et les décode au démarrage. Pas de fichiers physiques n'est créés sur le système
+
+4. **Avantages**:
+   - ✅ **Pas de problèmes de permissions** (permission denied sur fichiers)
+   - ✅ **Images Docker plus petites** (pas de fichiers de clés)
+   - ✅ **Plus sécurisé** (clés en mémoire seulement)
+   - ✅ **Compatibilité** : fallback vers fichiers si `AUTH_PRIVATE_KEY_B64` n'existe pas
+
 ### Frontend
 - Les variables sont chargées depuis le fichier `.env` **au moment du build**
 - Toutes les variables avec le prefix `FRONT_` sont injectées dans le bundle JavaScript
@@ -156,7 +172,55 @@ Les deux services sont connectés au réseau Traefik externe:
 
 ## Secrets GitHub
 
-Quatre secrets doivent être créés dans GitHub:
+Six secrets doivent être créés dans GitHub :
+
+### JWT Keys (Cryptography)
+
+**`JWT_PRIVATE_KEY_STG`** (Staging Private Key)
+```
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA...
+... (full PEM content)
+-----END RSA PRIVATE KEY-----
+```
+
+**`JWT_PUBLIC_KEY_STG`** (Staging Public Key)
+```
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhk...
+... (full PEM content)
+-----END PUBLIC KEY-----
+```
+
+**`JWT_PRIVATE_KEY_PRD`** (Production Private Key)
+```
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA...
+... (full PEM content)
+-----END RSA PRIVATE KEY-----
+```
+
+**`JWT_PUBLIC_KEY_PRD`** (Production Public Key)
+```
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhk...
+... (full PEM content)
+-----END PUBLIC KEY-----
+```
+
+**Génération des clés:**
+```bash
+# Generate private key
+openssl genrsa -out private.pem 2048
+
+# Extract public key
+openssl rsa -in private.pem -pubout -out public.pem
+
+# Verify (optional)
+openssl rsa -in private.pem -check
+```
+
+Copier le contenu entier des fichiers PEM (inclure BEGIN/END lines) dans les secrets GitHub.
 
 ### `FRONT_ENV_STG` (Frontend Staging)
 ```
@@ -178,7 +242,10 @@ ENV=staging
 IMAGBB_API_KEY=your-key
 ORIGIN=https://stg.slotfinder.fr
 DOMAIN=stg.slotfinder.fr
+DB_TIMEZONE=UTC
 ```
+
+**Note**: Les variables `AUTH_PRIVATE_KEY_B64` et `AUTH_PUBLIC_KEY_B64` sont générées automatiquement par le workflow GitHub Actions en encodant les secrets `JWT_PRIVATE_KEY_STG` et `JWT_PUBLIC_KEY_STG` en base64. Vous ne devez **PAS** les ajouter manuellement.
 
 ### `FRONT_ENV_PRD` (Frontend Production)
 ```
@@ -200,7 +267,10 @@ ENV=production
 IMAGBB_API_KEY=your-key
 ORIGIN=https://slotfinder.fr
 DOMAIN=slotfinder.fr
+DB_TIMEZONE=UTC
 ```
+
+**Note**: Les variables `AUTH_PRIVATE_KEY_B64` et `AUTH_PUBLIC_KEY_B64` sont générées automatiquement par le workflow GitHub Actions en encodant les secrets `JWT_PRIVATE_KEY_PRD` et `JWT_PUBLIC_KEY_PRD` en base64. Vous ne devez **PAS** les ajouter manuellement.
 
 ## Workflow
 

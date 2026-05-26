@@ -5,6 +5,7 @@ import (
 	"app/commons/helpers"
 	"app/commons/lib"
 	"app/config"
+	"encoding/base64"
 	"errors"
 	"net/http"
 	"time"
@@ -44,9 +45,23 @@ func ParseToken(jwtToken string) (*Claims, error) {
 
 	config := config.GetConfig()
 
-	f, err := os.ReadFile(config.Auth.PublicPemPath)
-	if err != nil {
-		return claims, err
+	// Try to read from base64 environment variable first
+	publicKeyB64 := os.Getenv("AUTH_PUBLIC_KEY_B64")
+	var f []byte
+	var err error
+
+	if publicKeyB64 != "" {
+		// Decode from base64
+		f, err = base64.StdEncoding.DecodeString(publicKeyB64)
+		if err != nil {
+			return claims, err
+		}
+	} else {
+		// Fallback to file path (for backwards compatibility)
+		f, err = os.ReadFile(config.Auth.PublicPemPath)
+		if err != nil {
+			return claims, err
+		}
 	}
 
 	_, err = jwt.ParseWithClaims(jwtToken, claims, func(token *jwt.Token) (any, error) {
@@ -63,9 +78,23 @@ func ParseToken(jwtToken string) (*Claims, error) {
 func GenerateAccessToken(claims *Claims) (string, error) {
 	config := config.GetConfig()
 
-	privateKeyFile, err := os.ReadFile(config.Auth.PrivatePemPath)
-	if err != nil {
-		return "", err
+	// Try to read from base64 environment variable first
+	privateKeyB64 := os.Getenv("AUTH_PRIVATE_KEY_B64")
+	var privateKeyFile []byte
+	var err error
+
+	if privateKeyB64 != "" {
+		// Decode from base64
+		privateKeyFile, err = base64.StdEncoding.DecodeString(privateKeyB64)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		// Fallback to file path (for backwards compatibility)
+		privateKeyFile, err = os.ReadFile(config.Auth.PrivatePemPath)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyFile)
