@@ -37,13 +37,13 @@ COPY ./back/config/jwt/ /usr/src/app/config/jwt/
 ##
 FROM scratch
 
-COPY --from=build /usr/src/app/slotfinder /app
+COPY --from=build /usr/src/app/slotfinder /slotfinder
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/
-COPY --from=build /usr/src/app/config/jwt/ /app/config/jwt/
+COPY --from=build /usr/src/app/config/jwt/ /config/jwt/
 
 USER appuser
 
 EXPOSE 3000
 
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/slotfinder"]
