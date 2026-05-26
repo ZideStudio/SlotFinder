@@ -13,14 +13,14 @@ RUN adduser -g "" -s /sbin/nologin -D -H -u 1001 appuser
 WORKDIR /usr/src/app
 
 # copy Go modules and dependencies to image
-COPY ./go.mod ./
-COPY ./go.sum ./
+COPY ./back/go.mod ./
+COPY ./back/go.sum ./
 
 # download Go modules and dependencies
 RUN go mod download && go mod verify
 
 # copy directory files i.e all files ending with .go
-COPY ./ ./
+COPY ./back/ ./
 
 # generate swagger docs and remove LeftDelim/RightDelim lines
 RUN go tool swag init && \
