@@ -15,11 +15,11 @@ services:
       - "traefik.http.routers.slotfinder-stg-frontend.entrypoints=websecure"
       - "traefik.http.routers.slotfinder-stg-frontend.tls.certresolver=zideresolver"
       - "traefik.http.routers.slotfinder-stg-frontend.service=slotfinder-stg-frontend"
-      - "traefik.http.routers.slotfinder-stg-frontend.middlewares=oauth-redirection@docker,github-auth@docker"
+      - "traefik.http.routers.slotfinder-stg-frontend.middlewares=github-auth@docker"
       - "traefik.http.routers.slotfinder-stg-frontend-http.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.slotfinder-stg-frontend-http.entrypoints=web"
       - "traefik.http.routers.slotfinder-stg-frontend-http.service=slotfinder-stg-frontend"
-      - "traefik.http.routers.slotfinder-stg-frontend-http.middlewares=oauth-redirection@docker,github-auth@docker"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.middlewares=github-auth@docker"
 
   backend:
     image: ${BACK_IMAGE}
