@@ -150,7 +150,7 @@ jobs:
         uses: ./.github/actions/setup-node
       - name: Run Chromatic
         if: steps.changes.outputs.ui == 'true'
-        uses: chromaui/action@7aca53e7aa87489020a97f633c1e7e82c12e5973 # v17
+        uses: chromaui/action@8ad69a40dea06755a3c6db290f300a39e011433b # v17
         with:
           buildScriptName: "build:storybook"
           workingDir: "front"
