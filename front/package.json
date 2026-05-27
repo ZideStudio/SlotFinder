@@ -30,7 +30,7 @@
     "i18next-resources-for-ts": "i18next-resources-for-ts toc -i ./src/i18n/locales/en -o ./src/i18n/@types/resources.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "5.2.2",
+    "@hookform/resolvers": "5.4.0",
     "@material-symbols/svg-400": "0.44.8",
     "@tanstack/react-query": "5.100.11",
     "i18next": "26.2.0",
