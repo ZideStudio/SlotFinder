@@ -1,23 +1,23 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { PictureUploadInput } from './PictureUploadInput';
+import { PictureUploadInput } from "./PictureUploadInput";
 
 const meta = {
-  title: 'Molecules/Inputs/PictureUploadInput',
+  title: "Molecules/Inputs/PictureUploadInput",
   component: PictureUploadInput,
   args: {
-    label: 'Label',
-    name: 'picture-upload-input',
+    label: "Label",
+    name: "picture-upload-input",
     required: false,
-    previewText: 'Preview',
-    className: 'custom-class',
+    previewText: "Preview",
+    className: "custom-class",
   },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
   decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
+    (Story) => (
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -30,6 +30,6 @@ export const Default: StoryObj<typeof meta> = {};
 
 export const Invalid: StoryObj<typeof meta> = {
   args: {
-    error: 'An error occurred',
+    error: "An error occurred",
   },
 };

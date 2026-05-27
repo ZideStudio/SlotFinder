@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as TextareaInputAtomStories from './TextareaInputAtom.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as TextareaInputAtomStories from "./TextareaInputAtom.stories";
 
 <Meta of={TextareaInputAtomStories} />
 
@@ -10,7 +10,11 @@ A reusable, accessible textarea input atom for forms and UI elements.
 ## Usage
 
 ```tsx
-<TextareaInputAtom name="input-name" placeholder="Enter text" className="custom-class" />
+<TextareaInputAtom
+  name="input-name"
+  placeholder="Enter text"
+  className="custom-class"
+/>
 ```
 
 ## Props
@@ -55,7 +59,9 @@ A reusable, accessible textarea input atom for forms and UI elements.
         <code>textarea props (HTMLTextarea)</code>
       </td>
       <td>No</td>
-      <td>All standard textarea props (e.g. value, onChange, placeholder, rows)</td>
+      <td>
+        All standard textarea props (e.g. value, onChange, placeholder, rows)
+      </td>
     </tr>
   </tbody>
 </table>

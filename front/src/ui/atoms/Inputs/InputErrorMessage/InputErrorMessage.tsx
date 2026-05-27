@@ -1,7 +1,7 @@
-import ErrorIcon from '@material-symbols/svg-400/outlined/error.svg?react';
-import './InputErrorMessage.scss';
-import { type ReactNode } from 'react';
-import { getClassName } from '@Front/utils/getClassName';
+import ErrorIcon from "@material-symbols/svg-400/outlined/error.svg?react";
+import "./InputErrorMessage.scss";
+import { type ReactNode } from "react";
+import { getClassName } from "@Front/utils/getClassName";
 
 type InputErrorMessageProps = {
   children: ReactNode;
@@ -9,13 +9,17 @@ type InputErrorMessageProps = {
   id?: string;
 };
 
-export const InputErrorMessage = ({ children, className, id }: InputErrorMessageProps) => {
+export const InputErrorMessage = ({
+  children,
+  className,
+  id,
+}: InputErrorMessageProps) => {
   if (!children) {
     return null;
   }
 
   const parentClassName = getClassName({
-    defaultClassName: 'ds-input-error-message',
+    defaultClassName: "ds-input-error-message",
     className,
   });
 

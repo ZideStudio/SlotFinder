@@ -1,19 +1,25 @@
-import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
-import { getClassName } from '@Front/utils/getClassName';
-import { useId, type ComponentProps, type ComponentPropsWithoutRef, type ReactNode, type RefObject } from 'react';
-import { OverlayContent } from '../OverlayContent/OverlayContent';
+import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
+import { getClassName } from "@Front/utils/getClassName";
+import {
+  useId,
+  type ComponentProps,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
+import { OverlayContent } from "../OverlayContent/OverlayContent";
 
-import './Modal.scss';
+import "./Modal.scss";
 
 type OverlayContentProps = ComponentProps<typeof OverlayContent>;
 
 type ModalProps = {
   title: string;
   children: ReactNode;
-  primaryButtonProps: OverlayContentProps['primaryButtonProps'];
-  secondaryButtonProps?: OverlayContentProps['secondaryButtonProps'];
+  primaryButtonProps: OverlayContentProps["primaryButtonProps"];
+  secondaryButtonProps?: OverlayContentProps["secondaryButtonProps"];
   ref?: RefObject<HTMLDialogElement | null>;
-} & Omit<ComponentPropsWithoutRef<'dialog'>, 'children' | 'title'>;
+} & Omit<ComponentPropsWithoutRef<"dialog">, "children" | "title">;
 
 export const Modal = ({
   title,
@@ -28,12 +34,18 @@ export const Modal = ({
 
   const titleId = useId();
   const parentClassName = getClassName({
-    defaultClassName: 'ds-modal',
+    defaultClassName: "ds-modal",
     className,
   });
 
   return (
-    <dialog aria-labelledby={titleId} className={parentClassName} ref={modalRef} {...props} closedby="any">
+    <dialog
+      aria-labelledby={titleId}
+      className={parentClassName}
+      ref={modalRef}
+      {...props}
+      closedby="any"
+    >
       <OverlayContent
         title={title}
         titleId={titleId}
@@ -47,4 +59,4 @@ export const Modal = ({
   );
 };
 
-Modal.displayName = 'Modal';
+Modal.displayName = "Modal";

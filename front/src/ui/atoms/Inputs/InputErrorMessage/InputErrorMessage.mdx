@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as InputErrorMessage from './InputErrorMessage.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as InputErrorMessage from "./InputErrorMessage.stories";
 
 <Meta of={InputErrorMessage} />
 
@@ -68,8 +68,16 @@ A reusable, accessible error message for form inputs and UI elements.
 ```tsx
 <div>
   <label htmlFor="email-input">Email address</label>
-  <input id="email-input" type="email" required aria-describedby="email-error" />
-  <InputErrorMessage id="email-error" message="Please enter a valid email address" />
+  <input
+    id="email-input"
+    type="email"
+    required
+    aria-describedby="email-error"
+  />
+  <InputErrorMessage
+    id="email-error"
+    message="Please enter a valid email address"
+  />
 </div>
 ```
 

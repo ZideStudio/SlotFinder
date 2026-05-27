@@ -1,14 +1,19 @@
-import { FileUploadInputAtom } from '@Front/ui/atoms/Inputs/FileUploadInputAtom/FileUploadInputAtom';
-import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
-import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
-import { Input } from '@Front/ui/utils/components/Input/Input';
-import { getClassName } from '@Front/utils/getClassName';
-import { type ChangeEvent, type ComponentProps, useCallback, useRef } from 'react';
-import './PictureUploadInput.scss';
+import { FileUploadInputAtom } from "@Front/ui/atoms/Inputs/FileUploadInputAtom/FileUploadInputAtom";
+import { type InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
+import { type LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
+import { Input } from "@Front/ui/utils/components/Input/Input";
+import { getClassName } from "@Front/utils/getClassName";
+import {
+  type ChangeEvent,
+  type ComponentProps,
+  useCallback,
+  useRef,
+} from "react";
+import "./PictureUploadInput.scss";
 
 type PictureUploadInputProps = ComponentProps<typeof FileUploadInputAtom> & {
-  label: ComponentProps<typeof LabelInput>['children'];
-  error?: ComponentProps<typeof InputErrorMessage>['children'];
+  label: ComponentProps<typeof LabelInput>["children"];
+  error?: ComponentProps<typeof InputErrorMessage>["children"];
   previewText?: string;
   defaultPreviewUrl?: string;
 };
@@ -66,12 +71,15 @@ export const PictureUploadInput = ({
         URL.revokeObjectURL(urlRef.current);
       }
 
-      const newUrl = file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+      const newUrl =
+        file && file.type.startsWith("image/")
+          ? URL.createObjectURL(file)
+          : null;
       urlRef.current = newUrl;
 
       const img = imgRef.current;
       if (img) {
-        img.src = newUrl ?? '';
+        img.src = newUrl ?? "";
         img.hidden = !newUrl;
       }
       onChange?.(event);
@@ -80,20 +88,25 @@ export const PictureUploadInput = ({
   );
 
   const parentClassName = getClassName({
-    defaultClassName: 'ds-picture-upload-input',
+    defaultClassName: "ds-picture-upload-input",
     className,
   });
 
-    return (
-      <div className={parentClassName}>
-        <Input
-          input={FileUploadInputAtom}
-          onChange={handleChange}
-          accept="image/jpeg,image/png"
-          multiple={false}
+  return (
+    <div className={parentClassName}>
+      <Input
+        input={FileUploadInputAtom}
+        onChange={handleChange}
+        accept="image/jpeg,image/png"
+        multiple={false}
         {...props}
       />
-      <img ref={imgCallbackRef} className="ds-picture-upload-input__preview" alt={previewText || 'Preview'} hidden />
+      <img
+        ref={imgCallbackRef}
+        className="ds-picture-upload-input__preview"
+        alt={previewText || "Preview"}
+        hidden
+      />
     </div>
   );
 };

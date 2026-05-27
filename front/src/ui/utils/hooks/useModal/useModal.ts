@@ -1,4 +1,4 @@
-import { useRef, type RefObject } from 'react';
+import { useRef, type RefObject } from "react";
 
 type UseModalReturnType = {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -6,7 +6,9 @@ type UseModalReturnType = {
   closeModal: () => void;
 };
 
-export const useModal = (existingModalRef?: RefObject<HTMLDialogElement | null>): UseModalReturnType => {
+export const useModal = (
+  existingModalRef?: RefObject<HTMLDialogElement | null>,
+): UseModalReturnType => {
   const defaultModalRef = useRef<HTMLDialogElement>(null);
   const modalRef = existingModalRef ?? defaultModalRef;
 

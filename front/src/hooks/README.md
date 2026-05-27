@@ -21,7 +21,7 @@ The "hooks" folder is a directory you can create in your React project to group 
 Suppose you have a custom hook "useCustomHook1.js" in the "hooks" folder. You can import it and use it in a functional component like this :
 
 ```javascript
-import { useCustomHook1 } from './hooks/useCustomHook1';
+import { useCustomHook1 } from "./hooks/useCustomHook1";
 
 export const MyComponent = () => {
   const customData = useCustomHook1();

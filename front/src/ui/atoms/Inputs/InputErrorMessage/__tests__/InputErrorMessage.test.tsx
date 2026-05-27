@@ -1,20 +1,20 @@
-import { render, screen } from '@testing-library/react';
-import { InputErrorMessage } from '../InputErrorMessage';
+import { render, screen } from "@testing-library/react";
+import { InputErrorMessage } from "../InputErrorMessage";
 
-describe('InputErrorMessage', () => {
-  it('renders an error message with correct message', () => {
+describe("InputErrorMessage", () => {
+  it("renders an error message with correct message", () => {
     render(<InputErrorMessage>test-input</InputErrorMessage>);
-    const errorMessage = screen.getByText('test-input');
+    const errorMessage = screen.getByText("test-input");
     expect(errorMessage).toBeInTheDocument();
   });
 
-  it('applies custom id when provided', () => {
+  it("applies custom id when provided", () => {
     render(<InputErrorMessage id="test-id">test-input</InputErrorMessage>);
-    const errorMessage = screen.getByText('test-input');
-    expect(errorMessage).toHaveAttribute('id', 'test-id');
+    const errorMessage = screen.getByText("test-input");
+    expect(errorMessage).toHaveAttribute("id", "test-id");
   });
 
-  it('does not render anything when children is empty', () => {
+  it("does not render anything when children is empty", () => {
     const { container } = render(<InputErrorMessage>{null}</InputErrorMessage>);
     expect(container.firstChild).toBeNull();
   });

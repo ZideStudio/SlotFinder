@@ -1,5 +1,5 @@
-import { METHODS } from '../constant';
-import { fetchApi } from '../fetchApi';
+import { METHODS } from "../constant";
+import { fetchApi } from "../fetchApi";
 
 export const refreshTokenApi = () =>
   fetchApi<null>({

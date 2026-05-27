@@ -1,9 +1,9 @@
-import { Button } from '@Front/ui/molecules/Button/Button';
-import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
-import { type ComponentProps, useEffect } from 'react';
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import { fn } from 'storybook/test';
-import { Modal } from './Modal';
+import { Button } from "@Front/ui/molecules/Button/Button";
+import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
+import { type ComponentProps, useEffect } from "react";
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
+import { fn } from "storybook/test";
+import { Modal } from "./Modal";
 
 type ModalStoryProps = ComponentProps<typeof Modal> & { openOnMount?: boolean };
 
@@ -19,7 +19,7 @@ const ModalStory = ({ openOnMount = false, ...args }: ModalStoryProps) => {
 
   return (
     <>
-      <Button onClick={openModal} style={{ width: '300px' }}>
+      <Button onClick={openModal} style={{ width: "300px" }}>
         Open Modal
       </Button>
       <Modal ref={modalRef} {...args} />
@@ -28,17 +28,21 @@ const ModalStory = ({ openOnMount = false, ...args }: ModalStoryProps) => {
 };
 
 const meta = {
-  title: 'Organisms/Modal',
+  title: "Organisms/Modal",
   component: Modal,
   args: {
-    title: 'Modal title',
+    title: "Modal title",
     children: "Modal's content",
-    primaryButtonProps: { children: 'Action', onClick: fn() },
-    secondaryButtonProps: { children: 'Action 2', onClick: fn(), variant: 'secondary' },
+    primaryButtonProps: { children: "Action", onClick: fn() },
+    secondaryButtonProps: {
+      children: "Action 2",
+      onClick: fn(),
+      variant: "secondary",
+    },
   },
   argTypes: {
-    title: { control: 'text' },
-    children: { control: 'text' },
+    title: { control: "text" },
+    children: { control: "text" },
     ref: { table: { disable: true } },
   },
   render: (args: ComponentProps<typeof Modal>) => {
@@ -47,7 +51,7 @@ const meta = {
 
     return (
       <>
-        <Button onClick={openModal} style={{ width: '300px' }}>
+        <Button onClick={openModal} style={{ width: "300px" }}>
           Open Modal
         </Button>
         <Modal ref={modalRef} {...args} />
@@ -72,5 +76,7 @@ export const WithOnlyOneButton: Story = {
 };
 
 export const OpenByDefault: Story = {
-  render: (args: ComponentProps<typeof Modal>) => <ModalStory {...args} openOnMount />,
+  render: (args: ComponentProps<typeof Modal>) => (
+    <ModalStory {...args} openOnMount />
+  ),
 };

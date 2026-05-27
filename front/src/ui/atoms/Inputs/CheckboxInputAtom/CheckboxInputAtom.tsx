@@ -1,9 +1,12 @@
-import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithRef } from 'react';
+import { getClassName } from "@Front/utils/getClassName";
+import type { ComponentPropsWithRef } from "react";
 
-import './CheckboxInputAtom.scss';
+import "./CheckboxInputAtom.scss";
 
-export type CheckboxInputAtomProps = Omit<ComponentPropsWithRef<'input'>, 'name'> & {
+export type CheckboxInputAtomProps = Omit<
+  ComponentPropsWithRef<"input">,
+  "name"
+> & {
   name: string;
 };
 
@@ -13,16 +16,11 @@ export const CheckboxInputAtom = ({
   ...props
 }: CheckboxInputAtomProps) => {
   const parentClassName = getClassName({
-    defaultClassName: 'ds-checkbox-input-atom',
+    defaultClassName: "ds-checkbox-input-atom",
     className,
   });
 
   return (
-    <input
-      name={name}
-      className={parentClassName}
-      type="checkbox"
-      {...props}
-    />
+    <input name={name} className={parentClassName} type="checkbox" {...props} />
   );
 };

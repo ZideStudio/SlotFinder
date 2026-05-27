@@ -1,10 +1,10 @@
-import { Heading } from '@Front/ui/atoms/Heading/Heading';
-import { Button } from '@Front/ui/molecules/Button/Button';
-import { ClickIcon } from '@Front/ui/molecules/ClickIcon/ClickIcon';
-import Close from '@material-symbols/svg-400/rounded/close.svg?react';
-import { type ComponentProps, type ReactNode } from 'react';
+import { Heading } from "@Front/ui/atoms/Heading/Heading";
+import { Button } from "@Front/ui/molecules/Button/Button";
+import { ClickIcon } from "@Front/ui/molecules/ClickIcon/ClickIcon";
+import Close from "@material-symbols/svg-400/rounded/close.svg?react";
+import { type ComponentProps, type ReactNode } from "react";
 
-import './OverlayContent.scss';
+import "./OverlayContent.scss";
 
 type OverlayContentProps = {
   title: string;
@@ -46,4 +46,4 @@ export const OverlayContent = ({
   </>
 );
 
-OverlayContent.displayName = 'OverlayContent';
+OverlayContent.displayName = "OverlayContent";

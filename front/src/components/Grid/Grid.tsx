@@ -1,15 +1,20 @@
-import { clsx } from '@Front/utils/getClassName';
-import { type ComponentProps, type CSSProperties, type ElementType, type PropsWithChildren } from 'react';
-import { getGridItemToken } from './getGridItemToken';
-import type { Breakpoint, ColSpan, ColStart } from './types';
+import { clsx } from "@Front/utils/getClassName";
+import {
+  type ComponentProps,
+  type CSSProperties,
+  type ElementType,
+  type PropsWithChildren,
+} from "react";
+import { getGridItemToken } from "./getGridItemToken";
+import type { Breakpoint, ColSpan, ColStart } from "./types";
 
-import './_grid.scss';
+import "./_grid.scss";
 
 type ExtendableComponent<ComponentType extends ElementType> = {
   component?: ComponentType;
   className?: string;
   style?: CSSProperties;
-} & Omit<ComponentProps<ComponentType>, 'className' | 'style'>;
+} & Omit<ComponentProps<ComponentType>, "className" | "style">;
 
 export type GridOwnProps = {
   container?: boolean;
@@ -17,9 +22,10 @@ export type GridOwnProps = {
   colStart?: ColStart | Partial<Record<Breakpoint, ColStart>>;
 };
 
-export type GridProps<ComponentType extends ElementType> = GridOwnProps & ExtendableComponent<ComponentType>;
+export type GridProps<ComponentType extends ElementType> = GridOwnProps &
+  ExtendableComponent<ComponentType>;
 
-export const Grid = <ComponentType extends ElementType = 'div'>({
+export const Grid = <ComponentType extends ElementType = "div">({
   component,
   container,
   className,
@@ -29,14 +35,18 @@ export const Grid = <ComponentType extends ElementType = 'div'>({
   style,
   ...rest
 }: PropsWithChildren<GridProps<ComponentType>>) => {
-  const Component = component ?? 'div';
+  const Component = component ?? "div";
 
   return (
     <Component
-      className={clsx(container && 'grid', (colSpan || colStart) && 'grid-item', className)}
+      className={clsx(
+        container && "grid",
+        (colSpan || colStart) && "grid-item",
+        className,
+      )}
       style={{
-        ...getGridItemToken('col', colSpan ?? {}),
-        ...getGridItemToken('start', colStart ?? {}),
+        ...getGridItemToken("col", colSpan ?? {}),
+        ...getGridItemToken("start", colStart ?? {}),
         ...style,
       }}
       {...rest}
@@ -46,4 +56,4 @@ export const Grid = <ComponentType extends ElementType = 'div'>({
   );
 };
 
-Grid.displayName = 'Grid';
+Grid.displayName = "Grid";

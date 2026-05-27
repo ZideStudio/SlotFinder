@@ -1,5 +1,5 @@
-@use '../../../utils/sass/mixins/helpers';
-@use '../../../utils/sass/mixins/responsive';
+@use "../../../utils/sass/mixins/helpers";
+@use "../../../utils/sass/mixins/responsive";
 
 .ds-click-icon {
   padding: 0;
@@ -14,7 +14,7 @@
     height: var(--icon-size);
   }
 
-  @include responsive.media-exceeds-width('desktop-small') {
+  @include responsive.media-exceeds-width("desktop-small") {
     --icon-size: #{helpers.px-to-rem(24)};
   }
 }

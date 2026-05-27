@@ -1,5 +1,5 @@
-@use '../../../../utils/sass/mixins/helpers';
-@use '../../../../utils/sass/mixins/responsive';
+@use "../../../../utils/sass/mixins/helpers";
+@use "../../../../utils/sass/mixins/responsive";
 
 .ds-file-upload-input-atom {
   --outline-width: 1px;
@@ -29,7 +29,7 @@
     --outline-width: 2px;
   }
 
-  &:has(input[aria-invalid='true']) {
+  &:has(input[aria-invalid="true"]) {
     --outline-width: 2px;
     --outline-color: var(--color-error);
 
@@ -42,7 +42,7 @@
   &__description {
     font-size: helpers.px-to-rem(14);
 
-    @include responsive.media-exceeds-width('desktop-small') {
+    @include responsive.media-exceeds-width("desktop-small") {
       font-size: helpers.px-to-rem(16);
     }
   }

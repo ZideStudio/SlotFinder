@@ -1,12 +1,14 @@
-import { type InputErrorMessage } from '@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage';
-import { type LabelInput } from '@Front/ui/atoms/Inputs/LabelInput/LabelInput';
-import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
-import { Input } from '@Front/ui/utils/components/Input/Input';
-import { type ComponentProps } from 'react';
+import { type InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
+import { type LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
+import { TextInputAtom } from "@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom";
+import { Input } from "@Front/ui/utils/components/Input/Input";
+import { type ComponentProps } from "react";
 
 type TextInputProps = ComponentProps<typeof TextInputAtom> & {
-  label: ComponentProps<typeof LabelInput>['children'];
-  error?: ComponentProps<typeof InputErrorMessage>['children'];
+  label: ComponentProps<typeof LabelInput>["children"];
+  error?: ComponentProps<typeof InputErrorMessage>["children"];
 };
 
-export const TextInput = (props: TextInputProps) => <Input input={TextInputAtom} {...props} />;
+export const TextInput = (props: TextInputProps) => (
+  <Input input={TextInputAtom} {...props} />
+);

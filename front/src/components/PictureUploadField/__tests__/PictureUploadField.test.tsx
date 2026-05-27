@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { type ReactNode } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { PictureUploadField } from '../PictureUploadField';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { type ReactNode } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { PictureUploadField } from "../PictureUploadField";
 
 const FormWrapper = ({
   children,
@@ -15,19 +15,22 @@ const FormWrapper = ({
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
-describe('PictureUploadField', () => {
-  it('renders without crashing', () => {
+describe("PictureUploadField", () => {
+  it("renders without crashing", () => {
     render(
       <FormWrapper>
         <PictureUploadField name="profilePicture" label="Profile Picture" />
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText('Profile Picture')).toBeInTheDocument();
-    expect(screen.getByLabelText('Profile Picture')).toHaveAttribute('name', 'profilePicture');
+    expect(screen.getByLabelText("Profile Picture")).toBeInTheDocument();
+    expect(screen.getByLabelText("Profile Picture")).toHaveAttribute(
+      "name",
+      "profilePicture",
+    );
   });
 
-  it('displays the error message from form state when validation fails', async () => {
+  it("displays the error message from form state when validation fails", async () => {
     const WrapperWithError = () => {
       const methods = useForm({ defaultValues: { profilePicture: undefined } });
 
@@ -36,7 +39,11 @@ describe('PictureUploadField', () => {
       return (
         <FormProvider {...methods}>
           <PictureUploadField name="profilePicture" label="Profile Picture" />
-          <button onClick={() => setError('profilePicture', { message: 'This field is required' })}>
+          <button
+            onClick={() =>
+              setError("profilePicture", { message: "This field is required" })
+            }
+          >
             Trigger error
           </button>
         </FormProvider>
@@ -45,12 +52,16 @@ describe('PictureUploadField', () => {
 
     render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Trigger error' }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Trigger error" }),
+    );
 
-    await expect(screen.findByText('This field is required')).resolves.toBeInTheDocument();
+    await expect(
+      screen.findByText("This field is required"),
+    ).resolves.toBeInTheDocument();
   });
 
-  it('updates the input value on user uploading a file', async () => {
+  it("updates the input value on user uploading a file", async () => {
     const user = userEvent.setup();
     render(
       <FormWrapper>
@@ -58,8 +69,10 @@ describe('PictureUploadField', () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText('Profile Picture') as HTMLInputElement;
-    const file = new File(['dummy content'], 'example.png', { type: 'image/png' });
+    const input = screen.getByLabelText("Profile Picture") as HTMLInputElement;
+    const file = new File(["dummy content"], "example.png", {
+      type: "image/png",
+    });
 
     await user.upload(input, file);
 

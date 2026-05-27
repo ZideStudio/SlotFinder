@@ -1,6 +1,6 @@
-import { getClassName } from '@Front/utils/getClassName';
-import type { ReactNode } from 'react';
-import './LabelInput.scss';
+import { getClassName } from "@Front/utils/getClassName";
+import type { ReactNode } from "react";
+import "./LabelInput.scss";
 
 type LabelInputProps = {
   inputId: string;
@@ -9,12 +9,17 @@ type LabelInputProps = {
   required?: boolean;
 };
 
-export const LabelInput = ({ inputId, children, className, required }: LabelInputProps) => {
+export const LabelInput = ({
+  inputId,
+  children,
+  className,
+  required,
+}: LabelInputProps) => {
   const parentClassName = getClassName({
-      defaultClassName: 'ds-label-input',
-      className,
-    });
-    
+    defaultClassName: "ds-label-input",
+    className,
+  });
+
   return (
     <label htmlFor={inputId} className={parentClassName}>
       {children}

@@ -39,7 +39,7 @@ Suppose we have an authentication service handler "AuthProvider" in our "provide
 
 ```javascript
 // AuthProvider.js
-import { createContext, useState } from 'react';
+import { createContext, useState } from "react";
 
 export const AuthContext = createContext();
 
@@ -54,14 +54,18 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  return <AuthContext.Provider value={{ isAuthenticated, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 ```
 
 We can then use this authentication service provider in our components by wrapping our components in the provided context:
 
 ```javascript
-import { AuthProvider } from '@Front/Providers/AuthProvider';
+import { AuthProvider } from "@Front/Providers/AuthProvider";
 
 export const App = () => {
   return <AuthProvider>{/* Vos composants React ici */}</AuthProvider>;
@@ -101,8 +105,8 @@ export const withProvider = <P extends object>(Component: ComponentType<P>) => {
 ```
 
 ```javascript
-import { withProvider } from '@Front/Providers/withProvider';
-import { App } from '@Front/components/App';
+import { withProvider } from "@Front/Providers/withProvider";
+import { App } from "@Front/components/App";
 
 const Root = withProvider(App);
 ```

@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
-export type OAuthProviderName = 'discord' | 'google' | 'github';
+export type OAuthProviderName = "discord" | "google" | "github";
 
 export type OAuthProvider = {
   id: OAuthProviderName;

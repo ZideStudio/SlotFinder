@@ -1,23 +1,23 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { NumberInput } from './NumberInput';
+import { NumberInput } from "./NumberInput";
 
 const meta = {
-  title: 'Molecules/Inputs/NumberInput',
+  title: "Molecules/Inputs/NumberInput",
   component: NumberInput,
   args: {
-    label: 'Label',
-    name: 'number-input',
+    label: "Label",
+    name: "number-input",
     required: false,
-    className: 'custom-class',
-    placeholder: 'Enter a number',
+    className: "custom-class",
+    placeholder: "Enter a number",
   },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
   decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
+    (Story) => (
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -36,6 +36,6 @@ export const Default: StoryObj<typeof meta> = {
 
 export const Invalid: StoryObj<typeof meta> = {
   args: {
-    error: 'An error occurred',
+    error: "An error occurred",
   },
 };

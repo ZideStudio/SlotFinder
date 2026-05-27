@@ -1,21 +1,21 @@
-import { App } from '@Front/components/App/App';
-import { waitFor } from '@testing-library/react';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { type Mock } from 'vitest';
-import bootstrap from '../bootstrap';
+import { App } from "@Front/components/App/App";
+import { waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { type Mock } from "vitest";
+import bootstrap from "../bootstrap";
 
 // oxlint-disable-next-line vitest/prefer-import-in-mock jest/prefer-ending-with-an-expect
-vi.mock('@Front/components/App', () => ({
+vi.mock("@Front/components/App", () => ({
   App: () => <div data-testid="app-mock">AppMock</div>,
 }));
 
 // oxlint-disable-next-line vitest/prefer-import-in-mock jest/prefer-ending-with-an-expect
-vi.mock('react-dom/client', () => ({
+vi.mock("react-dom/client", () => ({
   createRoot: vi.fn(),
 }));
 
-describe('bootstrap', () => {
+describe("bootstrap", () => {
   // oxlint-disable-next-line init-declarations
   let container: HTMLElement;
   const render = vi.fn();
@@ -29,17 +29,17 @@ describe('bootstrap', () => {
       render,
       unmount,
     });
-    if (!customElements.get('bootstrap-html-element')) {
-      customElements.define('bootstrap-html-element', bootstrap);
+    if (!customElements.get("bootstrap-html-element")) {
+      customElements.define("bootstrap-html-element", bootstrap);
     }
-    container = document.createElement('bootstrap-html-element');
+    container = document.createElement("bootstrap-html-element");
   });
 
   afterEach(() => {
     container.remove();
   });
 
-  it('should mount the React component in the custom element', () => {
+  it("should mount the React component in the custom element", () => {
     document.body.appendChild(container);
 
     expect(createRoot as Mock).toHaveBeenCalledWith(expect.anything());
@@ -51,7 +51,7 @@ describe('bootstrap', () => {
     expect(unmount).not.toHaveBeenCalled();
   });
 
-  it('should unmount the React component when removed from the DOM', async () => {
+  it("should unmount the React component when removed from the DOM", async () => {
     document.body.appendChild(container);
 
     expect(unmount).not.toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe('bootstrap', () => {
     });
   });
 
-  it('should not unmount when element is removed and re-added to the DOM', () => {
+  it("should not unmount when element is removed and re-added to the DOM", () => {
     document.body.appendChild(container);
     container.remove();
     document.body.appendChild(container);

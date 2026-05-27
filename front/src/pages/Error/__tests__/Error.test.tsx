@@ -1,8 +1,8 @@
-import { errorRoutes } from '@Front/pages/Error';
-import { appRoutes } from '@Front/routing/appRoutes';
-import { renderRoute } from '@Front/utils/testsUtils/customRender/customRender';
-import { screen } from '@testing-library/react';
-import type { InitialEntry } from 'react-router';
+import { errorRoutes } from "@Front/pages/Error";
+import { appRoutes } from "@Front/routing/appRoutes";
+import { renderRoute } from "@Front/utils/testsUtils/customRender/customRender";
+import { screen } from "@testing-library/react";
+import type { InitialEntry } from "react-router";
 
 const renderErrorPage = (message?: string) => {
   const initialEntries: InitialEntry[] = [];
@@ -19,16 +19,24 @@ const renderErrorPage = (message?: string) => {
   });
 };
 
-describe('ErrorPage', () => {
-  it('should display the error message when provided in state', async () => {
-    renderErrorPage('TestError');
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('error.title');
-    await expect(screen.findByRole('alert')).resolves.toHaveTextContent('TestError');
+describe("ErrorPage", () => {
+  it("should display the error message when provided in state", async () => {
+    renderErrorPage("TestError");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "error.title",
+    );
+    await expect(screen.findByRole("alert")).resolves.toHaveTextContent(
+      "TestError",
+    );
   });
 
-  it('should display the default unexpected message when no message is provided', async () => {
+  it("should display the default unexpected message when no message is provided", async () => {
     renderErrorPage();
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('error.title');
-    await expect(screen.findByRole('alert')).resolves.toHaveTextContent('error.unexpected');
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "error.title",
+    );
+    await expect(screen.findByRole("alert")).resolves.toHaveTextContent(
+      "error.unexpected",
+    );
   });
 });

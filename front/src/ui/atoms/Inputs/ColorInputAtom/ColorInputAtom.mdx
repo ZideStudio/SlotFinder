@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as ColorInputStories from './ColorInputAtom.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as ColorInputStories from "./ColorInputAtom.stories";
 
 <Meta of={ColorInputStories} />
 
@@ -17,13 +17,13 @@ with the selected background color.
 `ColorInputAtom` is a **controlled component**: the parent is responsible for managing the selected color via `value` and `onChange`.
 
 ```tsx
-const [color, setColor] = useState('');
+const [color, setColor] = useState("");
 
 <ColorInputAtom
   name="primaryColor"
   description="Choisir une couleur"
   value={color}
-  onChange={e => setColor(e.target.value)}
+  onChange={(e) => setColor(e.target.value)}
 />;
 ```
 
@@ -61,8 +61,9 @@ const [color, setColor] = useState('');
         <strong>Yes</strong>
       </td>
       <td>
-        The currently selected color as a hex string (e.g. <code>#ff0000</code>). Pass an empty string <code>''</code>{' '}
-        to render as white. The parent must update this value via <code>onChange</code>.
+        The currently selected color as a hex string (e.g. <code>#ff0000</code>
+        ). Pass an empty string <code>''</code> to render as white. The parent
+        must update this value via <code>onChange</code>.
       </td>
     </tr>
     <tr>
@@ -76,7 +77,8 @@ const [color, setColor] = useState('');
         <strong>Yes</strong>
       </td>
       <td>
-        Callback fired when the user selects a new color. The parent is responsible for updating <code>value</code>.
+        Callback fired when the user selects a new color. The parent is
+        responsible for updating <code>value</code>.
       </td>
     </tr>
     <tr>
@@ -97,8 +99,9 @@ const [color, setColor] = useState('');
       </td>
       <td>No</td>
       <td>
-        All standard input props except <code>type</code>, <code>name</code>, <code>value</code> and{' '}
-        <code>onChange</code> (e.g. <code>disabled</code>,<code>required</code>, <code>onBlur</code>)
+        All standard input props except <code>type</code>, <code>name</code>,{" "}
+        <code>value</code> and <code>onChange</code> (e.g. <code>disabled</code>
+        ,<code>required</code>, <code>onBlur</code>)
       </td>
     </tr>
   </tbody>

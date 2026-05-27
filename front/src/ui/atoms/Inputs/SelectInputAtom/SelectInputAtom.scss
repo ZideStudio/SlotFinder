@@ -1,5 +1,5 @@
-@use '../../../../utils/sass/mixins/helpers';
-@use '../../../../utils/sass/mixins/responsive';
+@use "../../../../utils/sass/mixins/helpers";
+@use "../../../../utils/sass/mixins/responsive";
 
 .ds-select-input-atom {
   --select-atom-color: var(--color-primary);
@@ -17,7 +17,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--color-white);
-  box-shadow: 0 0 0 var(--select-atom-shadow-size) var(--select-atom-shadow-color);
+  box-shadow: 0 0 0 var(--select-atom-shadow-size)
+    var(--select-atom-shadow-color);
   outline: none;
   transition:
     border-color 400ms ease,
@@ -42,7 +43,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-size: contain;
-    content: '';
+    content: "";
   }
 
   &:open::picker-icon {
@@ -65,7 +66,7 @@
     --select-atom-shadow-size: #{helpers.px-to-rem(2)};
   }
 
-  &[aria-invalid='true'] {
+  &[aria-invalid="true"] {
     --select-atom-shadow-color: var(--color-error);
     --select-atom-border-color: var(--color-error);
 
@@ -75,16 +76,16 @@
     }
   }
 
-  @include responsive.media-exceeds-width('desktop-small') {
+  @include responsive.media-exceeds-width("desktop-small") {
     --select-atom-font-size: #{helpers.px-to-rem(16)};
   }
 
-  &:hover:not(:focus):not([aria-invalid='true']) {
+  &:hover:not(:focus):not([aria-invalid="true"]) {
     --select-atom-shadow-color: var(--color-primary-light-50);
     --select-atom-shadow-size: #{helpers.px-to-rem(2)};
   }
 
-  &:not(:focus):not([aria-invalid='true']):not(:placeholder-shown) {
+  &:not(:focus):not([aria-invalid="true"]):not(:placeholder-shown) {
     --select-atom-shadow-color: var(--color-primary-50);
   }
 }

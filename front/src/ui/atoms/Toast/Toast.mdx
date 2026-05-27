@@ -1,6 +1,6 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as ToastStories from './Toast.stories';
-import { Toast } from './Toast';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as ToastStories from "./Toast.stories";
+import { Toast } from "./Toast";
 
 <Meta of={ToastStories} />
 
@@ -41,13 +41,13 @@ The `addToast` method accepts an optional `duration` argument (in milliseconds) 
 
 ```tsx
 // Auto-removes after the default 3 seconds
-toastService.addToast('Saved!');
+toastService.addToast("Saved!");
 
 // Auto-removes after 5 seconds
-toastService.addToast('Processing…', 5000);
+toastService.addToast("Processing…", 5000);
 
 // Persistent — stays until the user closes it
-toastService.addToast('Action required', null);
+toastService.addToast("Action required", null);
 ```
 
 The `defaultDuration` prop on `ToastProvider` follows the same convention: pass `null` to make all toasts persistent by default.

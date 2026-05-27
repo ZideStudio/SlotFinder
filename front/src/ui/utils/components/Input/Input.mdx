@@ -1,6 +1,6 @@
-import { TextInputAtom } from '@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom';
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as InputStories from './Input.stories';
+import { TextInputAtom } from "@Front/ui/atoms/Inputs/TextInputAtom/TextInputAtom";
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as InputStories from "./Input.stories";
 
 <Meta of={InputStories} />
 
@@ -21,7 +21,13 @@ The Input component is designed to:
 ## Usage
 
 ```tsx
-<Input input={TextInputAtom} label="Username" error="This field is required" required className="custom-class" />
+<Input
+  input={TextInputAtom}
+  label="Username"
+  error="This field is required"
+  required
+  className="custom-class"
+/>
 ```
 
 ## Props
@@ -66,7 +72,10 @@ The Input component is designed to:
         <code>ReactNode</code>
       </td>
       <td>No</td>
-      <td>Error message to display below the input. Automatically sets aria-invalid and aria-describedby</td>
+      <td>
+        Error message to display below the input. Automatically sets
+        aria-invalid and aria-describedby
+      </td>
     </tr>
     <tr>
       <td>
@@ -86,7 +95,10 @@ The Input component is designed to:
         <code>string</code>
       </td>
       <td>No</td>
-      <td>Custom ID for the input. If not provided, an ID is automatically generated</td>
+      <td>
+        Custom ID for the input. If not provided, an ID is automatically
+        generated
+      </td>
     </tr>
     <tr>
       <td>
@@ -116,7 +128,10 @@ The Input component is designed to:
         <code>ComponentProps&lt;ComponentType&gt;</code>
       </td>
       <td>No</td>
-      <td>All props are passed through to the input component (e.g., value, onChange, placeholder, name)</td>
+      <td>
+        All props are passed through to the input component (e.g., value,
+        onChange, placeholder, name)
+      </td>
     </tr>
   </tbody>
 </table>
@@ -134,25 +149,44 @@ The Input component is designed to:
 ### Basic Input with Label
 
 ```tsx
-<Input input={TextInputAtom} label="Email Address" placeholder="Enter your email" />
+<Input
+  input={TextInputAtom}
+  label="Email Address"
+  placeholder="Enter your email"
+/>
 ```
 
 ### Input with Error
 
 ```tsx
-<Input input={TextInputAtom} label="Email Address" error="Invalid email format" placeholder="Enter your email" />
+<Input
+  input={TextInputAtom}
+  label="Email Address"
+  error="Invalid email format"
+  placeholder="Enter your email"
+/>
 ```
 
 ### Required Input
 
 ```tsx
-<Input input={TextInputAtom} label="Username" required placeholder="Choose a username" />
+<Input
+  input={TextInputAtom}
+  label="Username"
+  required
+  placeholder="Choose a username"
+/>
 ```
 
 ### Input with Custom Styling
 
 ```tsx
-<Input input={TextInputAtom} label="Custom Field" className="my-custom-class" placeholder="Enter value" />
+<Input
+  input={TextInputAtom}
+  label="Custom Field"
+  className="my-custom-class"
+  placeholder="Enter value"
+/>
 ```
 
 ## Playground

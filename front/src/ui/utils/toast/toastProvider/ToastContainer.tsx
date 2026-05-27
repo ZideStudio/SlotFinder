@@ -1,10 +1,10 @@
-import { Toast } from '@Front/ui/atoms/Toast/Toast';
-import { useToastSelector } from '@Front/ui/utils/toast/hooks/useToastSelector';
+import { Toast } from "@Front/ui/atoms/Toast/Toast";
+import { useToastSelector } from "@Front/ui/utils/toast/hooks/useToastSelector";
 
-import './ToastContainer.scss';
+import "./ToastContainer.scss";
 
 export const ToastContainer = () => {
-  const toastIds = useToastSelector(toast => toast.getAllToastIds());
+  const toastIds = useToastSelector((toast) => toast.getAllToastIds());
 
   if (toastIds.length === 0) {
     return null;
@@ -12,7 +12,7 @@ export const ToastContainer = () => {
 
   return (
     <section className="ds-toast-container">
-      {toastIds.map(id => (
+      {toastIds.map((id) => (
         <Toast id={id} key={id} />
       ))}
     </section>

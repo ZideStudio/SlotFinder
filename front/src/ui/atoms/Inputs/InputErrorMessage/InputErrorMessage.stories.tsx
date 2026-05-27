@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import { InputErrorMessage } from './InputErrorMessage';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
+import { InputErrorMessage } from "./InputErrorMessage";
 
 const meta = {
-  title: 'Atoms/Inputs/InputErrorMessage',
+  title: "Atoms/Inputs/InputErrorMessage",
   component: InputErrorMessage,
   args: {
-    id: 'error-message-1',
-    children: 'Label text',
-    className: 'custom-class',
+    id: "error-message-1",
+    children: "Label text",
+    className: "custom-class",
   },
 } satisfies Meta<typeof InputErrorMessage>;
 

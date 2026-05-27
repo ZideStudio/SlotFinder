@@ -1,6 +1,6 @@
-import { signUpRoutes } from '@Front/pages/Authentication/SignUp';
-import { errorRoutes } from '@Front/pages/Error';
-import { oauthCallbackRoutes } from '@Front/pages/OAuthCallback';
+import { signUpRoutes } from "@Front/pages/Authentication/SignUp";
+import { errorRoutes } from "@Front/pages/Error";
+import { oauthCallbackRoutes } from "@Front/pages/OAuthCallback";
 
 type AppRoute = {
   home: () => string;
@@ -10,7 +10,7 @@ type AppRoute = {
 };
 
 export const appRoutes: AppRoute = {
-  home: () => '/',
+  home: () => "/",
   signUp: () => `/${signUpRoutes.path}`,
   oAuthCallback: ({ error, returnUrl } = {}) => {
     let route = `/${oauthCallbackRoutes.path}`;
@@ -18,10 +18,10 @@ export const appRoutes: AppRoute = {
     const queryParams = new URLSearchParams();
 
     if (error) {
-      queryParams.append('error', error);
+      queryParams.append("error", error);
     }
     if (returnUrl) {
-      queryParams.append('returnUrl', returnUrl);
+      queryParams.append("returnUrl", returnUrl);
     }
     if (queryParams.toString()) {
       route += `?${queryParams.toString()}`;

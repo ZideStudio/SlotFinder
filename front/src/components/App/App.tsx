@@ -1,9 +1,9 @@
-import { queryClient } from '@Front/config';
-import { withProvider } from '@Front/providers';
-import { createRouter } from '@Front/routing/routerFactory';
-import { RouterProvider } from 'react-router';
+import { queryClient } from "@Front/config";
+import { withProvider } from "@Front/providers";
+import { createRouter } from "@Front/routing/routerFactory";
+import { RouterProvider } from "react-router";
 
-import '@Front/assets/css';
+import "@Front/assets/css";
 
 type AppProps = {
   basename?: string;

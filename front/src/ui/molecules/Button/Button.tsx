@@ -1,35 +1,40 @@
-import { Icon } from '@Front/ui/atoms/Icon/Icon';
-import { Spinner } from '@Front/ui/atoms/Spinner/Spinner';
-import { getClassName } from '@Front/utils/getClassName';
-import type { ComponentPropsWithoutRef, ElementType, FC, SVGProps } from 'react';
-import './Button.scss';
+import { Icon } from "@Front/ui/atoms/Icon/Icon";
+import { Spinner } from "@Front/ui/atoms/Spinner/Spinner";
+import { getClassName } from "@Front/utils/getClassName";
+import type {
+  ComponentPropsWithoutRef,
+  ElementType,
+  FC,
+  SVGProps,
+} from "react";
+import "./Button.scss";
 
 export type SvgIcon = FC<SVGProps<SVGSVGElement>>;
 
-type ButtonProps<Type extends ElementType = 'button'> = {
+type ButtonProps<Type extends ElementType = "button"> = {
   as?: Type;
-  variant?: 'primary' | 'secondary';
-  color?: 'default' | 'neutral' | 'danger';
+  variant?: "primary" | "secondary";
+  color?: "default" | "neutral" | "danger";
   icon?: SvgIcon;
   disabled?: boolean;
   isLoading?: boolean;
 } & ComponentPropsWithoutRef<Type>;
 
-export const Button = <Type extends ElementType = 'button'>({
+export const Button = <Type extends ElementType = "button">({
   as,
   className,
   children,
-  variant = 'primary',
-  color = 'default',
+  variant = "primary",
+  color = "default",
   icon,
   isLoading,
   ...props
 }: ButtonProps<Type>) => {
-  const Component = as ?? 'button';
-  const isNativeButton = !as || as === 'button';
+  const Component = as ?? "button";
+  const isNativeButton = !as || as === "button";
 
   const parentClassName = getClassName({
-    defaultClassName: 'ds-button',
+    defaultClassName: "ds-button",
     modifiers: [variant, color],
     className,
   });
@@ -37,7 +42,7 @@ export const Button = <Type extends ElementType = 'button'>({
   return (
     <Component
       className={parentClassName}
-      {...(isNativeButton && { type: 'button' })}
+      {...(isNativeButton && { type: "button" })}
       {...props}
       disabled={props.disabled || isLoading}
     >

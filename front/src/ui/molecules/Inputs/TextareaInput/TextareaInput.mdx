@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as TextareaInputStories from './TextareaInput.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as TextareaInputStories from "./TextareaInput.stories";
 
 <Meta of={TextareaInputStories} />
 
@@ -10,7 +10,12 @@ A reusable, accessible textarea input for forms and UI elements.
 ## Usage
 
 ```tsx
-<TextareaInput label="Input Label" name="input-name" placeholder="Enter text" className="custom-class" />
+<TextareaInput
+  label="Input Label"
+  name="input-name"
+  placeholder="Enter text"
+  className="custom-class"
+/>
 ```
 
 ## Props
@@ -77,7 +82,9 @@ A reusable, accessible textarea input for forms and UI elements.
         <code>textarea props (HTMLTextarea)</code>
       </td>
       <td>No</td>
-      <td>All standard textarea props (e.g. value, onChange, placeholder, rows)</td>
+      <td>
+        All standard textarea props (e.g. value, onChange, placeholder, rows)
+      </td>
     </tr>
   </tbody>
 </table>

@@ -1,5 +1,5 @@
-@use '../../../utils/sass/mixins/helpers';
-@use '../../../utils/sass/mixins/responsive';
+@use "../../../utils/sass/mixins/helpers";
+@use "../../../utils/sass/mixins/responsive";
 
 [data-popover-trigger] {
   anchor-name: var(--popover-anchor-name);
@@ -22,7 +22,7 @@
     flex-direction: column;
     row-gap: var(--popover-row-gap);
 
-    @include responsive.media-exceeds-width('desktop-small') {
+    @include responsive.media-exceeds-width("desktop-small") {
       --popover-row-gap: #{helpers.px-to-rem(16)};
     }
   }
@@ -32,7 +32,7 @@
     border-radius: var(--popover-border-radius);
   }
 
-  @include responsive.media-exceeds-width('tablet') {
+  @include responsive.media-exceeds-width("tablet") {
     --popover-width: fit-content;
     --popover-border-radius: #{helpers.px-to-rem(8)};
 
@@ -40,7 +40,8 @@
     inset-block: anchor(top) auto;
     position-anchor: var(--popover-anchor-name);
     max-width: helpers.px-to-rem(300);
-    position-try-fallbacks: --ds-popover-flip-left, --ds-popover-flip-up, --ds-popover-flip-left-up;
+    position-try-fallbacks:
+      --ds-popover-flip-left, --ds-popover-flip-up, --ds-popover-flip-left-up;
   }
 }
 

@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Utils/Hooks/useModal" />
 
@@ -27,8 +27,8 @@ A utility hook that provides imperative open/close helpers for a native HTML `<d
       </td>
       <td>No</td>
       <td>
-        An existing ref pointing to a <code>&lt;dialog&gt;</code> element. If omitted, the hook creates and manages its
-        own internal ref.
+        An existing ref pointing to a <code>&lt;dialog&gt;</code> element. If
+        omitted, the hook creates and manages its own internal ref.
       </td>
     </tr>
   </tbody>
@@ -64,8 +64,8 @@ A utility hook that provides imperative open/close helpers for a native HTML `<d
         <code>() =&gt; void</code>
       </td>
       <td>
-        Opens the dialog as a modal by calling <code>showModal()</code> on the element. Does nothing if the ref is not
-        yet attached.
+        Opens the dialog as a modal by calling <code>showModal()</code> on the
+        element. Does nothing if the ref is not yet attached.
       </td>
     </tr>
     <tr>
@@ -76,7 +76,8 @@ A utility hook that provides imperative open/close helpers for a native HTML `<d
         <code>() =&gt; void</code>
       </td>
       <td>
-        Closes the dialog by calling <code>close()</code> on the element. Does nothing if the ref is not yet attached.
+        Closes the dialog by calling <code>close()</code> on the element. Does
+        nothing if the ref is not yet attached.
       </td>
     </tr>
   </tbody>
@@ -87,7 +88,7 @@ A utility hook that provides imperative open/close helpers for a native HTML `<d
 ### Basic usage
 
 ```tsx
-import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
+import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
 
 const ConfirmDialog = () => {
   const { modalRef, openModal, closeModal } = useModal();
@@ -116,8 +117,8 @@ const ConfirmDialog = () => {
 Use this pattern when the ref needs to be shared with another component or managed externally.
 
 ```tsx
-import { useRef } from 'react';
-import { useModal } from '@Front/ui/utils/hooks/useModal/useModal';
+import { useRef } from "react";
+import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
 
 const ConfirmDialog = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);

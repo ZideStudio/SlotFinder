@@ -1,22 +1,26 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import { fn } from 'storybook/test';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
+import { fn } from "storybook/test";
 
-import { OverlayContent } from './OverlayContent';
+import { OverlayContent } from "./OverlayContent";
 
 const meta = {
-  title: 'Organisms/OverlayContent',
+  title: "Organisms/OverlayContent",
   component: OverlayContent,
   args: {
-    title: 'OverlayContent title',
+    title: "OverlayContent title",
     children: "OverlayContent's body",
-    primaryButtonProps: { children: 'Confirm', onClick: fn() },
-    secondaryButtonProps: { children: 'Cancel', onClick: fn(), variant: 'secondary' },
+    primaryButtonProps: { children: "Confirm", onClick: fn() },
+    secondaryButtonProps: {
+      children: "Cancel",
+      onClick: fn(),
+      variant: "secondary",
+    },
     closeButtonProps: { onClick: fn() },
   },
   argTypes: {
-    title: { control: 'text' },
-    titleId: { control: 'text' },
-    children: { control: 'text' },
+    title: { control: "text" },
+    titleId: { control: "text" },
+    children: { control: "text" },
     closeButtonProps: { table: { disable: true } },
   },
 } satisfies Meta<typeof OverlayContent>;

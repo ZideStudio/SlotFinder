@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
-import { LabelInput } from './LabelInput';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
+import { LabelInput } from "./LabelInput";
 
 const meta = {
-  title: 'Atoms/Inputs/LabelInput',
+  title: "Atoms/Inputs/LabelInput",
   component: LabelInput,
   args: {
-    inputId: 'input-id',
-    children: 'Label text',
-    className: 'custom-class',
+    inputId: "input-id",
+    children: "Label text",
+    className: "custom-class",
     required: false,
   },
   argTypes: {
-    children: { control: 'text' },
+    children: { control: "text" },
   },
 } satisfies Meta<typeof LabelInput>;
 

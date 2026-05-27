@@ -25,7 +25,8 @@ export class ToastService extends AbstractObserver {
   addToast(toast: string, duration?: number | null) {
     const newId = globalThis.crypto.randomUUID();
 
-    const durationToUse = duration === undefined ? this.defaultDuration : duration;
+    const durationToUse =
+      duration === undefined ? this.defaultDuration : duration;
 
     // oxlint-disable-next-line init-declarations
     let timeout: ReturnType<typeof setTimeout> | undefined;

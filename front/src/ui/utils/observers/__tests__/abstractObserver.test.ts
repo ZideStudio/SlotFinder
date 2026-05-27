@@ -1,4 +1,4 @@
-import { AbstractObserver } from '../abstractObserver';
+import { AbstractObserver } from "../abstractObserver";
 
 class AbstractObserverTest extends AbstractObserver {
   public triggerNotify(): void {
@@ -6,8 +6,8 @@ class AbstractObserverTest extends AbstractObserver {
   }
 }
 
-describe('AbstractObserver', () => {
-  it('should add a listener and call it on notifyListeners', () => {
+describe("AbstractObserver", () => {
+  it("should add a listener and call it on notifyListeners", () => {
     const observerTest = new AbstractObserverTest();
     const listener = vi.fn();
     observerTest.subscribe(listener);
@@ -16,7 +16,7 @@ describe('AbstractObserver', () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
-  it('should remove listener when unsubscribe is called', () => {
+  it("should remove listener when unsubscribe is called", () => {
     const observerTest = new AbstractObserverTest();
     const listener = vi.fn();
     const unsubscribe = observerTest.subscribe(listener);
@@ -27,7 +27,7 @@ describe('AbstractObserver', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
-  it('should only notify remaining listeners after unsubscribe is called', () => {
+  it("should only notify remaining listeners after unsubscribe is called", () => {
     const observerTest = new AbstractObserverTest();
     const listener1 = vi.fn();
     const listener2 = vi.fn();

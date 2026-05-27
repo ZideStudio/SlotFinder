@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as OverlayContentStories from './OverlayContent.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as OverlayContentStories from "./OverlayContent.stories";
 
 <Meta of={OverlayContentStories} />
 
@@ -10,18 +10,18 @@ A reusable content shell shared by overlay components such as `Modal` and `Popov
 ## Usage
 
 ```tsx
-import { OverlayContent } from '@Front/ui/organisms/OverlayContent/OverlayContent';
+import { OverlayContent } from "@Front/ui/organisms/OverlayContent/OverlayContent";
 
 const Example = () => (
   <OverlayContent
     title="Confirmation"
     primaryButtonProps={{
-      children: 'Confirm',
+      children: "Confirm",
       onClick: () => {},
     }}
     secondaryButtonProps={{
-      children: 'Cancel',
-      variant: 'secondary',
+      children: "Cancel",
+      variant: "secondary",
       onClick: () => {},
     }}
     closeButtonProps={{ onClick: () => {} }}
@@ -64,8 +64,9 @@ const Example = () => (
       </td>
       <td>No</td>
       <td>
-        Optional <code>id</code> applied to the heading element. Should be provided by the parent overlay component
-        (e.g., <code>Modal</code>) to link the heading via <code>aria-labelledby</code>.
+        Optional <code>id</code> applied to the heading element. Should be
+        provided by the parent overlay component (e.g., <code>Modal</code>) to
+        link the heading via <code>aria-labelledby</code>.
       </td>
     </tr>
     <tr>
@@ -100,7 +101,10 @@ const Example = () => (
         <code>ComponentProps&lt;typeof Button&gt;</code>
       </td>
       <td>No</td>
-      <td>Optional props for a secondary footer action button (typically cancel/close).</td>
+      <td>
+        Optional props for a secondary footer action button (typically
+        cancel/close).
+      </td>
     </tr>
     <tr>
       <td>
@@ -111,8 +115,9 @@ const Example = () => (
       </td>
       <td>No</td>
       <td>
-        Optional props forwarded to the close button in the header. Use <code>onClick</code> to handle the close action.
-        Provided by the parent overlay component.
+        Optional props forwarded to the close button in the header. Use{" "}
+        <code>onClick</code> to handle the close action. Provided by the parent
+        overlay component.
       </td>
     </tr>
   </tbody>

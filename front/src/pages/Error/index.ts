@@ -1,1 +1,1 @@
-export { errorRoutes } from './routes';
+export { errorRoutes } from "./routes";

@@ -1,5 +1,5 @@
-import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
-import * as PopoverStories from './Popover.stories';
+import { Canvas, Controls, Meta } from "@storybook/addon-docs/blocks";
+import * as PopoverStories from "./Popover.stories";
 
 <Meta of={PopoverStories} />
 
@@ -10,8 +10,8 @@ A reusable popover component built on top of the native HTML [Popover API](https
 ## Usage
 
 ```tsx
-import { usePopover } from '@Front/ui/utils/hooks/usePopover/usePopover';
-import { Popover } from '@Front/ui/organisms/Popover/Popover';
+import { usePopover } from "@Front/ui/utils/hooks/usePopover/usePopover";
+import { Popover } from "@Front/ui/organisms/Popover/Popover";
 
 const Example = () => {
   const { triggerProps, popoverProps } = usePopover();
@@ -25,8 +25,8 @@ const Example = () => {
       <Popover
         {...popoverProps}
         title="Confirmation"
-        primaryButtonProps={{ children: 'Confirm', onClick: () => {} }}
-        secondaryButtonProps={{ children: 'Cancel' }}
+        primaryButtonProps={{ children: "Confirm", onClick: () => {} }}
+        secondaryButtonProps={{ children: "Cancel" }}
       >
         Are you sure you want to proceed?
       </Popover>
@@ -60,8 +60,8 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
         <strong>Yes</strong>
       </td>
       <td>
-        HTML id of the popover element. Provided automatically when using <code>usePopover</code> via{' '}
-        <code>popoverProps.id</code>.
+        HTML id of the popover element. Provided automatically when using{" "}
+        <code>usePopover</code> via <code>popoverProps.id</code>.
       </td>
     </tr>
     <tr>
@@ -108,7 +108,10 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
         <code>ComponentProps&lt;typeof Button&gt;</code>
       </td>
       <td>No</td>
-      <td>Optional props for a secondary footer action button (typically cancel/close).</td>
+      <td>
+        Optional props for a secondary footer action button (typically
+        cancel/close).
+      </td>
     </tr>
     <tr>
       <td>
@@ -119,7 +122,8 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
       </td>
       <td>No</td>
       <td>
-        Additional class applied to the root section element alongside the default <code>ds-popover</code> class.
+        Additional class applied to the root section element alongside the
+        default <code>ds-popover</code> class.
       </td>
     </tr>
     <tr>
@@ -131,8 +135,9 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
       </td>
       <td>No</td>
       <td>
-        Native popover attribute. Defaults to <code>"auto"</code>, which closes the popover when the user clicks outside
-        it or presses <kbd>Escape</kbd>.
+        Native popover attribute. Defaults to <code>"auto"</code>, which closes
+        the popover when the user clicks outside it or presses <kbd>Escape</kbd>
+        .
       </td>
     </tr>
     <tr>
@@ -144,9 +149,10 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
       </td>
       <td>No</td>
       <td>
-        Native section props (for example <code>style</code>, <code>{'aria-*'}</code>, <code>{'data-*'}</code>). When
-        using <code>usePopover</code>, the <code>style</code> for CSS Anchor Positioning is injected via{' '}
-        <code>popoverProps.style</code>.
+        Native section props (for example <code>style</code>,{" "}
+        <code>{"aria-*"}</code>, <code>{"data-*"}</code>). When using{" "}
+        <code>usePopover</code>, the <code>style</code> for CSS Anchor
+        Positioning is injected via <code>popoverProps.style</code>.
       </td>
     </tr>
   </tbody>
@@ -169,11 +175,15 @@ Spread `triggerProps` on any focusable element and `popoverProps` on `<Popover>`
 For the same reason as `Modal`, `Popover` should be rendered via a **React Portal** into `document.body` when stacking context or landmark pollution is a concern:
 
 ```tsx
-import { createPortal } from 'react-dom';
+import { createPortal } from "react-dom";
 
 {
   createPortal(
-    <Popover {...popoverProps} title="Confirmation" primaryButtonProps={{ children: 'Confirm' }}>
+    <Popover
+      {...popoverProps}
+      title="Confirmation"
+      primaryButtonProps={{ children: "Confirm" }}
+    >
       Content
     </Popover>,
     document.body,

@@ -1,4 +1,4 @@
-import type { ErrorResponseCodeType } from '@Front/types/api.types';
+import type { ErrorResponseCodeType } from "@Front/types/api.types";
 
 export type SignUpRequestBodyType = {
   username: string;
@@ -7,7 +7,7 @@ export type SignUpRequestBodyType = {
   language: string;
 };
 
-export type SignUpFormType = Omit<SignUpRequestBodyType, 'language'> & {
+export type SignUpFormType = Omit<SignUpRequestBodyType, "language"> & {
   confirmPassword: string;
 };
 
@@ -27,5 +27,8 @@ export type SignUpResponseType = {
 };
 
 export type SignUpErrorCodeType = ErrorResponseCodeType<
-  'USERNAME_ALREADY_TAKEN' | 'INVALID_EMAIL_FORMAT' | 'EMAIL_ALREADY_EXISTS' | 'INVALID_PASSWORD_FORMAT'
+  | "USERNAME_ALREADY_TAKEN"
+  | "INVALID_EMAIL_FORMAT"
+  | "EMAIL_ALREADY_EXISTS"
+  | "INVALID_PASSWORD_FORMAT"
 >;

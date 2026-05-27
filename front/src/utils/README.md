@@ -16,7 +16,7 @@ The `formatDate.ts` file contains a utility function to consistently format date
 Example of usage:
 
 ```typescript
-import { formatDate } from '@Front/utils/formatDate';
+import { formatDate } from "@Front/utils/formatDate";
 
 const formattedDate = formatDate(new Date());
 ```
@@ -28,20 +28,20 @@ The `apiUtils.ts` file contains utility functions to simplify API calls. You can
 Example of usage:
 
 ```typescript
-import { fetchData, handleResponse } from '@Front/utils/apiUtils';
+import { fetchData, handleResponse } from "@Front/utils/apiUtils";
 
 async function fetchDataAndHandleError() {
   try {
-    const data = await fetchData('https://api.example.com/data');
+    const data = await fetchData("https://api.example.com/data");
     const processedData = handleResponse(data);
   } catch (error) {
-    console.error('An error occurred while fetching data:', error);
+    console.error("An error occurred while fetching data:", error);
   }
 }
 ```
 
 ```typescript
-import { formatDate, fetchData, handleResponse } from '@Front/utils';
+import { formatDate, fetchData, handleResponse } from "@Front/utils";
 // Use the utilities as needed
 ```
 

@@ -1,18 +1,23 @@
 export class ErrorResponse<ErrorCodeType extends string> extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ErrorResponse';
+    this.name = "ErrorResponse";
   }
 
-  getErrorCode(): ErrorCodeType | 'SERVER_ERROR' {
+  getErrorCode(): ErrorCodeType | "SERVER_ERROR" {
     try {
       const parsed = JSON.parse(this.message);
-      if (parsed && typeof parsed === 'object' && 'code' in parsed && typeof parsed.code === 'string') {
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        "code" in parsed &&
+        typeof parsed.code === "string"
+      ) {
         return parsed.code;
       }
     } catch {
       // Ignore
     }
-    return 'SERVER_ERROR';
+    return "SERVER_ERROR";
   }
 }

@@ -1,1 +1,1 @@
-export { oauthCallbackRoutes } from './routes';
+export { oauthCallbackRoutes } from "./routes";

@@ -1,5 +1,5 @@
-@use '../../../utils/sass/mixins/helpers';
-@use '../../../utils/sass/mixins/responsive';
+@use "../../../utils/sass/mixins/helpers";
+@use "../../../utils/sass/mixins/responsive";
 
 .ds-button {
   --text-font-size: #{helpers.px-to-rem(12)};
@@ -61,7 +61,7 @@
     --btn-color: var(--color-error);
   }
 
-  &:is([disabled], [aria-disabled='true']) {
+  &:is([disabled], [aria-disabled="true"]) {
     border-color: transparent;
     color: var(--color-white);
     background-color: var(--color-grey-400);
@@ -72,7 +72,7 @@
     }
   }
 
-  @include responsive.media-exceeds-width('desktop-small') {
+  @include responsive.media-exceeds-width("desktop-small") {
     --text-font-size: #{helpers.px-to-rem(14)};
     --icon-size: #{helpers.px-to-rem(20)};
   }

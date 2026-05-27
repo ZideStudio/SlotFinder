@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { FileUploadInputAtom } from './FileUploadInputAtom';
+import { FileUploadInputAtom } from "./FileUploadInputAtom";
 
 const meta = {
-  title: 'Atoms/Inputs/FileUploadInputAtom',
+  title: "Atoms/Inputs/FileUploadInputAtom",
   component: FileUploadInputAtom,
 } satisfies Meta<typeof FileUploadInputAtom>;
 
@@ -13,15 +13,15 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    name: 'file-upload',
-    className: 'custom-class',
+    name: "file-upload",
+    className: "custom-class",
   },
 };
 
 export const Error: Story = {
   args: {
-    name: 'file-upload',
-    'aria-invalid': 'true',
-    className: 'custom-class',
+    name: "file-upload",
+    "aria-invalid": "true",
+    className: "custom-class",
   },
 };

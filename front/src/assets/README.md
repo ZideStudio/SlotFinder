@@ -21,7 +21,7 @@ The "assets" folder is a commonly used directory in a React application to store
 To use an image stored in the "assets" folder, you can reference its relative path in your JavaScript or JSX code like this:
 
 ```javascript
-import logo from '@Front/assets/images/logo.png';
+import logo from "@Front/assets/images/logo.png";
 
 export const App = () => {
   return (

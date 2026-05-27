@@ -1,12 +1,12 @@
-import { routeObject } from '@Front/routing/routes';
-import { renderRoute } from '@Front/utils/testsUtils/customRender/customRender';
-import { getAuthStatus200 } from '@Mocks/handlers/authStatusHandlers';
-import { server } from '@Mocks/server';
-import { screen } from '@testing-library/react';
-import { Header } from '../Header';
+import { routeObject } from "@Front/routing/routes";
+import { renderRoute } from "@Front/utils/testsUtils/customRender/customRender";
+import { getAuthStatus200 } from "@Mocks/handlers/authStatusHandlers";
+import { server } from "@Mocks/server";
+import { screen } from "@testing-library/react";
+import { Header } from "../Header";
 
-describe('Header', () => {
-  type TestRoute = '/withHeader' | '/withoutHeader';
+describe("Header", () => {
+  type TestRoute = "/withHeader" | "/withoutHeader";
 
   const renderLayoutRoute = (initialEntry: TestRoute) =>
     renderRoute({
@@ -17,11 +17,11 @@ describe('Header', () => {
           index: false,
           children: [
             {
-              path: '/withHeader',
+              path: "/withHeader",
               element: <p>with header</p>,
             },
             {
-              path: '/withoutHeader',
+              path: "/withoutHeader",
               element: <p>without header</p>,
               handle: {
                 hideHeader: true,
@@ -31,42 +31,42 @@ describe('Header', () => {
         },
       ],
     });
-  it('renders the header with logo and buttons', () => {
+  it("renders the header with logo and buttons", () => {
     renderRoute({
-      initialEntry: '/',
+      initialEntry: "/",
       routes: [
         {
-          path: '/',
+          path: "/",
           element: <Header />,
         },
       ],
     });
 
-    const logo = screen.getByAltText('Slot Finder logo');
+    const logo = screen.getByAltText("Slot Finder logo");
     expect(logo).toBeInTheDocument();
 
-    const buttons = screen.getAllByRole('button');
+    const buttons = screen.getAllByRole("button");
     expect(buttons).toHaveLength(2);
   });
 
-  describe('when the route has no hideHeader handle', () => {
+  describe("when the route has no hideHeader handle", () => {
     beforeEach(() => {
       server.use(getAuthStatus200);
     });
-    it('should render the header banner', async () => {
-      renderLayoutRoute('/withHeader');
+    it("should render the header banner", async () => {
+      renderLayoutRoute("/withHeader");
 
-      await expect(screen.findByRole('banner')).resolves.toBeInTheDocument();
+      await expect(screen.findByRole("banner")).resolves.toBeInTheDocument();
     });
   });
 
-  describe('when the route has hideHeader: true', () => {
-    it('should not render the header banner', async () => {
-      renderLayoutRoute('/withoutHeader');
+  describe("when the route has hideHeader: true", () => {
+    it("should not render the header banner", async () => {
+      renderLayoutRoute("/withoutHeader");
 
-      await screen.findByText('without header');
+      await screen.findByText("without header");
 
-      expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+      expect(screen.queryByRole("banner")).not.toBeInTheDocument();
     });
   });
 });

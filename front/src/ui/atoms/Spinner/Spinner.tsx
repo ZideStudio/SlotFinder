@@ -1,14 +1,17 @@
-import { getClassName } from '@Front/utils/getClassName';
-import './Spinner.scss';
+import { getClassName } from "@Front/utils/getClassName";
+import "./Spinner.scss";
 
 type SpinnerProps = {
   className?: string;
   label?: string;
 };
 
-export const Spinner = ({ className, label = "Chargement en cours" }: SpinnerProps) => {
+export const Spinner = ({
+  className,
+  label = "Chargement en cours",
+}: SpinnerProps) => {
   const parentClassName = getClassName({
-    defaultClassName: 'ds-spinner',
+    defaultClassName: "ds-spinner",
     className,
   });
 

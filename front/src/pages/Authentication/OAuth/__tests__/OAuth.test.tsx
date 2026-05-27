@@ -1,10 +1,10 @@
-import { AuthenticationContextProvider } from '@Front/contexts/AuthenticationContext/AuthenticationContextProvider';
+import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
 // oxlint-disable-next-line import/no-namespace
-import * as useAuthenticationContext from '@Front/hooks/useAuthenticationContext';
-import { renderWithQueryClient } from '@Front/utils/testsUtils/customRender/customRender';
-import { screen } from '@testing-library/react';
-import { oauthProvidersData } from '../constants';
-import { OAuth } from '../OAuth';
+import * as useAuthenticationContext from "@Front/hooks/useAuthenticationContext";
+import { renderWithQueryClient } from "@Front/utils/testsUtils/customRender/customRender";
+import { screen } from "@testing-library/react";
+import { oauthProvidersData } from "../constants";
+import { OAuth } from "../OAuth";
 
 const renderOAuth = () =>
   renderWithQueryClient(
@@ -13,39 +13,49 @@ const renderOAuth = () =>
     </AuthenticationContextProvider>,
   );
 
-describe('OAuth', () => {
+describe("OAuth", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('should render heading with correct text and aria-labelledby', () => {
+  it("should render heading with correct text and aria-labelledby", () => {
     renderOAuth();
-    expect(screen.getByRole('heading', { level: 2, name: 'authentication.signInWithProvider' })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "authentication.signInWithProvider",
+      }),
+    ).toBeInTheDocument();
   });
 
-  it('should render all OAuth providers as links with correct aria-labels and generated URLs', () => {
-    const RETURN_URL = encodeURIComponent('/');
+  it("should render all OAuth providers as links with correct aria-labels and generated URLs", () => {
+    const RETURN_URL = encodeURIComponent("/");
 
     renderOAuth();
 
     for (const provider of oauthProvidersData) {
-      const link = screen.getByRole('link', { name: `authentication.${provider.ariaLabel}` });
+      const link = screen.getByRole("link", {
+        name: `authentication.${provider.ariaLabel}`,
+      });
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute(
-        'href',
+        "href",
         `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/${provider.id}/url?returnUrl=${RETURN_URL}`,
       );
-      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
       expect(screen.getByText(provider.label)).toBeInTheDocument();
     }
   });
 
-  it('should render all OAuth providers as links with correct generated URLs from postAuthRedirectPath', () => {
-    const CUSTOM_RETURN_URL = encodeURIComponent('/custom-path');
+  it("should render all OAuth providers as links with correct generated URLs from postAuthRedirectPath", () => {
+    const CUSTOM_RETURN_URL = encodeURIComponent("/custom-path");
 
-    vi.spyOn(useAuthenticationContext, 'useAuthenticationContext').mockReturnValue({
+    vi.spyOn(
+      useAuthenticationContext,
+      "useAuthenticationContext",
+    ).mockReturnValue({
       isAuthenticated: false,
-      postAuthRedirectPath: '/custom-path',
+      postAuthRedirectPath: "/custom-path",
       setPostAuthRedirectPath: vi.fn(),
       resetPostAuthRedirectPath: vi.fn(),
       checkAuthentication: vi.fn(),
@@ -54,22 +64,26 @@ describe('OAuth', () => {
     renderOAuth();
 
     for (const provider of oauthProvidersData) {
-      const link = screen.getByRole('link', { name: `authentication.${provider.ariaLabel}` });
+      const link = screen.getByRole("link", {
+        name: `authentication.${provider.ariaLabel}`,
+      });
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute(
-        'href',
+        "href",
         `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/${provider.id}/url?returnUrl=${CUSTOM_RETURN_URL}`,
       );
     }
   });
 
-  it('should render provider icons with aria-hidden', () => {
+  it("should render provider icons with aria-hidden", () => {
     renderOAuth();
 
     for (const provider of oauthProvidersData) {
-      const link = screen.getByRole('link', { name: `authentication.${provider.ariaLabel}` });
-      const icon = link.querySelector('svg');
-      expect(icon).toHaveAttribute('aria-hidden');
+      const link = screen.getByRole("link", {
+        name: `authentication.${provider.ariaLabel}`,
+      });
+      const icon = link.querySelector("svg");
+      expect(icon).toHaveAttribute("aria-hidden");
     }
   });
 });

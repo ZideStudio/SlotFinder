@@ -20,14 +20,17 @@ class TokenRefreshManager {
   }
 
   private async performRefresh(): Promise<void> {
-    const response = await fetch(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`, {
-      method: 'POST',
-    });
+    const response = await fetch(
+      `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
+      {
+        method: "POST",
+      },
+    );
 
     if (!response.ok) {
       // On refresh failure, redirect to home page
       globalThis.location.reload();
-      throw new Error('Token refresh failed');
+      throw new Error("Token refresh failed");
     }
   }
 }

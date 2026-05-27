@@ -1,17 +1,22 @@
-import type { Meta, StoryObj } from 'storybook-react-rsbuild';
+import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
-import { DateInput } from './DateInput';
+import { DateInput } from "./DateInput";
 
 const meta = {
-  title: 'Molecules/Inputs/DateInput',
+  title: "Molecules/Inputs/DateInput",
   component: DateInput,
-  args: { label: 'Label', name: 'date-input', required: false, className: 'custom-class' },
+  args: {
+    label: "Label",
+    name: "date-input",
+    required: false,
+    className: "custom-class",
+  },
   argTypes: {
     onChange: { action: true, table: { disable: true } },
   },
   decorators: [
-    Story => (
-      <div style={{ width: '300px' }}>
+    (Story) => (
+      <div style={{ width: "300px" }}>
         <Story />
       </div>
     ),
@@ -24,6 +29,6 @@ export const Default: StoryObj<typeof meta> = {};
 
 export const Invalid: StoryObj<typeof meta> = {
   args: {
-    error: 'An error occurred',
+    error: "An error occurred",
   },
 };

@@ -1,5 +1,5 @@
-@use '../../../../utils/sass/mixins/helpers';
-@use '../../../../utils/sass/mixins/responsive';
+@use "../../../../utils/sass/mixins/helpers";
+@use "../../../../utils/sass/mixins/responsive";
 
 .ds-input-error-message {
   --text-font-size: #{helpers.px-to-rem(14)};
@@ -11,7 +11,7 @@
   font-size: var(--text-font-size);
   color: var(--color-error);
 
-  @include responsive.media-exceeds-width('desktop-small') {
+  @include responsive.media-exceeds-width("desktop-small") {
     --text-font-size: #{helpers.px-to-rem(16)};
     --icon-size: #{helpers.px-to-rem(20)};
   }

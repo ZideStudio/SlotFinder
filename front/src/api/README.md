@@ -25,7 +25,7 @@ The "api" folder can be organized as follows :
 When you need to make a call to a native API, import the appropriate function from the "api" folder into your code. For example:
 
 ```javascript
-import { getUsers } from '@Front/api/users';
+import { getUsers } from "@Front/api/users";
 
 const users = getUsers();
 ```
@@ -56,7 +56,7 @@ Consider the following example of a custom fetch function :
 // Custom fetch function with common configurations
 export const fetchApi = (uri, options) => {
   const headers = new Headers(options.headers ?? []);
-  headers.append('x-api-key', '<token-api>');
+  headers.append("x-api-key", "<token-api>");
 
   return fetch(uri, { ...options, headers });
 };
