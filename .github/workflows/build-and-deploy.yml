@@ -1,0 +1,109 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - ci/cd
+    tags:
+      - "v*"
+
+env:
+  IMAGE_NAME: slotfinder
+  STG_DOMAIN: stg.slotfinder.fr
+  PRD_DOMAIN: slotfinder.fr
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+  build-staging:
+    name: Build Staging Images
+    needs: setup
+    if: github.ref == 'refs/heads/ci/cd'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create JWT keys for staging
+        run: |
+          mkdir -p back/config/jwt
+          echo "${{ secrets.JWT_PRIVATE_KEY_STG }}" > back/config/jwt/private.pem
+          echo "${{ secrets.JWT_PUBLIC_KEY_STG }}" > back/config/jwt/public.pem
+          chmod 644 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/public.pem
+
+      - name: Create .env for frontend staging
+        run: echo "${{ secrets.FRONT_ENV_STG }}" > .env
+
+      - name: Build Staging Images
+        run: docker compose -f docker-compose-build-stg.yml build
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-staging
+    if: github.ref == 'refs/heads/ci/cd'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env for backend staging
+        run: echo "${{ secrets.BACK_ENV_STG }}" > .env
+
+      - name: Deploy Staging Services
+        run: |
+          export DOMAIN=${STG_DOMAIN}
+          export FRONT_IMAGE=stg-${IMAGE_NAME}-front:${{ github.sha }}
+          export BACK_IMAGE=stg-${IMAGE_NAME}-back:${{ github.sha }}
+          docker compose -f docker-compose-stg.yml up -d
+        env:
+          COMPOSE_PROJECT_NAME: slotfinder-stg
+
+  build-production:
+    name: Build Production Images
+    needs: setup
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create JWT keys for production
+        run: |
+          mkdir -p back/config/jwt
+          echo "${{ secrets.JWT_PRIVATE_KEY_PRD }}" > back/config/jwt/private.pem
+          echo "${{ secrets.JWT_PUBLIC_KEY_PRD }}" > back/config/jwt/public.pem
+          chmod 644 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/public.pem
+
+      - name: Create .env for frontend production
+        run: echo "${{ secrets.FRONT_ENV_PRD }}" > .env
+
+      - name: Build Production Images
+        run: docker compose -f docker-compose-build-prd.yml build
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
+
+  deploy-production:
+    name: Deploy to Production
+    needs: build-production
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env for backend production
+        run: echo "${{ secrets.BACK_ENV_PRD }}" > .env
+
+      - name: Deploy Production Services
+        run: |
+          export DOMAIN=${PRD_DOMAIN}
+          export FRONT_IMAGE=prd-${IMAGE_NAME}-front:${{ github.ref_name }}
+          export BACK_IMAGE=prd-${IMAGE_NAME}-back:${{ github.ref_name }}
+          docker compose -f docker-compose-prd.yml up -d
+        env:
+          COMPOSE_PROJECT_NAME: slotfinder-prd

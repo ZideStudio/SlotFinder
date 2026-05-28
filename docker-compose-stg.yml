@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  frontend:
+    image: ${FRONT_IMAGE}
+    container_name: slotfinder-stg-frontend
+    restart: unless-stopped
+    networks:
+      - zide-traefik-n
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=zide-traefik-n"
+      - "traefik.http.services.slotfinder-stg-frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.slotfinder-stg-frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-frontend.entrypoints=websecure"
+      - "traefik.http.routers.slotfinder-stg-frontend.tls.certresolver=zideresolver"
+      - "traefik.http.routers.slotfinder-stg-frontend.service=slotfinder-stg-frontend"
+      - "traefik.http.routers.slotfinder-stg-frontend.middlewares=stg-whitelist"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.entrypoints=web"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.service=slotfinder-stg-frontend"
+      - "traefik.http.routers.slotfinder-stg-frontend-http.middlewares=stg-whitelist"
+
+  backend:
+    image: ${BACK_IMAGE}
+    container_name: slotfinder-stg-backend
+    restart: unless-stopped
+    networks:
+      - zide-traefik-n
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=zide-traefik-n"
+      - "traefik.http.services.slotfinder-stg-backend.loadbalancer.server.port=3000"
+      # HTTPS route
+      - "traefik.http.routers.slotfinder-stg-backend-https.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-backend-https.entrypoints=websecure"
+      - "traefik.http.routers.slotfinder-stg-backend-https.tls.certresolver=zideresolver"
+      - "traefik.http.routers.slotfinder-stg-backend-https.service=slotfinder-stg-backend"
+      - "traefik.http.routers.slotfinder-stg-backend-https.middlewares=slotfinder-stg-backend-stripprefix"
+      # HTTP route
+      - "traefik.http.routers.slotfinder-stg-backend-http.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.slotfinder-stg-backend-http.entrypoints=web"
+      - "traefik.http.routers.slotfinder-stg-backend-http.service=slotfinder-stg-backend"
+      - "traefik.http.routers.slotfinder-stg-backend-http.middlewares=slotfinder-stg-backend-stripprefix"
+      # Middleware
+      - "traefik.http.middlewares.slotfinder-stg-backend-stripprefix.stripprefix.prefixes=/api"
+
+networks:
+  zide-traefik-n:
+    external: true
