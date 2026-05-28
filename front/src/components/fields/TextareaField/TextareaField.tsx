@@ -1,4 +1,4 @@
-import { Field } from "@Front/components/Field/Field";
+import { Field } from "@Front/components/fields/Field/Field";
 import { TextareaInput } from "@Front/ui/molecules/Inputs/TextareaInput/TextareaInput";
 import { type ComponentProps } from "react";
 

@@ -1,4 +1,4 @@
-import { Field } from "@Front/components/Field/Field";
+import { Field } from "@Front/components/fields/Field/Field";
 import { DateInput } from "@Front/ui/molecules/Inputs/DateInput/DateInput";
 import { type ComponentProps } from "react";
 

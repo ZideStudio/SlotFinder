@@ -1,4 +1,4 @@
-import { Field } from "@Front/components/Field/Field";
+import { Field } from "@Front/components/fields/Field/Field";
 import { MonoCheckboxInput } from "@Front/ui/molecules/Inputs/MonoCheckboxInput/MonoCheckboxInput";
 import { type ComponentProps } from "react";
 
