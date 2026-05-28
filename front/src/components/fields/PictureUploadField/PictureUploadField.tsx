@@ -1,4 +1,4 @@
-import { Field } from "@Front/components/Field/Field";
+import { Field } from "@Front/components/fields/Field/Field";
 import { PictureUploadInput } from "@Front/ui/molecules/Inputs/PictureUploadInput/PictureUploadInput";
 import { type ComponentProps } from "react";
 
