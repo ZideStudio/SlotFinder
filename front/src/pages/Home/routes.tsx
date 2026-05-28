@@ -8,4 +8,3 @@ export const homeRoutes: RouteObject = {
     hideHeader: false,
   },
 };
-  

@@ -1,1 +1,1 @@
-export { loaderRoutes } from './Routes';
+export { loaderRoutes } from "./Routes";

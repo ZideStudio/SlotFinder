@@ -20,7 +20,7 @@ describe("Dashboard", () => {
     ).resolves.toBeInTheDocument();
   });
 
-  it('does not render the header banner', () => {
-    expect(screen.queryByRole('banner')).toBeNull();
+  it("does not render the header banner", () => {
+    expect(screen.queryByRole("banner")).toBeNull();
   });
 });
