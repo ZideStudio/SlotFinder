@@ -43,6 +43,13 @@ The page will reload automatically if you make edits.
 
 You will also see lint errors in the console.
 
+### `npm start:mock`
+
+Launches the application in development mode with mock service workers enabled.
+Open [http://localhost:3003](http://localhost:3003) to view it in your browser.
+
+The application runs on port 3003 with `env-mode` set to `mock`, allowing you to test with mocked API responses.
+
 ### `npm test`
 
 Runs all tests.
