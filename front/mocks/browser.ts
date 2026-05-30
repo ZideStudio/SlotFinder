@@ -1,4 +1,3 @@
 import { setupWorker } from "msw/browser";
-import { getAuthStatus403 } from "./handlers/authStatusHandlers";
 
-export const worker = setupWorker(getAuthStatus403);
+export const worker = setupWorker();
