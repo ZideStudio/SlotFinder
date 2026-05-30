@@ -1,7 +1,7 @@
 import { appRoutes } from "@Front/routing/appRoutes";
 import {
-    renderRoute,
-    type RenderRouteOptions,
+  renderRoute,
+  type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
 import { getAuthStatus401 } from "@Mocks/handlers/authStatusHandlers";
 import { server } from "@Mocks/server";

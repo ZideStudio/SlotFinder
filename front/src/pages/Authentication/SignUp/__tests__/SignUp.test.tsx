@@ -2,13 +2,13 @@
 import * as authenticationContextHook from "@Front/hooks/useAuthenticationContext";
 import { appRoutes } from "@Front/routing/appRoutes";
 import {
-    renderRoute,
-    type RenderRouteOptions,
+  renderRoute,
+  type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
 import { postAccount400Fixture } from "@Mocks/fixtures/accountFixtures";
 import {
-    postAccount201,
-    postAccount400,
+  postAccount201,
+  postAccount400,
 } from "@Mocks/handlers/accountHandlers";
 import { server } from "@Mocks/server";
 import { screen, waitFor } from "@testing-library/react";

@@ -41,7 +41,10 @@ export const postTokenRefreshNetworkError = ...; // POST /auth/refresh → netwo
 
 ```typescript
 // mocks/handlers/authStatusHandlers.ts
-import { getAuthStatus200Fixture, getAuthStatus401Fixture } from "@Mocks/fixtures/authStatusFixtures";
+import {
+  getAuthStatus200Fixture,
+  getAuthStatus401Fixture,
+} from "@Mocks/fixtures/authStatusFixtures";
 import { delay, http, HttpResponse } from "msw";
 
 export const getAuthStatus200 = http.get(
@@ -95,7 +98,10 @@ export const postAccount400Fixture = ...;  // POST /account → 400
 ```typescript
 // mocks/fixtures/accountFixtures.ts
 import type { ErrorResponseType } from "@Front/types/api.types";
-import type { SignUpResponseType, SignUpErrorCodeType } from "@Front/types/Authentication/signUp/signUp.types";
+import type {
+  SignUpResponseType,
+  SignUpErrorCodeType,
+} from "@Front/types/Authentication/signUp/signUp.types";
 
 export const postAccount201Fixture: SignUpResponseType = {
   access_token: "1234567890abcdef",
@@ -115,7 +121,10 @@ When an application type changes, TypeScript will flag the fixture as invalid, r
 
 ```typescript
 // mocks/handlers/accountHandlers.ts
-import { postAccount201Fixture, postAccount400Fixture } from "../fixtures/accountFixtures";
+import {
+  postAccount201Fixture,
+  postAccount400Fixture,
+} from "../fixtures/accountFixtures";
 
 export const postAccount201 = http.post("/api/v1/account", async () => {
   return HttpResponse.json(postAccount201Fixture, { status: 201 });
