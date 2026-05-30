@@ -102,7 +102,7 @@
       }
     }
   },
-  "forwardPorts": [3002, 5432, 9000, 51204, 63315],
+  "forwardPorts": [3002, 3003, 5432, 9000, 51204, 63315],
   "portsAttributes": {
     "3000": {
       "label": "Frontend (internal - use Traefik on 443)",
@@ -114,6 +114,10 @@
     },
     "3002": {
       "label": "Storybook",
+      "onAutoForward": "notify"
+    },
+    "3003": {
+      "label": "Frontend Mock",
       "onAutoForward": "notify"
     },
     "5432": {

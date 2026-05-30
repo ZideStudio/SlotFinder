@@ -4,9 +4,10 @@ import type {
   AuthStatusResponseType,
 } from "@Front/types/Authentication/authStatus/authStatus.types";
 
-export const authStatusFixture: AuthStatusResponseType = null;
+export const authStatus200Fixture: AuthStatusResponseType = null;
 
-export const authStatusErrorFixture: ErrorResponseType<AuthStatusErrorCodeType> =
-  {
-    code: "NOT_AUTHENTICATED",
-  };
+export const authStatus401Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
+  { code: "NOT_AUTHENTICATED" };
+
+export const authStatus403Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
+  { code: "TERMS_NOT_ACCEPTED" };

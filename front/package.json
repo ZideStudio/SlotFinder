@@ -1,12 +1,12 @@
 {
   "name": "slotfinder-front",
   "version": "0.1.0",
-  "license": "MIT",
   "description": "SlotFinder front-end",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "start": "rsbuild dev",
-    "start:mock": "rsbuild dev --env-mode mock",
+    "start:mock": "rsbuild dev --port 3003 --env-mode mock",
     "start:storybook": "storybook dev -p 3002",
     "build": "rsbuild build",
     "build:storybook": "storybook build",
