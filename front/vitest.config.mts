@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
     ...base,
     test: {
       ...base.test,
+      name: 'unit',
       environment: "jsdom",
       setupFiles: "vitest.setup.ts",
       include: ["src/**/*.(spec|test|steps).[jt]s?(x)"],
