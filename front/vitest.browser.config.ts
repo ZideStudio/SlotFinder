@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
     ...base,
     test: {
       ...base.test,
+      name: 'browser',
       include: ["src/**/*.browser.test.[jt]sx"],
       setupFiles: ["./vitest.browser.setup.ts"],
       browser: {
