@@ -12,7 +12,7 @@ export const getBaseConfig = (mode: string) => {
     plugins: [
       react(),
       viteTsconfigPaths({
-        projects: [resolve(__dirname, '../tsconfig.test.json')],
+        projects: [resolve(__dirname, '../../tsconfig.test.json')],
       }),
       svgr(),
     ],
