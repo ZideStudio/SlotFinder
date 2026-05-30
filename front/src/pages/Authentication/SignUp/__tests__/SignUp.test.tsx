@@ -2,13 +2,13 @@
 import * as authenticationContextHook from "@Front/hooks/useAuthenticationContext";
 import { appRoutes } from "@Front/routing/appRoutes";
 import {
-  renderRoute,
-  type RenderRouteOptions,
+    renderRoute,
+    type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
-import { accountErrorFixture } from "@Mocks/fixtures/accountFixtures";
+import { postAccount400Fixture } from "@Mocks/fixtures/accountFixtures";
 import {
-  postAccount201,
-  postAccount400,
+    postAccount201,
+    postAccount400,
 } from "@Mocks/handlers/accountHandlers";
 import { server } from "@Mocks/server";
 import { screen, waitFor } from "@testing-library/react";
@@ -209,7 +209,7 @@ describe("SignUp error handling", () => {
     );
 
     await expect(
-      screen.findByText(`signUp.error.${accountErrorFixture.code}`),
+      screen.findByText(`signUp.error.${postAccount400Fixture.code}`),
     ).resolves.toBeInTheDocument();
   });
 });

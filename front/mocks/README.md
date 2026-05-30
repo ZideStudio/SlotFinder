@@ -20,21 +20,43 @@ The "mocks" folder contains mock HTTP request handlers and fixtures using [Mock 
 
 Handlers define how to intercept and respond to specific HTTP requests.
 
+### Naming Convention
+
+Handlers follow the `{httpMethod}{ResourceName}{statusCode}` naming convention:
+
+- **`httpMethod`** : HTTP verb in camelCase (`get`, `post`, `put`, `delete`, etc.)
+- **`ResourceName`** : Resource name in PascalCase (e.g., `Account`, `AuthStatus`, `TokenRefresh`)
+- **`statusCode`** : Expected HTTP status code (e.g., `200`, `201`, `400`, `401`)
+
+For non-HTTP errors (e.g., network failures), replace the status code with a descriptive suffix:
+
+```typescript
+export const getAuthStatus200 = ...;            // GET /auth/status → 200
+export const getAuthStatus401 = ...;            // GET /auth/status → 401
+export const postTokenRefresh200 = ...;         // POST /auth/refresh → 200
+export const postTokenRefreshNetworkError = ...; // POST /auth/refresh → network error
+```
+
 ### Creating a Handler
 
 ```typescript
-// mocks/handlers/userHandlers.ts
-import { http, HttpResponse } from "msw";
+// mocks/handlers/authStatusHandlers.ts
+import { getAuthStatus200Fixture, getAuthStatus401Fixture } from "@Mocks/fixtures/authStatusFixtures";
+import { delay, http, HttpResponse } from "msw";
 
-export const getUserHandler = http.get("/api/users/:id", ({ params }) => {
-  return HttpResponse.json({ id: params.id, name: "John Doe" });
-});
+export const getAuthStatus200 = http.get(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  async () => {
+    await delay();
+    return HttpResponse.json(getAuthStatus200Fixture, { status: 200 });
+  },
+);
 
-export const createUserHandler = http.post(
-  "/api/users",
-  async ({ request }) => {
-    const body = await request.json();
-    return HttpResponse.json({ id: 1, ...body }, { status: 201 });
+export const getAuthStatus401 = http.get(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  async () => {
+    await delay();
+    return HttpResponse.json(getAuthStatus401Fixture, { status: 401 });
   },
 );
 ```
@@ -47,36 +69,60 @@ Add handlers to `browser.ts` and `server.ts`:
 // browser.ts
 import { setupWorker } from "msw/browser";
 
-export const worker = setupWorker(getUserHandler, createUserHandler);
+export const worker = setupWorker(getAuthStatus200, getAuthStatus401);
 ```
 
 ## <span id="fixtures">Fixtures</span>
 
 Fixtures provide reusable mock data for handlers. **Always use the same types from your application** to ensure type consistency and catch API changes automatically.
 
+### Naming Convention
+
+Fixtures follow the `{httpMethod}{ResourceName}{statusCode}Fixture` naming convention:
+
+- **`httpMethod`** : HTTP verb in camelCase (`get`, `post`, `put`, `delete`, etc.)
+- **`ResourceName`** : Resource name in PascalCase (e.g., `Account`, `AuthStatus`)
+- **`statusCode`** : Expected HTTP status code (e.g., `200`, `201`, `400`, `401`)
+
+```typescript
+export const getAccount200Fixture = ...;   // GET /account → 200
+export const postAccount201Fixture = ...;  // POST /account → 201
+export const postAccount400Fixture = ...;  // POST /account → 400
+```
+
 ### Creating a Fixture
 
 ```typescript
-// mocks/fixtures/userFixtures.ts
-import { User } from "@Front/types/user"; // Use application types
+// mocks/fixtures/accountFixtures.ts
+import type { ErrorResponseType } from "@Front/types/api.types";
+import type { SignUpResponseType, SignUpErrorCodeType } from "@Front/types/Authentication/signUp/signUp.types";
 
-export const userFixture: User = {
-  id: 1,
-  name: "John Doe",
-  email: "john@example.com",
+export const postAccount201Fixture: SignUpResponseType = {
+  access_token: "1234567890abcdef",
+  email: "test@example.com",
+  id: "123456",
+  userName: "test_user",
+};
+
+export const postAccount400Fixture: ErrorResponseType<SignUpErrorCodeType> = {
+  code: "USERNAME_ALREADY_TAKEN",
 };
 ```
 
-When the `User` type changes in your application, TypeScript will flag the fixture as invalid, reminding you to update it accordingly.
+When an application type changes, TypeScript will flag the fixture as invalid, reminding you to update it accordingly.
 
 ### Using Fixtures in Handlers
 
 ```typescript
-// mocks/handlers/userHandlers.ts
-import { userFixture } from "../fixtures/userFixtures";
+// mocks/handlers/accountHandlers.ts
+import { postAccount201Fixture, postAccount400Fixture } from "../fixtures/accountFixtures";
 
-export const getUserHandler = http.get("/api/users/1", () => {
-  return HttpResponse.json(userFixture);
+export const postAccount201 = http.post("/api/v1/account", async () => {
+  return HttpResponse.json(postAccount201Fixture, { status: 201 });
+});
+
+export const postAccount400 = http.post("/api/v1/account", async () => {
+  return HttpResponse.json(postAccount400Fixture, { status: 400 });
 });
 ```
 

@@ -4,10 +4,13 @@ import type {
   AuthStatusResponseType,
 } from "@Front/types/Authentication/authStatus/authStatus.types";
 
-export const authStatus200Fixture: AuthStatusResponseType = null;
+export const getAuthStatus200Fixture: AuthStatusResponseType = null;
 
-export const authStatus401Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
+export const getAuthStatus401Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
   { code: "NOT_AUTHENTICATED" };
 
-export const authStatus403Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
+export const getAuthStatus403Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
   { code: "TERMS_NOT_ACCEPTED" };
+
+export const getAuthStatus498Fixture: ErrorResponseType<AuthStatusErrorCodeType> =
+  { code: "TOKEN_EXPIRED" };
