@@ -27,6 +27,6 @@
       "@Mocks/*": ["./mocks/*"]
     }
   },
-  "include": ["src", "mocks", "rsbuild.config.ts", "vitest.setup.ts", "vitest.browser.setup.ts", "vitest.workspace.ts"],
+  "include": ["src", "mocks", "rsbuild.config.ts", "config/vitest"],
   "exclude": ["node_modules"]
 }
