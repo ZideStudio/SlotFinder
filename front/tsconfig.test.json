@@ -4,5 +4,6 @@
     "src",
     "mocks",
     "vitest.setup.ts",
+    "vitest.browser.setup.ts",
   ],
 }

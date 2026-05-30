@@ -1,6 +1,6 @@
-import { playwright } from '@vitest/browser-playwright';
-import { defineConfig } from 'vitest/config';
-import { getBaseConfig } from './config/vitest.base';
+import { playwright } from "@vitest/browser-playwright";
+import { defineConfig } from "vitest/config";
+import { getBaseConfig } from "./config/vitest.base";
 
 // TODO: setup vitest browser with msw : https://mswjs.io/docs/recipes/vitest-browser-mode
 export default defineConfig(({ mode }) => {
@@ -9,14 +9,14 @@ export default defineConfig(({ mode }) => {
     ...base,
     test: {
       ...base.test,
-      include: ['src/**/*.browser.test.[jt]sx'],
-      setupFiles: ['./vitest.browser.setup.ts'],
+      include: ["src/**/*.browser.test.[jt]sx"],
+      setupFiles: ["./vitest.browser.setup.ts"],
       browser: {
         enabled: true,
         provider: playwright(),
-        instances: [{ browser: 'chromium' }],
+        instances: [{ browser: "chromium" }],
         api: {
-          host: '0.0.0.0',
+          host: "0.0.0.0",
         },
       },
     },
