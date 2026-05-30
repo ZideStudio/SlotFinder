@@ -1,5 +1,4 @@
 import { playwright } from "@vitest/browser-playwright";
-import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 import { getBaseConfig } from "./base";
 
@@ -10,7 +9,7 @@ export default defineConfig(({ mode }) => {
     test: {
       ...base.test,
       name: "browser",
-      root: resolve(__dirname, "../../"),
+      root: new URL("../../", import.meta.url).pathname,
       include: ["src/**/*.browser.test.[jt]sx"],
       setupFiles: ["config/vitest/setup.browser.ts"],
       browser: {
@@ -21,6 +20,7 @@ export default defineConfig(({ mode }) => {
         ],
         api: {
           host: "0.0.0.0",
+          allowExec: true,
         },
       },
     },

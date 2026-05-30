@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 import { getBaseConfig } from './base';
 
@@ -9,7 +8,7 @@ export default defineConfig(({ mode }) => {
     test: {
       ...base.test,
       name: 'unit',
-      root: resolve(__dirname, '../../'),
+      root: new URL('../../', import.meta.url).pathname,
       environment: 'jsdom',
       setupFiles: 'config/vitest/setup.unit.ts',
       include: ['src/**/*.(spec|test|steps).[jt]s?(x)'],
