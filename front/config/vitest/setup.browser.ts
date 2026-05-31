@@ -1,4 +1,4 @@
-// Global setup for Vitest browser tests to load CSS tokens, resets, and global styles
+// Global setup for Vitest browser tests: loads global styles and i18n, and manages the MSW service worker lifecycle.
 
 // oxlint-disable vitest/require-top-level-describe
 import "@Front/assets/css/index";
