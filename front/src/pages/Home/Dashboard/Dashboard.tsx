@@ -10,8 +10,12 @@ export const Dashboard = () => {
     <div className="dashboard">
       <Header ignoreRouteHideHeader className="dashboard__header" />
       <div className="dashboard__content">
-        <h1>{t("title")}</h1>
+        <Heading level={1}>My events</Heading>
+
+        <Button className="dashboard__button">Create an event</Button>
       </div>
+
+      <div className="dashboard__no-events">No events here</div>
     </div>
   );
 };
