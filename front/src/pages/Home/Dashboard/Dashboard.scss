@@ -2,6 +2,8 @@
 
 .dashboard {
   display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
 
   &__header {
     position: fixed;
@@ -11,5 +13,14 @@
 
   &__content {
     margin-top: #{helpers.px-to-rem(90)};
+  }
+
+  &__button {
+    width: 200px;
+  }
+
+  &__no-events {
+    margin-top: 25%;
+    align-self: center;
   }
 }
