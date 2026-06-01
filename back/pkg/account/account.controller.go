@@ -41,7 +41,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 // @Produce json
 // @Param data body AccountCreateDto true "Account parameters"
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_EMAIL_FORMAT, ERR_INVALID_PASSWORD_FORMAT, or ERR_EMAIL_ALREADY_EXISTS"
 // @Router /api/v1/account [post]
 func (ctl *AccountController) Create(c *gin.Context) {
 	var data AccountCreateDto
@@ -67,7 +67,6 @@ func (ctl *AccountController) Create(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} model.Account
-// @Failure 400 {object} helpers.ApiError
 // @Router /api/v1/account/me [get]
 // @security AccessTokenCookie
 func (ctl *AccountController) GetMe(c *gin.Context) {
@@ -93,7 +92,7 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 // @Produce json
 // @Param data body AccountUpdateDto true "Account parameters"
 // @Success 200 {object} model.Account
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, or ERR_INVALID_COLOR_FORMAT"
 // @Router /api/v1/account [patch]
 // @security AccessTokenCookie
 func (ctl *AccountController) Update(c *gin.Context) {
@@ -184,7 +183,7 @@ func (ctl *AccountController) UploadAvatar(c *gin.Context) {
 // @Produce json
 // @Param data body ForgotPasswordDto true "Email for password reset"
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_PASSWORD_RESET_TOO_FREQUENT"
 // @Router /api/v1/account/forgot-password [post]
 func (ctl *AccountController) ForgotPassword(c *gin.Context) {
 	var data ForgotPasswordDto
@@ -203,7 +202,7 @@ func (ctl *AccountController) ForgotPassword(c *gin.Context) {
 // @Produce json
 // @Param data body ResetPasswordDto true "Reset token and new password"
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_PASSWORD_FORMAT, ERR_INVALID_RESET_TOKEN, or ERR_RESET_TOKEN_EXPIRED"
 // @Router /api/v1/account/reset-password [post]
 func (ctl *AccountController) ResetPassword(c *gin.Context) {
 	var data ResetPasswordDto

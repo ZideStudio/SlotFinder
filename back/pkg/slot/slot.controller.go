@@ -31,7 +31,7 @@ func NewSlotController(ctl *SlotController) *SlotController {
 // @Security BearerAuth
 // @Param data body ConfirmSlotDto true "Confirm Slot parameters"
 // @Success 200 {object} model.Slot
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_SLOT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_ENDED, ERR_SLOT_INVALID_STARTS_AT, or ERR_SLOT_INVALID_ENDS_AT"
 // @Router /api/v1/slots/{slotId}/confirm [post]
 func (ctl *SlotController) ConfirmSlot(c *gin.Context) {
 	var user *guard.Claims
@@ -62,7 +62,7 @@ func (ctl *SlotController) ConfirmSlot(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_SLOT_NOT_FOUND or ERR_EVENT_ACCESS_DENIED"
 // @Router /api/v1/slots/{slotId} [delete]
 func (ctl *SlotController) RemoveValidatedSlot(c *gin.Context) {
 	var user *guard.Claims

@@ -32,7 +32,7 @@ func NewEventController(ctl *EventController) *EventController {
 // @Param data body EventCreateDto true "Event parameters"
 // @Security BearerAuth
 // @Success 200 {object} model.Event
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_START_AFTER_END, ERR_EVENT_START_BEFORE_TODAY, or ERR_EVENT_DURATION_TOO_SHORT"
 // @Router /api/v1/events [post]
 func (ctl *EventController) Create(c *gin.Context) {
 	var data EventCreateDto
@@ -59,7 +59,7 @@ func (ctl *EventController) Create(c *gin.Context) {
 // @Param data body EventUpdateDto true "Event parameters"
 // @Security BearerAuth
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_EVENT_DURATION_TOO_SHORT, ERR_EVENT_START_BEFORE_TODAY, or ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED"
 // @Router /api/v1/events/{eventId} [patch]
 func (ctl *EventController) Update(c *gin.Context) {
 	var data EventUpdateDto
@@ -92,7 +92,7 @@ func (ctl *EventController) Update(c *gin.Context) {
 // @Param limit query int false "Items per page" default(20)
 // @Security BearerAuth
 // @Success 200 {object} lib.Pagination[model.Event]
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request"
 // @Router /api/v1/events [get]
 func (ctl *EventController) GetUserEvents(c *gin.Context) {
 	var user *guard.Claims
@@ -122,7 +122,7 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} model.Event
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND"
 // @Router /api/v1/events/{eventId} [get]
 func (ctl *EventController) GetEvent(c *gin.Context) {
 	var user *guard.Claims
@@ -148,7 +148,7 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ALREADY_JOINED, or ERR_EVENT_ENDED"
 // @Router /api/v1/events/{eventId}/join [post]
 func (ctl *EventController) JoinEvent(c *gin.Context) {
 	var user *guard.Claims
@@ -175,7 +175,7 @@ func (ctl *EventController) JoinEvent(c *gin.Context) {
 // @Param data body EventProfileDto true "Event profile parameters"
 // @Security BearerAuth
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND or ERR_INVALID_COLOR_FORMAT"
 // @Router /api/v1/events/{eventId}/profile [patch]
 func (ctl *EventController) UpdateProfile(c *gin.Context) {
 	var data EventProfileDto
