@@ -3,7 +3,7 @@ import {
   renderRoute,
   type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
-import { getAuthStatus400 } from "@Mocks/handlers/authStatusHandlers";
+import { getAuthStatus401 } from "@Mocks/handlers/authStatusHandlers";
 import { server } from "@Mocks/server";
 import { screen } from "@testing-library/react";
 import { homeRoutes } from "../../routes";
@@ -15,7 +15,7 @@ const renderRouteOptions: RenderRouteOptions = {
 
 describe("Welcome", () => {
   beforeEach(() => {
-    server.use(getAuthStatus400);
+    server.use(getAuthStatus401);
     renderRoute(renderRouteOptions);
   });
 

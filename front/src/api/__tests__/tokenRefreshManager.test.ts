@@ -1,6 +1,6 @@
 import {
   postTokenRefresh200,
-  postTokenRefresh400,
+  postTokenRefresh500,
   postTokenRefreshNetworkError,
 } from "@Mocks/handlers/tokenRefreshHandlers";
 import { server } from "@Mocks/server";
@@ -22,7 +22,7 @@ describe("TokenRefreshManager", () => {
 
   describe("refreshToken", () => {
     it("should successfully refresh token when API returns ok response", async () => {
-      server.use(postTokenRefresh200());
+      server.use(postTokenRefresh200);
 
       await tokenRefreshManager.refreshToken();
 
@@ -30,7 +30,7 @@ describe("TokenRefreshManager", () => {
     });
 
     it("should reload page and throw error when API returns error response", async () => {
-      server.use(postTokenRefresh400);
+      server.use(postTokenRefresh500);
 
       await expect(tokenRefreshManager.refreshToken()).rejects.toThrow(
         "Token refresh failed",
@@ -64,7 +64,7 @@ describe("TokenRefreshManager", () => {
     });
 
     it("should handle subsequent refresh requests after first one completes", async () => {
-      server.use(postTokenRefresh200());
+      server.use(postTokenRefresh200);
 
       await tokenRefreshManager.refreshToken();
       await tokenRefreshManager.refreshToken();

@@ -4,7 +4,7 @@ import {
   type SignUpResponseType,
 } from "@Front/types/Authentication/signUp/signUp.types";
 
-export const accountFixture: SignUpResponseType = {
+export const postAccount201Fixture: SignUpResponseType = {
   access_token: "1234567890abcdef",
   createdAt: "2024-01-01T00:00:00.000Z",
   email: "test@example.com",
@@ -13,6 +13,6 @@ export const accountFixture: SignUpResponseType = {
   userName: "test_user",
 };
 
-export const accountErrorFixture: ErrorResponseType<SignUpErrorCodeType> = {
+export const postAccount400Fixture: ErrorResponseType<SignUpErrorCodeType> = {
   code: "USERNAME_ALREADY_TAKEN",
 };

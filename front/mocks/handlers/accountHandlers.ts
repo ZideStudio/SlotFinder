@@ -1,6 +1,6 @@
 import {
-  accountErrorFixture,
-  accountFixture,
+  postAccount201Fixture,
+  postAccount400Fixture,
 } from "@Mocks/fixtures/accountFixtures";
 import { delay, http, HttpResponse } from "msw";
 
@@ -9,7 +9,7 @@ export const postAccount201 = http.post(
   async () => {
     await delay();
 
-    return HttpResponse.json(accountFixture, { status: 201 });
+    return HttpResponse.json(postAccount201Fixture, { status: 201 });
   },
 );
 
@@ -18,6 +18,6 @@ export const postAccount400 = http.post(
   async () => {
     await delay();
 
-    return HttpResponse.json(accountErrorFixture, { status: 400 });
+    return HttpResponse.json(postAccount400Fixture, { status: 400 });
   },
 );

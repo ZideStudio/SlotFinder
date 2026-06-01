@@ -5,7 +5,7 @@ import {
   renderRoute,
   type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
-import { accountErrorFixture } from "@Mocks/fixtures/accountFixtures";
+import { postAccount400Fixture } from "@Mocks/fixtures/accountFixtures";
 import {
   postAccount201,
   postAccount400,
@@ -209,7 +209,7 @@ describe("SignUp error handling", () => {
     );
 
     await expect(
-      screen.findByText(`signUp.error.${accountErrorFixture.code}`),
+      screen.findByText(`signUp.error.${postAccount400Fixture.code}`),
     ).resolves.toBeInTheDocument();
   });
 });
