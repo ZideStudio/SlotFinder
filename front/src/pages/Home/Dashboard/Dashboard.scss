@@ -1,0 +1,20 @@
+.dashboard {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__button {
+    width: 200px;
+  }
+
+  &__no-events {
+    align-self: center;
+    margin-top:25%;
+  }
+}
