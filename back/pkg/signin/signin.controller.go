@@ -28,7 +28,7 @@ func NewSigninController(ctl *SigninController) *SigninController {
 // @Produce json
 // @Param data body SigninDto true "Sign in parameters"
 // @Success 200 {object} TokenResponseDto
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_IDENTIFIER_OR_PASSWORD"
 // @Router /api/v1/auth/signin [post]
 func (ctl *SigninController) Signin(c *gin.Context) {
 	var data SigninDto

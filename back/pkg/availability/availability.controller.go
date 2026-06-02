@@ -61,7 +61,7 @@ func (ctl *AvailabilityController) getAvailabilityIdParam(c *gin.Context) (avail
 // @Param data body AvailabilityCreateDto true "Availability parameters"
 // @Security BearerAuth
 // @Success 200 {object} model.Availability
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT"
 // @Router /api/v1/events/{eventId}/availability [post]
 func (ctl *AvailabilityController) Create(c *gin.Context) {
 	var data AvailabilityCreateDto
@@ -94,7 +94,7 @@ func (ctl *AvailabilityController) Create(c *gin.Context) {
 // @Param data body AvailabilityUpdateDto true "Availability parameters"
 // @Security BearerAuth
 // @Success 200 {object} model.Availability
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED, ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT"
 // @Router /api/v1/availabilities/{availabilityId} [patch]
 func (ctl *AvailabilityController) Update(c *gin.Context) {
 	var data AvailabilityUpdateDto
@@ -126,7 +126,7 @@ func (ctl *AvailabilityController) Update(c *gin.Context) {
 // @Param availabilityId path string true "Availability ID"
 // @Security BearerAuth
 // @Success 200
-// @Failure 400 {object} helpers.ApiError
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED, ERR_EVENT_ACCESS_DENIED, or ERR_EVENT_ENDED"
 // @Router /api/v1/availabilities/{availabilityId} [delete]
 func (ctl *AvailabilityController) Delete(c *gin.Context) {
 	var user *guard.Claims
