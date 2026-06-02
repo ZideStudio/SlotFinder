@@ -61,7 +61,7 @@
     "@vitest/browser-playwright": "4.1.7",
     "@vitest/coverage-v8": "4.1.7",
     "chromatic": "17.1.0",
-    "concurrently": "9.2.1",
+    "concurrently": "10.0.0",
     "i18next-resources-for-ts": "2.1.0",
     "jsdom": "29.1.1",
     "monocart-coverage-reports": "2.12.11",
