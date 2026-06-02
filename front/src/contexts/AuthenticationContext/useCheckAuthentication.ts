@@ -24,6 +24,7 @@ export const useCheckAuthentication = ({
 }: UseCheckAuthenticationProps): UseCheckAuthenticationReturn => {
   const mutation = useMutation<AuthStatusResponseType, AuthStatusErrorResponse>(
     {
+      mutationKey: ["checkAuthentication"],
       mutationFn: authStatusApi,
       retry: false,
       gcTime: 0,
