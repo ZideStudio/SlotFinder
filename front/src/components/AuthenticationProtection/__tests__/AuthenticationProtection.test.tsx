@@ -4,7 +4,7 @@ import { routeObject } from "@Front/routing/routes";
 import { renderRoute } from "@Front/utils/testsUtils/customRender/customRender";
 import {
   getAuthStatus200,
-  getAuthStatus400,
+  getAuthStatus401,
 } from "@Mocks/handlers/authStatusHandlers";
 import { server } from "@Mocks/server";
 import { screen } from "@testing-library/react";
@@ -157,7 +157,7 @@ describe("AuthenticationProtection", () => {
 
   describe("AuthenticationProtection with invalid credentials", () => {
     beforeEach(() => {
-      server.use(getAuthStatus400);
+      server.use(getAuthStatus401);
     });
 
     it("should render children when route does not require authentication and the user is not authenticated", async () => {
