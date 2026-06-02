@@ -46,7 +46,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_INVALID_EMAIL_FORMAT, ERR_INVALID_PASSWORD_FORMAT, or ERR_EMAIL_ALREADY_EXISTS",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -84,7 +84,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, or ERR_INVALID_COLOR_FORMAT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -172,7 +172,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_PASSWORD_RESET_TOO_FREQUENT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -198,12 +198,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Account"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
                 },
@@ -243,7 +237,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_INVALID_PASSWORD_FORMAT, ERR_INVALID_RESET_TOKEN, or ERR_RESET_TOKEN_EXPIRED",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -339,7 +333,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_INVALID_IDENTIFIER_OR_PASSWORD",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -365,6 +359,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -440,7 +440,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED, ERR_EVENT_ACCESS_DENIED, or ERR_EVENT_ENDED",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -489,7 +489,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED, ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -580,7 +580,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_EVENT_START_AFTER_END, ERR_EVENT_START_BEFORE_TODAY, or ERR_EVENT_DURATION_TOO_SHORT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -622,7 +622,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -663,7 +663,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_EVENT_DURATION_TOO_SHORT, ERR_EVENT_START_BEFORE_TODAY, or ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -714,7 +714,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -753,7 +753,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ALREADY_JOINED, or ERR_EVENT_ENDED",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -801,7 +801,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND or ERR_INVALID_COLOR_FORMAT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -840,7 +840,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_SLOT_NOT_FOUND or ERR_EVENT_ACCESS_DENIED",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -891,7 +891,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad Request - Code can be: ERR_SLOT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_ENDED, ERR_SLOT_INVALID_STARTS_AT, or ERR_SLOT_INVALID_ENDS_AT",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
