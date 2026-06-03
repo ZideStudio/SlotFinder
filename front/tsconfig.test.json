@@ -3,6 +3,6 @@
   "include": [
     "src",
     "mocks",
-    "vitest.setup.ts",
+    "config/vitest",
   ],
 }
