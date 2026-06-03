@@ -38,7 +38,7 @@
     "react-dom": "19.2.6",
     "react-hook-form": "7.76.1",
     "react-i18next": "17.0.8",
-    "react-router": "7.15.1",
+    "react-router": "7.16.0",
     "yup": "1.7.1"
   },
   "devDependencies": {
