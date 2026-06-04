@@ -8,7 +8,5 @@ export const useLoader = () => {
     throw new Error("useLoader must be used within a LoaderProvider");
   }
 
-  const { showLoader, hideLoader } = context;
-
-  return { showLoader, hideLoader };
+  return context;
 };

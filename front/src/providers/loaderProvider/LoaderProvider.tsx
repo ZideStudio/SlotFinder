@@ -1,13 +1,13 @@
 import { LoaderContext } from "@Front/contexts/loaderContext";
 import { Loader } from "@Front/pages/Loader/Loader";
-import React from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 
-export const LoaderProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isLoading, setIsLoading] = React.useState(false);
+export const LoaderProvider = ({ children }: { children: ReactNode }) => {
+  const [isLoading, setIsLoading] = useState(false);
 
-  const showLoader = React.useCallback(() => setIsLoading(true), []);
-  const hideLoader = React.useCallback(() => setIsLoading(false), []);
-  const loaderContextValue = React.useMemo(
+  const showLoader = useCallback(() => setIsLoading(true), []);
+  const hideLoader = useCallback(() => setIsLoading(false), []);
+  const loaderContextValue = useMemo(
     () => ({ showLoader, hideLoader }),
     [showLoader, hideLoader],
   );
