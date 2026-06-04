@@ -5,22 +5,24 @@ import Person from "@material-symbols/svg-400/outlined/person.svg?react";
 import { useMemo } from "react";
 import { type UIMatch, useMatches } from "react-router";
 import logo from "../../../../public/assets/logo.png";
+import { getClassName } from "@Front/utils/getClassName";
 
 import "./Header.scss";
-import { getClassName } from "@Front/utils/getClassName";
 
 type HeaderProps = {
   ignoreRouteHideHeader?: boolean;
   className?: string;
 };
 
-export const Header = ({ ignoreRouteHideHeader = false, className = "" }: HeaderProps) => {
+export const Header = ({
+  ignoreRouteHideHeader = false,
+  className = "",
+}: HeaderProps) => {
   const matches = useMatches() as UIMatch<unknown, RouteHandle>[];
   const parentClassName = getClassName({
-      defaultClassName: "ds-header",
-      className
-    });
-
+    defaultClassName: "header",
+    className,
+  });
 
   const hideHeader = useMemo(
     () =>
@@ -36,19 +38,19 @@ export const Header = ({ ignoreRouteHideHeader = false, className = "" }: Header
 
   return (
     <header className={parentClassName}>
-      <img src={logo} alt="Slot Finder logo" className="ds-header__logo" />
-      <div className="ds-header__buttons">
+      <img src={logo} alt="Slot Finder logo" className="header__logo" />
+      <div className="header__buttons">
         <Button
           icon={AddCalendarIcon}
           variant="secondary"
           aria-label="add event"
-          className="ds-header__button"
+          className="header__button"
         />
         <Button
           icon={Person}
           variant="secondary"
           aria-label="user profile"
-          className="ds-header__button"
+          className="header__button"
         />
       </div>
     </header>
