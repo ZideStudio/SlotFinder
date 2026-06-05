@@ -13,33 +13,37 @@ RUN adduser -g "" -s /sbin/nologin -D -H -u 1001 appuser
 WORKDIR /usr/src/app
 
 # copy Go modules and dependencies to image
-COPY ./go.mod ./
-COPY ./go.sum ./
+COPY ./back/go.mod ./
+COPY ./back/go.sum ./
 
 # download Go modules and dependencies
 RUN go mod download && go mod verify
 
 # copy directory files i.e all files ending with .go
-COPY ./ ./
+COPY ./back/ ./
 
 # generate swagger docs and remove LeftDelim/RightDelim lines
 RUN go tool swag init && \
     sed -i -e '/LeftDelim/d' -e '/RightDelim/d' docs/docs.go
 
 # compile application
-RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app
+RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/src/app/slotfinder
+
+# ensure jwt directory exists with correct permissions
+RUN mkdir -p /usr/src/app/config/jwt && chmod 755 /usr/src/app/config/jwt
 
 ##
 ## STEP 2 - DEPLOY
 ##
 FROM scratch
 
-COPY --from=build /usr/src/app /
+COPY --from=build /usr/src/app/slotfinder /slotfinder
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /etc/passwd /etc/
+COPY --chown=1001:0 --from=build /usr/src/app/config/jwt/ /config/jwt/
 
 USER appuser
 
 EXPOSE 3000
 
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/slotfinder"]

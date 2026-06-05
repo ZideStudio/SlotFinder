@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: front/Dockerfile.prod
+    image: prd-slotfinder-front:${IMAGE_TAG}
+
+  backend:
+    build:
+      context: .
+      dockerfile: back/Dockerfile
+    image: prd-slotfinder-back:${IMAGE_TAG}
