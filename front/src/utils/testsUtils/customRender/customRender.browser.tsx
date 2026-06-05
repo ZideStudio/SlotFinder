@@ -1,6 +1,4 @@
-import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
 import { routeObject } from "@Front/routing/routes";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryRouter,
   RouterProvider,
@@ -8,17 +6,7 @@ import {
   type RouteObject,
 } from "react-router";
 import { render } from "vitest-browser-react";
-
-const createQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-      },
-    },
-  });
+import { createQueryClient, TestProviders } from "./TestProviders";
 
 export type RenderBrowserRouteOptions = {
   routes?: RouteObject[];
@@ -44,10 +32,8 @@ export const renderBrowserRoute = ({
   });
 
   return render(
-    <QueryClientProvider client={createQueryClient()}>
-      <AuthenticationContextProvider>
-        <RouterProvider router={router} />
-      </AuthenticationContextProvider>
-    </QueryClientProvider>,
+    <TestProviders client={createQueryClient()}>
+      <RouterProvider router={router} />
+    </TestProviders>,
   );
 };

@@ -1,7 +1,5 @@
-import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
-import { LoaderProvider } from "@Front/providers/loaderProvider/LoaderProvider";
 import { routeObject } from "@Front/routing/routes";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, type RenderOptions } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import {
@@ -10,6 +8,7 @@ import {
   type MemoryRouterOpts,
   type RouteObject,
 } from "react-router";
+import { createQueryClient, TestProviders } from "./TestProviders";
 
 export type RenderWithQueryClientOptions = {
   renderOptions?: Omit<RenderOptions, "queries">;
@@ -42,15 +41,7 @@ export const renderWithQueryClient = (
     renderOptions,
   }: RenderWithQueryClientOptions = {},
 ) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-      },
-    },
-  });
+  const queryClient = createQueryClient();
 
   return render(
     <QueryClientProvider client={queryClient} {...queryClientProviderOptions}>
@@ -67,18 +58,17 @@ export const renderRoute = ({
   renderOptions,
   queryClientProviderOptions,
 }: RenderRouteOptions) => {
-  const routesOptionsWithEntry = {
+  const router = createMemoryRouter(routes, {
     initialEntries: initialEntry ? [initialEntry] : undefined,
     ...routesOptions,
-  };
-  const router = createMemoryRouter(routes, routesOptionsWithEntry);
+  });
 
-  return renderWithQueryClient(
-    <LoaderProvider>
-      <AuthenticationContextProvider>
-        <RouterProvider router={router} />
-      </AuthenticationContextProvider>
-    </LoaderProvider>,
-    { queryClientProviderOptions, renderOptions },
+  const client = queryClientProviderOptions?.client ?? createQueryClient();
+
+  return render(
+    <TestProviders client={client}>
+      <RouterProvider router={router} />
+    </TestProviders>,
+    renderOptions,
   );
 };
