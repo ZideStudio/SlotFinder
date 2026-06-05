@@ -1,4 +1,5 @@
 import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
+import { LoaderProvider } from "@Front/providers/loaderProvider/LoaderProvider";
 import { routeObject } from "@Front/routing/routes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, type RenderOptions } from "@testing-library/react";
@@ -73,9 +74,11 @@ export const renderRoute = ({
   const router = createMemoryRouter(routes, routesOptionsWithEntry);
 
   return renderWithQueryClient(
-    <AuthenticationContextProvider>
-      <RouterProvider router={router} />
-    </AuthenticationContextProvider>,
+    <LoaderProvider>
+      <AuthenticationContextProvider>
+        <RouterProvider router={router} />
+      </AuthenticationContextProvider>
+    </LoaderProvider>,
     { queryClientProviderOptions, renderOptions },
   );
 };

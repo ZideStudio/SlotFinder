@@ -1,13 +1,17 @@
 import { Header } from "@Front/components/Layout/Header/Header";
 import { useTranslation } from "react-i18next";
 
+import "./Dashboard.scss";
+
 export const Dashboard = () => {
   const { t } = useTranslation("dashboard");
 
   return (
-    <>
-      <Header />
-      <h1>{t("title")}</h1>
-    </>
+    <div className="dashboard">
+      <Header ignoreRouteHideHeader className="dashboard__header" />
+      <div className="dashboard__content">
+        <h1>{t("title")}</h1>
+      </div>
+    </div>
   );
 };

@@ -3,6 +3,7 @@ import { Layout } from "@Front/components/Layout";
 import { authenticationRoutes } from "@Front/pages/Authentication";
 import { errorRoutes } from "@Front/pages/Error";
 import { homeRoutes } from "@Front/pages/Home";
+import { loaderRoutes } from "@Front/pages/Loader/Routes";
 import { oauthCallbackRoutes } from "@Front/pages/OAuthCallback";
 import type { RouteObject } from "react-router";
 
@@ -19,6 +20,7 @@ export const routeObject: RouteObject[] = [
       authenticationRoutes,
       oauthCallbackRoutes,
       errorRoutes,
+      loaderRoutes,
     ],
   },
 ];

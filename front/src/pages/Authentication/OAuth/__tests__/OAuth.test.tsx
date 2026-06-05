@@ -5,12 +5,15 @@ import { renderWithQueryClient } from "@Front/utils/testsUtils/customRender/cust
 import { screen } from "@testing-library/react";
 import { oauthProvidersData } from "../constants";
 import { OAuth } from "../OAuth";
+import { LoaderProvider } from "@Front/providers/loaderProvider/LoaderProvider";
 
 const renderOAuth = () =>
   renderWithQueryClient(
-    <AuthenticationContextProvider>
-      <OAuth />
-    </AuthenticationContextProvider>,
+    <LoaderProvider>
+      <AuthenticationContextProvider>
+        <OAuth />
+      </AuthenticationContextProvider>
+    </LoaderProvider>,
   );
 
 describe("OAuth", () => {

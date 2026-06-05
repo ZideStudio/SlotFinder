@@ -4,6 +4,7 @@ import {
   type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
 import { screen } from "@testing-library/react";
+
 import { homeRoutes } from "../../routes";
 
 const renderRouteOptions: RenderRouteOptions = {
@@ -20,7 +21,7 @@ describe("Dashboard", () => {
     ).resolves.toBeInTheDocument();
   });
 
-  it("should render the header banner", async () => {
+  it("does render the header banner", async () => {
     renderRoute(renderRouteOptions);
 
     await expect(screen.findByRole("banner")).resolves.toBeInTheDocument();

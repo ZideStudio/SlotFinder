@@ -1,0 +1,15 @@
+@use "../../../utils/sass/mixins/helpers";
+
+.dashboard {
+  display: flex;
+
+  &__header {
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  &__content {
+    margin-top: #{helpers.px-to-rem(90)};
+  }
+}
