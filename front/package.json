@@ -64,7 +64,7 @@
     "concurrently": "10.0.0",
     "i18next-resources-for-ts": "2.1.0",
     "jsdom": "29.1.1",
-    "monocart-coverage-reports": "2.12.11",
+    "monocart-coverage-reports": "2.12.12",
     "msw": "2.14.6",
     "oxfmt": "0.52.0",
     "oxlint": "1.67.0",
