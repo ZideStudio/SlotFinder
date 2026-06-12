@@ -1,0 +1,29 @@
+@use "../../../utils/sass/mixins/helpers";
+
+.ds-date-range-field {
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+  &__legend {
+    margin-bottom: helpers.px-to-rem(8);
+    font-size: helpers.px-to-rem(18);
+    font-weight: 600;
+  }
+
+  .ds-number-input-atom{
+    width: helpers.px-to-rem(40);
+  }
+  
+  &__inputs{
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+
+    > * {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+    }
+  }
+}
