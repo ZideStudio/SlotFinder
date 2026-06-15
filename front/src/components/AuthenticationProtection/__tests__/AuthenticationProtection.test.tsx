@@ -89,14 +89,17 @@ describe("AuthenticationProtection", () => {
       server.use(getAuthStatus200);
     });
 
+    // oxlint-disable-next-line vitest/expect-expect
     it("should render children when route does not require authentication and the user is authenticated", async () => {
       await expectDisplayedText("/", "home");
     });
 
+    // oxlint-disable-next-line vitest/expect-expect
     it("should render children when route requires authentication and the user is authenticated", async () => {
       await expectDisplayedText("/needAuthentication", "needAuthentication");
     });
 
+    // oxlint-disable-next-line vitest/expect-expect
     it("should redirect by default to home when route requires no authentication and the user is authenticated", async () => {
       await expectDisplayedText("/needNoAuthentication", "home");
     });
@@ -160,14 +163,17 @@ describe("AuthenticationProtection", () => {
       server.use(getAuthStatus401);
     });
 
+    // oxlint-disable-next-line vitest/expect-expect
     it("should render children when route does not require authentication and the user is not authenticated", async () => {
       await expectDisplayedText("/", "home");
     });
 
+    // oxlint-disable-next-line vitest/expect-expect
     it("should redirect to signUp when route requires authentication and the user is not authenticated", async () => {
       await expectDisplayedText("/needAuthentication", "signUp");
     });
 
+    // oxlint-disable-next-line vitest/expect-expect
     it("should render children when route requires no authentication and the user is not authenticated", async () => {
       await expectDisplayedText(
         "/needNoAuthentication",
