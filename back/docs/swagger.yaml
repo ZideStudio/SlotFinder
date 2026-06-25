@@ -123,15 +123,22 @@ definitions:
     - PROVIDER_GITHUB
   event.EventCreateDto:
     properties:
+      days:
+        minimum: 0
+        type: integer
       description:
         maxLength: 500
         type: string
-      duration:
-        maximum: 30240
-        minimum: 15
-        type: integer
       endsAt:
         type: string
+      hours:
+        maximum: 23
+        minimum: 0
+        type: integer
+      minutes:
+        maximum: 59
+        minimum: 0
+        type: integer
       name:
         maxLength: 100
         minLength: 5
@@ -139,10 +146,106 @@ definitions:
       startsAt:
         type: string
     required:
-    - duration
     - endsAt
     - name
     - startsAt
+    type: object
+  event.EventCreateResponseDto:
+    properties:
+      days:
+        type: integer
+      description:
+        type: string
+      endsAt:
+        type: string
+      hours:
+        type: integer
+      id:
+        type: string
+      minutes:
+        type: integer
+      name:
+        type: string
+      owner:
+        $ref: '#/definitions/event.EventOwnerDto'
+      startsAt:
+        type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
+    type: object
+  event.EventFullResponseDto:
+    properties:
+      availabilities:
+        items:
+          $ref: '#/definitions/model.Availability'
+        type: array
+      days:
+        type: integer
+      description:
+        type: string
+      endsAt:
+        type: string
+      hours:
+        type: integer
+      id:
+        type: string
+      minutes:
+        type: integer
+      name:
+        type: string
+      owner:
+        $ref: '#/definitions/event.EventOwnerDto'
+      participants:
+        items:
+          $ref: '#/definitions/event.EventParticipantDto'
+        type: array
+      slots:
+        items:
+          $ref: '#/definitions/model.Slot'
+        type: array
+      startsAt:
+        type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
+    type: object
+  event.EventListItemDto:
+    properties:
+      days:
+        type: integer
+      description:
+        type: string
+      endsAt:
+        type: string
+      hours:
+        type: integer
+      id:
+        type: string
+      minutes:
+        type: integer
+      name:
+        type: string
+      startsAt:
+        type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
+    type: object
+  event.EventOwnerDto:
+    properties:
+      avatarUrl:
+        type: string
+      color:
+        type: string
+      userName:
+        type: string
+    type: object
+  event.EventParticipantDto:
+    properties:
+      avatarUrl:
+        type: string
+      color:
+        type: string
+      userName:
+        type: string
     type: object
   event.EventProfileDto:
     properties:
@@ -151,15 +254,22 @@ definitions:
     type: object
   event.EventUpdateDto:
     properties:
+      days:
+        minimum: 0
+        type: integer
       description:
         maxLength: 500
         type: string
-      duration:
-        maximum: 30240
-        minimum: 15
-        type: integer
       endsAt:
         type: string
+      hours:
+        maximum: 23
+        minimum: 0
+        type: integer
+      minutes:
+        maximum: 59
+        minimum: 0
+        type: integer
       name:
         maxLength: 100
         minLength: 5
@@ -172,11 +282,11 @@ definitions:
       code:
         type: string
     type: object
-  lib.Pagination-model_Event:
+  lib.Pagination-event_EventListItemDto:
     properties:
       data:
         items:
-          $ref: '#/definitions/model.Event'
+          $ref: '#/definitions/event.EventListItemDto'
         type: array
       limit:
         maximum: 50
@@ -669,7 +779,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/lib.Pagination-model_Event'
+            $ref: '#/definitions/lib.Pagination-event_EventListItemDto'
         "400":
           description: Bad Request
           schema:
@@ -695,7 +805,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Event'
+            $ref: '#/definitions/event.EventCreateResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_EVENT_START_AFTER_END, ERR_EVENT_START_BEFORE_TODAY,
             or ERR_EVENT_DURATION_TOO_SHORT'
@@ -722,7 +832,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Event'
+            $ref: '#/definitions/event.EventFullResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_EVENT_NOT_FOUND'
           schema:
@@ -811,6 +921,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/event.EventFullResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ALREADY_JOINED,
             or ERR_EVENT_ENDED'

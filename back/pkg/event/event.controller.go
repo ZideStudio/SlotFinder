@@ -5,7 +5,6 @@ import (
 	"app/commons/guard"
 	"app/commons/helpers"
 	"app/commons/lib"
-	model "app/db/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -31,7 +30,7 @@ func NewEventController(ctl *EventController) *EventController {
 // @Produce json
 // @Param data body EventCreateDto true "Event parameters"
 // @Security BearerAuth
-// @Success 200 {object} model.Event
+// @Success 200 {object} EventCreateResponseDto
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_START_AFTER_END, ERR_EVENT_START_BEFORE_TODAY, or ERR_EVENT_DURATION_TOO_SHORT"
 // @Router /api/v1/events [post]
 func (ctl *EventController) Create(c *gin.Context) {
@@ -91,7 +90,7 @@ func (ctl *EventController) Update(c *gin.Context) {
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
 // @Security BearerAuth
-// @Success 200 {object} lib.Pagination[model.Event]
+// @Success 200 {object} lib.Pagination[EventListItemDto]
 // @Failure 400 {object} helpers.ApiError "Bad Request"
 // @Router /api/v1/events [get]
 func (ctl *EventController) GetUserEvents(c *gin.Context) {
@@ -101,7 +100,7 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 		return
 	}
 
-	var pagination lib.Pagination[model.Event]
+	var pagination lib.Pagination[EventListItemDto]
 	if err := pagination.ParseQuery(c); err != nil {
 		helpers.HandleJSONResponse(c, nil, err)
 		return
@@ -121,7 +120,7 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 // @Param eventId path string true "Event Id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} model.Event
+// @Success 200 {object} EventFullResponseDto
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND"
 // @Router /api/v1/events/{eventId} [get]
 func (ctl *EventController) GetEvent(c *gin.Context) {
@@ -137,8 +136,8 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 		return
 	}
 
-	events, err := ctl.eventService.GetEvent(idUuid, user)
-	helpers.HandleJSONResponse(c, events, err)
+	result, err := ctl.eventService.GetEvent(idUuid, user)
+	helpers.HandleJSONResponse(c, result, err)
 }
 
 // @Summary Join event
@@ -147,7 +146,7 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200
+// @Success 200 {object} EventFullResponseDto
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ALREADY_JOINED, or ERR_EVENT_ENDED"
 // @Router /api/v1/events/{eventId}/join [post]
 func (ctl *EventController) JoinEvent(c *gin.Context) {
@@ -163,8 +162,8 @@ func (ctl *EventController) JoinEvent(c *gin.Context) {
 		return
 	}
 
-	events, err := ctl.eventService.JoinEvent(idUuid, user)
-	helpers.HandleJSONResponse(c, events, err)
+	result, err := ctl.eventService.JoinEvent(idUuid, user)
+	helpers.HandleJSONResponse(c, result, err)
 }
 
 // @Summary Update event profile

@@ -46,11 +46,16 @@ func NewEventService(service *EventService) *EventService {
 	}
 }
 
-func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.Event, error) {
+// FieldsToDuration convert days/hours/minutes in total minutes
+func FieldsToDuration(days, hours, minutes int) int {
+	return days*24*60 + hours*60 + minutes
+}
+
+func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventCreateResponseDto, error) {
 	// Data validation
 	data.Name = strings.TrimSpace(data.Name)
 	if len(data.Name) < 5 {
-		return model.Event{}, errors.New("event name must be at least 5 characters long")
+		return EventCreateResponseDto{}, errors.New("event name must be at least 5 characters long")
 	}
 	if data.Description != nil {
 		*data.Description = strings.TrimSpace(*data.Description)
@@ -61,19 +66,25 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 
 	// Prevent creating events with end date before start date
 	if data.StartsAt.After(data.EndsAt) {
-		return model.Event{}, constants.ERR_EVENT_START_AFTER_END.Err
+		return EventCreateResponseDto{}, constants.ERR_EVENT_START_AFTER_END.Err
 	}
 
 	// Prevent creating events in the past
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	if data.StartsAt.Before(now) {
-		return model.Event{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
+		return EventCreateResponseDto{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
 	}
 
 	// Prevent creating events with duration less than 1 day
 	oneDayAfterStart := data.StartsAt.Add(24 * time.Hour)
 	if data.EndsAt.Before(oneDayAfterStart) {
-		return model.Event{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
+		return EventCreateResponseDto{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
+	}
+
+	// Validate duration (15 min minimum, 30240 min = 3 weeks maximum)
+	duration := FieldsToDuration(data.Days, data.Hours, data.Minutes)
+	if duration < 15 || duration > 30240 {
+		return EventCreateResponseDto{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
 	}
 
 	// Create event
@@ -81,7 +92,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 		Id:          uuid.New(),
 		Name:        data.Name,
 		Description: data.Description,
-		Duration:    data.Duration,
+		Duration:    duration,
 		StartsAt:    data.StartsAt,
 		EndsAt:      data.EndsAt,
 		Owner: model.Account{
@@ -91,7 +102,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 		Status: constants.EVENT_STATUS_IN_DECISION,
 	}
 	if err := s.eventRepository.Create(&event); err != nil {
-		return event, err
+		return EventCreateResponseDto{}, err
 	}
 
 	// Create account_event relation
@@ -101,14 +112,15 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (model.E
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
 		_ = s.eventRepository.Delete(event.Id)
-		return event, err
-	}
-	if err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent); err != nil {
-		_ = s.eventRepository.Delete(event.Id)
-		return event, err
+		return EventCreateResponseDto{}, err
 	}
 
-	return s.GetEvent(event.Id, user)
+	// Reload event with full owner data
+	if err := s.eventRepository.FindOneById(event.Id, &event); err != nil {
+		return EventCreateResponseDto{}, err
+	}
+
+	return MapToEventCreateResponseDto(event), nil
 }
 
 // SetEventDatesFromDto validates and sets the event dates from the provided DTO values.
@@ -201,8 +213,23 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	if data.Description != nil {
 		event.Description = data.Description
 	}
-	if data.Duration != nil {
-		event.Duration = *data.Duration
+	// If any duration field is provided, recompute the full duration from all three fields
+	if data.Days != nil || data.Hours != nil || data.Minutes != nil {
+		days, hours, minutes := 0, 0, 0
+		if data.Days != nil {
+			days = *data.Days
+		}
+		if data.Hours != nil {
+			hours = *data.Hours
+		}
+		if data.Minutes != nil {
+			minutes = *data.Minutes
+		}
+		duration := FieldsToDuration(days, hours, minutes)
+		if duration < 15 || duration > 30240 {
+			return constants.ERR_EVENT_DURATION_TOO_SHORT.Err
+		}
+		event.Duration = duration
 		isBreakingSlots = true
 	}
 
@@ -234,45 +261,45 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 
 func (s *EventService) GetUserEvents(
 	user *guard.Claims,
-	pagination *lib.Pagination[model.Event],
+	pagination *lib.Pagination[EventListItemDto],
 ) error {
 	events, total, err := s.eventRepository.FindEventsByAccountId(user.Id, pagination.Limit, pagination.Offset)
 	if err != nil {
 		return err
 	}
 	pagination.Total = total
-	pagination.Data = events
 
-	for i := range pagination.Data {
+	dtos := make([]EventListItemDto, 0, len(events))
+	for i := range events {
 		// Update event status if needed
-		if _, err := pagination.Data[i].CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
+		if _, err := events[i].CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
 			return err
 		}
+		dtos = append(dtos, MapToEventListItemDto(events[i]))
 	}
+	pagination.Data = dtos
 
 	return nil
 }
 
-func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (model.Event, error) {
+func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (interface{}, error) {
 	// Get event
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return event, constants.ERR_EVENT_NOT_FOUND.Err
+			return nil, constants.ERR_EVENT_NOT_FOUND.Err
 		}
-
-		return event, err
+		return nil, err
 	}
 
 	// Update event status if needed
 	if _, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
-		return event, err
+		return nil, err
 	}
 
 	// If no user, return event basic info
 	if user == nil {
-		event.Participants = []model.Account{}
-		return event, nil
+		return MapToEventBasicResponseDto(event), nil
 	}
 
 	// Check if user already joined the event
@@ -280,26 +307,23 @@ func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (model.Ev
 	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
 	notJoined := errors.Is(err, gorm.ErrRecordNotFound)
 	if err != nil && !notJoined {
-		return event, err
+		return nil, err
 	}
 	if notJoined {
-		event.Participants = []model.Account{}
-		return event, nil
+		return MapToEventBasicResponseDto(event), nil
 	}
 
-	// Return event info
-	return event, nil
+	return MapToEventFullResponseDto(event), nil
 }
 
-func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (model.Event, error) {
+func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (EventFullResponseDto, error) {
 	// Get event
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return event, constants.ERR_EVENT_NOT_FOUND.Err
+			return EventFullResponseDto{}, constants.ERR_EVENT_NOT_FOUND.Err
 		}
-
-		return event, err
+		return EventFullResponseDto{}, err
 	}
 
 	// Check if user already joined the event
@@ -307,18 +331,18 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (model.E
 	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
 	alreadyJoined := err == nil
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return event, err
+		return EventFullResponseDto{}, err
 	}
 	if alreadyJoined {
-		return event, constants.ERR_EVENT_ALREADY_JOINED.Err
+		return EventFullResponseDto{}, constants.ERR_EVENT_ALREADY_JOINED.Err
 	}
 
 	// Check and update event status if needed
 	if hasStatus, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION, constants.EVENT_STATUS_UPCOMING}); !hasStatus || err != nil {
 		if err != nil {
-			return event, err
+			return EventFullResponseDto{}, err
 		}
-		return event, constants.ERR_EVENT_ENDED.Err
+		return EventFullResponseDto{}, constants.ERR_EVENT_ENDED.Err
 	}
 
 	// Create account_event relation
@@ -327,10 +351,15 @@ func (s *EventService) JoinEvent(eventId uuid.UUID, user *guard.Claims) (model.E
 		EventId:   event.Id,
 	}
 	if err := s.accountEventRepository.Create(&accountEvent); err != nil {
-		return event, err
+		return EventFullResponseDto{}, err
 	}
 
-	return s.GetEvent(event.Id, user)
+	// Reload event with all relations
+	if err := s.eventRepository.FindOneById(event.Id, &event); err != nil {
+		return EventFullResponseDto{}, err
+	}
+
+	return MapToEventFullResponseDto(event), nil
 }
 
 func (s *EventService) UpdateProfile(data *EventProfileDto, eventId uuid.UUID, user *guard.Claims) error {
