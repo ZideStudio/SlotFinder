@@ -121,6 +121,27 @@ definitions:
     - PROVIDER_GOOGLE
     - PROVIDER_DISCORD
     - PROVIDER_GITHUB
+  event.EventBasicResponseDto:
+    properties:
+      days:
+        type: integer
+      description:
+        type: string
+      endsAt:
+        type: string
+      hours:
+        type: integer
+      id:
+        type: string
+      minutes:
+        type: integer
+      name:
+        type: string
+      startsAt:
+        type: string
+      status:
+        $ref: '#/definitions/constants.EventStatus'
+    type: object
   event.EventCreateDto:
     properties:
       days:
@@ -837,6 +858,8 @@ paths:
           description: 'Bad Request - Code can be: ERR_EVENT_NOT_FOUND'
           schema:
             $ref: '#/definitions/helpers.ApiError'
+      security:
+      - BearerAuth: []
       summary: Get event
       tags:
       - Event
@@ -961,6 +984,30 @@ paths:
       security:
       - BearerAuth: []
       summary: Update event profile
+      tags:
+      - Event
+  /api/v1/events/{eventId}/summary:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Event Id
+        in: path
+        name: eventId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/event.EventBasicResponseDto'
+        "400":
+          description: 'Bad Request - Code can be: ERR_EVENT_NOT_FOUND'
+          schema:
+            $ref: '#/definitions/helpers.ApiError'
+      summary: Get event summary
       tags:
       - Event
   /api/v1/slots/{slotId}:

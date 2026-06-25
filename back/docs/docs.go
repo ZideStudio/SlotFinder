@@ -627,7 +627,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             },
             "patch": {
                 "consumes": [
@@ -815,6 +820,43 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/v1/events/{eventId}/summary": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Get event summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/event.EventBasicResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/slots/{slotId}": {
@@ -1128,6 +1170,38 @@ const docTemplate = `{
                 "PROVIDER_DISCORD",
                 "PROVIDER_GITHUB"
             ]
+        },
+        "event.EventBasicResponseDto": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "minutes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
         },
         "event.EventCreateDto": {
             "type": "object",

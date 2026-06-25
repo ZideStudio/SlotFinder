@@ -115,11 +115,31 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 	c.JSON(200, pagination)
 }
 
+// @Summary Get event summary
+// @Tags Event
+// @Param eventId path string true "Event Id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} EventBasicResponseDto
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND"
+// @Router /api/v1/events/{eventId}/summary [get]
+func (ctl *EventController) GetEventSummary(c *gin.Context) {
+	idUuid, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	result, err := ctl.eventService.GetEventSummary(idUuid)
+	helpers.HandleJSONResponse(c, result, err)
+}
+
 // @Summary Get event
 // @Tags Event
 // @Param eventId path string true "Event Id"
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {object} EventFullResponseDto
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND"
 // @Router /api/v1/events/{eventId} [get]

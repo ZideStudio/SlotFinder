@@ -213,9 +213,10 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	if data.Description != nil {
 		event.Description = data.Description
 	}
-	// If any duration field is provided, recompute the full duration from all three fields
+	// If any duration field is provided, recompute from current duration to preserve unset fields
 	if data.Days != nil || data.Hours != nil || data.Minutes != nil {
-		days, hours, minutes := 0, 0, 0
+		current := durationToFields(event.Duration)
+		days, hours, minutes := current.Days, current.Hours, current.Minutes
 		if data.Days != nil {
 			days = *data.Days
 		}
@@ -282,35 +283,44 @@ func (s *EventService) GetUserEvents(
 	return nil
 }
 
-func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (interface{}, error) {
-	// Get event
+// GetEventSummary returns basic event info, accessible without authentication
+func (s *EventService) GetEventSummary(eventId uuid.UUID) (EventBasicResponseDto, error) {
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, constants.ERR_EVENT_NOT_FOUND.Err
+			return EventBasicResponseDto{}, constants.ERR_EVENT_NOT_FOUND.Err
 		}
-		return nil, err
+		return EventBasicResponseDto{}, err
 	}
 
-	// Update event status if needed
 	if _, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
-		return nil, err
+		return EventBasicResponseDto{}, err
 	}
 
-	// If no user, return event basic info
-	if user == nil {
-		return MapToEventBasicResponseDto(event), nil
+	return MapToEventBasicResponseDto(event), nil
+}
+
+// GetEvent returns full event data, restricted to authenticated members
+func (s *EventService) GetEvent(eventId uuid.UUID, user *guard.Claims) (EventFullResponseDto, error) {
+	var event model.Event
+	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return EventFullResponseDto{}, constants.ERR_EVENT_NOT_FOUND.Err
+		}
+		return EventFullResponseDto{}, err
 	}
 
-	// Check if user already joined the event
+	if _, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, nil); err != nil {
+		return EventFullResponseDto{}, err
+	}
+
 	var accountEvent model.AccountEvent
 	err := s.accountEventRepository.FindByAccountAndEventId(user.Id, event.Id, &accountEvent)
-	notJoined := errors.Is(err, gorm.ErrRecordNotFound)
-	if err != nil && !notJoined {
-		return nil, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return EventFullResponseDto{}, constants.ERR_EVENT_NOT_FOUND.Err
 	}
-	if notJoined {
-		return MapToEventBasicResponseDto(event), nil
+	if err != nil {
+		return EventFullResponseDto{}, err
 	}
 
 	return MapToEventFullResponseDto(event), nil
