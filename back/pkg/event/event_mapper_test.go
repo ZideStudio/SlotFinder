@@ -71,6 +71,18 @@ func TestMapToParticipantDto_UsesAccountColorByDefault(t *testing.T) {
 	assert.Equal(t, "#AABBCC", dto.Color)
 }
 
+func TestMapToParticipantDto_UsesAccountColorWhenEventColorIsEmpty(t *testing.T) {
+	empty := ""
+	ae := model.AccountEvent{
+		Color: &empty,
+		Account: model.Account{
+			Color: "#AABBCC",
+		},
+	}
+	dto := mapToParticipantDto(ae)
+	assert.Equal(t, "#AABBCC", dto.Color)
+}
+
 func TestMapToParticipantDto_UsesAccountEventColorOverride(t *testing.T) {
 	override := "#112233"
 	ae := model.AccountEvent{
@@ -150,4 +162,24 @@ func TestMapToEventFullResponseDto_ParticipantsWithColors(t *testing.T) {
 	assert.Len(t, dto.Participants, 2)
 	assert.Equal(t, "#FF0000", dto.Participants[0].Color)
 	assert.Equal(t, "#FFFFFF", dto.Participants[1].Color)
+}
+
+func TestMapToEventFullResponseDto_AvailabilityUserName(t *testing.T) {
+	userName := "alice"
+	e := model.Event{
+		Id:       uuid.New(),
+		Duration: 60,
+		Availabilities: []model.Availability{
+			{
+				Id: uuid.New(),
+				Account: model.Account{
+					UserName: &userName,
+				},
+			},
+		},
+	}
+	dto := MapToEventFullResponseDto(e)
+
+	assert.Len(t, dto.Availabilities, 1)
+	assert.Equal(t, "alice", dto.Availabilities[0].UserName)
 }

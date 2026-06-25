@@ -29,7 +29,7 @@ func mapToOwnerDto(account model.Account, colorOverride *string) EventOwnerDto {
 // mapToParticipantDto maps an AccountEvent to EventParticipantDto, falls back to Account.Color
 func mapToParticipantDto(ae model.AccountEvent) EventParticipantDto {
 	color := ae.Account.Color
-	if ae.Color != nil {
+	if ae.Color != nil && *ae.Color != "" {
 		color = *ae.Color
 	}
 	return EventParticipantDto{
@@ -89,6 +89,9 @@ func MapToEventFullResponseDto(e model.Event) EventFullResponseDto {
 	availabilities := e.Availabilities
 	if availabilities == nil {
 		availabilities = []model.Availability{}
+	}
+	for i := range availabilities {
+		availabilities[i].Sanitized()
 	}
 	slots := e.Slots
 	if slots == nil {
