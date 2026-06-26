@@ -26,6 +26,7 @@ func NewSSEController(service *SSEService) *SSEController {
 
 // Connect handles SSE connection for event updates
 // @Summary Connect to SSE for event updates
+// @Description Establishes a Server-Sent Events connection to receive real-time updates for a specific event
 // @Tags SSE
 // @Param eventId path string true "Event ID"
 // @Success 200 {array} SSESlotUpdateMessage "Stream of slot update arrays"

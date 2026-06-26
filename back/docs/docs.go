@@ -951,6 +951,7 @@ const docTemplate = `{
         },
         "/v1/events/{eventId}/sse": {
             "get": {
+                "description": "Establishes a Server-Sent Events connection to receive real-time updates for a specific event",
                 "tags": [
                     "SSE"
                 ],
