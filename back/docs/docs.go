@@ -534,7 +534,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/lib.Pagination-model_Event"
+                            "$ref": "#/definitions/lib.Pagination-event_EventListItemDto"
                         }
                     },
                     "400": {
@@ -576,7 +576,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Event"
+                            "$ref": "#/definitions/event.EventCreateResponseDto"
                         }
                     },
                     "400": {
@@ -618,7 +618,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Event"
+                            "$ref": "#/definitions/event.EventFullResponseDto"
                         }
                     },
                     "400": {
@@ -627,7 +627,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/helpers.ApiError"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             },
             "patch": {
                 "consumes": [
@@ -750,7 +755,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/event.EventFullResponseDto"
+                        }
                     },
                     "400": {
                         "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ALREADY_JOINED, or ERR_EVENT_ENDED",
@@ -812,6 +820,43 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/v1/events/{eventId}/summary": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Get event summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/event.EventBasicResponseDto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                }
             }
         },
         "/api/v1/slots/{slotId}": {
@@ -1126,26 +1171,66 @@ const docTemplate = `{
                 "PROVIDER_GITHUB"
             ]
         },
+        "event.EventBasicResponseDto": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "minutes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
         "event.EventCreateDto": {
             "type": "object",
             "required": [
-                "duration",
                 "endsAt",
                 "name",
                 "startsAt"
             ],
             "properties": {
+                "days": {
+                    "type": "integer",
+                    "minimum": 0
+                },
                 "description": {
                     "type": "string",
                     "maxLength": 500
                 },
-                "duration": {
-                    "type": "integer",
-                    "maximum": 30240,
-                    "minimum": 15
-                },
                 "endsAt": {
                     "type": "string"
+                },
+                "hours": {
+                    "type": "integer",
+                    "maximum": 23,
+                    "minimum": 0
+                },
+                "minutes": {
+                    "type": "integer",
+                    "maximum": 59,
+                    "minimum": 0
                 },
                 "name": {
                     "type": "string",
@@ -1153,6 +1238,154 @@ const docTemplate = `{
                     "minLength": 5
                 },
                 "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "event.EventCreateResponseDto": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "minutes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/event.EventOwnerDto"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
+        "event.EventFullResponseDto": {
+            "type": "object",
+            "properties": {
+                "availabilities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Availability"
+                    }
+                },
+                "days": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "minutes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/event.EventOwnerDto"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/event.EventParticipantDto"
+                    }
+                },
+                "slots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Slot"
+                    }
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
+        "event.EventListItemDto": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "minutes": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/constants.EventStatus"
+                }
+            }
+        },
+        "event.EventOwnerDto": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "event.EventParticipantDto": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "userName": {
                     "type": "string"
                 }
             }
@@ -1168,17 +1401,26 @@ const docTemplate = `{
         "event.EventUpdateDto": {
             "type": "object",
             "properties": {
+                "days": {
+                    "type": "integer",
+                    "minimum": 0
+                },
                 "description": {
                     "type": "string",
                     "maxLength": 500
                 },
-                "duration": {
-                    "type": "integer",
-                    "maximum": 30240,
-                    "minimum": 15
-                },
                 "endsAt": {
                     "type": "string"
+                },
+                "hours": {
+                    "type": "integer",
+                    "maximum": 23,
+                    "minimum": 0
+                },
+                "minutes": {
+                    "type": "integer",
+                    "maximum": 59,
+                    "minimum": 0
                 },
                 "name": {
                     "type": "string",
@@ -1198,13 +1440,13 @@ const docTemplate = `{
                 }
             }
         },
-        "lib.Pagination-model_Event": {
+        "lib.Pagination-event_EventListItemDto": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Event"
+                        "$ref": "#/definitions/event.EventListItemDto"
                     }
                 },
                 "limit": {

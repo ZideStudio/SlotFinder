@@ -43,7 +43,7 @@ func (a *Account) ComparePassword(password string) bool {
 
 func (a *Account) Sanitized(overrideColor *string) Account {
 	color := a.Color
-	if overrideColor != nil {
+	if overrideColor != nil && *overrideColor != "" {
 		color = *overrideColor
 	}
 
