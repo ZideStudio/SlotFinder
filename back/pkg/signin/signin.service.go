@@ -137,9 +137,10 @@ func (s *SigninService) RefreshAccessToken(refreshTokenString string) (tokenResp
 
 	// Generate new tokens
 	claims := &guard.Claims{
-		Id:       account.Id,
-		Username: account.UserName,
-		Email:    account.Email,
+		Id:            account.Id,
+		Username:      account.UserName,
+		Email:         account.Email,
+		TermsAccepted: account.TermsAcceptedAt != nil,
 	}
 
 	return s.GenerateTokens(claims)
