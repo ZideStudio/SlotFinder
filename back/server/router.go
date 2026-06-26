@@ -85,7 +85,7 @@ func NewRouter() *gin.Engine {
 			specificEventGroup := eventGroup.Group("/:eventId")
 			{
 				specificEventGroup.GET("", guard.AuthCheck(nil), eventRouter.GetEvent)
-				specificEventGroup.GET("/summary", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: false, RequireCompleteProfile: true}), eventRouter.GetEventSummary)
+				specificEventGroup.GET("/summary", eventRouter.GetEventSummary)
 				specificEventGroup.POST("/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 				specificEventGroup.PATCH("/profile", guard.AuthCheck(nil), eventRouter.UpdateProfile)
 			}
