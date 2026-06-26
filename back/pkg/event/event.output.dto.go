@@ -52,7 +52,7 @@ type EventCreateResponseDto struct {
 	Owner    EventOwnerDto        `json:"owner"`
 }
 
-// EventBasicResponseDto - GET /events/:id for unauthenticated or non-member users
+// EventBasicResponseDto - GET /events/:id/summary (public)
 type EventBasicResponseDto struct {
 	Id          uuid.UUID            `json:"id"`
 	Name        string               `json:"name"`
