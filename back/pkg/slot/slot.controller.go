@@ -30,7 +30,7 @@ func NewSlotController(ctl *SlotController) *SlotController {
 // @Produce json
 // @Security BearerAuth
 // @Param data body ConfirmSlotDto true "Confirm Slot parameters"
-// @Success 200 {object} model.Slot
+// @Success 200 {object} SlotResponseDto
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_SLOT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_ENDED, ERR_SLOT_INVALID_STARTS_AT, or ERR_SLOT_INVALID_ENDS_AT"
 // @Router /api/v1/slots/{slotId}/confirm [post]
 func (ctl *SlotController) ConfirmSlot(c *gin.Context) {

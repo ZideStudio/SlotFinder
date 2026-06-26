@@ -66,7 +66,7 @@ func (ctl *AccountController) Create(c *gin.Context) {
 // @Tags Account
 // @Accept json
 // @Produce json
-// @Success 200 {object} model.Account
+// @Success 200 {object} AccountResponseDto
 // @Router /api/v1/account/me [get]
 // @security AccessTokenCookie
 func (ctl *AccountController) GetMe(c *gin.Context) {
@@ -91,7 +91,7 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param data body AccountUpdateDto true "Account parameters"
-// @Success 200 {object} model.Account
+// @Success 200 {object} AccountResponseDto
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, or ERR_INVALID_COLOR_FORMAT"
 // @Router /api/v1/account [patch]
 // @security AccessTokenCookie

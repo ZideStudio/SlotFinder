@@ -49,32 +49,32 @@ type TimeSlot struct {
 	EndsAt   time.Time
 }
 
-func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId uuid.UUID) (model.Slot, error) {
+func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId uuid.UUID) (SlotResponseDto, error) {
 	var selectedSlot model.Slot
 	if err := s.slotRepository.FindOneById(slotId, &selectedSlot); err != nil {
-		return model.Slot{}, constants.ERR_SLOT_NOT_FOUND.Err
+		return SlotResponseDto{}, constants.ERR_SLOT_NOT_FOUND.Err
 	}
 
 	// Check if user is admin of the event
 	if !selectedSlot.Event.IsOwner(&userId) {
-		return model.Slot{}, constants.ERR_EVENT_ACCESS_DENIED.Err
+		return SlotResponseDto{}, constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
 	// Check if event is locked
 	if hasStatus, err := selectedSlot.Event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION}); !hasStatus || err != nil {
 		if err != nil {
-			return model.Slot{}, err
+			return SlotResponseDto{}, err
 		}
-		return model.Slot{}, constants.ERR_EVENT_ENDED.Err
+		return SlotResponseDto{}, constants.ERR_EVENT_ENDED.Err
 	}
 
 	// Check if dto StartsAt is equals or after selectedSlot.StartsAt and before selectedSlot.EndsAt
 	if dto.StartsAt.Before(selectedSlot.StartsAt) || !dto.StartsAt.Before(selectedSlot.EndsAt) {
-		return model.Slot{}, constants.ERR_SLOT_INVALID_STARTS_AT.Err
+		return SlotResponseDto{}, constants.ERR_SLOT_INVALID_STARTS_AT.Err
 	}
 	// Check if dto EndsAt is after dto.StartsAt and before or equals selectedSlot.EndsAt
 	if !dto.EndsAt.After(dto.StartsAt) || dto.EndsAt.After(selectedSlot.EndsAt) {
-		return model.Slot{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
+		return SlotResponseDto{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
 	}
 
 	// Create a new validated slot from the selected slot
@@ -86,7 +86,7 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		IsValidated: true,
 	}
 	if err := s.slotRepository.Create(&slot); err != nil {
-		return model.Slot{}, err
+		return SlotResponseDto{}, err
 	}
 
 	// Update event status
@@ -95,7 +95,7 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		Status: constants.EVENT_STATUS_UPCOMING,
 	}
 	if err := s.eventRepository.Updates(&event); err != nil {
-		return model.Slot{}, err
+		return SlotResponseDto{}, err
 	}
 
 	// Send event confirmation emails to all participants (including owner)
@@ -115,7 +115,7 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		}
 	}
 
-	return slot, nil
+	return MapToSlotResponseDto(slot), nil
 }
 
 func (s *SlotService) RemoveValidatedSlot(slotId uuid.UUID, userId uuid.UUID) error {

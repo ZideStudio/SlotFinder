@@ -87,11 +87,11 @@ func (s *AvailabilityService) validateEventAccess(eventId uuid.UUID, userId *uui
 	return nil
 }
 
-func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (model.Availability, error) {
+func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.UUID, user *guard.Claims) (AvailabilityResponseDto, error) {
 	// Get event and validate access
 	var event model.Event
 	if err := s.validateEventAccess(eventId, &user.Id, &event); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	data.StartsAt = data.StartsAt.Truncate(time.Minute)
@@ -99,7 +99,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 
 	// Validate availability times
 	if err := s.validateAvailabilityTimes(data.StartsAt, data.EndsAt, &event); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Acquire per-event mutex to prevent concurrent availability modifications
@@ -121,15 +121,15 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	// Find overlapping availabilities
 	var availabilitiesToMerge []model.Availability
 	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availabilityToCreate, &availabilitiesToMerge); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	if len(availabilitiesToMerge) == 0 {
 		// No overlapping availabilities, just create the new one
 		if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
-			return model.Availability{}, err
+			return AvailabilityResponseDto{}, err
 		}
-		return availabilityToCreate, nil
+		return MapToAvailabilityResponseDto(availabilityToCreate), nil
 	}
 
 	// Merge overlapping availabilities
@@ -147,38 +147,38 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 
 	// Delete merged availabilities
 	if err := s.availabilityRepository.DeleteByIds(&availabilitiesIdsToDelete); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Create the merged availability
 	if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Trigger slot recalculation asynchronously
 	go s.slotService.LoadSlots(eventId)
 
-	return availabilityToCreate, nil
+	return MapToAvailabilityResponseDto(availabilityToCreate), nil
 }
 
-func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId uuid.UUID, user *guard.Claims) (model.Availability, error) {
+func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId uuid.UUID, user *guard.Claims) (AvailabilityResponseDto, error) {
 	// Get availability first to validate access
 	var availability model.Availability
 	if err := s.availabilityRepository.FindOneById(availabilityId, &availability); err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return model.Availability{}, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+			return AvailabilityResponseDto{}, constants.ERR_AVAILABILITY_NOT_FOUND.Err
 		}
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Check if availability belongs to the user
 	if availability.AccountId != user.Id {
-		return model.Availability{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
+		return AvailabilityResponseDto{}, constants.ERR_AVAILABILITY_ACCESS_DENIED.Err
 	}
 
 	// Validate event access
 	if err := s.validateEventAccess(availability.Event.Id, &user.Id, &availability.Event); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Update fields if provided
@@ -194,12 +194,12 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 
 	// If no fields were updated, return early
 	if !updated {
-		return availability, nil
+		return MapToAvailabilityResponseDto(availability), nil
 	}
 
 	// Validate availability times
 	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Acquire per-user mutex to prevent concurrent availability modifications
@@ -212,7 +212,7 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 	// Find overlapping availabilities (excluding the current one being updated)
 	var availabilitiesToMerge []model.Availability
 	if err := s.availabilityRepository.FindOverlappingAvailabilities(&availability, &availabilitiesToMerge); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Filter out the current availability from the list
@@ -226,13 +226,13 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 	if len(otherAvailabilities) == 0 {
 		// No overlapping availabilities, just update the current one
 		if err := s.availabilityRepository.Update(&availability); err != nil {
-			return model.Availability{}, err
+			return AvailabilityResponseDto{}, err
 		}
 
 		// Trigger slot recalculation asynchronously
 		go s.slotService.LoadSlots(availability.EventId)
 
-		return availability, nil
+		return MapToAvailabilityResponseDto(availability), nil
 	}
 
 	// Merge overlapping availabilities
@@ -250,23 +250,23 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 
 	// Revalidate the merged times to ensure they still meet all constraints
 	if err := s.validateAvailabilityTimes(availability.StartsAt, availability.EndsAt, &availability.Event); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Delete merged availabilities
 	if err := s.availabilityRepository.DeleteByIds(&availabilitiesIdsToDelete); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Update the merged availability
 	if err := s.availabilityRepository.Update(&availability); err != nil {
-		return model.Availability{}, err
+		return AvailabilityResponseDto{}, err
 	}
 
 	// Trigger slot recalculation asynchronously
 	go s.slotService.LoadSlots(availability.EventId)
 
-	return availability, nil
+	return MapToAvailabilityResponseDto(availability), nil
 }
 
 func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claims) error {

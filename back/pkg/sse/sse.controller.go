@@ -29,7 +29,7 @@ func NewSSEController(service *SSEService) *SSEController {
 // @Description Establishes a Server-Sent Events connection to receive real-time updates for a specific event
 // @Tags SSE
 // @Param eventId path string true "Event ID"
-// @Success 200 {string} string "SSE connection established"
+// @Success 200 {array} SSESlotUpdateMessage "Stream of slot update arrays"
 // @Failure 400 {object} map[string]string "Invalid event ID"
 // @Failure 401 {object} map[string]string "User not authenticated"
 // @Router /v1/events/{eventId}/sse [get]
