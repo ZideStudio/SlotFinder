@@ -16,7 +16,7 @@ func durationToFields(duration int) EventDurationFields {
 // mapToOwnerDto maps an Account to EventOwnerDto, with optional color override
 func mapToOwnerDto(account model.Account, colorOverride *string) EventOwnerDto {
 	color := account.Color
-	if colorOverride != nil {
+	if colorOverride != nil && *colorOverride != "" {
 		color = *colorOverride
 	}
 	return EventOwnerDto{
