@@ -28,6 +28,30 @@ definitions:
     - termsVersion
     - timeZone
     type: object
+  account.AccountProviderDto:
+    properties:
+      provider:
+        $ref: '#/definitions/constants.Provider'
+    type: object
+  account.AccountResponseDto:
+    properties:
+      avatarUrl:
+        type: string
+      color:
+        type: string
+      email:
+        type: string
+      language:
+        $ref: '#/definitions/constants.AccountLanguage'
+      providers:
+        items:
+          $ref: '#/definitions/account.AccountProviderDto'
+        type: array
+      timeZone:
+        type: string
+      userName:
+        type: string
+    type: object
   account.AccountUpdateDto:
     properties:
       color:
@@ -85,6 +109,15 @@ definitions:
     required:
     - endsAt
     - startsAt
+    type: object
+  availability.AvailabilityResponseDto:
+    properties:
+      endsAt:
+        type: string
+      id:
+        type: string
+      startsAt:
+        type: string
     type: object
   availability.AvailabilityUpdateDto:
     properties:
@@ -320,53 +353,6 @@ definitions:
       total:
         type: integer
     type: object
-  model.Account:
-    properties:
-      avatarUrl:
-        type: string
-      color:
-        type: string
-      createdAt:
-        type: string
-      email:
-        type: string
-      events:
-        items:
-          $ref: '#/definitions/model.AccountEvent'
-        type: array
-      id:
-        type: string
-      language:
-        $ref: '#/definitions/constants.AccountLanguage'
-      providers:
-        items:
-          $ref: '#/definitions/model.AccountProvider'
-        type: array
-      termsAcceptedAt:
-        type: string
-      termsVersion:
-        type: string
-      timeZone:
-        type: string
-      userName:
-        type: string
-    type: object
-  model.AccountEvent:
-    properties:
-      account:
-        allOf:
-        - $ref: '#/definitions/model.Account'
-        description: Relations
-      createdAt:
-        type: string
-      event:
-        $ref: '#/definitions/model.Event'
-    type: object
-  model.AccountProvider:
-    properties:
-      provider:
-        $ref: '#/definitions/constants.Provider'
-    type: object
   model.Availability:
     properties:
       endsAt:
@@ -377,43 +363,6 @@ definitions:
         type: string
       userName:
         type: string
-    type: object
-  model.Event:
-    properties:
-      availabilities:
-        items:
-          $ref: '#/definitions/model.Availability'
-        type: array
-      createdAt:
-        type: string
-      description:
-        type: string
-      duration:
-        description: In minutes
-        type: integer
-      endsAt:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      owner:
-        allOf:
-        - $ref: '#/definitions/model.Account'
-        description: Relations
-      participants:
-        description: Computed field not stored in DB
-        items:
-          $ref: '#/definitions/model.Account'
-        type: array
-      slots:
-        items:
-          $ref: '#/definitions/model.Slot'
-        type: array
-      startsAt:
-        type: string
-      status:
-        $ref: '#/definitions/constants.EventStatus'
     type: object
   model.Slot:
     properties:
@@ -456,6 +405,28 @@ definitions:
     - endsAt
     - startsAt
     type: object
+  slot.SlotResponseDto:
+    properties:
+      endsAt:
+        type: string
+      id:
+        type: string
+      isValidated:
+        type: boolean
+      startsAt:
+        type: string
+    type: object
+  sse.SSESlotUpdateMessage:
+    properties:
+      endsAt:
+        type: string
+      id:
+        type: string
+      isValidated:
+        type: boolean
+      startsAt:
+        type: string
+    type: object
 info:
   contact:
     email: contact@zide.fr
@@ -481,7 +452,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Account'
+            $ref: '#/definitions/account.AccountResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT,
             or ERR_INVALID_COLOR_FORMAT'
@@ -580,7 +551,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Account'
+            $ref: '#/definitions/account.AccountResponseDto'
       security:
       - AccessTokenCookie: []
       summary: Get My Account
@@ -766,7 +737,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Availability'
+            $ref: '#/definitions/availability.AvailabilityResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED,
             ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END,
@@ -916,7 +887,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Availability'
+            $ref: '#/definitions/availability.AvailabilityResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED,
             ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT,
@@ -1056,7 +1027,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Slot'
+            $ref: '#/definitions/slot.SlotResponseDto'
         "400":
           description: 'Bad Request - Code can be: ERR_SLOT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED,
             ERR_EVENT_ENDED, ERR_SLOT_INVALID_STARTS_AT, or ERR_SLOT_INVALID_ENDS_AT'
@@ -1069,8 +1040,6 @@ paths:
       - Slot
   /v1/events/{eventId}/sse:
     get:
-      description: Establishes a Server-Sent Events connection to receive real-time
-        updates for a specific event
       parameters:
       - description: Event ID
         in: path
@@ -1079,9 +1048,11 @@ paths:
         type: string
       responses:
         "200":
-          description: SSE connection established
+          description: Stream of slot update arrays
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/sse.SSESlotUpdateMessage'
+            type: array
         "400":
           description: Invalid event ID
           schema:

@@ -151,33 +151,37 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 	return tokens, nil
 }
 
-func (s *AccountService) GetMe(userId uuid.UUID) (account model.Account, err error) {
+func (s *AccountService) GetMe(userId uuid.UUID) (AccountResponseDto, error) {
+	var account model.Account
 	if err := s.accountRepository.FindOneById(userId, &account); err != nil {
-		return account, err
+		return AccountResponseDto{}, err
 	}
 
-	return account, nil
+	return MapToAccountResponseDto(account), nil
 }
 
-func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (account model.Account, tokens *AccountTokensDto, err error) {
-	if err = s.accountRepository.FindOneById(userId, &account); err != nil {
-		return account, nil, err
+func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (AccountResponseDto, *AccountTokensDto, error) {
+	var account model.Account
+	if err := s.accountRepository.FindOneById(userId, &account); err != nil {
+		return AccountResponseDto{}, nil, err
 	}
+
+	var tokens *AccountTokensDto
 
 	if dto.UserName != nil && (account.UserName == nil || *dto.UserName != *account.UserName) {
 		*dto.UserName = strings.TrimSpace(*dto.UserName)
 		if len(*dto.UserName) < 3 {
-			return account, nil, errors.New("username must be at least 3 characters long")
+			return AccountResponseDto{}, nil, errors.New("username must be at least 3 characters long")
 		}
 		if account.UserName != nil && *dto.UserName == *account.UserName {
-			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
+			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
 		}
 		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.UserName, &userId)
 		if err != nil {
-			return account, nil, err
+			return AccountResponseDto{}, nil, err
 		}
 		if !isUserNameAvailable {
-			return account, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
+			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
 		}
 		account.UserName = dto.UserName
 	}
@@ -188,14 +192,14 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	if dto.TimeZone != nil {
 		timeZone, err := time.LoadLocation(*dto.TimeZone)
 		if err != nil {
-			return account, nil, errors.New("invalid time zone")
+			return AccountResponseDto{}, nil, errors.New("invalid time zone")
 		}
 		account.TimeZone = timeZone.String()
 	}
 	passwordChanged := false
 	if dto.Password != nil {
 		if !lib.IsValidPassword(*dto.Password) {
-			return account, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
+			return AccountResponseDto{}, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
 		passwordChanged = true
@@ -205,14 +209,14 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 	if dto.Color != nil {
 		if !lib.IsHexa(*dto.Color) {
-			return account, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
+			return AccountResponseDto{}, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
 		}
 		account.Color = *dto.Color
 	}
 	termsUpdated := false
 	if dto.TermsAccepted != nil && dto.TermsVersion != nil && (account.TermsVersion == nil || *account.TermsVersion != *dto.TermsVersion) {
 		if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(*dto.TermsVersion)) {
-			return account, nil, errors.New("invalid terms version")
+			return AccountResponseDto{}, nil, errors.New("invalid terms version")
 		}
 		now := time.Now()
 		account.TermsAcceptedAt = &now
@@ -221,7 +225,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 	}
 
 	if err := s.accountRepository.Updates(account); err != nil {
-		return account, nil, err
+		return AccountResponseDto{}, nil, err
 	}
 
 	// Generate new tokens if username was set or password was changed
@@ -241,7 +245,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 		token, err := s.signinService.GenerateTokens(claims)
 		if err != nil {
 			_ = s.accountRepository.Delete(account.Id)
-			return account, nil, err
+			return AccountResponseDto{}, nil, err
 		}
 		tokens = &AccountTokensDto{
 			AccessToken:  token.AccessToken,
@@ -251,7 +255,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (accoun
 
 	me, err := s.GetMe(userId)
 	if err != nil {
-		return account, nil, err
+		return AccountResponseDto{}, nil, err
 	}
 
 	return me, tokens, nil

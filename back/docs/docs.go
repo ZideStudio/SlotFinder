@@ -80,7 +80,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Account"
+                            "$ref": "#/definitions/account.AccountResponseDto"
                         }
                     },
                     "400": {
@@ -197,7 +197,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Account"
+                            "$ref": "#/definitions/account.AccountResponseDto"
                         }
                     }
                 },
@@ -485,7 +485,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Availability"
+                            "$ref": "#/definitions/availability.AvailabilityResponseDto"
                         }
                     },
                     "400": {
@@ -715,7 +715,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Availability"
+                            "$ref": "#/definitions/availability.AvailabilityResponseDto"
                         }
                     },
                     "400": {
@@ -932,7 +932,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Slot"
+                            "$ref": "#/definitions/slot.SlotResponseDto"
                         }
                     },
                     "400": {
@@ -951,7 +951,6 @@ const docTemplate = `{
         },
         "/v1/events/{eventId}/sse": {
             "get": {
-                "description": "Establishes a Server-Sent Events connection to receive real-time updates for a specific event",
                 "tags": [
                     "SSE"
                 ],
@@ -967,9 +966,12 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "SSE connection established",
+                        "description": "Stream of slot update arrays",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/sse.SSESlotUpdateMessage"
+                            }
                         }
                     },
                     "400": {
@@ -1033,6 +1035,43 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "timeZone": {
+                    "type": "string"
+                }
+            }
+        },
+        "account.AccountProviderDto": {
+            "type": "object",
+            "properties": {
+                "provider": {
+                    "$ref": "#/definitions/constants.Provider"
+                }
+            }
+        },
+        "account.AccountResponseDto": {
+            "type": "object",
+            "properties": {
+                "avatarUrl": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "language": {
+                    "$ref": "#/definitions/constants.AccountLanguage"
+                },
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/account.AccountProviderDto"
+                    }
+                },
+                "timeZone": {
+                    "type": "string"
+                },
+                "userName": {
                     "type": "string"
                 }
             }
@@ -1116,6 +1155,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "endsAt": {
+                    "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "availability.AvailabilityResponseDto": {
+            "type": "object",
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "startsAt": {
@@ -1464,80 +1517,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Account": {
-            "type": "object",
-            "properties": {
-                "avatarUrl": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "events": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.AccountEvent"
-                    }
-                },
-                "id": {
-                    "type": "string"
-                },
-                "language": {
-                    "$ref": "#/definitions/constants.AccountLanguage"
-                },
-                "providers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.AccountProvider"
-                    }
-                },
-                "termsAcceptedAt": {
-                    "type": "string"
-                },
-                "termsVersion": {
-                    "type": "string"
-                },
-                "timeZone": {
-                    "type": "string"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.AccountEvent": {
-            "type": "object",
-            "properties": {
-                "account": {
-                    "description": "Relations",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    ]
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "event": {
-                    "$ref": "#/definitions/model.Event"
-                }
-            }
-        },
-        "model.AccountProvider": {
-            "type": "object",
-            "properties": {
-                "provider": {
-                    "$ref": "#/definitions/constants.Provider"
-                }
-            }
-        },
         "model.Availability": {
             "type": "object",
             "properties": {
@@ -1552,63 +1531,6 @@ const docTemplate = `{
                 },
                 "userName": {
                     "type": "string"
-                }
-            }
-        },
-        "model.Event": {
-            "type": "object",
-            "properties": {
-                "availabilities": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Availability"
-                    }
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "duration": {
-                    "description": "In minutes",
-                    "type": "integer"
-                },
-                "endsAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner": {
-                    "description": "Relations",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    ]
-                },
-                "participants": {
-                    "description": "Computed field not stored in DB",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Account"
-                    }
-                },
-                "slots": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Slot"
-                    }
-                },
-                "startsAt": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/constants.EventStatus"
                 }
             }
         },
@@ -1667,6 +1589,40 @@ const docTemplate = `{
             "properties": {
                 "endsAt": {
                     "type": "string"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "slot.SlotResponseDto": {
+            "type": "object",
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isValidated": {
+                    "type": "boolean"
+                },
+                "startsAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "sse.SSESlotUpdateMessage": {
+            "type": "object",
+            "properties": {
+                "endsAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isValidated": {
+                    "type": "boolean"
                 },
                 "startsAt": {
                     "type": "string"
