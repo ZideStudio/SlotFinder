@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// SSESlotUpdateMessage is the payload sent on each SSE data frame: an array of computed slots
+// SSESlotUpdateMessage represents one slot entry sent in SSE data frames (each "data" payload is a JSON array of these).
 type SSESlotUpdateMessage struct {
 	Id          uuid.UUID `json:"id"`
 	StartsAt    time.Time `json:"startsAt"`
