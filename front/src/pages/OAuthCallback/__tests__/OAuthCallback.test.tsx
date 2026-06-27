@@ -20,21 +20,21 @@ describe("OAuthCallback", () => {
   it("should redirect to / when no error param is present", async () => {
     renderOAuthCallback();
     await expect(
-      screen.findByText("dashboard.title"),
+      screen.findByText("My events"),
     ).resolves.toBeInTheDocument();
   });
 
   it("should redirect to returnUrl when returnUrl param is present", async () => {
     renderOAuthCallback({ returnUrl: appRoutes.home() });
     await expect(
-      screen.findByText("dashboard.title"),
+      screen.findByText("My events"),
     ).resolves.toBeInTheDocument();
   });
 
   it("should redirect to home when returnUrl param is invalid", async () => {
     renderOAuthCallback({ returnUrl: "invalid-url" });
     await expect(
-      screen.findByText("dashboard.title"),
+      screen.findByText("My events"),
     ).resolves.toBeInTheDocument();
   });
 
@@ -42,21 +42,21 @@ describe("OAuthCallback", () => {
     it("should redirect to home when returnUrl is a protocol-relative URL", async () => {
       renderOAuthCallback({ returnUrl: "//evil.com" });
       await expect(
-        screen.findByText("dashboard.title"),
+        screen.findByText("My events"),
       ).resolves.toBeInTheDocument();
     });
 
     it("should redirect to home when returnUrl is an absolute http URL", async () => {
       renderOAuthCallback({ returnUrl: "http://evil.com" });
       await expect(
-        screen.findByText("dashboard.title"),
+        screen.findByText("My events"),
       ).resolves.toBeInTheDocument();
     });
 
     it("should redirect to home when returnUrl is an absolute https URL", async () => {
       renderOAuthCallback({ returnUrl: "https://evil.com" });
       await expect(
-        screen.findByText("dashboard.title"),
+        screen.findByText("My events"),
       ).resolves.toBeInTheDocument();
     });
 
@@ -64,7 +64,7 @@ describe("OAuthCallback", () => {
       // oxlint-disable-next-line no-script-url
       renderOAuthCallback({ returnUrl: "javascript:alert(1)" });
       await expect(
-        screen.findByText("dashboard.title"),
+        screen.findByText("My events"),
       ).resolves.toBeInTheDocument();
     });
   });
