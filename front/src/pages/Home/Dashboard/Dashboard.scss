@@ -25,6 +25,10 @@
       justify-content: space-between;
     }
 
+    &--header-buttons {
+      width: #{helpers.px-to-rem(200)};
+    }
+
     &--no-events {
       display: flex;
       margin-bottom: #{helpers.px-to-rem(90)};
@@ -32,15 +36,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: #{helpers.px-to-rem(10)};
+      font-size: #{helpers.px-to-rem(20)};
+      font-weight: 500;
     }
-  }
 
-  &__button {
-    width: 200px;
-  }
-
-  &__no-events {
-    margin-top: 25%;
-    align-self: center;
+    &--no-events-icon {
+      width: #{helpers.px-to-rem(100)};
+      height: #{helpers.px-to-rem(100)};
+    }
   }
 }
