@@ -17,7 +17,10 @@ describe("Dashboard", () => {
     renderRoute(renderRouteOptions);
 
     await expect(
-      screen.findByRole("heading", { level: 1, name: "dashboard.title" }),
+      screen.findByRole("heading", {
+        level: 1,
+        name: "My events",
+      }),
     ).resolves.toBeInTheDocument();
   });
 
