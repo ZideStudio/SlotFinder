@@ -29,7 +29,7 @@ describe("Home page", () => {
     await renderBrowserRoute({ initialEntry: appRoutes.home() });
 
     await expect
-      .element(page.getByRole("heading", { level: 1, name: "Dashboard" }))
+      .element(page.getByRole("heading", { level: 1, name: "My events" }))
       .toBeVisible();
   });
 });
