@@ -3,9 +3,11 @@ package repository
 import (
 	"app/db"
 	model "app/db/models"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -31,7 +33,9 @@ func (*SlotRepository) Updates(slot *model.Slot) error {
 
 func (*SlotRepository) FindOneById(slotId uuid.UUID, slot *model.Slot) error {
 	if err := db.GetDB().Where("id = ?", slotId.String()).Preload("Event").Preload("Event.Owner").Preload("Event.AccountEvents").Preload("Event.AccountEvents.Account").First(slot).Error; err != nil {
-		log.Error().Err(err).Str("slotId", slotId.String()).Msg("SLOT_REPOSITORY::FIND_ONE_BY_ID Failed to find slot by id")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Error().Err(err).Str("slotId", slotId.String()).Msg("SLOT_REPOSITORY::FIND_ONE_BY_ID Failed to find slot by id")
+		}
 		return err
 	}
 

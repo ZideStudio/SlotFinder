@@ -72,7 +72,9 @@ func (r *AvailabilityRepository) FindOneById(id uuid.UUID, availability *model.A
 	}
 
 	if err := r.db.Preload("Account").Preload("Event").Preload("Event.AccountEvents").First(&availability, "id = ?", id).Error; err != nil {
-		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::FIND_ONE_BY_ID Failed to find availability by ID")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::FIND_ONE_BY_ID Failed to find availability by ID")
+		}
 		return err
 	}
 
@@ -115,7 +117,9 @@ func (r *AvailabilityRepository) Update(availability *model.Availability) error 
 	}
 
 	if err := r.db.Preload("Account").Preload("Event").Preload("Event.AccountEvents").First(&availability, "id = ?", availability.Id).Error; err != nil {
-		log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::UPDATE Failed to reload availability after update")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Error().Err(err).Msg("AVAILABILITY_REPOSITORY::UPDATE Failed to reload availability after update")
+		}
 		return err
 	}
 

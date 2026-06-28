@@ -3,8 +3,10 @@ package repository
 import (
 	"app/db"
 	model "app/db/models"
+	"errors"
 
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 )
 
 type AccountProvidersRepository struct{}
@@ -27,7 +29,7 @@ func (*AccountProvidersRepository) Create(accountProvider model.AccountProvider)
 
 func (*AccountProvidersRepository) FindOneById(id string, provider string, accountProvider *model.AccountProvider) error {
 	err := db.GetDB().Where("LOWER(provider) = LOWER(?) AND LOWER(id) = LOWER(?)", provider, id).Preload("Account").First(&accountProvider).Error
-	if err != nil {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Error().Err(err).Msg("ACCOUNT_PROVIDERS_REPOSITORY::FIND_ONE_BY_ID Failed to find account provider")
 	}
 	return err
