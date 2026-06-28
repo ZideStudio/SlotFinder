@@ -12,7 +12,6 @@ export const Heading = ({ level, className, ...props }: HeadingProps) => {
   const parentClassName = getClassName({
     defaultClassName: "ds-heading",
     className,
-    modifiers: [`level-${level}`],
   });
 
   const Tag = `h${level}` satisfies HeadingTag;

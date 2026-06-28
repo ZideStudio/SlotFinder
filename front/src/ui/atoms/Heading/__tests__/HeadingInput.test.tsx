@@ -21,7 +21,6 @@ describe("Heading", () => {
     );
     const headingElement = getByText("Test Heading");
     expect(headingElement).toHaveClass("ds-heading");
-    expect(headingElement).toHaveClass("ds-heading--level-1");
     expect(headingElement).toHaveClass("custom-class");
   });
 });
