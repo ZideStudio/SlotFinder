@@ -68,6 +68,17 @@ Clone the env `back/.env.model` file to `back/.env` and modify the variables as 
 
 Note that the default values prefixed with `DB_` are already set and work with the dockerized development environment. You can change them if you want to connect to an external database.
 
+#### Generate JWT RSA keys
+
+The backend uses RSA key pairs to sign and verify JWTs. Generate them with:
+
+```bash
+openssl genrsa -out back/config/jwt/private.pem 4096
+openssl rsa -in back/config/jwt/private.pem -pubout -out back/config/jwt/public.pem
+```
+
+The paths are configured via `AUTH_PRIVATE_PEM_PATH` and `AUTH_PUBLIC_PEM_PATH` in `back/.env` (defaults already point to `config/jwt/private.pem` and `config/jwt/public.pem`).
+
 #### Start the development environment
 
 ```bash
