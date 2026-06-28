@@ -3,9 +3,11 @@ package repository
 import (
 	"app/db"
 	model "app/db/models"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -35,7 +37,9 @@ func (*AccountEventRepository) Updates(accountEvent *model.AccountEvent) error {
 
 func (*AccountEventRepository) FindByAccountAndEventId(accountId, eventId uuid.UUID, accountEvent *model.AccountEvent) error {
 	if err := db.GetDB().Where("account_id = ? AND event_id = ?", accountId, eventId).Preload("Account").First(&accountEvent).Error; err != nil {
-		log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_ACCOUNT_AND_EVENT_ID Failed to find account_event")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Error().Err(err).Msg("ACCOUNT_EVENT_REPOSITORY::FIND_BY_ACCOUNT_AND_EVENT_ID Failed to find account_event")
+		}
 		return err
 	}
 

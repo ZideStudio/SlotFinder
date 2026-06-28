@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var conn *gorm.DB
@@ -17,7 +18,9 @@ func Init() *gorm.DB {
 	conn, err = gorm.Open(postgres.New(postgres.Config{
 		DSN:                  c.Db.GetPostgresConnectionInfo(),
 		PreferSimpleProtocol: true,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to connect to database")
