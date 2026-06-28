@@ -43,6 +43,7 @@ func NewRouter() *gin.Engine {
 			accountGroup.GET("/me", guard.AuthCheck(nil), accountRouter.GetMe)
 			accountGroup.PATCH("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireCompleteProfile: false}), accountRouter.Update)
 			accountGroup.PATCH("/avatar", guard.AuthCheck(nil), guard.MaxUploadSizeMiddleware(10<<20), accountRouter.UploadAvatar)
+			accountGroup.GET("/:accountId/avatar", accountRouter.GetAvatar)
 			accountGroup.POST("/forgot-password", accountRouter.ForgotPassword)
 			accountGroup.POST("/reset-password", accountRouter.ResetPassword)
 		}

@@ -11,11 +11,14 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
+	"net/http"
 	"slices"
+	"time"
 
 	_ "golang.org/x/image/webp"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AccountController struct {
@@ -174,6 +177,43 @@ func (ctl *AccountController) UploadAvatar(c *gin.Context) {
 	err = ctl.avatarService.UploadUserAvatar(imageBytes, user.Id)
 
 	helpers.HandleJSONResponse(c, nil, err)
+}
+
+// @Summary Get Avatar
+// @Description Returns the avatar image for a given account ID.
+// @Tags Account
+// @Produce image/jpeg
+// @Param accountId path string true "Account UUID"
+// @Success 200
+// @Failure 404
+// @Router /api/v1/account/{accountId}/avatar [get]
+func (ctl *AccountController) GetAvatar(c *gin.Context) {
+	accountId, err := uuid.Parse(c.Param("accountId"))
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	avatarData, updatedAt, err := ctl.avatarService.FindAvatarById(accountId)
+	if err != nil || len(avatarData) == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	lastModified := updatedAt.UTC().Format(http.TimeFormat)
+	c.Header("Last-Modified", lastModified)
+	c.Header("Cache-Control", "public, max-age=86400")
+
+	ifModifiedSince := c.GetHeader("If-Modified-Since")
+	if ifModifiedSince != "" {
+		t, err := time.Parse(http.TimeFormat, ifModifiedSince)
+		if err == nil && !updatedAt.UTC().After(t) {
+			c.Status(http.StatusNotModified)
+			return
+		}
+	}
+
+	c.Data(http.StatusOK, "image/jpeg", avatarData)
 }
 
 // @Summary Forgot Password

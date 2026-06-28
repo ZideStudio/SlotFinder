@@ -487,6 +487,25 @@ paths:
       summary: Create an account
       tags:
       - Account
+  /api/v1/account/{accountId}/avatar:
+    get:
+      description: Returns the avatar image for a given account ID.
+      parameters:
+      - description: Account UUID
+        in: path
+        name: accountId
+        required: true
+        type: string
+      produces:
+      - image/jpeg
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+      summary: Get Avatar
+      tags:
+      - Account
   /api/v1/account/avatar:
     patch:
       consumes:

@@ -245,6 +245,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/account/{accountId}/avatar": {
+            "get": {
+                "description": "Returns the avatar image for a given account ID.",
+                "produces": [
+                    "image/jpeg"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get Avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account UUID",
+                        "name": "accountId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
         "/api/v1/auth/logout": {
             "post": {
                 "consumes": [

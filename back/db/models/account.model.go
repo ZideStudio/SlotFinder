@@ -14,6 +14,7 @@ type Account struct {
 	Email                *string                   `gorm:"column:email;default:null;size:255" json:"email,omitempty"`
 	Password             *string                   `gorm:"column:password;size:255" json:"-"`
 	AvatarUrl            string                    `gorm:"column:avatar_url;size:255;default:null" json:"avatarUrl"`
+	AvatarData           []byte                    `gorm:"column:avatar_data;type:bytea;default:null" json:"-"`
 	Language             constants.AccountLanguage `gorm:"column:language;type:VARCHAR(10);default:'en'" json:"language,omitempty"`
 	Color                string                    `gorm:"column:color;size:7" json:"color"`
 	ResetToken           *string                   `gorm:"column:reset_token;size:255;default:null" json:"-"`
