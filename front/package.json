@@ -67,7 +67,7 @@
     "monocart-coverage-reports": "2.12.12",
     "msw": "2.14.6",
     "oxfmt": "0.56.0",
-    "oxlint": "1.70.0",
+    "oxlint": "1.71.0",
     "remark-gfm": "4.0.1",
     "storybook": "10.4.6",
     "storybook-react-rsbuild": "3.3.4",
