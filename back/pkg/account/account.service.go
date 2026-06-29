@@ -42,13 +42,13 @@ func NewAccountService(service *AccountService) *AccountService {
 	}
 
 	return &AccountService{
-		accountRepository:      &repository.AccountRepository{},
+		accountRepository:      repository.NewAccountRepository(nil),
 		avatarService:          NewAvatarService(nil),
 		signinService:          signin.NewSigninService(nil),
 		mailService:            mail.NewMailService(nil),
 		config:                 config.GetConfig(),
 		passwordResetCooldown:  cache.New(10*time.Minute, 15*time.Minute),
-		refreshTokenRepository: &repository.RefreshTokenRepository{},
+		refreshTokenRepository: repository.NewRefreshTokenRepository(nil),
 	}
 }
 

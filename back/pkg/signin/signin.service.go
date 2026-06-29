@@ -26,8 +26,8 @@ func NewSigninService(service *SigninService) *SigninService {
 	}
 
 	return &SigninService{
-		accountRepository:      &repository.AccountRepository{},
-		refreshTokenRepository: &repository.RefreshTokenRepository{},
+		accountRepository:      repository.NewAccountRepository(nil),
+		refreshTokenRepository: repository.NewRefreshTokenRepository(nil),
 		config:                 config.GetConfig(),
 	}
 }

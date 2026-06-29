@@ -32,10 +32,10 @@ func NewSlotService(service *SlotService) *SlotService {
 	}
 
 	return &SlotService{
-		slotRepository:         &repository.SlotRepository{},
-		eventRepository:        &repository.EventRepository{},
+		slotRepository:         repository.NewSlotRepository(nil),
+		eventRepository:        repository.NewEventRepository(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
-		accountEventRepository: &repository.AccountEventRepository{},
+		accountEventRepository: repository.NewAccountEventRepository(nil),
 		sseService:             sse.GetSSEService(),
 		mailService:            mail.NewMailService(nil),
 		loadSlotsMutexes:       sync.Map{},

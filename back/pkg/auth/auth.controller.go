@@ -20,7 +20,7 @@ type AuthController struct {
 func NewAuthController(ctl *AuthController) *AuthController {
 	if ctl == nil {
 		ctl = &AuthController{
-			refreshTokenRepository: &repository.RefreshTokenRepository{},
+			refreshTokenRepository: repository.NewRefreshTokenRepository(nil),
 		}
 	}
 
