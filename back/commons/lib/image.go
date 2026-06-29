@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/jpeg"
 	_ "image/png"
@@ -30,6 +31,8 @@ func ProcessAvatar(data []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+const maxDownloadBytes = 10 << 20 // 10 MB
+
 // ProcessAvatarFromURL fetches an image from a URL and runs it through ProcessAvatar.
 func ProcessAvatarFromURL(imgURL string) ([]byte, error) {
 	resp, err := http.Get(imgURL)
@@ -38,9 +41,16 @@ func ProcessAvatarFromURL(imgURL string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	data, err := io.ReadAll(resp.Body)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("unexpected status %d fetching avatar", resp.StatusCode)
+	}
+
+	data, err := io.ReadAll(io.LimitReader(resp.Body, maxDownloadBytes+1))
 	if err != nil {
 		return nil, err
+	}
+	if len(data) > maxDownloadBytes {
+		return nil, fmt.Errorf("avatar image exceeds %d bytes", maxDownloadBytes)
 	}
 
 	return ProcessAvatar(data)

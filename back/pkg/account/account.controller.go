@@ -195,7 +195,11 @@ func (ctl *AccountController) GetAvatar(c *gin.Context) {
 	}
 
 	avatarData, updatedAt, err := ctl.avatarService.FindAvatarById(accountId)
-	if err != nil || len(avatarData) == 0 {
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	if len(avatarData) == 0 {
 		c.Status(http.StatusNotFound)
 		return
 	}

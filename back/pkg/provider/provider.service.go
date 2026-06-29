@@ -256,7 +256,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		if providerAccount.AvatarUrl != nil {
 			if processed, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil); err == nil {
 				avatarData = processed
-				avatarUrl = fmt.Sprintf("/v1/account/%s/avatar", accountId.String())
+				avatarUrl = fmt.Sprintf("/api/v1/account/%s/avatar", accountId.String())
 			}
 		}
 

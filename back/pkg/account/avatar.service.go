@@ -34,13 +34,14 @@ func GetGravatarURL(username string) string {
 }
 
 // FetchAndStoreGravatar fetches, processes and returns the Gravatar image bytes and local URL for the account.
+// Falls back to the external Gravatar URL if the image cannot be fetched.
 func (*AvatarService) FetchAndStoreGravatar(username string, accountId uuid.UUID) ([]byte, string) {
 	data, err := lib.ProcessAvatarFromURL(GetGravatarURL(username))
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to fetch Gravatar image")
-		return nil, ""
+		log.Warn().Err(err).Msg("Failed to fetch Gravatar image, falling back to external URL")
+		return nil, GetGravatarURL(accountId.String())
 	}
-	return data, fmt.Sprintf("/v1/account/%s/avatar", accountId.String())
+	return data, fmt.Sprintf("/api/v1/account/%s/avatar", accountId.String())
 }
 
 func (s *AvatarService) FindAvatarById(id uuid.UUID) ([]byte, *time.Time, error) {
@@ -76,7 +77,7 @@ func (s *AvatarService) UploadUserAvatar(imgBytes []byte, userId uuid.UUID) erro
 		return fmt.Errorf("error processing avatar: %w", err)
 	}
 
-	avatarUrl := fmt.Sprintf("/v1/account/%s/avatar", userId.String())
+	avatarUrl := fmt.Sprintf("/api/v1/account/%s/avatar", userId.String())
 
 	if err := s.accountRepository.Updates(model.Account{
 		Id:         userId,
