@@ -7,13 +7,25 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-type EventRepository struct{}
+type EventRepository struct {
+	db *gorm.DB
+}
 
-func (*EventRepository) Create(event *model.Event) error {
-	if err := db.GetDB().Create(&event).Error; err != nil {
+func NewEventRepository(database *gorm.DB) *EventRepository {
+	if database == nil {
+		database = db.GetDB()
+	}
+	return &EventRepository{
+		db: database,
+	}
+}
+
+func (r *EventRepository) Create(event *model.Event) error {
+	if err := r.db.Create(&event).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::CREATE Failed to create event")
 		return err
 	}
@@ -24,7 +36,7 @@ func (*EventRepository) Create(event *model.Event) error {
 }
 
 func (r *EventRepository) Updates(event *model.Event) error {
-	if err := db.GetDB().Omit(clause.Associations).Updates(&event).Error; err != nil {
+	if err := r.db.Omit(clause.Associations).Updates(&event).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::UPDATE Failed to update event")
 		return err
 	}
@@ -36,9 +48,7 @@ func (r *EventRepository) FindOneById(
 	eventId uuid.UUID,
 	event *model.Event,
 ) error {
-	db := db.GetDB()
-
-	if err := db.
+	if err := r.db.
 		Where("event.id = ?", eventId).
 		Preload("Owner").
 		Preload("Slots").
@@ -70,7 +80,7 @@ func (r *EventRepository) FindEventsByAccountId(
 	limit int,
 	offset int,
 ) ([]model.Event, int64, error) {
-	db := db.GetDB()
+	db := r.db
 
 	// Count
 	var total int64
@@ -159,8 +169,8 @@ func (r *EventRepository) FindEventsByAccountId(
 	return orderedEvents, total, nil
 }
 
-func (*EventRepository) Delete(id uuid.UUID) error {
-	if err := db.GetDB().Where("id = ?", id.String()).Delete(&model.Event{}).Error; err != nil {
+func (r *EventRepository) Delete(id uuid.UUID) error {
+	if err := r.db.Where("id = ?", id.String()).Delete(&model.Event{}).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::DELETE Failed to delete event")
 		return err
 	}

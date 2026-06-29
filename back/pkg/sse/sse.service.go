@@ -47,8 +47,8 @@ func GetSSEService() *SSEService {
 		sseServiceInstance = &SSEService{
 			clients:         make(map[string]*SSEClient),
 			clientsByEvent:  make(map[uuid.UUID]map[string]bool),
-			eventRepository: &repository.EventRepository{},
-			slotRepository:  &repository.SlotRepository{},
+			eventRepository: repository.NewEventRepository(nil),
+			slotRepository:  repository.NewSlotRepository(nil),
 		}
 	})
 	return sseServiceInstance
@@ -59,8 +59,8 @@ func NewSSEService() *SSEService {
 	return &SSEService{
 		clients:         make(map[string]*SSEClient),
 		clientsByEvent:  make(map[uuid.UUID]map[string]bool),
-		eventRepository: &repository.EventRepository{},
-		slotRepository:  &repository.SlotRepository{},
+		eventRepository: repository.NewEventRepository(nil),
+		slotRepository:  repository.NewSlotRepository(nil),
 	}
 }
 

@@ -35,10 +35,10 @@ func NewEventService(service *EventService) *EventService {
 	}
 
 	return &EventService{
-		eventRepository:        &repository.EventRepository{},
-		accountEventRepository: &repository.AccountEventRepository{},
+		eventRepository:        repository.NewEventRepository(nil),
+		accountEventRepository: repository.NewAccountEventRepository(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
-		slotRepository:         &repository.SlotRepository{},
+		slotRepository:         repository.NewSlotRepository(nil),
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
 		mailService:            mail.NewMailService(nil),

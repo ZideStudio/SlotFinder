@@ -30,7 +30,7 @@ func NewAvatarService(service *AvatarService) *AvatarService {
 	}
 
 	return &AvatarService{
-		accountRepository: &repository.AccountRepository{},
+		accountRepository: repository.NewAccountRepository(nil),
 	}
 }
 

@@ -14,7 +14,18 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type AccountRepository struct{}
+type AccountRepository struct {
+	db *gorm.DB
+}
+
+func NewAccountRepository(database *gorm.DB) *AccountRepository {
+	if database == nil {
+		database = db.GetDB()
+	}
+	return &AccountRepository{
+		db: database,
+	}
+}
 
 type AccountCreateDto struct {
 	Id           uuid.UUID
@@ -29,7 +40,7 @@ type AccountCreateDto struct {
 	TimeZone     time.Location
 }
 
-func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) error {
+func (r *AccountRepository) Create(data AccountCreateDto, account *model.Account) error {
 	*account = model.Account{
 		Id:           data.Id,
 		UserName:     data.UserName,
@@ -56,7 +67,7 @@ func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) 
 		account.Password = &hashedPasswordToString
 	}
 
-	if err := db.GetDB().Create(&account).Error; err != nil {
+	if err := r.db.Create(&account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::CREATE Failed to create account")
 		return err
 	}
@@ -64,7 +75,7 @@ func (*AccountRepository) Create(data AccountCreateDto, account *model.Account) 
 	return nil
 }
 
-func (*AccountRepository) Updates(account model.Account) error {
+func (r *AccountRepository) Updates(account model.Account) error {
 	if account.Password != nil {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*account.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -75,7 +86,7 @@ func (*AccountRepository) Updates(account model.Account) error {
 		account.Password = &hashedPasswordToString
 	}
 
-	if err := db.GetDB().Model(&account).Omit(clause.Associations).Updates(account).Error; err != nil {
+	if err := r.db.Model(&account).Omit(clause.Associations).Updates(account).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::UPDATE Failed to update account")
 		return err
 	}
@@ -83,8 +94,8 @@ func (*AccountRepository) Updates(account model.Account) error {
 	return nil
 }
 
-func (*AccountRepository) FindOneById(id uuid.UUID, account *model.Account) error {
-	if err := db.GetDB().Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error; err != nil {
+func (r *AccountRepository) FindOneById(id uuid.UUID, account *model.Account) error {
+	if err := r.db.Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_ID Failed to find account by id")
 		}
@@ -93,8 +104,8 @@ func (*AccountRepository) FindOneById(id uuid.UUID, account *model.Account) erro
 	return nil
 }
 
-func (*AccountRepository) FindOneByUsername(username string, account *model.Account, excludeId *uuid.UUID) error {
-	query := db.GetDB().Where("LOWER(username) = LOWER(?) AND deleted_at IS NULL", username)
+func (r *AccountRepository) FindOneByUsername(username string, account *model.Account, excludeId *uuid.UUID) error {
+	query := r.db.Where("LOWER(username) = LOWER(?) AND deleted_at IS NULL", username)
 
 	if excludeId != nil {
 		query = query.Where("id != ?", excludeId.String())
@@ -109,8 +120,8 @@ func (*AccountRepository) FindOneByUsername(username string, account *model.Acco
 	return nil
 }
 
-func (*AccountRepository) FindOneByEmail(email string, account *model.Account) error {
-	if err := db.GetDB().Where("LOWER(email) = LOWER(?) AND deleted_at IS NULL", email).Preload("Providers").First(&account).Error; err != nil {
+func (r *AccountRepository) FindOneByEmail(email string, account *model.Account) error {
+	if err := r.db.Where("LOWER(email) = LOWER(?) AND deleted_at IS NULL", email).Preload("Providers").First(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_EMAIL Failed to find account by email")
 		}
@@ -119,8 +130,8 @@ func (*AccountRepository) FindOneByEmail(email string, account *model.Account) e
 	return nil
 }
 
-func (*AccountRepository) FindOneByEmailOrUsername(emailOrUsername string, account *model.Account) error {
-	if err := db.GetDB().Where("(LOWER(email) = LOWER(?) OR LOWER(username) = LOWER(?)) AND deleted_at IS NULL", emailOrUsername, emailOrUsername).Preload("Providers").First(&account).Error; err != nil {
+func (r *AccountRepository) FindOneByEmailOrUsername(emailOrUsername string, account *model.Account) error {
+	if err := r.db.Where("(LOWER(email) = LOWER(?) OR LOWER(username) = LOWER(?)) AND deleted_at IS NULL", emailOrUsername, emailOrUsername).Preload("Providers").First(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_EMAIL_OR_USERNAME Failed to find account by email or username")
 		}
@@ -129,8 +140,8 @@ func (*AccountRepository) FindOneByEmailOrUsername(emailOrUsername string, accou
 	return nil
 }
 
-func (*AccountRepository) FindOneByResetToken(resetToken string, account *model.Account) error {
-	if err := db.GetDB().Where("reset_token = ? AND deleted_at IS NULL", resetToken).Preload("Providers").First(&account).Error; err != nil {
+func (r *AccountRepository) FindOneByResetToken(resetToken string, account *model.Account) error {
+	if err := r.db.Where("reset_token = ? AND deleted_at IS NULL", resetToken).Preload("Providers").First(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_ONE_BY_RESET_TOKEN Failed to find account by reset token")
 		}
@@ -139,13 +150,13 @@ func (*AccountRepository) FindOneByResetToken(resetToken string, account *model.
 	return nil
 }
 
-func (*AccountRepository) UpdateResetToken(id uuid.UUID, resetToken *string, resetTokenAt *time.Time) error {
+func (r *AccountRepository) UpdateResetToken(id uuid.UUID, resetToken *string, resetTokenAt *time.Time) error {
 	updates := map[string]interface{}{
 		"reset_token":             resetToken,
 		"password_reset_token_at": resetTokenAt,
 	}
 
-	if err := db.GetDB().Model(&model.Account{}).Where("id = ?", id).Updates(updates).Error; err != nil {
+	if err := r.db.Model(&model.Account{}).Where("id = ?", id).Updates(updates).Error; err != nil {
 		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::UPDATE_RESET_TOKEN Failed to update reset token")
 		return err
 	}
@@ -153,16 +164,16 @@ func (*AccountRepository) UpdateResetToken(id uuid.UUID, resetToken *string, res
 	return nil
 }
 
-func (*AccountRepository) Delete(id uuid.UUID) error {
+func (r *AccountRepository) Delete(id uuid.UUID) error {
 	var account model.Account
-	if err := db.GetDB().Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error; err != nil {
+	if err := r.db.Where("id = ? AND deleted_at IS NULL", id.String()).Preload("Providers").First(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::DELETE Failed to find account by id")
 		}
 		return err
 	}
 
-	if err := db.GetDB().Delete(&account).Error; err != nil {
+	if err := r.db.Delete(&account).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::DELETE Failed to delete account")
 		}

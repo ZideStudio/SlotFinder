@@ -14,7 +14,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type RefreshTokenRepository struct{}
+type RefreshTokenRepository struct {
+	db *gorm.DB
+}
+
+func NewRefreshTokenRepository(database *gorm.DB) *RefreshTokenRepository {
+	if database == nil {
+		database = db.GetDB()
+	}
+	return &RefreshTokenRepository{
+		db: database,
+	}
+}
 
 // GenerateRefreshToken generates a cryptographically secure random token
 func (*RefreshTokenRepository) GenerateRefreshToken() (string, error) {
@@ -50,7 +61,7 @@ func (r *RefreshTokenRepository) Create(accountId uuid.UUID, expiresAt time.Time
 		IsRevoked: false,
 	}
 
-	if err := db.GetDB().Create(&refreshToken).Error; err != nil {
+	if err := r.db.Create(&refreshToken).Error; err != nil {
 		log.Error().Err(err).Msg("REFRESH_TOKEN_REPOSITORY::CREATE Failed to create refresh token")
 		return "", err
 	}
@@ -60,7 +71,7 @@ func (r *RefreshTokenRepository) Create(accountId uuid.UUID, expiresAt time.Time
 
 // FindByTokenHash finds a refresh token by its hash
 func (r *RefreshTokenRepository) FindByTokenHash(tokenHash string, refreshToken *model.RefreshToken) error {
-	err := db.GetDB().Where("token_hash = ? AND is_revoked = ?", tokenHash, false).First(&refreshToken).Error
+	err := r.db.Where("token_hash = ? AND is_revoked = ?", tokenHash, false).First(&refreshToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		log.Error().Err(err).Msg("REFRESH_TOKEN_REPOSITORY::FIND_BY_TOKEN_HASH Failed to find refresh token")
 		return err
@@ -69,9 +80,9 @@ func (r *RefreshTokenRepository) FindByTokenHash(tokenHash string, refreshToken 
 }
 
 // Revoke marks a refresh token as revoked
-func (*RefreshTokenRepository) Revoke(id uuid.UUID) error {
+func (r *RefreshTokenRepository) Revoke(id uuid.UUID) error {
 	now := time.Now()
-	err := db.GetDB().Model(&model.RefreshToken{}).
+	err := r.db.Model(&model.RefreshToken{}).
 		Where("id = ?", id).
 		Updates(model.RefreshToken{
 			IsRevoked: true,
@@ -87,9 +98,9 @@ func (*RefreshTokenRepository) Revoke(id uuid.UUID) error {
 }
 
 // RevokeAllForAccount revokes all refresh tokens for a specific account
-func (*RefreshTokenRepository) RevokeAllForAccount(accountId uuid.UUID) error {
+func (r *RefreshTokenRepository) RevokeAllForAccount(accountId uuid.UUID) error {
 	now := time.Now()
-	err := db.GetDB().Model(&model.RefreshToken{}).
+	err := r.db.Model(&model.RefreshToken{}).
 		Where("account_id = ? AND is_revoked = ?", accountId, false).
 		Updates(model.RefreshToken{
 			IsRevoked: true,
@@ -105,9 +116,9 @@ func (*RefreshTokenRepository) RevokeAllForAccount(accountId uuid.UUID) error {
 }
 
 // DeleteExpired removes expired refresh tokens from the database
-func (*RefreshTokenRepository) DeleteExpired() error {
+func (r *RefreshTokenRepository) DeleteExpired() error {
 	lastWeek := time.Now().AddDate(0, 0, -7)
-	if err := db.GetDB().Where("expires_at < ? AND is_revoked = ?", lastWeek, true).Delete(&model.RefreshToken{}).Error; err != nil {
+	if err := r.db.Where("expires_at < ? AND is_revoked = ?", lastWeek, true).Delete(&model.RefreshToken{}).Error; err != nil {
 		log.Error().Err(err).Msg("REFRESH_TOKEN_REPOSITORY::DELETE_EXPIRED Failed to delete expired refresh tokens")
 		return err
 	}

@@ -36,8 +36,8 @@ func NewProviderService(service *ProviderService) *ProviderService {
 	}
 
 	return &ProviderService{
-		accountProvidersRepository: &repository.AccountProvidersRepository{},
-		accountRepository:          &repository.AccountRepository{},
+		accountProvidersRepository: repository.NewAccountProvidersRepository(nil),
+		accountRepository:          repository.NewAccountRepository(nil),
 		signinService:              signin.NewSigninService(nil),
 		accountService:             account.NewAccountService(nil),
 		avatarService:              account.NewAvatarService(nil),
