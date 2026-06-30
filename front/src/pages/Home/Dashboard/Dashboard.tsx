@@ -2,9 +2,9 @@ import { Header } from "@Front/components/Layout/Header/Header";
 import BoatIcon from "@material-symbols/svg-300/outlined/directions_boat.svg?react";
 import { Heading } from "@Front/ui/atoms/Heading/Heading";
 import { Button } from "@Front/ui/molecules/Button/Button";
+import { Icon } from "@Front/ui/atoms/Icon/Icon";
 
 import "./Dashboard.scss";
-import { Icon } from "@Front/ui/atoms/Icon/Icon";
 
 export const Dashboard = () => (
   <div className="dashboard">
@@ -17,10 +17,10 @@ export const Dashboard = () => (
           Create an event
         </Button>
       </div>
-      <div className="dashboard__content--no-events">
+      <section className="dashboard__content--no-events">
         <div>No events here</div>
         <Icon className="dashboard__content--no-events-icon" icon={BoatIcon} />
-      </div>
+      </section>
     </div>
   </div>
 );
