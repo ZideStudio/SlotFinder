@@ -1,6 +1,7 @@
 import { NumberField } from "@Front/components/fields/NumberField/NumberField";
 import { getClassName } from "@Front/utils/getClassName";
 import "./DateRangeField.scss";
+import { useTranslation } from "react-i18next";
 
 type DateRangeFieldProps = {
   name: string;
@@ -10,6 +11,7 @@ type DateRangeFieldProps = {
 };
 
 export const DateRangeField = ({
+  name,
   legend,
   required,
   className,
@@ -19,17 +21,36 @@ export const DateRangeField = ({
     className,
   });
 
+  const { t } = useTranslation("duration");
+
   return (
     <fieldset className={parentClassName}>
       <legend className="ds-date-range-field__legend">
         {legend}
-        {required && " *"}
+        {Boolean(required) && <span aria-hidden>*</span>}
       </legend>
 
       <div className="ds-date-range-field__inputs">
-        <NumberField name="days" label="Jour(s)" min={0} />
-        <NumberField name="hours" label="Heure(s)" min={0} max={23} />
-        <NumberField name="minutes" label="Minute(s)" min={0} max={59} />
+        <NumberField
+          name={`${name}.days`}
+          label={t("days")}
+          min={0}
+          required={required}
+        />
+        <NumberField
+          name={`${name}.hours`}
+          label={t("hours")}
+          min={0}
+          max={23}
+          required={required}
+        />
+        <NumberField
+          name={`${name}.minutes`}
+          label={t("minutes")}
+          min={0}
+          max={59}
+          required={required}
+        />
       </div>
     </fieldset>
   );
