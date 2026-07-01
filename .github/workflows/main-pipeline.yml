@@ -1,0 +1,141 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: slotfinder
+  PRD_DOMAIN: slotfinder.fr
+
+jobs:
+  back-ci:
+    name: Back CI
+    uses: ./.github/workflows/back-build.yaml
+    with:
+      base_ref: ${{ github.event.before }}
+    secrets: inherit
+
+  front-ci:
+    name: Front CI
+    uses: ./.github/workflows/front-build.yaml
+    with:
+      base_ref: ${{ github.event.before }}
+    secrets: inherit
+
+  docker-ci:
+    name: Docker CI
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      base_ref: ${{ github.event.before }}
+    secrets: inherit
+
+  build-production:
+    name: Build Production Images
+    needs: [back-ci, front-ci, docker-ci]
+    runs-on: self-hosted
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create JWT keys for production
+        run: |
+          mkdir -p back/config/jwt
+          printf '%s' "${{ secrets.JWT_PRIVATE_KEY_PRD }}" > back/config/jwt/private.pem
+          printf '%s' "${{ secrets.JWT_PUBLIC_KEY_PRD }}" > back/config/jwt/public.pem
+          chmod 600 back/config/jwt/private.pem
+          chmod 644 back/config/jwt/public.pem
+
+      - name: Create .env for frontend production
+        run: printf '%s' "${{ secrets.FRONT_ENV_PRD }}" > .env
+
+      - name: Build Production Images
+        run: docker compose -f docker-compose-build-prd.yml build
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+
+  deploy-production:
+    name: Deploy to Production
+    needs: build-production
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env for backend production
+        run: printf '%s' "${{ secrets.BACK_ENV_PRD }}" > .env
+
+      - name: Deploy Production Services
+        run: |
+          export DOMAIN=${PRD_DOMAIN}
+          export FRONT_IMAGE=prd-${IMAGE_NAME}-front:${{ github.sha }}
+          export BACK_IMAGE=prd-${IMAGE_NAME}-back:${{ github.sha }}
+          docker compose -f docker-compose-prd.yml up -d
+        env:
+          COMPOSE_PROJECT_NAME: slotfinder-prd
+
+  release:
+    name: Create Release
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version
+        id: version
+        run: |
+          LAST_TAG=$(git tag --list 'v[0-9]*.[0-9]*' --sort=-version:refname | head -1)
+
+          if [ -z "$LAST_TAG" ]; then
+            NEW_TAG="v1.0"
+            RANGE="HEAD"
+          else
+            X=$(echo "$LAST_TAG" | sed 's/^v//' | cut -d. -f1)
+            Y=$(echo "$LAST_TAG" | cut -d. -f2)
+            RANGE="${LAST_TAG}..HEAD"
+
+            if git log "${LAST_TAG}..HEAD" --pretty=format:"%s" | grep -q "^feat"; then
+              NEW_TAG="v$((X + 1)).0"
+            else
+              NEW_TAG="v${X}.$((Y + 1))"
+            fi
+          fi
+
+          echo "new_tag=${NEW_TAG}" >> "$GITHUB_OUTPUT"
+          echo "range=${RANGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v2.13.1
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --unreleased --tag ${{ steps.version.outputs.new_tag }} --no-exec
+        env:
+          OUTPUT: /tmp/changelog.md
+          GITHUB_REPO: ${{ github.repository }}
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NEW_TAG="${{ steps.version.outputs.new_tag }}"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+          gh release create "$NEW_TAG" \
+            --title "$NEW_TAG" \
+            --notes-file /tmp/changelog.md

@@ -3,21 +3,32 @@ name: Docker Build
 on:
   push:
     branches:
-      - main
       - "renovate/**"
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
   merge_group:
-    branches: ["main"]
+    branches: ["main", "develop"]
+  workflow_call:
+    inputs:
+      base_ref:
+        description: 'Base SHA for change detection (used when called via workflow_call)'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 jobs:
   detect-changes:
     name: Detect Docker Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       docker: ${{ steps.filter.outputs.docker }}
     steps:
@@ -28,6 +39,7 @@ jobs:
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         id: filter
         with:
+          base: ${{ inputs.base_ref }}
           filters: |
             docker:
               - 'docker-compose.dev.yml'
@@ -41,6 +53,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.docker == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7

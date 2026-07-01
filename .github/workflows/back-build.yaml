@@ -3,16 +3,26 @@ name: Back Build
 on:
   push:
     branches:
-      - main
       - "renovate/**"
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
   merge_group:
-    branches: ["main"]
+    branches: ["main", "develop"]
+  workflow_call:
+    inputs:
+      base_ref:
+        description: 'Base SHA for change detection (used when called via workflow_call)'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
+
+concurrency:
+  group: back-build-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 env:
   BACK_FOLDER: ./back
@@ -21,6 +31,7 @@ jobs:
   detect-changes:
     name: Detect Back Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       back: ${{ steps.filter.outputs.back }}
     steps:
@@ -31,6 +42,7 @@ jobs:
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         id: filter
         with:
+          base: ${{ inputs.base_ref }}
           filters: |
             back:
               - 'back/**'
@@ -44,6 +56,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -60,6 +73,7 @@ jobs:
     needs: [detect-changes, install]
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -76,6 +90,7 @@ jobs:
     needs: [detect-changes, install]
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -98,6 +113,7 @@ jobs:
     needs: [detect-changes, install]
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -114,6 +130,7 @@ jobs:
     needs: [detect-changes, install]
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:

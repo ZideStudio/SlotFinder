@@ -11,6 +11,7 @@ on:
 jobs:
   check-pr-title:
     name: Check PR Title
+    if: github.head_ref != 'develop' && !startsWith(github.head_ref, 'hotfix/')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
