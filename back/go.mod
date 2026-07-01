@@ -76,7 +76,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
-	golang.org/x/tools v0.46.0 // indirect
+	golang.org/x/tools v0.47.0 // indirect
 )
 
 require (
