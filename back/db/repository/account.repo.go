@@ -35,6 +35,7 @@ type AccountCreateDto struct {
 	Language     constants.AccountLanguage
 	Password     string
 	AvatarUrl    string
+	AvatarData   []byte
 	TermsVersion *string
 	Providers    []model.AccountProvider
 	TimeZone     time.Location
@@ -48,6 +49,7 @@ func (r *AccountRepository) Create(data AccountCreateDto, account *model.Account
 		Color:        data.Color,
 		Language:     data.Language,
 		AvatarUrl:    data.AvatarUrl,
+		AvatarData:   data.AvatarData,
 		Providers:    data.Providers,
 		TermsVersion: data.TermsVersion,
 		TimeZone:     data.TimeZone.String(),
@@ -162,6 +164,18 @@ func (r *AccountRepository) UpdateResetToken(id uuid.UUID, resetToken *string, r
 	}
 
 	return nil
+}
+
+func (r *AccountRepository) FindAvatarById(id uuid.UUID) ([]byte, *time.Time, error) {
+	var result struct {
+		AvatarData []byte
+		UpdatedAt  time.Time
+	}
+	if err := r.db.Model(&model.Account{}).Select("avatar_data, updated_at").Where("id = ? AND deleted_at IS NULL", id.String()).Scan(&result).Error; err != nil {
+		log.Error().Err(err).Msg("ACCOUNT_REPOSITORY::FIND_AVATAR_BY_ID Failed to find avatar")
+		return nil, nil, err
+	}
+	return result.AvatarData, &result.UpdatedAt, nil
 }
 
 func (r *AccountRepository) Delete(id uuid.UUID) error {

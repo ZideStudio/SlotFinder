@@ -252,15 +252,12 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 
 		// Setup avatar
 		accountId := uuid.New()
-		avatarUrl := ""
+		avatarData, avatarUrl := s.avatarService.FetchAndStoreGravatar(accountId.String(), accountId)
 		if providerAccount.AvatarUrl != nil {
-			uploadedAvatarUrl, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil, accountId.String())
-			if err == nil {
-				avatarUrl = uploadedAvatarUrl
+			if processed, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil); err == nil {
+				avatarData = processed
+				avatarUrl = fmt.Sprintf("/api/v1/account/%s/avatar", accountId.String())
 			}
-		}
-		if avatarUrl == "" {
-			avatarUrl = s.avatarService.GetGravatarURL(accountId.String())
 		}
 
 		// Choose a random color
@@ -270,12 +267,13 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		// Create account
 		var account model.Account
 		if err := s.accountRepository.Create(repository.AccountCreateDto{
-			Id:        accountId,
-			UserName:  providerAccountResponse.Account.UserName,
-			Email:     providerAccountResponse.Account.Email,
-			Color:     string(color),
-			AvatarUrl: avatarUrl,
-			Providers: providerAccountResponse.Account.Providers,
+			Id:         accountId,
+			UserName:   providerAccountResponse.Account.UserName,
+			Email:      providerAccountResponse.Account.Email,
+			Color:      string(color),
+			AvatarUrl:  avatarUrl,
+			AvatarData: avatarData,
+			Providers:  providerAccountResponse.Account.Providers,
 		}, &account); err != nil {
 			return tokenResponse, fmt.Errorf("error creating account: %w", err)
 		}

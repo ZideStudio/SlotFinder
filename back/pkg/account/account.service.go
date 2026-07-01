@@ -101,6 +101,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 	// Create account
 	var account model.Account
 	accountId := uuid.New()
+	avatarData, avatarUrl := s.avatarService.FetchAndStoreGravatar(accountId.String(), accountId)
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
 		Id:           accountId,
 		Email:        &data.Email,
@@ -108,7 +109,8 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 		Password:     data.Password,
 		Language:     data.Language,
 		TermsVersion: &data.TermsVersion,
-		AvatarUrl:    s.avatarService.GetGravatarURL(accountId.String()),
+		AvatarUrl:    avatarUrl,
+		AvatarData:   avatarData,
 		TimeZone:     *timeZone,
 	}, &account); err != nil {
 		return tokens, err
