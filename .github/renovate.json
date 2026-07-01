@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":timezone(Europe/Paris)", ":enableVulnerabilityAlertsWithLabel(security)"],
+  "extends": [
+    "config:recommended",
+    ":timezone(Europe/Paris)",
+    ":enableVulnerabilityAlertsWithLabel(security)"
+  ],
   "dependencyDashboard": true,
   "labels": ["dependencies"],
   "minimumReleaseAge": "5 days",
@@ -10,9 +14,7 @@
   "npm": {
     "rangeStrategy": "bump"
   },
-  "postUpdateOptions": [
-    "gomodTidyE"
-  ],
+  "postUpdateOptions": ["gomodTidyE"],
   "packageRules": [
     {
       "matchUpdateTypes": ["major"],
@@ -38,9 +40,12 @@
       "matchSourceUrls": ["https://github.com/TanStack/query"]
     },
     {
-      "matchPackageNames": [
-        "github.com/swaggo/files"
-      ],
+      "matchDatasources": ["npm"],
+      "groupName": "@material-symbols/svg mono repo",
+      "matchSourceUrls": ["https://github.com/marella/material-symbols"]
+    },
+    {
+      "matchPackageNames": ["github.com/swaggo/files"],
       "enabled": false
     },
     {
