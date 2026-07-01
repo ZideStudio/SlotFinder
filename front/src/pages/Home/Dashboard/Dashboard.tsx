@@ -1,17 +1,26 @@
 import { Header } from "@Front/components/Layout/Header/Header";
-import { useTranslation } from "react-i18next";
+import BoatIcon from "@material-symbols/svg-300/outlined/directions_boat.svg?react";
+import { Heading } from "@Front/ui/atoms/Heading/Heading";
+import { Button } from "@Front/ui/molecules/Button/Button";
+import { Icon } from "@Front/ui/atoms/Icon/Icon";
 
 import "./Dashboard.scss";
 
-export const Dashboard = () => {
-  const { t } = useTranslation("dashboard");
+export const Dashboard = () => (
+  <div className="dashboard">
+    <Header ignoreRouteHideHeader className="dashboard__header" />
+    <div className="dashboard__content">
+      <div className="dashboard__content--header">
+        <Heading level={1}>My events</Heading>
 
-  return (
-    <div className="dashboard">
-      <Header ignoreRouteHideHeader className="dashboard__header" />
-      <div className="dashboard__content">
-        <h1>{t("title")}</h1>
+        <Button className="dashboard__content--header-buttons">
+          Create an event
+        </Button>
       </div>
+      <section className="dashboard__content--no-events">
+        <div>No events here</div>
+        <Icon className="dashboard__content--no-events-icon" icon={BoatIcon} />
+      </section>
     </div>
-  );
-};
+  </div>
+);
