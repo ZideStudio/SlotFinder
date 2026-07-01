@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import userEvent from "@testing-library/user-event";
-import { DateRangeField } from "../DateRangeField";
+import { DurationField } from "../DurationField";
 
 const FormWrapper = ({
   children,
@@ -15,11 +15,11 @@ const FormWrapper = ({
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
-describe("DateRangeField", () => {
+describe("DurationField", () => {
   it("renders without crashing", () => {
     render(
       <FormWrapper>
-        <DateRangeField name="duration" legend="Select Date Range" required />
+        <DurationField name="duration" legend="Select Date Range" required />
       </FormWrapper>,
     );
 
@@ -32,7 +32,7 @@ describe("DateRangeField", () => {
   it("displays the error message from form state when validation fails", async () => {
     const user = userEvent.setup();
 
-    type DateRangeFormValues = {
+    type DurationFormValues = {
       duration: {
         days?: number;
         hours?: number;
@@ -41,14 +41,14 @@ describe("DateRangeField", () => {
     };
 
     const WrapperWithError = () => {
-      const methods = useForm<DateRangeFormValues>({
+      const methods = useForm<DurationFormValues>({
         defaultValues: { duration: {} },
       });
       const { setError } = methods;
 
       return (
         <FormProvider {...methods}>
-          <DateRangeField name="duration" legend="Duration" />
+          <DurationField name="duration" legend="Duration" />
           <button
             type="button"
             onClick={() =>
@@ -75,7 +75,7 @@ describe("DateRangeField", () => {
 
     render(
       <FormWrapper>
-        <DateRangeField name="duration" legend="Duration" />
+        <DurationField name="duration" legend="Duration" />
       </FormWrapper>,
     );
 
