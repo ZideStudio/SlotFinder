@@ -25,7 +25,7 @@
   &__inputs {
     display: flex;
     align-items: flex-end;
-    gap: 8px;
+    gap: helpers.px-to-rem(8);
 
     > * {
       display: flex;
