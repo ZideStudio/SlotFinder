@@ -31,10 +31,12 @@ func main() {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Error().Msg("Error loading .env file")
-		panic(err)
+	if _, statErr := os.Stat(".env"); statErr == nil {
+		if err := godotenv.Load(); err != nil {
+			log.Error().Err(err).Msg("Error loading .env file")
+			panic(err)
+		}
+		log.Debug().Msg(".env file loaded successfully")
 	}
 
 	config := config.Init()
