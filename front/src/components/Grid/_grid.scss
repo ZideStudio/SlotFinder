@@ -35,38 +35,29 @@ $responsive-grid: (
   }
 }
 
-@mixin generate-grid-item-classes() {
-  @each $breakpoint, $value in responsive.$breakpoints {
-    @include responsive.media-exceeds-width($breakpoint) {
-      [class*="grid-item"] {
-        grid-column: var(--start-#{$breakpoint}, var(--start)) / span
-          var(--col-#{$breakpoint}, var(--col, var(--cols)));
-      }
-    }
-  }
-}
-
 .grid {
   --cols: 4;
   --start: auto;
 
+  display: grid;
+
   @include spacing.init-margin-horizontal("margin-h", 2);
   @include spacing.init-gap("gap", 2);
 
-  display: grid;
   max-width: helpers.px-to-rem(1440);
-  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
 
   @include generate-responsive-grid($responsive-grid);
+}
 
-  & > * {
-    --start: auto;
-    --cols: 1;
-    --margin-h: spacing.get-margin-horizontal(0);
+.grid > *,
+.subgrid > * {
+  grid-column: var(--start) / span var(--cols);
+}
 
-    grid-template-columns: subgrid;
-    grid-column: var(--start) / span var(--cols);
-  }
-
-  @include generate-grid-item-classes();
+.subgrid {
+  display: grid;
+  grid-template-columns: subgrid;
+  align-content: start;
+  gap: var(--gap);
 }
