@@ -38,7 +38,9 @@ jobs:
   build-staging:
     name: Build Staging Images
     needs: [back-ci, front-ci, docker-ci]
-    if: github.actor != 'renovate[bot]'
+    if: >-
+      github.actor != 'renovate[bot]' &&
+      !contains(github.event.head_commit.message, 'Co-authored-by: renovate[bot]')
     runs-on: self-hosted
     timeout-minutes: 20
     steps:
@@ -63,7 +65,9 @@ jobs:
   deploy-staging:
     name: Deploy to Staging
     needs: build-staging
-    if: github.actor != 'renovate[bot]'
+    if: >-
+      github.actor != 'renovate[bot]' &&
+      !contains(github.event.head_commit.message, 'Co-authored-by: renovate[bot]')
     runs-on: self-hosted
     timeout-minutes: 10
     steps:
