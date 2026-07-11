@@ -27,7 +27,11 @@
     }
 
     &--header-buttons {
-      width: #{helpers.px-to-rem(200)};
+      width: fit-content;
+
+      @include responsive.media-exceeds-width("mobile") {
+        width: #{helpers.px-to-rem(200)};
+      }
     }
 
     &--no-events {
@@ -45,16 +49,6 @@
     &--no-events-icon {
       width: #{helpers.px-to-rem(100)};
       height: #{helpers.px-to-rem(100)};
-    }
-  }
-}
-
-@include responsive.media-less-than-width("mobile") {
-  .dashboard {
-    &__content {
-      &--header-buttons {
-        width: fit-content;
-      }
     }
   }
 }
