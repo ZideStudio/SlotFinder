@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "5.4.0",
-    "@material-symbols/svg-300": "0.45.4",
+    "@material-symbols/svg-300": "0.45.5",
     "@material-symbols/svg-400": "0.45.7",
     "@tanstack/react-query": "5.101.2",
     "i18next": "26.3.6",
