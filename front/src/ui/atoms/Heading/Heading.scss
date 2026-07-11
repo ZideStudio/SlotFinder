@@ -1,13 +1,17 @@
-.ds-heading {
-  &--level-1 {
+h1 {
+  &.ds-heading {
     font-size: 2rem;
   }
+}
 
-  &--level-2 {
+h2 {
+  &.ds-heading {
     font-size: 1.5rem;
   }
+}
 
-  &--level-3 {
+h3 {
+  &.ds-heading {
     font-size: 1.25rem;
   }
 }

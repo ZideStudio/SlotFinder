@@ -1,4 +1,5 @@
 @use "../../../utils/sass/mixins/helpers";
+@use "../../../utils/sass/mixins/responsive";
 
 .dashboard {
   display: flex;
@@ -44,6 +45,16 @@
     &--no-events-icon {
       width: #{helpers.px-to-rem(100)};
       height: #{helpers.px-to-rem(100)};
+    }
+  }
+}
+
+@include responsive.media-less-than-width("mobile") {
+  .dashboard {
+    &__content {
+      &--header-buttons {
+        width: fit-content;
+      }
     }
   }
 }

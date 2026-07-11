@@ -11,7 +11,7 @@ type HeadingProps = HTMLAttributes<HTMLHeadingElement> & {
 export const Heading = ({ level, className, ...props }: HeadingProps) => {
   const parentClassName = getClassName({
     defaultClassName: "ds-heading",
-    className,
+    className
   });
 
   const Tag = `h${level}` satisfies HeadingTag;

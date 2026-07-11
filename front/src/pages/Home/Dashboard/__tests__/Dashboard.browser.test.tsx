@@ -1,20 +1,10 @@
 import { appRoutes } from "@Front/routing/appRoutes";
-import {
-  renderRoute,
-  type RenderRouteOptions,
-} from "@Front/utils/testsUtils/customRender/customRender";
 import { screen } from "@testing-library/react";
+import { renderBrowserRoute } from "@Front/utils/testsUtils/customRender/customRender.browser";
 
-import { homeRoutes } from "../../routes";
-
-const renderRouteOptions: RenderRouteOptions = {
-  routes: [homeRoutes],
-  routesOptions: { initialEntries: [appRoutes.home()] },
-};
-
-describe("Dashboard", () => {
+describe("Dashboard Page", () => {
   it("should render the dashboard heading", async () => {
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute({ initialEntry: appRoutes.home() });
 
     await expect(
       screen.findByRole("heading", {
@@ -25,7 +15,7 @@ describe("Dashboard", () => {
   });
 
   it("does render the header banner", async () => {
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute({ initialEntry: appRoutes.home() });
 
     await expect(screen.findByRole("banner")).resolves.toBeInTheDocument();
   });
