@@ -5,4 +5,7 @@ import { signUpRoutes } from "./SignUp";
 export const authenticationRoutes: RouteObject = {
   element: <Authentication />,
   children: [signUpRoutes],
+  handle: {
+    hideHeader: true,
+  },
 };
