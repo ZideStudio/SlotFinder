@@ -7,21 +7,25 @@ $responsive-grid: (
     cols: 8,
     margin-h: spacing.get-margin-horizontal(4),
     gap: spacing.get-gap(4),
+    row-gap: spacing.get-gap(4),
   ),
   desktop-small: (
     cols: 12,
     margin-h: var(--margin-8),
     gap: spacing.get-gap(4),
+    row-gap: spacing.get-gap(4),
   ),
   desktop-medium: (
     cols: 12,
     margin-h: var(--margin-10),
     gap: spacing.get-gap(4),
+    row-gap: spacing.get-gap(4),
   ),
   desktop-large: (
     cols: 12,
     margin-h: auto,
     gap: spacing.get-gap(4),
+    row-gap: spacing.get-gap(4),
   ),
 );
 
@@ -37,15 +41,17 @@ $responsive-grid: (
 
 .grid {
   --cols: 4;
+  --row-gap: #{spacing.get-gap(2)};
   --start: auto;
 
   display: grid;
 
   @include spacing.init-margin-horizontal("margin-h", 2);
-  @include spacing.init-gap("gap", 2);
+  @include spacing.init-spacing(spacing.get-gap(2), "column-gap", "gap");
 
   max-width: helpers.px-to-rem(1440);
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  row-gap: var(--row-gap);
 
   @include generate-responsive-grid($responsive-grid);
 }
@@ -59,5 +65,5 @@ $responsive-grid: (
   display: grid;
   grid-template-columns: subgrid;
   align-content: start;
-  gap: var(--gap);
+  row-gap: var(--row-gap);
 }
