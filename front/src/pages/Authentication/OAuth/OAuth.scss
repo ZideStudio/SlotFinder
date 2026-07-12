@@ -8,12 +8,10 @@
   border-radius: 0.5rem;
 
   @include responsive.media-exceeds-width("tablet") {
-    --cols: 4;
     --start: 3;
   }
 
   @include responsive.media-exceeds-width("desktop-small") {
-    --cols: 4;
     --start: 5;
   }
 
