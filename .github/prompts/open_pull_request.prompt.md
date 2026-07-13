@@ -41,7 +41,7 @@ If any required data is missing or ambiguous, you MUST ask a follow-up question 
 
 ### 1.1 Determine and confirm main branch
 
-**Default branch for this repository is `main`. Always use `main` as the base branch for diffs and PRs unless explicitly instructed otherwise.**
+**Default branch for this repository is `develop`. Always use `develop` as the base branch for diffs and PRs unless explicitly instructed otherwise.**
 If a different branch is specified in `.github/copilot-instructions.md`, use that branch instead. Do NOT run the diff command before confirmation if a different branch is specified.
 
 ### 1.2 Generate fresh diff after confirmation

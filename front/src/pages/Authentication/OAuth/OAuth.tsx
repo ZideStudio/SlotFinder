@@ -1,6 +1,5 @@
-import { Grid } from "@Front/components/Grid/Grid";
 import { useTranslation } from "react-i18next";
-import "./OAuth.css";
+import "./OAuth.scss";
 import { useOAuth } from "./useOAuth";
 
 export const OAuth = () => {
@@ -8,25 +7,11 @@ export const OAuth = () => {
   const { oAuthProviders } = useOAuth();
 
   return (
-    <Grid
-      component="nav"
-      container
-      colSpan={{ "desktop-small": 4, tablet: 4, mobile: 4 }}
-      colStart={{ "desktop-small": 5, tablet: 3, mobile: 1 }}
-      aria-labelledby="oauth-provider-heading"
-      className="oauth-nav"
-    >
-      <h2
-        id="oauth-provider-heading"
-        style={{
-          fontSize: "1.1rem",
-          fontWeight: 600,
-          marginBottom: "0.75rem",
-        }}
-      >
+    <nav aria-labelledby="oauth-provider-heading" className="oauth-nav">
+      <h2 className="oauth-nav__heading" id="oauth-provider-heading">
         {t("signInWithProvider")}
       </h2>
-      <ul style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+      <ul className="oauth-nav__list">
         {oAuthProviders.map((provider) => (
           <li key={provider.label}>
             <a
@@ -40,6 +25,6 @@ export const OAuth = () => {
           </li>
         ))}
       </ul>
-    </Grid>
+    </nav>
   );
 };

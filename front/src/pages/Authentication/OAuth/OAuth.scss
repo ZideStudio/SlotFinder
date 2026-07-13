@@ -1,0 +1,29 @@
+@use "../../../utils/sass/mixins/responsive";
+
+.oauth-nav {
+  --cols: 4;
+
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+
+  @include responsive.media-exceeds-width("tablet") {
+    --start: 3;
+  }
+
+  @include responsive.media-exceeds-width("desktop-small") {
+    --start: 5;
+  }
+
+  &__heading {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+}
