@@ -1,8 +1,8 @@
-name: 'setup-node'
-description: 'setup node using mise'
+name: "setup-node"
+description: "setup node using mise and generate API with Orval"
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Setup Node and npm with mise
       uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151
@@ -15,3 +15,8 @@ runs:
       with:
         path: front/node_modules
         key: npm-${{ runner.os }}-modules-${{ hashFiles('front/package-lock.json') }}
+
+    - name: Generate API with Orval
+      working-directory: front
+      shell: bash
+      run: npm run generate:api
