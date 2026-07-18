@@ -47,6 +47,11 @@ export const fetchApiMutator = async <Response>(
     throw new ErrorResponse(content);
   }
 
+  // Some endpoints legitimately return an empty body (e.g. 204 or void responses)
+  if (!content) {
+    return undefined as Response;
+  }
+
   if ((response.headers.get(HEADERS.contentType) ?? "").includes("json")) {
     return JSON.parse(content) as Response;
   }
