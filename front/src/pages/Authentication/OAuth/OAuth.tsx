@@ -1,30 +1,41 @@
 import { useTranslation } from "react-i18next";
-import "./OAuth.scss";
+
 import { useOAuth } from "./useOAuth";
+import { Heading } from "@Front/ui/atoms/Heading/Heading";
+import { Link } from "@Front/ui/atoms/Link/Link";
+
+import "./OAuth.css";
 
 export const OAuth = () => {
   const { t } = useTranslation("authentication");
   const { oAuthProviders } = useOAuth();
 
   return (
-    <nav aria-labelledby="oauth-provider-heading" className="oauth-nav">
-      <h2 className="oauth-nav__heading" id="oauth-provider-heading">
+    <Grid
+      component="nav"
+      container
+      colSpan={{ "desktop-small": 4, tablet: 4, mobile: 4 }}
+      colStart={{ "desktop-small": 5, tablet: 3, mobile: 1 }}
+      aria-labelledby="oauth-provider-heading"
+      className="oauth-nav"
+    >
+      <Heading level={2} id="oauth-provider-heading">
         {t("signInWithProvider")}
-      </h2>
+      </Heading>
       <ul className="oauth-nav__list">
         {oAuthProviders.map((provider) => (
           <li key={provider.label}>
-            <a
+            <Link
               href={provider.href}
               aria-label={t(provider.ariaLabel)}
-              rel="noopener noreferrer"
+              openInNewTab
             >
               {provider.icon}
               <span>{provider.label}</span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
-    </nav>
+    </Grid>
   );
 };

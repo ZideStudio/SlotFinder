@@ -21,7 +21,7 @@ export const AuthenticationProtection = ({
   const matches = useMatches() as UIMatch<unknown, RouteHandle>[];
 
   const mustBeAuthenticate = useMemo(() => {
-    const currentMatch = matches.find((match) => match.pathname === pathname);
+    const currentMatch = matches.at(-1);
 
     if (currentMatch?.handle?.mustBeAuthenticate === true && !isAuthenticated) {
       setPostAuthRedirectPath(pathname);
