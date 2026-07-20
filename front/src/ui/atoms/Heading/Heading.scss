@@ -1,17 +1,15 @@
-h1 {
-  &.ds-heading {
-    font-size: 2rem;
-  }
-}
+@use"../../../utils/sass/mixins/helpers";
 
-h2 {
-  &.ds-heading {
-    font-size: 1.5rem;
-  }
-}
+.ds-heading {
+  --ds-heading-font-size: #{helpers.px-to-rem(16)};
 
-h3 {
-  &.ds-heading {
-    font-size: 1.25rem;
+  font-size: var(--ds-heading-font-size);
+
+  &:where(h1) {
+    --ds-heading-font-size: #{helpers.px-to-rem(24)};
+  }
+
+  &:where(h2) {
+    --ds-heading-font-size: #{helpers.px-to-rem(20)};
   }
 }

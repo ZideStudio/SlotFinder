@@ -19,4 +19,12 @@ describe("Dashboard Page", () => {
 
     await expect(screen.findByRole("banner")).resolves.toBeInTheDocument();
   });
+
+  it("does render no events message when there are no events", async () => {
+    await renderBrowserRoute({ initialEntry: appRoutes.home() });
+
+    await expect(
+      screen.findByText("No events here"),
+    ).resolves.toBeInTheDocument();
+  });
 });
