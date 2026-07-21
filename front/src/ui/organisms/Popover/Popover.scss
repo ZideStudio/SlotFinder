@@ -16,6 +16,7 @@
   inset-block: auto 0;
   display: revert;
   box-sizing: border-box;
+  margin-inline-start: 5px;
 
   &:popover-open {
     display: flex;

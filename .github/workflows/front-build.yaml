@@ -12,10 +12,10 @@ on:
   workflow_call:
     inputs:
       base_ref:
-        description: 'Base SHA for change detection (used when called via workflow_call)'
+        description: "Base SHA for change detection (used when called via workflow_call)"
         type: string
         required: false
-        default: ''
+        default: ""
 
 permissions:
   contents: read
@@ -147,7 +147,7 @@ jobs:
   chromatic:
     name: Run Chromatic
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') || ((github.event_name == 'push' || github.event_name == 'workflow_call') && github.ref == 'refs/heads/main'))
+    if: needs.detect-changes.outputs.front == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || ((github.event_name == 'push' || github.event_name == 'workflow_call') && github.ref == 'refs/heads/develop'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
