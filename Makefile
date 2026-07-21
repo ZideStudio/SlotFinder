@@ -6,7 +6,7 @@ all: start
 # Start frontend and backend with combined logs (installs frontend dependencies)
 start:
 	@mise install
-	@cd front && npm install && npm run generate:api
+	@cd front && npm install
 	@echo "\n🚀 Starting frontend and backend..."
 	@echo "📱 Front: https://localhost"
 	@echo "🔧 API: https://localhost/api"
@@ -16,7 +16,7 @@ start:
 # Start frontend only (installs frontend dependencies)
 front:
 	@mise install
-	@cd front && npm install && npm run generate:api
+	@cd front && npm install
 	@echo "\n📱 Starting frontend on https://localhost"
 	cd front && npm run start
 

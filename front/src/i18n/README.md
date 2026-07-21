@@ -27,7 +27,7 @@ src/i18n/
 ## How it works
 
 - Translation files are written in JSON, organized by namespace (one file per page/feature).
-- The `i18next-resources-for-ts` script scans all translation files and generates TypeScript types in `@types/resources.ts`.
+- The `generate:i18next` script scans all translation files and generates TypeScript types in `@types/resources.ts`.
 - The i18n config (`index.ts`) loads all namespaces and provides them to i18next.
 - You get autocompletion and type safety for translation keys in your components.
 
@@ -52,7 +52,7 @@ t("welcome");
 2. Run the script to update types:
 
    ```sh
-   npm run i18next-resources-for-ts
+   npm run generate:i18next
    ```
 
 3. Use the new keys in your code with autocompletion and type safety.

@@ -15,8 +15,3 @@ runs:
       with:
         path: front/node_modules
         key: npm-${{ runner.os }}-modules-${{ hashFiles('front/package-lock.json') }}
-
-    - name: Generate API with Orval
-      working-directory: front
-      shell: bash
-      run: npm run generate:api
