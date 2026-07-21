@@ -4,6 +4,7 @@ import {
   type AccountAccountCreateDto,
 } from "@Front/api/generated/slotFinderAPI.schemas";
 import type { SignUpRequestBodyType } from "@Front/types/Authentication/signUp/signUp.types";
+import { Temporal } from "@js-temporal/polyfill";
 
 /**
  * Narrows a generic `string` to `AccountAccountCreateDtoLanguage` ('en' | 'fr').
@@ -36,7 +37,7 @@ export const signUpApi = ({
       : AccountAccountCreateDtoLanguage.en,
     termsAccepted: true,
     termsVersion: "1.0",
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timeZone: Temporal.Now.timeZoneId(),
   };
 
   return postV1Account(dto);
