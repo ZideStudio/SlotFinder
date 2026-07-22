@@ -12,10 +12,10 @@ on:
   workflow_call:
     inputs:
       base_ref:
-        description: 'Base SHA for change detection (used when called via workflow_call)'
+        description: "Base SHA for change detection (used when called via workflow_call)"
         type: string
         required: false
-        default: ''
+        default: ""
 
 permissions:
   contents: read
@@ -36,7 +36,7 @@ jobs:
       front: ${{ steps.filter.outputs.front }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Check for front file changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -59,7 +59,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
@@ -80,7 +80,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
@@ -97,7 +97,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
@@ -118,7 +118,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
@@ -135,7 +135,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node
         uses: ./.github/actions/setup-node
@@ -147,12 +147,12 @@ jobs:
   chromatic:
     name: Run Chromatic
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main') || ((github.event_name == 'push' || github.event_name == 'workflow_call') && github.ref == 'refs/heads/main'))
+    if: needs.detect-changes.outputs.front == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || ((github.event_name == 'push' || github.event_name == 'workflow_call') && github.ref == 'refs/heads/develop'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
@@ -168,7 +168,7 @@ jobs:
         uses: ./.github/actions/setup-node
       - name: Run Chromatic
         if: steps.changes.outputs.ui == 'true'
-        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18
+        uses: chromaui/action@14cfaef73576e69f95f47f60058063f46ca38719 # v18
         with:
           buildScriptName: "build:storybook"
           workingDir: "front"

@@ -1,10 +1,13 @@
 @use "../../../utils/sass/mixins/helpers";
 
 .ds-card {
-  width: 100%;
   height: fit-content;
   padding: helpers.px-to-rem(16px);
   border: 1px solid var(--color-black);
   border-radius: helpers.px-to-rem(8px);
   background-color: var(--card-color-background);
+
+  &--bold {
+    border-width: 2px;
+  }
 }

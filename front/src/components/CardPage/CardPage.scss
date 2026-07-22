@@ -1,0 +1,32 @@
+@use "../../utils/sass/mixins/responsive";
+@use "../../utils/sass/mixins/helpers";
+
+.card-page {
+  --card-page-margin-top: #{helpers.px-to-rem(16)};
+  --card-page-row-gap: #{helpers.px-to-rem(16)};
+
+  display: flex;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-top: var(--card-page-margin-top);
+  margin-bottom: helpers.px-to-rem(16);
+  flex-direction: column;
+  justify-content: center;
+  row-gap: var(--card-page-row-gap);
+
+  @include responsive.media-exceeds-width("tablet") {
+    --cols: 6;
+    --start: 2;
+  }
+
+  @include responsive.media-exceeds-width("desktop-small") {
+    --start: 4;
+    --card-page-row-gap: #{helpers.px-to-rem(24)};
+    --card-page-margin-top: #{helpers.px-to-rem(32)};
+  }
+
+  &__title {
+    text-align: center;
+  }
+}
