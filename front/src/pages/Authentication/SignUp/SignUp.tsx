@@ -4,6 +4,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { getSchema } from "./validation";
+import { TextInput } from "@Front/ui/molecules/Inputs/TextInput/TextInput";
+import { Button } from "@Front/ui/molecules/Button/Button";
 
 export const SignUp = () => {
   const { signUp, isLoading, errorCode } = useSignUp();
@@ -36,8 +38,8 @@ export const SignUp = () => {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
           >
-            <label htmlFor="username">{t("username")}</label>
-            <input
+            <TextInput
+              label={t("username")}
               id="username"
               type="text"
               autoComplete="username"
@@ -60,8 +62,8 @@ export const SignUp = () => {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
           >
-            <label htmlFor="email">{t("email")}</label>
-            <input
+            <TextInput
+              label={t("email")}
               id="email"
               type="email"
               autoComplete="email"
@@ -84,8 +86,8 @@ export const SignUp = () => {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
           >
-            <label htmlFor="password">{t("password")}</label>
-            <input
+            <TextInput
+              label={t("password")}
               id="password"
               type="password"
               autoComplete="new-password"
@@ -108,8 +110,8 @@ export const SignUp = () => {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
           >
-            <label htmlFor="confirmPassword">{t("confirmPassword")}</label>
-            <input
+            <TextInput
+              label={t("confirmPassword")}
               id="confirmPassword"
               type="password"
               autoComplete="new-password"
@@ -136,9 +138,9 @@ export const SignUp = () => {
             {t(`error.${errorCode}`)}
           </span>
         )}
-        <button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading}>
           {t("submit")}
-        </button>
+        </Button>
       </form>
     </FormProvider>
   );
