@@ -24,14 +24,10 @@ export const fetchApiMutator = async <Response>(
   options: RequestInit,
   signal?: AbortSignal,
 ): Promise<Response> => {
-  const backendUrl = import.meta.env.FRONT_BACKEND_URL ?? "";
-  const apiUrlFull = `${import.meta.env.FRONT_DOMAIN ?? ""}${backendUrl}`;
-  // Prepend FRONT_BACKEND_URL so the generated path (e.g. /v1/account)
-  // Resolves correctly in every environment (/api, /mocked-api, …)
-  const fullUrl = `${backendUrl}${url}`;
+  const apiUrlFull = `${window.location.origin}${import.meta.env.FRONT_BACKEND_URL ?? ""}`;
 
   const makeRequest = async (): Promise<globalThis.Response> =>
-    await fetch(fullUrl, { ...options, signal });
+    await fetch(url, { ...options, signal });
 
   let response = await makeRequest();
 
