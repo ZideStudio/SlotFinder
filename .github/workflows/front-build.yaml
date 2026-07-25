@@ -29,16 +29,18 @@ env:
 
 jobs:
   detect-changes:
-    name: Detect Front Changes
+    name: Detect Front/Back Changes
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      front: ${{ steps.filter.outputs.front }}
+      front-changes: ${{ steps.filter.outputs.front }}
+      front-storybook-changes: ${{ steps.filter.outputs.front_storybook }}
+      back-changes: ${{ steps.filter.outputs.back }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Check for front file changes
+      - name: Check for front/back file changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
         id: filter
         with:
@@ -50,11 +52,19 @@ jobs:
               - ".github/workflows/front-build.yaml"
               - ".github/actions/setup-node/**"
               - "Makefile"
+            front-storybook:
+              - "front/src/ui/**"
+              - ".mise.toml"
+              - ".github/workflows/front-build.yaml"
+              - ".github/actions/setup-node/**"
+              - "Makefile"
+            back:
+              - "back/**"
 
   install:
     name: Front Install package
     needs: detect-changes
-    if: needs.detect-changes.outputs.front == 'true'
+    if: needs.detect-changes.outputs.front-changes == 'true' || needs.detect-changes.outputs.back-changes == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -75,7 +85,7 @@ jobs:
   lint:
     name: Front Lint code
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true'
+    if: needs.detect-changes.outputs.front-changes == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -92,7 +102,7 @@ jobs:
   test:
     name: Front Test
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true'
+    if: needs.detect-changes.outputs.front-changes == 'true' || needs.detect-changes.outputs.back-changes == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -113,7 +123,7 @@ jobs:
   build:
     name: Front Build
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true'
+    if: needs.detect-changes.outputs.front-changes == 'true' || needs.detect-changes.outputs.back-changes == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -130,7 +140,7 @@ jobs:
   storybook-build:
     name: Front Build Storybook
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true'
+    if: needs.detect-changes.outputs.front-storybook-changes == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -147,7 +157,7 @@ jobs:
   chromatic:
     name: Run Chromatic
     needs: [detect-changes, install]
-    if: needs.detect-changes.outputs.front == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || ((github.event_name == 'push' || github.event_name == 'workflow_call') && github.ref == 'refs/heads/develop'))
+    if: needs.detect-changes.outputs.front-storybook-changes == 'true' && ((github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop') || ((github.event_name == 'push' || github.event_name == 'workflow_call') && github.ref == 'refs/heads/develop'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
