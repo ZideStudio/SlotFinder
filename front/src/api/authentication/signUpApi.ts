@@ -25,9 +25,6 @@ export const signUpApi = ({
   password,
   language,
 }: SignUpRequestBodyType): Promise<void> => {
-  // `AccountAccountCreateDto & { username: string }` is a structural subtype
-  // Of `AccountAccountCreateDto`, so postV1Account accepts it without any cast.
-  // `username` is accepted by the real API but absent from the OpenAPI spec.
   const dto: AccountAccountCreateDto & { username: string } = {
     username,
     email,
