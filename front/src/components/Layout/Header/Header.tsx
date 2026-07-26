@@ -1,12 +1,13 @@
+import Logo from "@Front/assets/svg/logo/colored_logo_no_bg.svg?react";
 import { appRoutes } from "@Front/routing/appRoutes";
 import type { RouteHandle } from "@Front/routing/routeHandle";
+import { Icon } from "@Front/ui/atoms/Icon/Icon";
 import { Button } from "@Front/ui/molecules/Button/Button";
 import { getClassName } from "@Front/utils/getClassName";
 import AddCalendarIcon from "@material-symbols/svg-400/outlined/calendar_add_on.svg?react";
 import Person from "@material-symbols/svg-400/outlined/person.svg?react";
 import { useMemo } from "react";
 import { NavLink, type UIMatch, useMatches } from "react-router";
-import logo from "../../../../public/assets/logo.png";
 
 import "./Header.scss";
 
@@ -40,7 +41,11 @@ export const Header = ({
   return (
     <header className={parentClassName}>
       <NavLink to={appRoutes.home()}>
-        <img src={logo} alt="Slot Finder logo" className="header__logo" />
+        <Icon
+          icon={Logo}
+          aria-label="Slot Finder logo"
+          className="header__logo"
+        />
       </NavLink>
       <div className="header__buttons">
         <Button
