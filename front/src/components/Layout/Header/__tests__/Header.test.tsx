@@ -1,3 +1,4 @@
+import { appRoutes } from "@Front/routing/appRoutes";
 import { routeObject } from "@Front/routing/routes";
 import { renderRoute } from "@Front/utils/testsUtils/customRender/customRender";
 import { getAuthStatus200 } from "@Mocks/handlers/authStatusHandlers";
@@ -31,6 +32,7 @@ describe("Header", () => {
         },
       ],
     });
+
   it("renders the header with logo and buttons", () => {
     renderRoute({
       initialEntry: "/",
@@ -42,8 +44,9 @@ describe("Header", () => {
       ],
     });
 
-    const logo = screen.getByAltText("Slot Finder logo");
+    const logo = screen.getByRole("link", { name: "Slot Finder logo" });
     expect(logo).toBeInTheDocument();
+    expect(logo).toHaveAttribute("href", appRoutes.home());
 
     const buttons = screen.getAllByRole("button");
     expect(buttons).toHaveLength(2);
