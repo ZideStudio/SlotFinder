@@ -4,6 +4,7 @@ import (
 	"app/config"
 	"app/db"
 	model "app/db/models"
+	"app/testutils"
 	"os"
 	"testing"
 
@@ -33,6 +34,12 @@ func TestMain(m *testing.M) {
 	// welcome/reset emails sent by Create/ForgotPassword/ResetPassword panic.
 	if os.Getenv("EMAIL_ADDRESS") == "" {
 		_ = os.Setenv("EMAIL_ADDRESS", "noreply@slotfinder.test")
+	}
+	if err := testutils.EnsureTestJWTKeyPair(
+		os.Getenv("AUTH_PRIVATE_PEM_PATH"),
+		os.Getenv("AUTH_PUBLIC_PEM_PATH"),
+	); err != nil {
+		panic(err)
 	}
 	config.Init()
 

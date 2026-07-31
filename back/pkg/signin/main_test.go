@@ -4,6 +4,7 @@ import (
 	"app/config"
 	"app/db"
 	model "app/db/models"
+	"app/testutils"
 	"os"
 	"testing"
 
@@ -22,6 +23,12 @@ func TestMain(m *testing.M) {
 	}
 	if os.Getenv("AUTH_PUBLIC_PEM_PATH") == "" {
 		_ = os.Setenv("AUTH_PUBLIC_PEM_PATH", "../../config/jwt/public.pem")
+	}
+	if err := testutils.EnsureTestJWTKeyPair(
+		os.Getenv("AUTH_PRIVATE_PEM_PATH"),
+		os.Getenv("AUTH_PUBLIC_PEM_PATH"),
+	); err != nil {
+		panic(err)
 	}
 	config.Init()
 
