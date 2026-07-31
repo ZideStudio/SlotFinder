@@ -1,65 +1,44 @@
 # 📁 api
 
-The "api" folder is designed to handle calls to native APIs using the fetch function. These calls are essential for retrieving real-time data from external sources, such as remote servers or web services.
+This folder contains the frontend API layer generated with Orval.
 
-## 📑 Table of Contents
+## Goal
 
-- [Folder Organization](#folder-organization)
-- [Usage](#usage)
-- [Error Handling](#error-handling)
-- [Security](#security)
-- [Documentation](#documentation)
-- [Testing](#testing)
-- [Best Practice](#best-practice)
+- Generate typed API clients directly from backend Swagger
+- Keep frontend API calls aligned with the backend contract
+- Centralize request behavior (auth refresh, errors, headers) through a single mutator
 
-## <span id="folder-organization">Folder Organization</span>
+## Structure
 
-The "api" folder can be organized as follows :
+- `generated/`: Orval output (endpoints + schemas). Do not edit manually.
+- `orval/swagger.json`: prepared Swagger input used for generation.
+- `orval/fetchApiMutator.ts`: shared custom fetch logic used by generated clients.
+- `tokenRefreshManager.ts`: token refresh logic used by the mutator.
 
-1. **API Endpoints** : Create a separate file for each API you are calling. For example, if you have a user management API and a data retrieval API, you can have the files `users.ts` and `data.ts` to handle these respective calls.
+## Generate API clients
 
-2. **Call Functions** : Inside each API file, define dedicated functions to make `fetch` requests to the corresponding endpoints. These functions can also include handling responses and errors.
+Run:
 
-## <span id="usage">🧑🏻‍💻 Usage</span>
-
-When you need to make a call to a native API, import the appropriate function from the "api" folder into your code. For example:
-
-```javascript
-import { getUsers } from "@Front/api/users";
-
-const users = getUsers();
+```bash
+npm run generate:api
 ```
 
-## <span id="error-handling">Error Handling</span>
+The command:
 
-Ensure proper error handling in your API call functions. You can use error handling mechanisms such as promises or `try/catch` to capture and handle potential errors when making API calls.
+1. Reads backend Swagger from `../back/docs/swagger.json`
+2. Prepares it via `scripts/prepare-swagger.mjs`
+3. Generates clients into `src/api/generated` using Orval
 
-## <span id="security">Security</span>
+## Use generated functions
 
-Be mindful of security when interacting with external APIs. Avoid storing sensitive information, such as API keys, directly in your source code. Use environment variables or external configuration files to manage this sensitive information securely.
+Import functions and types from generated files instead of hand-written API wrappers.
 
-## <span id="documentation">Documentation</span>
-
-Document each API call function, specifying expected parameters, possible responses, and any relevant information about the API itself.
-
-## <span id="testing">Testing</span>
-
-Whenever possible, write unit tests to validate the behavior of API call functions. This will ensure that API calls work correctly and quickly detect potential issues.
-
-## <span id="best-practice">🎖️ Best Practice</span>
-
-It is recommended to implement a custom fetch function that serves as an enhancement or override of the default fetch function. This can be particularly useful for incorporating common configurations, such as adding headers like an API token.
-
-Consider the following example of a custom fetch function :
-
-```javascript
-// Custom fetch function with common configurations
-export const fetchApi = (uri, options) => {
-  const headers = new Headers(options.headers ?? []);
-  headers.append("x-api-key", "<token-api>");
-
-  return fetch(uri, { ...options, headers });
-};
+```typescript
+import { postV1Account } from "@Front/api/generated/account/account";
 ```
 
-In this example, the fetchApi function extends the default fetch function by automatically including an API token in the request header. This practice helps centralize common configurations and promotes consistency across your application.
+## Best practices
+
+- Re-run `npm run generate:api` after backend API changes.
+- Do not manually edit files under `src/api/generated`.
+- Keep custom request behavior in `orval/fetchApiMutator.ts`.

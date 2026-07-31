@@ -1,24 +1,41 @@
-import type {
-  SignUpErrorCodeType,
-  SignUpRequestBodyType,
-  SignUpResponseType,
-} from "@Front/types/Authentication/signUp/signUp.types";
-import { SignUpErrorResponse } from "@Front/types/Authentication/signUp/SignUpErrorResponse";
-import { METHODS } from "../constant";
-import { fetchApi } from "../fetchApi";
+import { postV1Account } from "@Front/api/generated/account/account";
+import {
+  AccountAccountCreateDtoLanguage,
+  type AccountAccountCreateDto,
+} from "@Front/api/generated/slotFinderAPI.schemas";
+import type { SignUpRequestBodyType } from "@Front/types/Authentication/signUp/signUp.types";
+import { Temporal } from "@js-temporal/polyfill";
+
+/**
+ * Narrows a generic `string` to `AccountAccountCreateDtoLanguage` ('en' | 'fr').
+ * Returns `true` only when the value is one of the enum values at runtime.
+ */
+const isValidLanguage = (
+  lang: string,
+): lang is AccountAccountCreateDtoLanguage => {
+  const values: readonly string[] = Object.values(
+    AccountAccountCreateDtoLanguage,
+  );
+  return values.includes(lang);
+};
 
 export const signUpApi = ({
   username,
   email,
   password,
   language,
-}: SignUpRequestBodyType): Promise<SignUpResponseType> => {
-  const body: SignUpRequestBodyType = { username, email, password, language };
+}: SignUpRequestBodyType): Promise<void> => {
+  const dto: AccountAccountCreateDto & { username: string } = {
+    username,
+    email,
+    password,
+    language: isValidLanguage(language)
+      ? language
+      : AccountAccountCreateDtoLanguage.en,
+    termsAccepted: true,
+    termsVersion: "1.0",
+    timeZone: Temporal.Now.timeZoneId(),
+  };
 
-  return fetchApi<SignUpResponseType, SignUpErrorCodeType>({
-    path: `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-    method: METHODS.post,
-    data: body,
-    CustomErrorResponse: SignUpErrorResponse,
-  });
+  return postV1Account(dto);
 };

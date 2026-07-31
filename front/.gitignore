@@ -40,3 +40,7 @@ build-storybook.log
 chromatic.log
 chromatic-build-*.xml
 chromatic-diagnostics.json
+
+# Orval — generated from swagger at build time, do not commit
+/src/api/generated/
+/src/api/orval/swagger.json

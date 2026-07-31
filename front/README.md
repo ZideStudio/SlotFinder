@@ -157,10 +157,10 @@ import { MyComponent } from '../MyComponent';
 
 test('MyComponent visual snapshot', async () => {
   const { container, getByText } = await render(<MyComponent />);
-  
+
   // Verify component is rendered
   await expect.element(getByText('Expected text')).toBeInTheDocument();
-  
+
   // Capture screenshot - threshold: 0 detects any pixel change
   await expect(container).toMatchScreenshot('my-component-default');
 });
@@ -268,13 +268,13 @@ The tests folder may contain unit tests specific to the package. The idea is to 
 This file allows exposing the component and avoids having to redo imports if the file implementing the component changes its name.
 
 ```typescript
-export { ComponentName } from './ComponentName';
+export { ComponentName } from "./ComponentName";
 ```
 
 This will allow importing a component like this:
 
 ```typescript
-import { ComponentName } from '@Front/ComponentName';
+import { ComponentName } from "@Front/ComponentName";
 ```
 
 #### 📄 ComponentName.tsx
@@ -306,7 +306,9 @@ export type UseComponentNameReturn = {
   bar: string;
 };
 
-export const useComponentName = ({ foo }: UseComponentNameProps): UseComponentNameReturn => {
+export const useComponentName = ({
+  foo,
+}: UseComponentNameProps): UseComponentNameReturn => {
   return {
     bar: foo,
   };
@@ -359,3 +361,33 @@ Please note that the web configuration pre-filters environment variables via the
   - [Vitest Browser Mode Documentation.](https://vitest.dev/guide/browser.html).
   - [Testing Library Documentation.](https://testing-library.com/).
   - [Playwright Documentation.](https://playwright.dev/).
+
+### 🔌 API generation with Orval
+
+Orval generates typed API clients from the backend Swagger file so frontend calls stay consistent with the API contract.
+
+#### Goal
+
+- Avoid manually writing and maintaining API request functions and response types
+- Keep API client code aligned with backend changes
+- Use a single custom fetch behavior for auth/token refresh
+
+#### How to use
+
+#### `npm run generate:api`
+
+Generates API clients in `src/api/generated` from backend Swagger.
+
+This command:
+
+1. Prepares Swagger with `scripts/prepare-swagger.mjs`
+2. Runs Orval using `orval.config.ts`
+
+In daily development, this is already run automatically by `make start` and `make front`.
+
+#### Developer workflow
+
+1. Update backend API (if needed)
+2. Run `npm run generate:api`
+3. Use generated functions from `@Front/api/generated/...`
+4. Do not edit files inside `src/api/generated` manually
