@@ -22,6 +22,13 @@ type DiscordTokenResponse struct {
 	Scope        string `json:"scope"`
 }
 
+// discordTokenURL/discordUserInfoURL are overridable in tests to avoid
+// depending on the real Discord API.
+var (
+	discordTokenURL    = "https://discord.com/api/oauth2/token"
+	discordUserInfoURL = "https://discord.com/api/users/@me"
+)
+
 func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
@@ -37,7 +44,7 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 			"redirect_uri":  providerConfig.DiscordRedirectUrl,
 		}).
 		SetResult(&token).
-		Post("https://discord.com/api/oauth2/token")
+		Post(discordTokenURL)
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Discord token: %w", err)
 	}
@@ -49,7 +56,7 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&userInfo).
-		Get("https://discord.com/api/users/@me")
+		Get(discordUserInfoURL)
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Discord user info: %w", err)
 	}

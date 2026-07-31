@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -20,18 +19,8 @@ type AvailabilityRepoTestSuite struct {
 }
 
 func (suite *AvailabilityRepoTestSuite) SetupSuite() {
-	// Create in-memory SQLite database for testing
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	suite.Require().NoError(err)
-
-	suite.db = database
-
-	// Auto-migrate the schema
-	err = database.AutoMigrate(&model.Event{}, &model.Account{}, &model.Availability{})
-	suite.Require().NoError(err)
-
-	// Create repository with test DB
-	suite.repo = repository.NewAvailabilityRepository(database)
+	suite.db = NewTestDB(suite.T())
+	suite.repo = repository.NewAvailabilityRepository(suite.db)
 }
 
 func (suite *AvailabilityRepoTestSuite) SetupTest() {
@@ -39,12 +28,6 @@ func (suite *AvailabilityRepoTestSuite) SetupTest() {
 	suite.db.Where("1 = 1").Delete(&model.Availability{})
 	suite.db.Where("1 = 1").Delete(&model.Event{})
 	suite.db.Where("1 = 1").Delete(&model.Account{})
-}
-
-func (suite *AvailabilityRepoTestSuite) TearDownSuite() {
-	// Close database connection
-	sqlDB, _ := suite.db.DB()
-	sqlDB.Close()
 }
 
 // Helper function to create test account
@@ -504,6 +487,133 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 
 	suite.db.Model(&model.Availability{}).Where("id = ?", availAfterEvent.Id).Count(&count)
 	assert.Equal(suite.T(), int64(0), count, "Availability after event should be deleted")
+}
+
+func (suite *AvailabilityRepoTestSuite) TestCreate_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+
+	availability := &model.Availability{
+		Id:        uuid.New(),
+		AccountId: account.Id,
+		EventId:   event.Id,
+		StartsAt:  event.StartsAt,
+		EndsAt:    event.StartsAt.Add(30 * time.Minute),
+	}
+
+	err := suite.repo.Create(availability)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), *account.UserName, availability.UserName, "Sanitized() should populate UserName from the preloaded Account")
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	created := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+
+	var found model.Availability
+	err := suite.repo.FindOneById(created.Id, &found)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), created.Id, found.Id)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_NotFound() {
+	var found model.Availability
+	err := suite.repo.FindOneById(uuid.New(), &found)
+	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_NilId() {
+	var found model.Availability
+	err := suite.repo.FindOneById(uuid.Nil, &found)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_NilPointer() {
+	err := suite.repo.FindOneById(uuid.New(), nil)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindByEventId() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+	suite.createTestAvailability(account.Id, event.Id, event.StartsAt.Add(30*time.Minute), event.StartsAt.Add(time.Hour))
+
+	var availabilities []model.Availability
+	err := suite.repo.FindByEventId(event.Id, &availabilities)
+	assert.NoError(suite.T(), err)
+	assert.Len(suite.T(), availabilities, 2)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOverlappingAvailabilities() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(4*time.Hour))
+	existing := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(time.Hour))
+
+	candidate := &model.Availability{
+		AccountId: account.Id,
+		EventId:   event.Id,
+		StartsAt:  event.StartsAt.Add(30 * time.Minute),
+		EndsAt:    event.StartsAt.Add(90 * time.Minute),
+	}
+
+	var overlapping []model.Availability
+	err := suite.repo.FindOverlappingAvailabilities(candidate, &overlapping)
+	assert.NoError(suite.T(), err)
+	assert.Len(suite.T(), overlapping, 1)
+	assert.Equal(suite.T(), existing.Id, overlapping[0].Id)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestDeleteById_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	created := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+
+	err := suite.repo.DeleteById(&created.Id)
+	assert.NoError(suite.T(), err)
+
+	var count int64
+	suite.db.Model(&model.Availability{}).Where("id = ?", created.Id).Count(&count)
+	assert.Equal(suite.T(), int64(0), count)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestDeleteById_NilPointer() {
+	err := suite.repo.DeleteById(nil)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestDeleteByIds() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	a1 := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+	a2 := suite.createTestAvailability(account.Id, event.Id, event.StartsAt.Add(30*time.Minute), event.StartsAt.Add(time.Hour))
+
+	err := suite.repo.DeleteByIds(&[]uuid.UUID{a1.Id, a2.Id})
+	assert.NoError(suite.T(), err)
+
+	var count int64
+	suite.db.Model(&model.Availability{}).Where("event_id = ?", event.Id).Count(&count)
+	assert.Equal(suite.T(), int64(0), count)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestUpdate_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(2*time.Hour))
+	created := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+
+	created.EndsAt = event.StartsAt.Add(time.Hour)
+	err := suite.repo.Update(&created)
+	assert.NoError(suite.T(), err)
+
+	var found model.Availability
+	suite.Require().NoError(suite.db.Where("id = ?", created.Id).First(&found).Error)
+	assert.True(suite.T(), event.StartsAt.Add(time.Hour).Equal(found.EndsAt))
+}
+
+func (suite *AvailabilityRepoTestSuite) TestUpdate_NilPointer() {
+	err := suite.repo.Update(nil)
+	assert.Error(suite.T(), err)
 }
 
 // Run the test suite

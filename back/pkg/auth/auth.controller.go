@@ -17,6 +17,10 @@ type AuthController struct {
 	cleanupCancel          context.CancelFunc
 }
 
+// refreshTokenCleanupInterval is overridable in tests to avoid waiting 24h
+// for the cleanup ticker to fire.
+var refreshTokenCleanupInterval = 24 * time.Hour
+
 func NewAuthController(ctl *AuthController) *AuthController {
 	if ctl == nil {
 		ctl = &AuthController{
@@ -25,7 +29,11 @@ func NewAuthController(ctl *AuthController) *AuthController {
 	}
 
 	ctl.cleanupCtx, ctl.cleanupCancel = context.WithCancel(context.Background())
-	go ctl.cleanRefreshTokens()
+	// Read the interval synchronously here (rather than inside the goroutine)
+	// so tests can override refreshTokenCleanupInterval without racing with
+	// the background goroutine's first read of it.
+	interval := refreshTokenCleanupInterval
+	go ctl.cleanRefreshTokens(interval)
 
 	return ctl
 }
@@ -70,8 +78,8 @@ func (ctl *AuthController) Logout(c *gin.Context) {
 }
 
 // cleanRefreshTokens avec gestion propre du cycle de vie
-func (ctl *AuthController) cleanRefreshTokens() {
-	ticker := time.NewTicker(24 * time.Hour)
+func (ctl *AuthController) cleanRefreshTokens(interval time.Duration) {
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {

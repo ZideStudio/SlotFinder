@@ -65,3 +65,12 @@ func TestConnection() bool {
 func GetDB() *gorm.DB {
 	return conn
 }
+
+// SetDB overrides the process-global connection. It exists so tests in other
+// packages can point every `repository.NewXRepository(nil)` /
+// `NewXService(nil)` fallback at an in-memory test database instead of a real
+// Postgres instance, without needing to thread a *gorm.DB through every
+// nested service by hand. Not used by production code.
+func SetDB(database *gorm.DB) {
+	conn = database
+}

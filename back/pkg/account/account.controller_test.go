@@ -1,0 +1,265 @@
+package account
+
+import (
+	"app/commons/guard"
+	model "app/db/models"
+	"app/db/repository"
+	"bytes"
+	"encoding/json"
+	"image"
+	"image/color"
+	"image/png"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func newAccountTestContext(method string, body []byte) (*gin.Context, *httptest.ResponseRecorder) {
+	gin.SetMode(gin.TestMode)
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	var reader *bytes.Reader
+	if body != nil {
+		reader = bytes.NewReader(body)
+	} else {
+		reader = bytes.NewReader(nil)
+	}
+	c.Request = httptest.NewRequest(method, "/", reader)
+	c.Request.Header.Set("Content-Type", "application/json")
+	return c, recorder
+}
+
+func newAuthenticatedAccountContext(t *testing.T, method string, body []byte, userId uuid.UUID) (*gin.Context, *httptest.ResponseRecorder) {
+	t.Helper()
+	c, recorder := newAccountTestContext(method, body)
+	c.Set("user", &guard.Claims{Id: userId})
+	return c, recorder
+}
+
+func TestAccountController_Create_InvalidBody(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodPost, []byte(`not-json`))
+
+	ctl.Create(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestAccountController_Create_ServiceError(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	body, _ := json.Marshal(AccountCreateDto{Email: "not-an-email"})
+	c, recorder := newAccountTestContext(http.MethodPost, body)
+
+	ctl.Create(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestAccountController_Create_Success(t *testing.T) {
+	called := stubSMTPAwait(t)
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	dto := validCreateDto(t)
+	body, _ := json.Marshal(dto)
+	c, recorder := newAccountTestContext(http.MethodPost, body)
+
+	ctl.Create(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Contains(t, recorder.Header().Get("Set-Cookie"), "access_token=")
+	awaitSMTP(t, called)
+}
+
+func TestAccountController_GetMe_Unauthenticated(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodGet, nil)
+
+	ctl.GetMe(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_GetMe_Success(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "ctrl-getme-"+uuid.NewString())
+	ctl := &AccountController{accountService: s}
+	c, recorder := newAuthenticatedAccountContext(t, http.MethodGet, nil, account.Id)
+
+	ctl.GetMe(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestAccountController_Update_Unauthenticated(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodPatch, []byte(`{}`))
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_Update_InvalidBody(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "ctrl-updbad-"+uuid.NewString())
+	ctl := &AccountController{accountService: s}
+	c, recorder := newAuthenticatedAccountContext(t, http.MethodPatch, []byte(`not-json`), account.Id)
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestAccountController_Update_Success_SetsCookies(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "ctrl-updok-"+uuid.NewString())
+	ctl := &AccountController{accountService: s}
+
+	newName := "upd-" + uuid.NewString()[:8]
+	body, _ := json.Marshal(AccountUpdateDto{UserName: &newName})
+	c, recorder := newAuthenticatedAccountContext(t, http.MethodPatch, body, account.Id)
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Contains(t, recorder.Header().Get("Set-Cookie"), "access_token=")
+}
+
+func TestAccountController_Update_NoTokenRegen_NoCookies(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "ctrl-updcolor-"+uuid.NewString())
+	ctl := &AccountController{accountService: s}
+
+	color := "#654321"
+	body, _ := json.Marshal(AccountUpdateDto{Color: &color})
+	c, recorder := newAuthenticatedAccountContext(t, http.MethodPatch, body, account.Id)
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Empty(t, recorder.Header().Get("Set-Cookie"))
+}
+
+func multipartImageRequest(t *testing.T, fieldName, fileName string, content []byte) (*bytes.Buffer, string) {
+	t.Helper()
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile(fieldName, fileName)
+	require.NoError(t, err)
+	_, err = part.Write(content)
+	require.NoError(t, err)
+	require.NoError(t, writer.Close())
+	return body, writer.FormDataContentType()
+}
+
+func validPNGBytes(t *testing.T) []byte {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, 8, 8))
+	for x := 0; x < 8; x++ {
+		for y := 0; y < 8; y++ {
+			img.Set(x, y, color.RGBA{R: 200, A: 255})
+		}
+	}
+	var buf bytes.Buffer
+	require.NoError(t, png.Encode(&buf, img))
+	return buf.Bytes()
+}
+
+func newUploadAvatarContext(t *testing.T, userId uuid.UUID, body *bytes.Buffer, contentType string) (*gin.Context, *httptest.ResponseRecorder) {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	c.Request = httptest.NewRequest(http.MethodPatch, "/", body)
+	c.Request.Header.Set("Content-Type", contentType)
+	if userId != uuid.Nil {
+		c.Set("user", &guard.Claims{Id: userId})
+	}
+	return c, recorder
+}
+
+func TestAccountController_UploadAvatar_Unauthenticated(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+	c, recorder := newUploadAvatarContext(t, uuid.Nil, &bytes.Buffer{}, "multipart/form-data")
+
+	ctl.UploadAvatar(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_UploadAvatar_MissingFile(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+	body, contentType := multipartImageRequest(t, "not-image", "avatar.png", []byte("data"))
+	c, recorder := newUploadAvatarContext(t, uuid.New(), body, contentType)
+
+	ctl.UploadAvatar(c)
+
+	// "missing image" is a plain errors.New(...), not one of the sentinel
+	// errors in constants.CUSTOM_ERRORS_MAP, so HandleJSONResponse maps it
+	// to ERR_SERVER_ERROR/500 rather than the 400 the swagger doc implies.
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_UploadAvatar_InvalidImage(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+	body, contentType := multipartImageRequest(t, "image", "avatar.png", []byte("not-a-real-image"))
+	c, recorder := newUploadAvatarContext(t, uuid.New(), body, contentType)
+
+	ctl.UploadAvatar(c)
+
+	// Same as above: "invalid image file" isn't a registered custom error.
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_ForgotPassword_InvalidBody(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodPost, []byte(`not-json`))
+
+	ctl.ForgotPassword(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestAccountController_ForgotPassword_Success(t *testing.T) {
+	stubSMTP(t)
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
+	ctl := &AccountController{accountService: s}
+
+	body, _ := json.Marshal(ForgotPasswordDto{Email: email})
+	c, recorder := newAccountTestContext(http.MethodPost, body)
+
+	ctl.ForgotPassword(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestAccountController_ResetPassword_InvalidBody(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodPost, []byte(`not-json`))
+
+	ctl.ResetPassword(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestAccountController_ResetPassword_ServiceError(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	body, _ := json.Marshal(ResetPasswordDto{Token: "bad-token", Password: "short"})
+	c, recorder := newAccountTestContext(http.MethodPost, body)
+
+	ctl.ResetPassword(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestNewAccountController_ReusesProvidedInstance(t *testing.T) {
+	existing := &AccountController{}
+	assert.Same(t, existing, NewAccountController(existing))
+}
