@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@pplancq/stylelint-config": "5.0.3",
-    "@rsbuild/core": "2.1.7",
+    "@rsbuild/core": "2.1.8",
     "@rsbuild/plugin-react": "2.1.0",
     "@rsbuild/plugin-sass": "2.0.1",
     "@rsbuild/plugin-svgr": "2.0.5",
