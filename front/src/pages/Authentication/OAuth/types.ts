@@ -9,4 +9,3 @@ export type OAuthProvider = {
   ariaLabel: `signInWith${Capitalize<OAuthProviderName>}`;
   icon: FC<SVGProps<SVGSVGElement>>;
 };
-  
