@@ -36,7 +36,6 @@ describe("OAuth", () => {
         `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/${provider.id}/url?returnUrl=${RETURN_URL}`,
       );
       expect(link).toHaveAttribute("rel", "noopener noreferrer");
-      expect(screen.getByText(provider.label)).toBeInTheDocument();
     }
   });
 

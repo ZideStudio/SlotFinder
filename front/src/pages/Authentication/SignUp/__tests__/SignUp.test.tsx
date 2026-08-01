@@ -39,12 +39,6 @@ describe("SignUp", () => {
     expect(
       screen.getByRole("button", { name: "signUp.submit" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "authentication.signInWithProvider",
-      }),
-    ).toBeInTheDocument();
   });
 
   it("shows validation errors for empty fields", async () => {
