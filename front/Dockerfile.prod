@@ -27,11 +27,18 @@ RUN mise install
 
 COPY front/package*.json ./
 
-RUN npm ci
+# Install dependencies first to maximize Docker layer cache reuse.
+RUN npm ci --ignore-scripts
 
 COPY front/ ./
 
-RUN npm run build
+# prepare-swagger.mjs resolves ../../back/docs/swagger.json from /app/scripts
+# which maps to /back/docs/swagger.json inside this container.
+RUN mkdir -p /back/docs
+COPY back/docs/swagger.json /back/docs/swagger.json
+
+# Run only build-required generators in image builds.
+RUN npm run generate:api && npm run generate:i18next && npm run build
 
 FROM nginx:1.31-alpine
 
