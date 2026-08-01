@@ -1,0 +1,10 @@
+.git
+.github
+**/node_modules
+**/coverage
+**/storybook-static
+**/build
+**/tmp
+**/.DS_Store
+front/junit-report.xml
+front/sonar-report.xml
