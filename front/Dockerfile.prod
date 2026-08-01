@@ -25,7 +25,10 @@ COPY .env* ./
 # Install Node.js and npm via mise
 RUN mise install
 
-COPY front/ ./
+COPY front/package*.json ./
+COPY front/scripts/prepare-swagger.mjs ./scripts/prepare-swagger.mjs
+COPY front/orval.config.ts ./orval.config.ts
+COPY front/src/api/orval ./src/api/orval
 
 # prepare-swagger.mjs resolves ../../back/docs/swagger.json from /app/scripts
 # which maps to /back/docs/swagger.json inside this container.
@@ -33,6 +36,9 @@ RUN mkdir -p /back/docs
 COPY back/docs/swagger.json /back/docs/swagger.json
 
 RUN npm ci
+
+COPY front/ ./
+
 RUN npm run build
 
 FROM nginx:1.31-alpine
