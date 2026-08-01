@@ -4,7 +4,6 @@
   --cols: 4;
 
   padding: 1rem;
-  border: 1px solid black;
   border-radius: 0.5rem;
 
   @include responsive.mediaExceedsWidth("tablet") {
@@ -23,7 +22,12 @@
 
   &__list {
     display: flex;
-    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 15px;
+    list-style: none;
   }
 }

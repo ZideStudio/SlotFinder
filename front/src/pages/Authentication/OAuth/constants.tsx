@@ -8,18 +8,18 @@ export const oauthProvidersData: Omit<OAuthProvider, "href">[] = [
     id: "google",
     label: "Google",
     ariaLabel: "signInWithGoogle",
-    icon: <GoogleIcon width={24} height={24} aria-hidden />,
+    icon: GoogleIcon,
   },
   {
     id: "github",
     label: "GitHub",
     ariaLabel: "signInWithGithub",
-    icon: <GithubIcon width={24} height={24} aria-hidden />,
+    icon: GithubIcon,
   },
   {
     id: "discord",
     label: "Discord",
     ariaLabel: "signInWithDiscord",
-    icon: <DiscordIcon width={24} height={24} aria-hidden />,
+    icon: DiscordIcon,
   },
 ];

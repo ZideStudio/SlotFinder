@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useOAuth } from "./useOAuth";
-import { Heading } from "@Front/ui/atoms/Heading/Heading";
-import { Link } from "@Front/ui/atoms/Link/Link";
+import { ClickIcon } from "@Front/ui/molecules/ClickIcon/ClickIcon";
 
 import "./OAuth.scss";
 
@@ -10,25 +9,18 @@ export const OAuth = () => {
   const { oAuthProviders } = useOAuth();
 
   return (
-    <nav aria-labelledby="oauth-provider-heading" className="oauth-nav">
-      <Heading
-        level={2}
-        className="oauth-nav__heading"
-        id="oauth-provider-heading"
-      >
-        {t("signInWithProvider")}
-      </Heading>
+    <nav aria-label={t("signInWithProvider")} className="oauth-nav">
       <ul className="oauth-nav__list">
         {oAuthProviders.map((provider) => (
           <li key={provider.label}>
-            <Link
+            <ClickIcon
+              as="a"
+              variant="bordered"
               href={provider.href}
               aria-label={t(provider.ariaLabel)}
               rel="noopener noreferrer"
-            >
-              {provider.icon}
-              <span>{provider.label}</span>
-            </Link>
+              icon={provider.icon}
+            />
           </li>
         ))}
       </ul>

@@ -22,3 +22,10 @@ export const Default: Story = {
     icon: SendIcon,
   },
 };
+
+export const Bordered: Story = {
+  args: {
+    icon: SendIcon,
+    variant: "bordered",
+  },
+};

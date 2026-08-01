@@ -6,20 +6,24 @@ import "./ClickIcon.scss";
 
 type ClickIconProps<Type extends ElementType = "button"> = {
   as?: Type;
+  variant?: "default" | "bordered";
   icon: SvgIcon;
 } & ComponentPropsWithoutRef<Type>;
 
 export const ClickIcon = <Type extends ElementType = "button">({
   as,
+  variant = "default",
   icon,
   className,
   ...props
 }: ClickIconProps<Type>) => {
   const Component = as ?? "button";
   const isNativeButton = !as || as === "button";
+  const modifiers = variant === "default" ? undefined : variant;
 
   const parentClassName = getClassName({
     defaultClassName: "ds-click-icon",
+    modifiers,
     className,
   });
 
