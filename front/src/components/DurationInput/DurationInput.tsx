@@ -1,34 +1,31 @@
 import { useId } from "react";
-import { get, useFormContext, type FieldError } from "react-hook-form";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { getClassName } from "@Front/utils/getClassName";
 import "./DurationInput.scss";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { NumberInputAtom } from "@Front/ui/atoms/Inputs/NumberInputAtom/NumberInputAtom";
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
+import { type DurationUnit, UNIT_LIMITS } from "@Front/utils/units";
+
+type UnitFieldProps = {
+  unit: DurationUnit;
+  registration: UseFormRegisterReturn;
+  error?: string;
+};
 
 type DurationInputProps = {
-  name: string;
   legend: string;
   required?: boolean;
   className?: string;
+  fields: UnitFieldProps[];
 };
-
-type DurationUnit = "days" | "hours" | "minutes";
-
-const UNIT_LIMITS: Record<DurationUnit, { min: number; max: number }> = {
-  days: { min: 0, max: 21 },
-  hours: { min: 0, max: 23 },
-  minutes: { min: 0, max: 59 },
-};
-
-const UNITS: DurationUnit[] = ["days", "hours", "minutes"];
 
 export const DurationInput = ({
-  name,
   legend,
   required,
   className,
+  fields,
 }: DurationInputProps) => {
   const parentClassName = getClassName({
     defaultClassName: "duration-field",
@@ -37,11 +34,6 @@ export const DurationInput = ({
 
   const { t } = useTranslation("duration");
   const baseId = useId();
-
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
 
   return (
     <fieldset className={parentClassName}>
@@ -55,27 +47,28 @@ export const DurationInput = ({
       </legend>
 
       <div className="duration-field__inputs">
-        {UNITS.map((unit) => {
-          const fieldName = `${name}.${unit}`;
-          const fieldError: FieldError | undefined = get(errors, fieldName);
+        {fields.map(({ unit, registration, error }) => {
           const inputId = `${baseId}-${unit}`;
           const errorId = `${inputId}-error`;
 
           return (
             <div className="duration-field__field" key={unit}>
-              <LabelInput inputId={inputId}>{t(unit)}</LabelInput>
+              <div className="duration-field__field-label">
+                <NumberInputAtom
+                  id={inputId}
+                  min={UNIT_LIMITS[unit].min}
+                  max={UNIT_LIMITS[unit].max}
+                  required={required}
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? errorId : undefined}
+                  {...registration}
+                />
+                <LabelInput inputId={inputId}>{t(unit)}</LabelInput>
+              </div>
 
-              <NumberInputAtom
-                id={inputId}
-                min={UNIT_LIMITS[unit].min}
-                max={UNIT_LIMITS[unit].max}
-                required={required}
-                aria-invalid={Boolean(fieldError)}
-                aria-describedby={fieldError ? errorId : undefined}
-                {...register(fieldName)}
-              />
-
-              <InputErrorMessage id={errorId}>{fieldError?.message}</InputErrorMessage>
+              <div className="duration-field__field-error" id={errorId}>
+                <InputErrorMessage>{error}</InputErrorMessage>
+              </div>
             </div>
           );
         })}
