@@ -138,5 +138,5 @@ func TestConstructors_NilDatabaseFallback(t *testing.T) {
 	assert.NotNil(t, repository.NewAvailabilityRepository(nil))
 }
 
-func strPtr(s string) *string    { return &s }
+func strPtr(s string) *string        { return &s }
 func timePtr(t time.Time) *time.Time { return &t }
