@@ -1,5 +1,4 @@
-// DurationInput.test.tsx
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import type { DurationUnit } from "@Front/utils/units";
 import { DurationInput } from "../DurationInput";
