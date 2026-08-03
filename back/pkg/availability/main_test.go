@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	if sqlDB, err := database.DB(); err == nil {
 		sqlDB.SetMaxOpenConns(1)
 	}
-	db.SetDB(database)
+	db.SetDBForTests(database)
 
 	os.Exit(m.Run())
 }
