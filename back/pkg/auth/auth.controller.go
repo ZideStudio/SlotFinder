@@ -77,7 +77,7 @@ func (ctl *AuthController) Logout(c *gin.Context) {
 	helpers.HandleJSONResponse(c, nil, nil)
 }
 
-// cleanRefreshTokens avec gestion propre du cycle de vie
+// cleanRefreshTokens runs periodic refresh-token cleanup and stops when the controller is canceled.
 func (ctl *AuthController) cleanRefreshTokens(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
