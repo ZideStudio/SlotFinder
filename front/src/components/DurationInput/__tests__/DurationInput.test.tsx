@@ -3,21 +3,15 @@ import { render, screen } from "@testing-library/react";
 import type { DurationUnit } from "@Front/utils/units";
 import { DurationInput } from "../DurationInput";
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}));
-
 const UNITS: DurationUnit[] = ["days", "hours", "minutes"];
 
 const buildFields = (errors: Partial<Record<DurationUnit, string>> = {}) =>
   UNITS.map((unit) => ({
     unit,
-    registration: {
-      name: `duration.${unit}`,
-      onChange: vi.fn(),
-      onBlur: vi.fn(),
-      ref: vi.fn(),
-    },
+    name: `duration.${unit}`,
+    onChange: vi.fn(),
+    onBlur: vi.fn(),
+    ref: vi.fn(),
     error: errors[unit],
   }));
 
@@ -26,9 +20,9 @@ describe("DurationInput", () => {
     render(<DurationInput legend="Duration" fields={buildFields()} />);
 
     expect(screen.getByText("Duration")).toBeInTheDocument();
-    expect(screen.getByText("days")).toBeInTheDocument();
-    expect(screen.getByText("hours")).toBeInTheDocument();
-    expect(screen.getByText("minutes")).toBeInTheDocument();
+    expect(screen.getByText("duration.days")).toBeInTheDocument();
+    expect(screen.getByText("duration.hours")).toBeInTheDocument();
+    expect(screen.getByText("duration.minutes")).toBeInTheDocument();
   });
 
   it("shows the asterisk when required is true", () => {

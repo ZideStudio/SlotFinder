@@ -1,5 +1,4 @@
 import { useId } from "react";
-import type { UseFormRegisterReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { getClassName } from "@Front/utils/getClassName";
 import "./DurationInput.scss";
@@ -10,7 +9,6 @@ import { type DurationUnit, UNIT_LIMITS } from "@Front/utils/units";
 
 type UnitFieldProps = {
   unit: DurationUnit;
-  registration: UseFormRegisterReturn;
   error?: string;
 };
 
@@ -26,6 +24,7 @@ export const DurationInput = ({
   required,
   className,
   fields,
+  ...props
 }: DurationInputProps) => {
   const parentClassName = getClassName({
     defaultClassName: "duration-field",
@@ -47,7 +46,7 @@ export const DurationInput = ({
       </legend>
 
       <div className="duration-field__inputs">
-        {fields.map(({ unit, registration, error }) => {
+        {fields.map(({ unit, error }) => {
           const inputId = `${baseId}-${unit}`;
           const errorId = `${inputId}-error`;
 
@@ -56,19 +55,18 @@ export const DurationInput = ({
               <div className="duration-field__field-label">
                 <NumberInputAtom
                   id={inputId}
+                  name={`duration.${unit}`}
                   min={UNIT_LIMITS[unit].min}
                   max={UNIT_LIMITS[unit].max}
                   required={required}
                   aria-invalid={Boolean(error)}
                   aria-describedby={error ? errorId : undefined}
-                  {...registration}
+                  {...props}
                 />
                 <LabelInput inputId={inputId}>{t(unit)}</LabelInput>
               </div>
 
-              <div className="duration-field__field-error" id={errorId}>
-                <InputErrorMessage>{error}</InputErrorMessage>
-              </div>
+              <InputErrorMessage id={errorId}>{error}</InputErrorMessage>
             </div>
           );
         })}
