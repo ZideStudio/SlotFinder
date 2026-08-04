@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       front-changes: ${{ steps.filter.outputs.front }}
-      front-storybook-changes: ${{ steps.filter.outputs.front_storybook }}
+      front-storybook-changes: ${{ steps.filter.outputs.front-storybook }}
       back-changes: ${{ steps.filter.outputs.back }}
     steps:
       - name: Checkout repository
