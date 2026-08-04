@@ -56,6 +56,7 @@ describe("Header", () => {
     beforeEach(() => {
       server.use(getAuthStatus200);
     });
+
     it("should render the header banner", async () => {
       renderLayoutRoute("/withHeader");
 

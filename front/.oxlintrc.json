@@ -7,6 +7,13 @@
   },
   "plugins": ["react", "typescript", "import", "jsx-a11y", "vitest"],
   "rules": {
+    "react/function-component-definition": [
+      "warn",
+      {
+        "namedComponents": "arrow-function",
+        "unnamedComponents": "arrow-function"
+      }
+    ],
     "react/jsx-key": "error",
     "react/jsx-max-depth": [
       "warn",

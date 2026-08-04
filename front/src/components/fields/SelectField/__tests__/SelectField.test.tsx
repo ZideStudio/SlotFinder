@@ -20,6 +20,7 @@ describe("SelectField", () => {
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
   ];
+
   it("renders without crashing", () => {
     render(
       <FormWrapper>
