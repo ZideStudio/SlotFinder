@@ -44,7 +44,7 @@ describe("Header", () => {
       ],
     });
 
-    const logo = screen.getByRole("link", { name: "Slot Finder logo" });
+    const logo = screen.getByRole("link", { name: "Slot Finder home page" });
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveAttribute("href", appRoutes.home());
 
