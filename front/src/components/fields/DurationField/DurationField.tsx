@@ -26,7 +26,7 @@ export const DurationField = ({
 
     return {
       unit,
-      registration: register(fieldName),
+      ...register(fieldName),
       error: fieldError?.message,
     };
   });
