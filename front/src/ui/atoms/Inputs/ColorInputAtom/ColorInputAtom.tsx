@@ -1,6 +1,6 @@
 import { getClassName } from "@Front/utils/getClassName";
 import { getContrastTextColor } from "@Front/utils/getContrastTextColor";
-import PaletteIcon from "@material-symbols/svg-400/outlined/palette.svg?react";
+import PaletteIcon from "@material-symbols/svg-400/outlined/palette.svg";
 import {
   type ChangeEventHandler,
   type ComponentPropsWithRef,

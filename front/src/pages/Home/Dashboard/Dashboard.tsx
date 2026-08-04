@@ -1,11 +1,11 @@
 import { Header } from "@Front/components/Layout/Header/Header";
-import BoatIcon from "@material-symbols/svg-300/outlined/directions_boat.svg?react";
 import { Heading } from "@Front/ui/atoms/Heading/Heading";
-import { Button } from "@Front/ui/molecules/Button/Button";
 import { Icon } from "@Front/ui/atoms/Icon/Icon";
+import { Button } from "@Front/ui/molecules/Button/Button";
+import BoatIcon from "@material-symbols/svg-300/outlined/directions_boat.svg";
 
-import "./Dashboard.scss";
 import { useTranslation } from "react-i18next";
+import "./Dashboard.scss";
 
 export const Dashboard = () => {
   const { t } = useTranslation("dashboard");

@@ -1,4 +1,4 @@
-import SendIcon from "@material-symbols/svg-400/outlined/send.svg?react";
+import SendIcon from "@material-symbols/svg-400/outlined/send.svg";
 import type { Meta, StoryObj } from "storybook-react-rsbuild";
 
 import { ClickIcon } from "./ClickIcon";

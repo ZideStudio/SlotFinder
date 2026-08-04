@@ -1,9 +1,9 @@
 import { getClassName } from "@Front/utils/getClassName";
+import UploadIcon from "@material-symbols/svg-400/outlined/upload_file.svg";
 import { useId, type ComponentPropsWithRef } from "react";
-import UploadIcon from "@material-symbols/svg-400/outlined/upload_file.svg?react";
 
-import "./FileUploadInputAtom.scss";
 import { Icon } from "../../Icon/Icon";
+import "./FileUploadInputAtom.scss";
 
 type FileUploadInputAtomProps = Omit<
   ComponentPropsWithRef<"input">,

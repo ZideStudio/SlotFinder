@@ -1,6 +1,6 @@
-import DiscordIcon from "@Front/assets/svg/discord_icon.svg?react";
-import GithubIcon from "@Front/assets/svg/github_icon.svg?react";
-import GoogleIcon from "@Front/assets/svg/google_icon.svg?react";
+import DiscordIcon from "@Front/assets/svg/discord_icon.svg";
+import GithubIcon from "@Front/assets/svg/github_icon.svg";
+import GoogleIcon from "@Front/assets/svg/google_icon.svg";
 import type { OAuthProvider } from "./types";
 
 export const oauthProvidersData: Omit<OAuthProvider, "href">[] = [
