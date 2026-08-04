@@ -26,6 +26,7 @@ export default defineConfig(({ env }) => {
     plugins: [
       pluginReact(),
       pluginSvgr({
+        query: /.*/,
         svgrOptions: {
           exportType: "default",
         },
