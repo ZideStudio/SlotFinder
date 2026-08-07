@@ -24,7 +24,7 @@ func FormatLocalizedDate(start, end time.Time, lang constants.AccountLanguage) s
 func formatSameDay(start, end time.Time, lang constants.AccountLanguage) string {
 	switch lang {
 	case constants.ACCOUNT_LANGUAGE_FR:
-		// "Lundi 06 décembre de 20h00 à 23h00"
+		// "lundi 06 décembre de 20h00 à 23h00"
 		return fmt.Sprintf(
 			"%s %s de %s à %s",
 			formatWeekday(start, lang),
@@ -48,7 +48,7 @@ func formatSameDay(start, end time.Time, lang constants.AccountLanguage) string 
 func formatMultiDay(start, end time.Time, lang constants.AccountLanguage) string {
 	switch lang {
 	case constants.ACCOUNT_LANGUAGE_FR:
-		// "Du Lundi 06 décembre à 20h00 au Mardi 07 décembre à 23h00"
+		// "Du lundi 06 décembre à 20h00 au mardi 07 décembre à 23h00"
 		return fmt.Sprintf(
 			"Du %s %s à %s au %s %s à %s",
 			formatWeekday(start, lang),
