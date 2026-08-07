@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -178,6 +179,43 @@ func TestAuthCheck_SkipsCompleteProfileCheck(t *testing.T) {
 	router.ServeHTTP(recorder, req)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestParseToken_PublicKeyFileMissing(t *testing.T) {
+	cfg := config.GetConfig()
+	original := cfg.Auth.PublicPemPath
+	cfg.Auth.PublicPemPath = "/nonexistent/public.pem"
+	defer func() { cfg.Auth.PublicPemPath = original }()
+
+	_, err := ParseToken("any-token")
+	assert.Error(t, err)
+}
+
+func TestGenerateAccessToken_PrivateKeyFileMissing(t *testing.T) {
+	cfg := config.GetConfig()
+	original := cfg.Auth.PrivatePemPath
+	cfg.Auth.PrivatePemPath = "/nonexistent/private.pem"
+	defer func() { cfg.Auth.PrivatePemPath = original }()
+
+	_, err := GenerateAccessToken(validClaims())
+	assert.Error(t, err)
+}
+
+func TestGenerateAccessToken_PrivateKeyFileInvalid(t *testing.T) {
+	cfg := config.GetConfig()
+	original := cfg.Auth.PrivatePemPath
+
+	invalidPath := filepath.Join(t.TempDir(), "invalid.pem")
+	require.NoError(t, os.WriteFile(invalidPath, []byte("not a pem file"), 0o600))
+	cfg.Auth.PrivatePemPath = invalidPath
+	defer func() { cfg.Auth.PrivatePemPath = original }()
+
+	_, err := GenerateAccessToken(validClaims())
+	assert.Error(t, err)
+}
+
+func TestShouldRenewToken_NilExpiresAt(t *testing.T) {
+	assert.False(t, ShouldRenewToken(&Claims{}))
 }
 
 func TestAuthCheck_RenewsTokenNearExpiry(t *testing.T) {

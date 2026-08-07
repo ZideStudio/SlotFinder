@@ -75,6 +75,26 @@ func TestProcessAvatar_OutputIsValidJPEG(t *testing.T) {
 	assert.NoError(t, err, "output should be a valid JPEG")
 }
 
+func TestProcessAvatar_ExtremeWideAspectRatio_ClampsHeightTo1(t *testing.T) {
+	input := buildPNG(t, 1000, 1)
+	out, err := ProcessAvatar(input)
+	require.NoError(t, err)
+
+	w, h := decodeJPEGSize(t, out)
+	assert.Equal(t, 256, w)
+	assert.Equal(t, 1, h)
+}
+
+func TestProcessAvatar_ExtremeTallAspectRatio_ClampsWidthTo1(t *testing.T) {
+	input := buildPNG(t, 1, 1000)
+	out, err := ProcessAvatar(input)
+	require.NoError(t, err)
+
+	w, h := decodeJPEGSize(t, out)
+	assert.Equal(t, 1, w)
+	assert.Equal(t, 256, h)
+}
+
 func TestProcessAvatar_InvalidBytes(t *testing.T) {
 	_, err := ProcessAvatar([]byte("not-an-image"))
 	assert.Error(t, err)
