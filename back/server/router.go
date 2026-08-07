@@ -40,7 +40,7 @@ func NewRouter() *gin.Engine {
 			accountRouter := account.NewAccountController(nil)
 
 			accountGroup.POST("", accountRouter.Create)
-			accountGroup.GET("/me", guard.AuthCheck(nil), accountRouter.GetMe)
+			accountGroup.GET("/me", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireCompleteProfile: false}), accountRouter.GetMe)
 			accountGroup.PATCH("", guard.AuthCheck(&guard.AuthCheckParams{RequireAuthentication: true, RequireCompleteProfile: false}), accountRouter.Update)
 			accountGroup.PATCH("/avatar", guard.AuthCheck(nil), guard.MaxUploadSizeMiddleware(10<<20), accountRouter.UploadAvatar)
 			accountGroup.GET("/:accountId/avatar", accountRouter.GetAvatar)
