@@ -17,9 +17,12 @@ type AuthController struct {
 	cleanupCancel          context.CancelFunc
 }
 
-// refreshTokenCleanupInterval is overridable in tests to avoid waiting 24h
-// for the cleanup ticker to fire.
-var refreshTokenCleanupInterval = 24 * time.Hour
+const refreshTokenCleanupInterval = 24 * time.Hour
+
+// refreshCleanupClock is swapped for a fake clock in tests so the cleanup
+// ticker can be advanced deterministically instead of waiting on the real
+// 24h interval.
+var refreshCleanupClock clock = realClock{}
 
 func NewAuthController(ctl *AuthController) *AuthController {
 	if ctl == nil {
@@ -29,11 +32,11 @@ func NewAuthController(ctl *AuthController) *AuthController {
 	}
 
 	ctl.cleanupCtx, ctl.cleanupCancel = context.WithCancel(context.Background())
-	// Read the interval synchronously here (rather than inside the goroutine)
-	// so tests can override refreshTokenCleanupInterval without racing with
-	// the background goroutine's first read of it.
-	interval := refreshTokenCleanupInterval
-	go ctl.cleanRefreshTokens(interval)
+	// Create the ticker synchronously here (rather than inside the goroutine)
+	// so tests can swap refreshCleanupClock and advance it without racing the
+	// background goroutine's first read of it.
+	t := refreshCleanupClock.NewTicker(refreshTokenCleanupInterval)
+	go ctl.cleanRefreshTokens(t)
 
 	return ctl
 }
@@ -78,13 +81,12 @@ func (ctl *AuthController) Logout(c *gin.Context) {
 }
 
 // cleanRefreshTokens runs periodic refresh-token cleanup and stops when the controller is canceled.
-func (ctl *AuthController) cleanRefreshTokens(interval time.Duration) {
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
+func (ctl *AuthController) cleanRefreshTokens(t ticker) {
+	defer t.Stop()
 
 	for {
 		select {
-		case <-ticker.C:
+		case <-t.C():
 			_ = ctl.refreshTokenRepository.DeleteExpired()
 		case <-ctl.cleanupCtx.Done():
 			return

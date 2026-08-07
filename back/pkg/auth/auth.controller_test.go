@@ -100,10 +100,6 @@ func TestLogout_ValidCookie_RevokesToken(t *testing.T) {
 }
 
 func TestNewAuthController_Nil_BuildsDefaultAndStartsCleanup(t *testing.T) {
-	original := refreshTokenCleanupInterval
-	refreshTokenCleanupInterval = time.Hour // avoid firing during this fast test
-	defer func() { refreshTokenCleanupInterval = original }()
-
 	ctl := NewAuthController(nil)
 	defer ctl.cleanupCancel()
 
@@ -113,10 +109,6 @@ func TestNewAuthController_Nil_BuildsDefaultAndStartsCleanup(t *testing.T) {
 }
 
 func TestNewAuthController_ReusesProvidedInstance(t *testing.T) {
-	original := refreshTokenCleanupInterval
-	refreshTokenCleanupInterval = time.Hour
-	defer func() { refreshTokenCleanupInterval = original }()
-
 	db := testDB(t)
 	provided := &AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)}
 
@@ -127,9 +119,12 @@ func TestNewAuthController_ReusesProvidedInstance(t *testing.T) {
 }
 
 func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
-	original := refreshTokenCleanupInterval
-	refreshTokenCleanupInterval = 10 * time.Millisecond
-	defer func() { refreshTokenCleanupInterval = original }()
+	// Use the real 24h production interval, but drive it with a fake clock
+	// advanced past that interval so the test doesn't wait on wall-clock time.
+	original := refreshCleanupClock
+	fake := newFakeClock()
+	refreshCleanupClock = fake
+	defer func() { refreshCleanupClock = original }()
 
 	db := testDB(t)
 	repo := repository.NewRefreshTokenRepository(db)
@@ -148,6 +143,8 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 	ctl := NewAuthController(&AuthController{refreshTokenRepository: repo})
 	defer ctl.cleanupCancel()
 
+	fake.Advance(refreshTokenCleanupInterval)
+
 	require.Eventually(t, func() bool {
 		var count int64
 		db.Model(&model.RefreshToken{}).Where("id = ?", expired.Id).Count(&count)
@@ -156,10 +153,8 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 }
 
 func TestCleanRefreshTokens_StopsOnCancel(t *testing.T) {
-	original := refreshTokenCleanupInterval
-	refreshTokenCleanupInterval = 5 * time.Millisecond
-	defer func() { refreshTokenCleanupInterval = original }()
-
+	// The real 24h interval never fires within this test's lifetime, so the
+	// only thing to verify is that cancellation stops the goroutine cleanly.
 	db := testDB(t)
 	ctl := NewAuthController(&AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)})
 
