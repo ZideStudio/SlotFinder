@@ -15,6 +15,9 @@ import (
 
 type AvatarService struct {
 	accountRepository *repository.AccountRepository
+	// fetchAvatar allows tests to stub out the network call made by
+	// FetchAndStoreGravatar. Defaults to lib.ProcessAvatarFromURL.
+	fetchAvatar func(url string) ([]byte, error)
 }
 
 func NewAvatarService(service *AvatarService) *AvatarService {
@@ -35,8 +38,13 @@ func GetGravatarURL(username string) string {
 
 // FetchAndStoreGravatar fetches, processes and returns the Gravatar image bytes and local URL for the account.
 // Falls back to the external Gravatar URL if the image cannot be fetched.
-func (*AvatarService) FetchAndStoreGravatar(username string, accountId uuid.UUID) ([]byte, string) {
-	data, err := lib.ProcessAvatarFromURL(GetGravatarURL(username))
+func (s *AvatarService) FetchAndStoreGravatar(username string, accountId uuid.UUID) ([]byte, string) {
+	fetch := s.fetchAvatar
+	if fetch == nil {
+		fetch = lib.ProcessAvatarFromURL
+	}
+
+	data, err := fetch(GetGravatarURL(username))
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to fetch Gravatar image, falling back to external URL")
 		return nil, GetGravatarURL(accountId.String())

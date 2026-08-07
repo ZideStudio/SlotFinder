@@ -4,6 +4,7 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"bytes"
+	"errors"
 	"image"
 	"image/color"
 	"image/png"
@@ -65,22 +66,32 @@ func TestGetGravatarURL_Deterministic(t *testing.T) {
 	assert.Contains(t, url1, "https://www.gravatar.com/avatar/")
 }
 
-// FetchAndStoreGravatar always builds its Gravatar URL from the real
-// gravatar.com domain (via GetGravatarURL), so we can't point it at a local
-// test server. We instead assert the contract that holds in either outcome:
-// on success the returned data is non-empty and the URL is the local avatar
-// endpoint; on failure (e.g. no network access in CI) data is nil and the
-// URL falls back to the external Gravatar URL built from the account id.
-func TestFetchAndStoreGravatar_ContractHoldsEitherWay(t *testing.T) {
-	s := &AvatarService{}
-	accountId := uuid.New()
-	data, url := s.FetchAndStoreGravatar("someuser", accountId)
-	if data == nil {
-		assert.Equal(t, GetGravatarURL(accountId.String()), url)
-	} else {
-		assert.NotEmpty(t, data)
-		assert.Equal(t, "/api/v1/account/"+accountId.String()+"/avatar", url)
+func TestFetchAndStoreGravatar_Success(t *testing.T) {
+	s := &AvatarService{
+		fetchAvatar: func(url string) ([]byte, error) {
+			return validPNG(t, 10, 10), nil
+		},
 	}
+	accountId := uuid.New()
+
+	data, url := s.FetchAndStoreGravatar("someuser", accountId)
+
+	assert.NotEmpty(t, data)
+	assert.Equal(t, "/api/v1/account/"+accountId.String()+"/avatar", url)
+}
+
+func TestFetchAndStoreGravatar_FetchFails(t *testing.T) {
+	s := &AvatarService{
+		fetchAvatar: func(url string) ([]byte, error) {
+			return nil, errors.New("boom")
+		},
+	}
+	accountId := uuid.New()
+
+	data, url := s.FetchAndStoreGravatar("someuser", accountId)
+
+	assert.Nil(t, data)
+	assert.Equal(t, GetGravatarURL(accountId.String()), url)
 }
 
 func TestFindAvatarById(t *testing.T) {
