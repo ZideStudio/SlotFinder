@@ -59,6 +59,28 @@ func (suite *AccountRepoTestSuite) TestCreate_Success() {
 	assert.NotNil(suite.T(), account.TermsAcceptedAt, "TermsAcceptedAt should be set when TermsVersion is provided")
 }
 
+func (suite *AccountRepoTestSuite) TestCreate_PasswordTooLong() {
+	dto := suite.createDto()
+	dto.Password = string(make([]byte, 73)) // bcrypt rejects passwords > 72 bytes
+
+	var account model.Account
+	err := suite.repo.Create(dto, &account)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AccountRepoTestSuite) TestUpdates_PasswordTooLong() {
+	dto := suite.createDto()
+	dto.Password = ""
+	var account model.Account
+	suite.Require().NoError(suite.repo.Create(dto, &account))
+
+	tooLong := string(make([]byte, 73))
+	account.Password = &tooLong
+
+	err := suite.repo.Updates(account)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *AccountRepoTestSuite) TestCreate_NoPassword() {
 	dto := suite.createDto()
 	dto.Password = ""

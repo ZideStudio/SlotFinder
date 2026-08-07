@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -182,4 +183,19 @@ func (suite *EventRepoTestSuite) TestDelete_Success() {
 
 func TestEventRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(EventRepoTestSuite))
+}
+
+// TestFindEventsByAccountId_PluckQueryFails uses its own dedicated DB (not
+// the shared suite one) since it drops the event table to force the paginated
+// id lookup (Pluck) to fail. The initial Count query only touches
+// account_event, so it still succeeds; dropping event only breaks the
+// subsequent subquery/Pluck.
+func TestFindEventsByAccountId_PluckQueryFails(t *testing.T) {
+	database := NewTestDB(t)
+	repo := repository.NewEventRepository(database)
+
+	require.NoError(t, database.Migrator().DropTable(&model.Event{}))
+
+	_, _, err := repo.FindEventsByAccountId(uuid.New(), 10, 0)
+	assert.Error(t, err)
 }
