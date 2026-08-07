@@ -71,7 +71,7 @@ func TestGetTranslations_FallbackToEnglish(t *testing.T) {
 	s := newTestMailService(t)
 
 	translations := s.getTranslations(constants.MAIL_TEMPLATE_WELCOME, constants.AccountLanguage("de"))
-	assert.NotEmpty(t, translations, "should fall back to English translations")
+	assert.Equal(t, s.translations[string(constants.ACCOUNT_LANGUAGE_EN)][constants.MAIL_TEMPLATE_WELCOME], translations)
 }
 
 func TestGetTranslations_UnknownTemplate(t *testing.T) {
