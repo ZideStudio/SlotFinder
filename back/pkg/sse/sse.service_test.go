@@ -66,6 +66,22 @@ func TestRemoveClient_Unknown_NoOp(t *testing.T) {
 	s.RemoveClient("unknown")
 }
 
+func TestRemoveClient_MissingEventIndex_NoOp(t *testing.T) {
+	s := newTestService()
+	eventId := uuid.New()
+	ctx, cancel := context.WithCancel(context.Background())
+	client := &SSEClient{Id: "client-1", EventId: eventId, Channel: make(chan []byte, 1), Context: ctx, Cancel: cancel}
+	// Inserted directly into s.clients without a matching s.clientsByEvent
+	// entry, exercising the "missing index" early-return branch instead of
+	// the normal cleanup path (which AddClient's bookkeeping always avoids).
+	s.clients["client-1"] = client
+
+	s.RemoveClient("client-1")
+
+	_, exists := s.clients["client-1"]
+	assert.False(t, exists)
+}
+
 func TestRemoveClient_LeavesOtherClientsOfSameEvent(t *testing.T) {
 	s := newTestService()
 	eventId := uuid.New()
@@ -95,6 +111,19 @@ func TestBroadcastSlotsUpdate_DeliversToClient(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("expected a message on the client channel")
 	}
+}
+
+func TestBroadcastSlotsUpdate_MarshalFails_NoOp(t *testing.T) {
+	s := newTestService()
+	eventId := uuid.New()
+	s.AddClient("client-1", uuid.New(), eventId, context.Background())
+
+	// time.Time.MarshalJSON errors for years outside [0,9999], forcing
+	// json.Marshal(message) to fail before any client delivery is attempted.
+	invalidSlot := model.Slot{StartsAt: time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC)}
+
+	// Should not panic; the marshal error is logged and the call returns early.
+	s.BroadcastSlotsUpdate(eventId, []model.Slot{invalidSlot})
 }
 
 func TestBroadcastSlotsUpdate_NoClientsForEvent_NoOp(t *testing.T) {
@@ -214,4 +243,51 @@ func testDB(t *testing.T) *gorm.DB {
 	require.NoError(t, err)
 	require.NoError(t, database.AutoMigrate(&model.Account{}, &model.Event{}, &model.Slot{}, &model.Availability{}, &model.AccountEvent{}))
 	return database
+}
+
+// closedRepoDB returns a gorm.DB whose underlying connection is already
+// closed, so any query through it fails immediately — used to force a
+// single repository's calls to fail while the rest of the service keeps
+// using a working DB.
+func closedRepoDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	database := testDB(t)
+	sqlDB, err := database.DB()
+	require.NoError(t, err)
+	require.NoError(t, sqlDB.Close())
+	return database
+}
+
+func TestHandleSSEConnection_SlotsLookupFails_FallsBackToEmpty(t *testing.T) {
+	db := testDB(t)
+	s := newTestService()
+	s.eventRepository = repository.NewEventRepository(db)
+	s.slotRepository = repository.NewSlotRepository(closedRepoDB(t))
+
+	userId := uuid.New()
+	account := model.Account{Id: userId}
+	require.NoError(t, db.Create(&account).Error)
+	event := model.Event{Id: uuid.New(), Name: "Event", Duration: 30, OwnerId: userId, Status: "IN_DECISION"}
+	require.NoError(t, db.Create(&event).Error)
+	require.NoError(t, db.Create(&model.AccountEvent{AccountId: userId, EventId: event.Id}).Error)
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.GET("/sse/:eventId", func(c *gin.Context) {
+		s.HandleSSEConnection(c, userId, event.Id)
+	})
+	server := httptest.NewServer(router)
+	defer server.Close()
+
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(server.URL + "/sse/" + event.Id.String())
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	buf := make([]byte, 64)
+	n, err := resp.Body.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "data: []\n\n", string(buf[:n]))
 }
