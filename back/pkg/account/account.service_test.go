@@ -10,6 +10,7 @@ import (
 	"app/db/repository"
 	"app/pkg/mail"
 	"app/pkg/signin"
+	"errors"
 	"fmt"
 	"net/smtp"
 	"testing"
@@ -384,6 +385,21 @@ func TestForgotPassword_Success(t *testing.T) {
 	var found model.Account
 	require.NoError(t, s.accountRepository.FindOneByEmail(email, &found))
 	assert.NotNil(t, found.ResetToken)
+}
+
+func TestForgotPassword_SendMailFails(t *testing.T) {
+	original := mail.SmtpSendFunc
+	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+		return errors.New("smtp unavailable")
+	}
+	t.Cleanup(func() { mail.SmtpSendFunc = original })
+
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
+
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: email})
+	assert.Error(t, err)
 }
 
 func TestForgotPassword_Cooldown(t *testing.T) {

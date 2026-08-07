@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -75,6 +76,16 @@ func TestAccountController_Create_Success(t *testing.T) {
 	awaitSMTP(t, called)
 }
 
+func TestAccountController_GetMe_InvalidClaimsType(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodGet, nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.GetMe(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
 func TestAccountController_GetMe_Unauthenticated(t *testing.T) {
 	ctl := &AccountController{accountService: newTestAccountService(t)}
 	c, recorder := newAccountTestContext(http.MethodGet, nil)
@@ -93,6 +104,16 @@ func TestAccountController_GetMe_Success(t *testing.T) {
 	ctl.GetMe(c)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestAccountController_Update_InvalidClaimsType(t *testing.T) {
+	ctl := &AccountController{accountService: newTestAccountService(t)}
+	c, recorder := newAccountTestContext(http.MethodPatch, []byte(`{}`))
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
 
 func TestAccountController_Update_Unauthenticated(t *testing.T) {
@@ -183,6 +204,16 @@ func newUploadAvatarContext(t *testing.T, userId uuid.UUID, body *bytes.Buffer, 
 	return c, recorder
 }
 
+func TestAccountController_UploadAvatar_InvalidClaimsType(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+	c, recorder := newUploadAvatarContext(t, uuid.Nil, &bytes.Buffer{}, "multipart/form-data")
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.UploadAvatar(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
 func TestAccountController_UploadAvatar_Unauthenticated(t *testing.T) {
 	ctl := &AccountController{avatarService: NewAvatarService(nil)}
 	c, recorder := newUploadAvatarContext(t, uuid.Nil, &bytes.Buffer{}, "multipart/form-data")
@@ -262,4 +293,72 @@ func TestAccountController_ResetPassword_ServiceError(t *testing.T) {
 func TestNewAccountController_ReusesProvidedInstance(t *testing.T) {
 	existing := &AccountController{}
 	assert.Same(t, existing, NewAccountController(existing))
+}
+
+func TestNewAccountController_Nil_BuildsDefault(t *testing.T) {
+	ctl := NewAccountController(nil)
+	assert.NotNil(t, ctl.accountService)
+	assert.NotNil(t, ctl.avatarService)
+}
+
+func newGetAvatarContext(accountId string) (*gin.Context, *httptest.ResponseRecorder) {
+	gin.SetMode(gin.TestMode)
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
+	c.Params = gin.Params{{Key: "accountId", Value: accountId}}
+	return c, recorder
+}
+
+func TestAccountController_GetAvatar_InvalidId(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+	c, _ := newGetAvatarContext("not-a-uuid")
+
+	ctl.GetAvatar(c)
+
+	// GetAvatar's error paths call bare c.Status(...) with no body, so gin
+	// only tracks the status internally (c.Writer.Status()) without flushing
+	// it to the recorder — recorder.Code would stay at its 200 default.
+	assert.Equal(t, http.StatusNotFound, c.Writer.Status())
+}
+
+func TestAccountController_GetAvatar_NotFound(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+	c, _ := newGetAvatarContext(uuid.New().String())
+
+	ctl.GetAvatar(c)
+
+	assert.Equal(t, http.StatusNotFound, c.Writer.Status())
+}
+
+func TestAccountController_GetAvatar_Success(t *testing.T) {
+	accountRepo := repository.NewAccountRepository(nil)
+	account := model.Account{Id: uuid.New(), AvatarData: []byte("avatar-bytes")}
+	require.NoError(t, accountRepo.Create(repository.AccountCreateDto{Id: account.Id}, &model.Account{}))
+	require.NoError(t, accountRepo.Updates(model.Account{Id: account.Id, AvatarData: account.AvatarData}))
+
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: accountRepo}}
+	c, recorder := newGetAvatarContext(account.Id.String())
+
+	ctl.GetAvatar(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, "avatar-bytes", recorder.Body.String())
+	assert.NotEmpty(t, recorder.Header().Get("Last-Modified"))
+	assert.Equal(t, "public, max-age=86400", recorder.Header().Get("Cache-Control"))
+}
+
+func TestAccountController_GetAvatar_NotModified(t *testing.T) {
+	accountRepo := repository.NewAccountRepository(nil)
+	account := model.Account{Id: uuid.New()}
+	require.NoError(t, accountRepo.Create(repository.AccountCreateDto{Id: account.Id}, &model.Account{}))
+	require.NoError(t, accountRepo.Updates(model.Account{Id: account.Id, AvatarData: []byte("avatar-bytes")}))
+
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: accountRepo}}
+	c, _ := newGetAvatarContext(account.Id.String())
+	c.Request.Header.Set("If-Modified-Since", time.Now().Add(time.Hour).UTC().Format(http.TimeFormat))
+
+	ctl.GetAvatar(c)
+
+	assert.Equal(t, http.StatusNotModified, c.Writer.Status())
 }
