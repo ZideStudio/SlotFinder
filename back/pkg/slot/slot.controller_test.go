@@ -37,6 +37,32 @@ func TestNewSlotController_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewSlotController(existing))
 }
 
+func TestNewSlotController_Nil_BuildsDefault(t *testing.T) {
+	ctl := NewSlotController(nil)
+	assert.NotNil(t, ctl.slotService)
+}
+
+func TestSlotController_ConfirmSlot_InvalidClaimsType(t *testing.T) {
+	ctl := &SlotController{slotService: newTestSlotService(t)}
+	body, _ := json.Marshal(ConfirmSlotDto{StartsAt: time.Now(), EndsAt: time.Now().Add(time.Hour)})
+	c, recorder := newSlotTestContext(t, http.MethodPost, body, uuid.New().String(), nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.ConfirmSlot(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestSlotController_RemoveValidatedSlot_InvalidClaimsType(t *testing.T) {
+	ctl := &SlotController{slotService: newTestSlotService(t)}
+	c, recorder := newSlotTestContext(t, http.MethodDelete, nil, uuid.New().String(), nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.RemoveValidatedSlot(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
 func TestSlotController_ConfirmSlot_InvalidSlotId(t *testing.T) {
 	ctl := &SlotController{slotService: newTestSlotService(t)}
 	body, _ := json.Marshal(ConfirmSlotDto{StartsAt: time.Now(), EndsAt: time.Now().Add(time.Hour)})

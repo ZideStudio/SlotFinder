@@ -13,7 +13,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
+
+// closedRepoDB returns a gorm.DB whose underlying connection is already
+// closed, so any query through it fails immediately — used to force a
+// single repository's calls to fail while the rest of the service keeps
+// using the real shared test DB.
+func closedRepoDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	sqlDB, err := database.DB()
+	require.NoError(t, err)
+	require.NoError(t, sqlDB.Close())
+	return database
+}
 
 func newTestSlotService(t *testing.T) *SlotService {
 	t.Helper()
@@ -60,6 +76,55 @@ func createTestEvent(t *testing.T, s *SlotService, ownerId uuid.UUID, participan
 	var found model.Event
 	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	return found
+}
+
+func TestNewSlotService_ReusesProvidedInstance(t *testing.T) {
+	existing := &SlotService{}
+	assert.Same(t, existing, NewSlotService(existing))
+}
+
+func TestSlotService_ConfirmSlot_EventEnded(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	event.EndsAt = time.Now().Add(-time.Hour)
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
+func TestSlotService_ConfirmSlot_EventUpdateFails(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+
+	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
+	assert.Error(t, err)
+}
+
+func TestSlotService_ConfirmSlot_ParticipantsLookupFails_StillSucceeds(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+
+	resp, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
+	assert.NoError(t, err)
+	assert.True(t, resp.IsValidated)
 }
 
 func TestSlotService_ConfirmSlot_NotFound(t *testing.T) {
@@ -135,6 +200,34 @@ func TestSlotService_ConfirmSlot_Success(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("expected the confirmation email goroutine to run")
 	}
+}
+
+func TestSlotService_RemoveValidatedSlot_EventUpdateFails(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute), IsValidated: true}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+
+	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
+	assert.Error(t, err)
+}
+
+func TestSlotService_RemoveValidatedSlot_ParticipantsLookupFails_StillSucceeds(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute), IsValidated: true}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+
+	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
+	assert.NoError(t, err)
 }
 
 func TestSlotService_RemoveValidatedSlot_NotFound(t *testing.T) {
@@ -239,4 +332,74 @@ func TestSlotService_LoadSlots_EventNotFound_NoOp(t *testing.T) {
 	s := newTestSlotService(t)
 	// Should not panic when the event doesn't exist.
 	s.LoadSlots(uuid.New())
+}
+
+func TestSlotService_LoadSlots_EventLocked_NoOp(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	event.EndsAt = time.Now().Add(-time.Hour)
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	s.LoadSlots(event.Id)
+
+	var slots []model.Slot
+	require.NoError(t, s.slotRepository.FindByEventId(event.Id, &slots))
+	assert.Len(t, slots, 0)
+}
+
+func TestSlotService_LoadSlots_DeleteSlotsFails_NoOp(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	participant := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id, participant.Id)
+
+	s.slotRepository = repository.NewSlotRepository(closedRepoDB(t))
+
+	// Should not panic; the deletion error is logged and swallowed.
+	s.LoadSlots(event.Id)
+}
+
+func TestSlotService_LoadSlots_AvailabilitiesLookupFails_NoOp(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	participant := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id, participant.Id)
+
+	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+
+	// Should not panic; the lookup error is logged and swallowed.
+	s.LoadSlots(event.Id)
+}
+
+func TestSlotService_LoadSlots_NoCommonSlots_NoOp(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	participant := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id, participant.Id)
+
+	availRepo := repository.NewAvailabilityRepository(nil)
+	require.NoError(t, availRepo.Create(&model.Availability{
+		Id: uuid.New(), AccountId: owner.Id, EventId: event.Id,
+		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute),
+	}))
+	require.NoError(t, availRepo.Create(&model.Availability{
+		Id: uuid.New(), AccountId: participant.Id, EventId: event.Id,
+		StartsAt: event.StartsAt.Add(2 * time.Hour), EndsAt: event.StartsAt.Add(3 * time.Hour),
+	}))
+
+	s.LoadSlots(event.Id)
+
+	var slots []model.Slot
+	require.NoError(t, s.slotRepository.FindByEventId(event.Id, &slots))
+	assert.Len(t, slots, 0)
+}
+
+func TestFindIntersectingTimeSlots_SingleUser_ReturnsEmpty(t *testing.T) {
+	s := newTestSlotService(t)
+	result := s.findIntersectingTimeSlots(map[uuid.UUID][]TimeSlot{
+		uuid.New(): {{StartsAt: time.Now(), EndsAt: time.Now().Add(time.Hour)}},
+	}, 15*time.Minute)
+	assert.Empty(t, result)
 }
