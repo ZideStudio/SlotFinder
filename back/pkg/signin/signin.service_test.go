@@ -7,13 +7,31 @@ import (
 	appdb "app/db"
 	model "app/db/models"
 	"app/db/repository"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
+
+// closedRepoDB returns a gorm.DB whose underlying connection is already
+// closed, so any query through it fails immediately — used to force a
+// repository-level error independently of the other repositories on the
+// service, which keep using the real shared test DB.
+func closedRepoDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	sqlDB, err := database.DB()
+	require.NoError(t, err)
+	require.NoError(t, sqlDB.Close())
+	return database
+}
 
 func newTestSigninService(t *testing.T) *SigninService {
 	t.Helper()
@@ -34,6 +52,20 @@ func createTestAccount(t *testing.T, s *SigninService, username, password string
 		Password: password,
 	}, &account))
 	return id
+}
+
+func TestNewSigninService_ReusesProvidedInstance(t *testing.T) {
+	existing := &SigninService{}
+	assert.Same(t, existing, NewSigninService(existing))
+}
+
+func TestSignin_AccountRepositoryError(t *testing.T) {
+	s := newTestSigninService(t)
+	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+
+	_, err := s.Signin(&SigninDto{Identifier: "someone", Password: "whatever"})
+	assert.Error(t, err)
+	assert.NotErrorIs(t, err, constants.ERR_INVALID_IDENTIFIER_OR_PASSWORD.Err)
 }
 
 func TestSignin_InvalidIdentifier(t *testing.T) {
@@ -75,6 +107,55 @@ func TestGenerateTokens(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tokens.AccessToken)
 	assert.NotEmpty(t, tokens.RefreshToken)
+}
+
+func TestGenerateTokens_AccessTokenFails(t *testing.T) {
+	s := newTestSigninService(t)
+	cfgCopy := *s.config
+	cfgCopy.Auth.PrivatePemPath = "/nonexistent/private.pem"
+	s.config = &cfgCopy
+
+	_, err := s.GenerateTokens(&guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestGenerateTokens_RefreshTokenRepositoryError(t *testing.T) {
+	s := newTestSigninService(t)
+	s.refreshTokenRepository = repository.NewRefreshTokenRepository(closedRepoDB(t))
+
+	_, err := s.GenerateTokens(&guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestGenerateAccessToken_PrivateKeyFileMissing(t *testing.T) {
+	s := newTestSigninService(t)
+	cfgCopy := *s.config
+	cfgCopy.Auth.PrivatePemPath = "/nonexistent/private.pem"
+	s.config = &cfgCopy
+
+	_, err := s.GenerateAccessToken(&guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestGenerateAccessToken_PrivateKeyFileInvalid(t *testing.T) {
+	s := newTestSigninService(t)
+	cfgCopy := *s.config
+	invalidPath := filepath.Join(t.TempDir(), "invalid.pem")
+	require.NoError(t, os.WriteFile(invalidPath, []byte("not a pem file"), 0o600))
+	cfgCopy.Auth.PrivatePemPath = invalidPath
+	s.config = &cfgCopy
+
+	_, err := s.GenerateAccessToken(&guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestRefreshAccessToken_RefreshTokenRepositoryError(t *testing.T) {
+	s := newTestSigninService(t)
+	s.refreshTokenRepository = repository.NewRefreshTokenRepository(closedRepoDB(t))
+
+	_, err := s.RefreshAccessToken("some-token")
+	assert.Error(t, err)
+	assert.NotEqual(t, "invalid refresh token", err.Error())
 }
 
 func TestRefreshAccessToken_InvalidToken(t *testing.T) {
