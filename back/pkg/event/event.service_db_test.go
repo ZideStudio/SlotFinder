@@ -127,6 +127,20 @@ func TestEventService_Update_BreakingChange_RecalculatesSlots(t *testing.T) {
 	assert.True(t, found.StartsAt.Equal(newStart))
 }
 
+func TestEventService_Update_DurationOnly_RecalculatesSlots(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	hours := 2
+	err := s.Update(event.Id, &EventUpdateDto{Hours: &hours}, &guard.Claims{Id: owner})
+	assert.NoError(t, err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.NotEqual(t, event.Duration, found.Duration)
+}
+
 func TestEventService_GetUserEvents(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
@@ -194,6 +208,19 @@ func TestEventService_JoinEvent_AlreadyJoined(t *testing.T) {
 
 	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: owner})
 	assert.ErrorIs(t, err, constants.ERR_EVENT_ALREADY_JOINED.Err)
+}
+
+func TestEventService_JoinEvent_EventEnded(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	event.EndsAt = time.Now().Add(-time.Hour)
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	newMember := uuid.New()
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: newMember})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
 }
 
 func TestEventService_JoinEvent_Success(t *testing.T) {
