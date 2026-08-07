@@ -18,6 +18,17 @@ func newOAuthFailureServer(t *testing.T) *httptest.Server {
 	return server
 }
 
+// closedServerURL starts and immediately closes a server, returning a URL
+// guaranteed to refuse connections — used to exercise the network-error
+// branches (as opposed to the non-2xx-status branches above).
+func closedServerURL(t *testing.T) string {
+	t.Helper()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	url := server.URL
+	server.Close()
+	return url
+}
+
 func writeJSON(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(v)

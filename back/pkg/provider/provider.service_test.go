@@ -9,7 +9,12 @@ import (
 	"app/pkg/account"
 	"app/pkg/mail"
 	"app/pkg/signin"
+	"bytes"
 	"fmt"
+	"image"
+	"image/png"
+	"net/http"
+	"net/http/httptest"
 	"net/smtp"
 	"testing"
 	"time"
@@ -244,6 +249,34 @@ func TestProviderCallback_GoogleOAuthFailure(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestProviderCallback_Google_TokenNetworkError(t *testing.T) {
+	url := closedServerURL(t)
+	restore := setGoogleURLs(url+"/token", url+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("google", "bad-code", "")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_Google_UserInfoNonSuccessStatus(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	restore := setGoogleURLs(server.URL+"/token", server.URL+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("google", "good-code", "")
+	assert.Error(t, err)
+}
+
 func TestProviderCallback_Google_NewAccount(t *testing.T) {
 	called := stubSMTPAwait(t)
 	email := uniqueEmail(t)
@@ -266,6 +299,44 @@ func TestProviderCallback_Google_NewAccount(t *testing.T) {
 	awaitSMTP(t, called)
 }
 
+func TestProviderCallback_Discord_TokenNetworkError(t *testing.T) {
+	url := closedServerURL(t)
+	restore := setDiscordURLs(url+"/token", url+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("discord", "bad-code", "")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_Discord_TokenNonSuccessStatus(t *testing.T) {
+	server := newOAuthFailureServer(t)
+	restore := setDiscordURLs(server.URL+"/token", server.URL+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("discord", "bad-code", "")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_Discord_UserInfoNonSuccessStatus(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	restore := setDiscordURLs(server.URL+"/token", server.URL+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("discord", "good-code", "")
+	assert.Error(t, err)
+}
+
 func TestProviderCallback_Discord_NewAccount_MissingUsername(t *testing.T) {
 	server := newDiscordOAuthServer(t, "discord-id-"+uuid.NewString(), "", uniqueEmail(t))
 	restore := setDiscordURLs(server.URL+"/token", server.URL+"/userinfo")
@@ -274,6 +345,144 @@ func TestProviderCallback_Discord_NewAccount_MissingUsername(t *testing.T) {
 	s := newTestProviderService(t)
 	_, err := s.ProviderCallback("discord", "good-code", "")
 	assert.Error(t, err)
+}
+
+func TestProviderCallback_Github_TokenNetworkError(t *testing.T) {
+	url := closedServerURL(t)
+	restore := setGithubURLs(url+"/token", url+"/user", url+"/emails")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("github", "bad-code", "")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_Github_TokenNonSuccessStatus(t *testing.T) {
+	server := newOAuthFailureServer(t)
+	restore := setGithubURLs(server.URL+"/token", server.URL+"/user", server.URL+"/emails")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("github", "bad-code", "")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_Github_NoPrimaryEmail_FallsBackToFirst(t *testing.T) {
+	firstEmail := uniqueEmail(t)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]any{"id": 999, "login": "no-primary-user", "avatar_url": ""})
+	})
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, []map[string]any{
+			{"email": firstEmail, "primary": false},
+			{"email": uniqueEmail(t), "primary": false},
+		})
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	restore := setGithubURLs(server.URL+"/token", server.URL+"/user", server.URL+"/emails")
+	defer restore()
+
+	s := newTestProviderService(t)
+	resp, err := s.createProviderAccount(CreateProviderAccountDto{
+		ProviderAccount: func() ProviderAccount {
+			userInfo, err := s.getGithubUserInfo("good-code")
+			require.NoError(t, err)
+			return userInfo
+		}(),
+		Provider: constants.PROVIDER_GITHUB,
+	}, "")
+	require.NoError(t, err)
+	require.NotNil(t, resp.Account)
+	assert.Equal(t, firstEmail, *resp.Account.Email)
+}
+
+func TestProviderCallback_Github_NoEmails_Error(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]any{"id": 998, "login": "no-email-user", "avatar_url": ""})
+	})
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, []map[string]any{})
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	restore := setGithubURLs(server.URL+"/token", server.URL+"/user", server.URL+"/emails")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("github", "good-code", "")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_LinkProvider_MalformedUserId(t *testing.T) {
+	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
+	restore := setDiscordURLs(server.URL+"/token", server.URL+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("discord", "good-code", "not-a-uuid")
+	assert.Error(t, err)
+}
+
+func TestProviderCallback_LinkProvider_UnknownUserId(t *testing.T) {
+	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
+	restore := setDiscordURLs(server.URL+"/token", server.URL+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	_, err := s.ProviderCallback("discord", "good-code", uuid.New().String())
+	assert.Error(t, err)
+}
+
+func buildTestAvatarServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, 4, 4))
+	var buf bytes.Buffer
+	require.NoError(t, png.Encode(&buf, img))
+	body := buf.Bytes()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(body)
+	}))
+	t.Cleanup(server.Close)
+	return server
+}
+
+func TestProviderCallback_Google_NewAccount_FetchesAvatarFromProviderURL(t *testing.T) {
+	called := stubSMTPAwait(t)
+	email := uniqueEmail(t)
+	avatarServer := buildTestAvatarServer(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"sub": "google-avatar-" + uuid.NewString(), "name": "avataruser", "email": email, "picture": avatarServer.URL})
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	restore := setGoogleURLs(server.URL+"/token", server.URL+"/userinfo")
+	defer restore()
+
+	s := newTestProviderService(t)
+	tokens, err := s.ProviderCallback("google", "good-code", "")
+	require.NoError(t, err)
+	assert.NotEmpty(t, tokens.AccessToken)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneByEmail(email, &found))
+	assert.NotEmpty(t, found.AvatarData)
+	assert.Contains(t, found.AvatarUrl, "/api/v1/account/")
+
+	awaitSMTP(t, called)
 }
 
 func TestProviderCallback_Github_ExistingAccountLogin(t *testing.T) {
