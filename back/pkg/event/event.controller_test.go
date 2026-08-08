@@ -34,6 +34,11 @@ func TestNewEventController_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewEventController(existing))
 }
 
+func TestNewEventController_Nil_BuildsRealDependencies(t *testing.T) {
+	ctl := NewEventController(nil)
+	assert.NotNil(t, ctl.eventService)
+}
+
 func TestEventController_Create_InvalidClaimsType(t *testing.T) {
 	ctl := &EventController{eventService: newTestEventService(t)}
 	body, _ := json.Marshal(validEventCreateDto())
@@ -73,6 +78,15 @@ func TestEventController_Update_InvalidClaimsType(t *testing.T) {
 	ctl.Update(c)
 
 	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestEventController_Update_InvalidBody(t *testing.T) {
+	ctl := &EventController{eventService: newTestEventService(t)}
+	c, recorder := newEventTestContext(t, http.MethodPatch, "/", []byte(`not-json`), uuid.New().String(), &guard.Claims{Id: uuid.New()})
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
 }
 
 func TestEventController_Update_InvalidEventId(t *testing.T) {
@@ -163,6 +177,15 @@ func TestEventController_GetEvent_InvalidClaimsType(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
 
+func TestEventController_GetEvent_InvalidEventId(t *testing.T) {
+	ctl := &EventController{eventService: newTestEventService(t)}
+	c, recorder := newEventTestContext(t, http.MethodGet, "/", nil, "not-a-uuid", &guard.Claims{Id: uuid.New()})
+
+	ctl.GetEvent(c)
+
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
+}
+
 func TestEventController_GetEvent_Success(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
@@ -184,6 +207,15 @@ func TestEventController_JoinEvent_InvalidClaimsType(t *testing.T) {
 	ctl.JoinEvent(c)
 
 	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestEventController_JoinEvent_InvalidEventId(t *testing.T) {
+	ctl := &EventController{eventService: newTestEventService(t)}
+	c, recorder := newEventTestContext(t, http.MethodPost, "/", nil, "not-a-uuid", &guard.Claims{Id: uuid.New()})
+
+	ctl.JoinEvent(c)
+
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
 }
 
 func TestEventController_JoinEvent_Success(t *testing.T) {
@@ -209,6 +241,15 @@ func TestEventController_UpdateProfile_InvalidClaimsType(t *testing.T) {
 	ctl.UpdateProfile(c)
 
 	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestEventController_UpdateProfile_InvalidBody(t *testing.T) {
+	ctl := &EventController{eventService: newTestEventService(t)}
+	c, recorder := newEventTestContext(t, http.MethodPatch, "/", []byte(`not-json`), uuid.New().String(), &guard.Claims{Id: uuid.New()})
+
+	ctl.UpdateProfile(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
 }
 
 func TestEventController_UpdateProfile_InvalidEventId(t *testing.T) {

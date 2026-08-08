@@ -48,6 +48,52 @@ func validEventCreateDto() *EventCreateDto {
 	}
 }
 
+func TestNewEventService_Nil_BuildsRealDependencies(t *testing.T) {
+	s := NewEventService(nil)
+	assert.NotNil(t, s.eventRepository)
+	assert.NotNil(t, s.accountEventRepository)
+	assert.NotNil(t, s.availabilityRepository)
+	assert.NotNil(t, s.slotRepository)
+	assert.NotNil(t, s.slotService)
+	assert.NotNil(t, s.signinService)
+	assert.NotNil(t, s.mailService)
+}
+
+func TestEventService_Create_NameTooShort(t *testing.T) {
+	s := newTestEventService(t)
+	dto := validEventCreateDto()
+	dto.Name = "ab"
+
+	_, err := s.Create(dto, &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestEventService_Create_BlankDescriptionIsCleared(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	username := "owner"
+	dto := validEventCreateDto()
+	blank := "   "
+	dto.Description = &blank
+
+	resp, err := s.Create(dto, &guard.Claims{Id: owner, Username: &username})
+	require.NoError(t, err)
+
+	var event model.Event
+	require.NoError(t, s.eventRepository.FindOneById(resp.Id, &event))
+	assert.Nil(t, event.Description)
+}
+
+func TestEventService_Create_InvalidDuration(t *testing.T) {
+	s := newTestEventService(t)
+	dto := validEventCreateDto()
+	// Date range is valid (>= 1 day) but the explicit duration fields sum to 0.
+	dto.Days, dto.Hours, dto.Minutes = 0, 0, 0
+
+	_, err := s.Create(dto, &guard.Claims{Id: uuid.New()})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_DURATION_TOO_SHORT.Err)
+}
+
 func TestEventService_Create_Success(t *testing.T) {
 	s := newTestEventService(t)
 	ownerId := createTestOwner(t)
@@ -125,6 +171,69 @@ func TestEventService_Update_BreakingChange_RecalculatesSlots(t *testing.T) {
 	var found model.Event
 	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.True(t, found.StartsAt.Equal(newStart))
+}
+
+func TestEventService_Update_DescriptionCleared(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	blank := "   "
+	err := s.Update(event.Id, &EventUpdateDto{Description: &blank}, &guard.Claims{Id: owner})
+	assert.NoError(t, err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.Nil(t, found.Description)
+}
+
+func TestEventService_Update_InvalidDates(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	// End before start -> SetEventDatesFromDto rejects it.
+	newStart := event.EndsAt.Add(time.Hour)
+	err := s.Update(event.Id, &EventUpdateDto{StartsAt: &newStart}, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_START_AFTER_END.Err)
+}
+
+func TestEventService_Update_DaysOnly_RecalculatesSlots(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	days := 2
+	err := s.Update(event.Id, &EventUpdateDto{Days: &days}, &guard.Claims{Id: owner})
+	assert.NoError(t, err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.NotEqual(t, event.Duration, found.Duration)
+}
+
+func TestEventService_Update_MinutesOnly_RecalculatesSlots(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	minutes := 30
+	err := s.Update(event.Id, &EventUpdateDto{Minutes: &minutes}, &guard.Claims{Id: owner})
+	assert.NoError(t, err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.NotEqual(t, event.Duration, found.Duration)
+}
+
+func TestEventService_Update_InvalidDuration(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	days, hours, minutes := 0, 0, 0
+	err := s.Update(event.Id, &EventUpdateDto{Days: &days, Hours: &hours, Minutes: &minutes}, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_DURATION_TOO_SHORT.Err)
 }
 
 func TestEventService_Update_DurationOnly_RecalculatesSlots(t *testing.T) {

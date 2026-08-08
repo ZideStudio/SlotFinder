@@ -95,6 +95,33 @@ func TestMapToParticipantDto_UsesAccountEventColorOverride(t *testing.T) {
 	assert.Equal(t, "#112233", dto.Color)
 }
 
+// --- mapToOwnerDto ---
+
+func TestMapToOwnerDto_UsesAccountColorByDefault(t *testing.T) {
+	dto := mapToOwnerDto(model.Account{Color: "#AABBCC"}, nil)
+	assert.Equal(t, "#AABBCC", dto.Color)
+}
+
+func TestMapToOwnerDto_UsesOverrideWhenProvided(t *testing.T) {
+	override := "#112233"
+	dto := mapToOwnerDto(model.Account{Color: "#AABBCC"}, &override)
+	assert.Equal(t, "#112233", dto.Color)
+}
+
+func TestMapToOwnerDto_EmptyOverrideFallsBackToAccountColor(t *testing.T) {
+	empty := ""
+	dto := mapToOwnerDto(model.Account{Color: "#AABBCC"}, &empty)
+	assert.Equal(t, "#AABBCC", dto.Color)
+}
+
+// --- SetEventDatesFromDto ---
+
+func TestSetEventDatesFromDto_NilEvent(t *testing.T) {
+	start := time.Now()
+	err := SetEventDatesFromDto(nil, &start, nil)
+	assert.Error(t, err)
+}
+
 // --- MapToEventListItemDto ---
 
 func TestMapToEventListItemDto(t *testing.T) {
