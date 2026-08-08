@@ -148,6 +148,24 @@ func TestProcessAvatarFromURL_ExceedsMaxDownloadBytes(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestProcessAvatarFromURL_BodyReadError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Declare more bytes than sent, then close the connection early to force a read error.
+		w.Header().Set("Content-Length", "1000")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("short"))
+		hj, ok := w.(http.Hijacker)
+		require.True(t, ok)
+		conn, _, err := hj.Hijack()
+		require.NoError(t, err)
+		_ = conn.Close()
+	}))
+	defer server.Close()
+
+	_, err := ProcessAvatarFromURL(server.URL)
+	assert.Error(t, err)
+}
+
 func TestProcessAvatarFromURL_InvalidBody(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("not-an-image"))
