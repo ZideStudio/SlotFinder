@@ -33,7 +33,7 @@ export const signUpApi = ({
       ? language
       : AccountAccountCreateDtoLanguage.en,
     termsAccepted: true,
-    termsVersion: "1.0",
+    termsVersion: "v1.0",
     timeZone: Temporal.Now.timeZoneId(),
   };
 
