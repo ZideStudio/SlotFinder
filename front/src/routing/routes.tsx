@@ -5,6 +5,7 @@ import { errorRoutes } from "@Front/pages/Error";
 import { homeRoutes } from "@Front/pages/Home";
 import { loaderRoutes } from "@Front/pages/Loader/Routes";
 import { oauthCallbackRoutes } from "@Front/pages/OAuthCallback";
+import { whoAreYouRoutes } from "@Front/pages/WhoAreYou/routes";
 import type { RouteObject } from "react-router";
 
 export const routeObject: RouteObject[] = [
@@ -19,6 +20,7 @@ export const routeObject: RouteObject[] = [
       homeRoutes,
       authenticationRoutes,
       oauthCallbackRoutes,
+      whoAreYouRoutes,
       errorRoutes,
       loaderRoutes,
     ],
