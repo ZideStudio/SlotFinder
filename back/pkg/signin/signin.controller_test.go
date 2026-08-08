@@ -28,6 +28,11 @@ func TestNewSigninController_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewSigninController(existing))
 }
 
+func TestNewSigninController_Nil_BuildsRealDependencies(t *testing.T) {
+	ctl := NewSigninController(nil)
+	assert.NotNil(t, ctl.signinService)
+}
+
 func TestSigninController_Signin_InvalidBody(t *testing.T) {
 	ctl := &SigninController{signinService: newTestSigninService(t)}
 	c, recorder := newSigninTestContext(http.MethodPost, []byte(`not-json`))

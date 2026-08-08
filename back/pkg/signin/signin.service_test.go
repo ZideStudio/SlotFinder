@@ -59,6 +59,12 @@ func TestNewSigninService_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewSigninService(existing))
 }
 
+func TestNewSigninService_Nil_BuildsRealDependencies(t *testing.T) {
+	s := NewSigninService(nil)
+	assert.NotNil(t, s.accountRepository)
+	assert.NotNil(t, s.refreshTokenRepository)
+}
+
 func TestSignin_AccountRepositoryError(t *testing.T) {
 	s := newTestSigninService(t)
 	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
