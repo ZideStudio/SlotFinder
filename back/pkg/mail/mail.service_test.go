@@ -15,10 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// NOTE: Do not initialize real services via NewMailService(nil) in unit tests
-// (it reads config.GetConfig() from the environment). Build the service
-// struct directly instead, calling loadTemplates/loadTranslations explicitly
-// (they only read from the embedded FS, no env dependency).
+// newTestMailService builds the struct directly, keeping most tests independent of package-level config.
 func newTestMailService(t *testing.T) *MailService {
 	t.Helper()
 
@@ -43,6 +40,13 @@ func newTestMailService(t *testing.T) *MailService {
 func TestNewMailService_ReusesProvidedInstance(t *testing.T) {
 	existing := &MailService{}
 	assert.Same(t, existing, NewMailService(existing))
+}
+
+func TestNewMailService_Nil_BuildsRealDependencies(t *testing.T) {
+	s := NewMailService(nil)
+	assert.NotNil(t, s.SendMailFunc)
+	assert.NotEmpty(t, s.templates)
+	assert.NotEmpty(t, s.translations)
 }
 
 func TestLoadTemplates_AllTemplatesLoaded(t *testing.T) {
