@@ -185,6 +185,19 @@ func TestCreate_Success(t *testing.T) {
 	awaitSMTP(t, called)
 }
 
+func TestCreate_Success_FrenchLanguage(t *testing.T) {
+	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
+	dto := validCreateDto(t)
+	dto.Language = constants.ACCOUNT_LANGUAGE_FR
+
+	tokens, err := s.Create(dto)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, tokens.AccessToken)
+
+	awaitSMTP(t, called)
+}
+
 func TestGetMe_Found(t *testing.T) {
 	s := newTestAccountService(t)
 	username := "getme-" + uuid.NewString()
@@ -252,6 +265,30 @@ func TestUpdate_UsernameChanged_ReturnsNewTokens(t *testing.T) {
 	assert.Equal(t, newName, *dto.UserName)
 	assert.NotNil(t, tokens)
 	assert.NotEmpty(t, tokens.AccessToken)
+}
+
+func TestUpdate_UsernameTrimmedEqualsCurrent(t *testing.T) {
+	s := newTestAccountService(t)
+	username := "trimtest-" + uuid.NewString()
+	account := createTestAccountWithUsername(t, s, username)
+
+	// Differs from the stored username only by whitespace, so trimming makes it equal again.
+	padded := "  " + username + "  "
+	_, _, err := s.Update(&AccountUpdateDto{UserName: &padded}, account.Id)
+	assert.ErrorIs(t, err, constants.ERR_USERNAME_ALREADY_TAKEN.Err)
+}
+
+func TestUpdate_ValidTimeZone(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "tzok-"+uuid.NewString())
+	goodTz := "America/New_York"
+
+	_, _, err := s.Update(&AccountUpdateDto{TimeZone: &goodTz}, account.Id)
+	assert.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
+	assert.Equal(t, goodTz, found.TimeZone)
 }
 
 func TestUpdate_InvalidTimeZone(t *testing.T) {
@@ -391,6 +428,16 @@ func TestForgotPassword_SendMailFails(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestForgotPassword_Success_FrenchLanguage(t *testing.T) {
+	s := newTestAccountService(t)
+	stubSMTP(t, s.mailService)
+	email := uniqueEmail(t)
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email, Language: constants.ACCOUNT_LANGUAGE_FR}, &model.Account{}))
+
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: email})
+	assert.NoError(t, err)
+}
+
 func TestForgotPassword_Cooldown(t *testing.T) {
 	s := newTestAccountService(t)
 	stubSMTP(t, s.mailService)
@@ -461,6 +508,49 @@ func TestResetPassword_Success(t *testing.T) {
 	var found model.Account
 	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
 	assert.Nil(t, found.ResetToken)
+
+	awaitSMTP(t, called)
+}
+
+func TestResetPassword_Success_FrenchLanguage(t *testing.T) {
+	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
+	email := uniqueEmail(t)
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email, Language: constants.ACCOUNT_LANGUAGE_FR}, &account))
+
+	rawToken := "fr-token-value"
+	expiresAt := time.Now().Add(time.Hour)
+	require.NoError(t, s.accountRepository.UpdateResetToken(account.Id, &rawToken, &expiresAt))
+
+	encrypted, err := encryption.Encrypt(rawToken)
+	require.NoError(t, err)
+
+	err = s.ResetPassword(&ResetPasswordDto{Token: encrypted, Password: "SuperSecret123!"})
+	assert.NoError(t, err)
+
+	awaitSMTP(t, called)
+}
+
+func TestResetPassword_InvalidStoredTimeZone_FallsBackToUTC(t *testing.T) {
+	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
+	email := uniqueEmail(t)
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &account))
+
+	account.TimeZone = "Not/AZone"
+	require.NoError(t, s.accountRepository.Updates(account))
+
+	rawToken := "bad-tz-token-value"
+	expiresAt := time.Now().Add(time.Hour)
+	require.NoError(t, s.accountRepository.UpdateResetToken(account.Id, &rawToken, &expiresAt))
+
+	encrypted, err := encryption.Encrypt(rawToken)
+	require.NoError(t, err)
+
+	err = s.ResetPassword(&ResetPasswordDto{Token: encrypted, Password: "SuperSecret123!"})
+	assert.NoError(t, err)
 
 	awaitSMTP(t, called)
 }

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"image"
 	"image/color"
+	"image/gif"
 	"image/png"
 	"mime/multipart"
 	"net/http"
@@ -54,7 +55,10 @@ func TestAccountController_Create_InvalidBody(t *testing.T) {
 
 func TestAccountController_Create_ServiceError(t *testing.T) {
 	ctl := &AccountController{accountService: newTestAccountService(t)}
-	body, _ := json.Marshal(AccountCreateDto{Email: "not-an-email"})
+	// Passes body-binding validation but fails the service's password check, unlike InvalidBody above.
+	dto := validCreateDto(t)
+	dto.Password = "short"
+	body, _ := json.Marshal(dto)
 	c, recorder := newAccountTestContext(http.MethodPost, body)
 
 	ctl.Create(c)
@@ -246,6 +250,40 @@ func TestAccountController_UploadAvatar_InvalidImage(t *testing.T) {
 
 	// Same as above: "invalid image file" isn't a registered custom error.
 	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_UploadAvatar_UnsupportedFormat(t *testing.T) {
+	ctl := &AccountController{avatarService: NewAvatarService(nil)}
+
+	// GIF decodes fine (this file imports image/gif) but isn't in ALLOWED_PICTURE_FORMATS.
+	img := image.NewPaletted(image.Rect(0, 0, 4, 4), []color.Color{color.White, color.Black})
+	var buf bytes.Buffer
+	require.NoError(t, gif.Encode(&buf, img, nil))
+
+	body, contentType := multipartImageRequest(t, "image", "avatar.gif", buf.Bytes())
+	c, recorder := newUploadAvatarContext(t, uuid.New(), body, contentType)
+
+	ctl.UploadAvatar(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestAccountController_UploadAvatar_Success(t *testing.T) {
+	accountRepo := repository.NewAccountRepository(nil)
+	account := model.Account{Id: uuid.New()}
+	require.NoError(t, accountRepo.Create(repository.AccountCreateDto{Id: account.Id}, &model.Account{}))
+
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: accountRepo}}
+	body, contentType := multipartImageRequest(t, "image", "avatar.png", validPNGBytes(t))
+	c, recorder := newUploadAvatarContext(t, account.Id, body, contentType)
+
+	ctl.UploadAvatar(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	var found model.Account
+	require.NoError(t, accountRepo.FindOneById(account.Id, &found))
+	assert.NotEmpty(t, found.AvatarData)
 }
 
 func TestAccountController_ForgotPassword_InvalidBody(t *testing.T) {
