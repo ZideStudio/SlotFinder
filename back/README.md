@@ -33,7 +33,7 @@ go test ./[package]
 ### All tests with coverage
 
 ```bash
-go test ./... --cover
+go test ./... -coverpkg=./... --cover
 ```
 
 ## Docker Build
