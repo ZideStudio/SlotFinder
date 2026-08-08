@@ -18,12 +18,6 @@ type GoogleTokenResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
-// Overridable in tests to avoid depending on the real Google API.
-var (
-	googleTokenURL    = "https://oauth2.googleapis.com/token"
-	googleUserInfoURL = "https://www.googleapis.com/oauth2/v3/userinfo"
-)
-
 func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
@@ -39,7 +33,7 @@ func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error
 			"redirect_uri":  providerConfig.GoogleRedirectUrl,
 		}).
 		SetResult(&token).
-		Post(googleTokenURL)
+		Post(s.googleTokenURL)
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Google token: %w", err)
 	}
@@ -51,7 +45,7 @@ func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&userInfo).
-		Get(googleUserInfoURL)
+		Get(s.googleUserInfoURL)
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Google user info: %w", err)
 	}

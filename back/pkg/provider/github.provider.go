@@ -25,13 +25,6 @@ type GithubTokenResponse struct {
 	Scope       string `json:"scope"`
 }
 
-// Overridable in tests to avoid depending on the real Github API.
-var (
-	githubTokenURL     = "https://github.com/login/oauth/access_token"
-	githubUserInfoURL  = "https://api.github.com/user"
-	githubUserEmailURL = "https://api.github.com/user/emails"
-)
-
 func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
@@ -48,7 +41,7 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 		}).
 		SetHeader("Accept", "application/json").
 		SetResult(&token).
-		Post(githubTokenURL)
+		Post(s.githubTokenURL)
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github token: %w", err)
 	}
@@ -60,7 +53,7 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&userNameInfo).
-		Get(githubUserInfoURL)
+		Get(s.githubUserInfoURL)
 
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github user info: %w", err)
@@ -73,7 +66,7 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&emailInfo).
-		Get(githubUserEmailURL)
+		Get(s.githubUserEmailURL)
 
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github emails info: %w", err)

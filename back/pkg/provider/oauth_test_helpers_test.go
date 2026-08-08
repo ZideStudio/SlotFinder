@@ -50,12 +50,6 @@ func newOAuthSuccessServer(t *testing.T, sub, username, email string) *httptest.
 	return server
 }
 
-func setGoogleURLs(tokenURL, userInfoURL string) func() {
-	originalToken, originalUserInfo := googleTokenURL, googleUserInfoURL
-	googleTokenURL, googleUserInfoURL = tokenURL, userInfoURL
-	return func() { googleTokenURL, googleUserInfoURL = originalToken, originalUserInfo }
-}
-
 // newDiscordOAuthServer mimics Discord's token + userinfo endpoints.
 func newDiscordOAuthServer(t *testing.T, id, username, email string) *httptest.Server {
 	t.Helper()
@@ -69,12 +63,6 @@ func newDiscordOAuthServer(t *testing.T, id, username, email string) *httptest.S
 	server := httptest.NewServer(mux)
 	t.Cleanup(server.Close)
 	return server
-}
-
-func setDiscordURLs(tokenURL, userInfoURL string) func() {
-	originalToken, originalUserInfo := discordTokenURL, discordUserInfoURL
-	discordTokenURL, discordUserInfoURL = tokenURL, userInfoURL
-	return func() { discordTokenURL, discordUserInfoURL = originalToken, originalUserInfo }
 }
 
 // newGithubOAuthServer mimics Github's token + user + emails endpoints.
@@ -96,12 +84,4 @@ func newGithubOAuthServer(t *testing.T, id int32, login, primaryEmail string) *h
 	server := httptest.NewServer(mux)
 	t.Cleanup(server.Close)
 	return server
-}
-
-func setGithubURLs(tokenURL, userInfoURL, emailURL string) func() {
-	originalToken, originalUserInfo, originalEmail := githubTokenURL, githubUserInfoURL, githubUserEmailURL
-	githubTokenURL, githubUserInfoURL, githubUserEmailURL = tokenURL, userInfoURL, emailURL
-	return func() {
-		githubTokenURL, githubUserInfoURL, githubUserEmailURL = originalToken, originalUserInfo, originalEmail
-	}
 }

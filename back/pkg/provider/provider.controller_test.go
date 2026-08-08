@@ -135,10 +135,9 @@ func TestProviderCallback_Success_SetsCookiesAndRedirects(t *testing.T) {
 	s := newTestProviderService(t)
 	email := uniqueEmail(t)
 	server := newOAuthSuccessServer(t, "google-sub-"+uuid.NewString(), "ctrluser", email)
-	restore := setGoogleURLs(server.URL+"/token", server.URL+"/userinfo")
-	defer restore()
+	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
 
-	called := stubSMTPAwait(t)
+	called := stubSMTPAwait(t, s.mailService)
 
 	ctl := &ProviderController{signinService: s}
 	state := encryptedState(t, "", "/dashboard")
@@ -159,8 +158,7 @@ func TestProviderCallback_LinkExistingAccount(t *testing.T) {
 
 	newProviderEmail := uniqueEmail(t)
 	server := newOAuthSuccessServer(t, "google-sub-"+uuid.NewString(), "linkeduser", newProviderEmail)
-	restore := setGoogleURLs(server.URL+"/token", server.URL+"/userinfo")
-	defer restore()
+	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
 
 	ctl := &ProviderController{signinService: s}
 	state := encryptedState(t, loggedInAccount.Id.String(), "/settings")

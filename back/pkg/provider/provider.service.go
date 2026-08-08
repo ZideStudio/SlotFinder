@@ -28,6 +28,16 @@ type ProviderService struct {
 	avatarService              *account.AvatarService
 	mailService                *mail.MailService
 	config                     *config.Config
+
+	discordTokenURL    string
+	discordUserInfoURL string
+
+	googleTokenURL    string
+	googleUserInfoURL string
+
+	githubTokenURL     string
+	githubUserInfoURL  string
+	githubUserEmailURL string
 }
 
 func NewProviderService(service *ProviderService) *ProviderService {
@@ -43,14 +53,18 @@ func NewProviderService(service *ProviderService) *ProviderService {
 		avatarService:              account.NewAvatarService(nil),
 		mailService:                mail.NewMailService(nil),
 		config:                     config.GetConfig(),
+
+		discordTokenURL:    constants.PROVIDER_DISCORD_TOKEN_URL,
+		discordUserInfoURL: constants.PROVIDER_DISCORD_USERINFO_URL,
+
+		googleTokenURL:    constants.PROVIDER_GOOGLE_TOKEN_URL,
+		googleUserInfoURL: constants.PROVIDER_GOOGLE_USERINFO_URL,
+
+		githubTokenURL:     constants.PROVIDER_GITHUB_TOKEN_URL,
+		githubUserInfoURL:  constants.PROVIDER_GITHUB_USERINFO_URL,
+		githubUserEmailURL: constants.PROVIDER_GITHUB_USEREMAIL_URL,
 	}
 }
-
-var (
-	PROVIDER_DISCORD_URL = "https://discord.com/oauth2/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=identify+email&state=%s"
-	PROVIDER_GOOGLE_URL  = "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=openid%%20email%%20profile&state=%s"
-	PROVIDER_GITHUB_URL  = "https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email&state=%s"
-)
 
 func (*ProviderService) parseProvider(provider string) (constants.Provider, error) {
 	switch provider {
@@ -87,11 +101,11 @@ func (s *ProviderService) GetProviderUrl(providerEntry, returnUrl string, user *
 	providerConfig := config.GetProviderConfig()
 	switch provider {
 	case constants.PROVIDER_GOOGLE:
-		return fmt.Sprintf(PROVIDER_GOOGLE_URL, providerConfig.GoogleClientId, url.QueryEscape(providerConfig.GoogleRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
+		return fmt.Sprintf(constants.PROVIDER_GOOGLE_URL, providerConfig.GoogleClientId, url.QueryEscape(providerConfig.GoogleRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
 	case constants.PROVIDER_DISCORD:
-		return fmt.Sprintf(PROVIDER_DISCORD_URL, providerConfig.DiscordClientId, url.QueryEscape(providerConfig.DiscordRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
+		return fmt.Sprintf(constants.PROVIDER_DISCORD_URL, providerConfig.DiscordClientId, url.QueryEscape(providerConfig.DiscordRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
 	case constants.PROVIDER_GITHUB:
-		return fmt.Sprintf(PROVIDER_GITHUB_URL, providerConfig.GithubClientId, url.QueryEscape(providerConfig.GithubRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
+		return fmt.Sprintf(constants.PROVIDER_GITHUB_URL, providerConfig.GithubClientId, url.QueryEscape(providerConfig.GithubRedirectUrl), url.QueryEscape(jsonStateEncrypted)), nil
 	default:
 		return "", errors.New("unsupported provider")
 	}
