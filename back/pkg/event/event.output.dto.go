@@ -31,44 +31,43 @@ type EventParticipantDto struct {
 
 // EventListItemDto - GET /events (paginated, no joins)
 type EventListItemDto struct {
-	Id          uuid.UUID            `json:"id"`
-	Name        string               `json:"name"`
-	Description *string              `json:"description"`
+	Id          uuid.UUID             `json:"id"`
+	Name        string                `json:"name"`
+	Description *string               `json:"description"`
+	StartsAt    time.Time             `json:"startsAt"`
+	EndsAt      time.Time             `json:"endsAt"`
+	Status      constants.EventStatus `json:"status"`
 	EventDurationFields
-	StartsAt time.Time            `json:"startsAt"`
-	EndsAt   time.Time            `json:"endsAt"`
-	Status   constants.EventStatus `json:"status"`
 }
 
 // EventCreateResponseDto - POST /events (event + owner)
 type EventCreateResponseDto struct {
-	Id          uuid.UUID            `json:"id"`
-	Name        string               `json:"name"`
-	Description *string              `json:"description"`
+	Id          uuid.UUID             `json:"id"`
+	Name        string                `json:"name"`
+	Description *string               `json:"description"`
+	StartsAt    time.Time             `json:"startsAt"`
+	EndsAt      time.Time             `json:"endsAt"`
+	Status      constants.EventStatus `json:"status"`
+	Owner       EventOwnerDto         `json:"owner"`
 	EventDurationFields
-	StartsAt time.Time            `json:"startsAt"`
-	EndsAt   time.Time            `json:"endsAt"`
-	Status   constants.EventStatus `json:"status"`
-	Owner    EventOwnerDto        `json:"owner"`
 }
 
 // EventBasicResponseDto - GET /events/:id/summary (public)
 type EventBasicResponseDto struct {
-	Id          uuid.UUID            `json:"id"`
-	Name        string               `json:"name"`
-	Description *string              `json:"description"`
+	Id          uuid.UUID             `json:"id"`
+	Name        string                `json:"name"`
+	Description *string               `json:"description"`
+	StartsAt    time.Time             `json:"startsAt"`
+	EndsAt      time.Time             `json:"endsAt"`
+	Status      constants.EventStatus `json:"status"`
 	EventDurationFields
-	StartsAt time.Time            `json:"startsAt"`
-	EndsAt   time.Time            `json:"endsAt"`
-	Status   constants.EventStatus `json:"status"`
 }
 
 // EventFullResponseDto - GET /events/:id (member) and POST /events/:id/join
 type EventFullResponseDto struct {
-	Id          uuid.UUID            `json:"id"`
-	Name        string               `json:"name"`
-	Description *string              `json:"description"`
-	EventDurationFields
+	Id             uuid.UUID             `json:"id"`
+	Name           string                `json:"name"`
+	Description    *string               `json:"description"`
 	StartsAt       time.Time             `json:"startsAt"`
 	EndsAt         time.Time             `json:"endsAt"`
 	Status         constants.EventStatus `json:"status"`
@@ -76,4 +75,5 @@ type EventFullResponseDto struct {
 	Participants   []EventParticipantDto `json:"participants"`
 	Availabilities []model.Availability  `json:"availabilities"`
 	Slots          []model.Slot          `json:"slots"`
+	EventDurationFields
 }

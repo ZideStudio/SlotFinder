@@ -25,15 +25,11 @@ var templateFS embed.FS
 //go:embed locales/*/*.json
 var localeFS embed.FS
 
-// SendMailFunc is the low-level SMTP sender, defaulting to smtp.SendMail.
-// Exported so it can be overridden per-instance in tests.
-type SendMailFunc func(addr string, a smtp.Auth, from string, to []string, msg []byte) error
-
 type MailService struct {
 	Config       config.Config
 	templates    map[constants.MailTemplate]*template.Template
 	translations map[string]map[constants.MailTemplate]map[string]any
-	SendMailFunc SendMailFunc
+	SendMailFunc func(addr string, a smtp.Auth, from string, to []string, msg []byte) error
 }
 
 func NewMailService(service *MailService) *MailService {

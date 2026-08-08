@@ -15,9 +15,7 @@ import (
 
 type AvatarService struct {
 	accountRepository *repository.AccountRepository
-	// fetchAvatar allows tests to stub out the network call made by
-	// FetchAndStoreGravatar. Defaults to lib.ProcessAvatarFromURL.
-	fetchAvatar func(url string) ([]byte, error)
+	fetchAvatar       func(url string) ([]byte, error)
 }
 
 func NewAvatarService(service *AvatarService) *AvatarService {

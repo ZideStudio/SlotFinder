@@ -121,11 +121,11 @@ func TestMapToEventListItemDto(t *testing.T) {
 
 func TestMapToEventFullResponseDto_EmptyParticipantsWhenNoAccountEvents(t *testing.T) {
 	e := model.Event{
-		Id:            uuid.New(),
-		Duration:      60,
-		AccountEvents: nil,
+		Id:             uuid.New(),
+		Duration:       60,
+		AccountEvents:  nil,
 		Availabilities: nil,
-		Slots:         nil,
+		Slots:          nil,
 	}
 	dto := MapToEventFullResponseDto(e)
 
