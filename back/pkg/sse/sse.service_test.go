@@ -235,6 +235,49 @@ func TestHandleSSEConnection_StreamsInitialMessageThenCloses(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "data: ")
 }
 
+func TestHandleSSEConnection_BroadcastsMessageToConnectedClient(t *testing.T) {
+	db := testDB(t)
+	s := newTestService()
+	s.eventRepository = repository.NewEventRepository(db)
+	s.slotRepository = repository.NewSlotRepository(db)
+
+	userId := uuid.New()
+	account := model.Account{Id: userId}
+	require.NoError(t, db.Create(&account).Error)
+	event := model.Event{Id: uuid.New(), Name: "Event", Duration: 30, OwnerId: userId, Status: "IN_DECISION"}
+	require.NoError(t, db.Create(&event).Error)
+	require.NoError(t, db.Create(&model.AccountEvent{AccountId: userId, EventId: event.Id}).Error)
+
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.GET("/sse/:eventId", func(c *gin.Context) {
+		s.HandleSSEConnection(c, userId, event.Id)
+	})
+	server := httptest.NewServer(router)
+	defer server.Close()
+
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(server.URL + "/sse/" + event.Id.String())
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	// Drain the initial message first.
+	buf := make([]byte, 64)
+	_, err = resp.Body.Read(buf)
+	require.NoError(t, err)
+
+	// Wait for the client to register, otherwise the broadcast could be sent too early.
+	require.Eventually(t, func() bool {
+		return s.GetConnectedClientsCount(event.Id) == 1
+	}, time.Second, 10*time.Millisecond)
+
+	s.BroadcastSlotsUpdate(event.Id, []model.Slot{{Id: uuid.New(), EventId: event.Id}})
+
+	n, err := resp.Body.Read(buf)
+	require.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "data: ")
+}
+
 // testDB opens a throwaway in-memory sqlite DB migrated for the models this
 // package's repositories touch (Event/Slot/Account/Availability/AccountEvent).
 func testDB(t *testing.T) *gorm.DB {
