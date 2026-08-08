@@ -19,11 +19,10 @@ export const ClickIcon = <Type extends ElementType = "button">({
 }: ClickIconProps<Type>) => {
   const Component = as ?? "button";
   const isNativeButton = !as || as === "button";
-  const modifiers = variant === "default" ? undefined : variant;
 
   const parentClassName = getClassName({
     defaultClassName: "ds-click-icon",
-    modifiers,
+    modifiers: [variant !== "default" && variant],
     className,
   });
 
