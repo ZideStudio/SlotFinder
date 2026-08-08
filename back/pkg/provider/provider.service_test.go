@@ -80,6 +80,109 @@ func TestNewProviderService_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewProviderService(existing))
 }
 
+func TestNewProviderService_Nil_BuildsRealDependencies(t *testing.T) {
+	s := NewProviderService(nil)
+	assert.NotNil(t, s.accountProvidersRepository)
+	assert.NotNil(t, s.accountRepository)
+	assert.NotNil(t, s.signinService)
+	assert.NotNil(t, s.accountService)
+	assert.NotNil(t, s.avatarService)
+	assert.NotNil(t, s.mailService)
+	assert.NotEmpty(t, s.discordTokenURL)
+	assert.NotEmpty(t, s.googleTokenURL)
+	assert.NotEmpty(t, s.githubTokenURL)
+}
+
+// tokenOnlyServer serves a valid "/token" response so the second-hop URL can be tested in isolation.
+func tokenOnlyServer(t *testing.T) *httptest.Server {
+	t.Helper()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	}))
+	t.Cleanup(server.Close)
+	return server
+}
+
+func TestGetGoogleUserInfo_UserInfoNetworkError(t *testing.T) {
+	tokenServer := tokenOnlyServer(t)
+	s := newTestProviderService(t)
+	s.googleTokenURL = tokenServer.URL
+	s.googleUserInfoURL = closedServerURL(t)
+
+	_, err := s.getGoogleUserInfo("code")
+	assert.Error(t, err)
+}
+
+func TestGetDiscordUserInfo_UserInfoNetworkError(t *testing.T) {
+	tokenServer := tokenOnlyServer(t)
+	s := newTestProviderService(t)
+	s.discordTokenURL = tokenServer.URL
+	s.discordUserInfoURL = closedServerURL(t)
+
+	_, err := s.getDiscordUserInfo("code")
+	assert.Error(t, err)
+}
+
+func TestGetGithubUserInfo_UserInfoNetworkError(t *testing.T) {
+	tokenServer := tokenOnlyServer(t)
+	s := newTestProviderService(t)
+	s.githubTokenURL = tokenServer.URL
+	s.githubUserInfoURL = closedServerURL(t)
+
+	_, err := s.getGithubUserInfo("code")
+	assert.Error(t, err)
+}
+
+func TestGetGithubUserInfo_UserInfoNonSuccessStatus(t *testing.T) {
+	tokenServer := tokenOnlyServer(t)
+	failureServer := newOAuthFailureServer(t)
+	s := newTestProviderService(t)
+	s.githubTokenURL = tokenServer.URL
+	s.githubUserInfoURL = failureServer.URL
+
+	_, err := s.getGithubUserInfo("code")
+	assert.Error(t, err)
+}
+
+func TestGetGithubUserInfo_EmailsNetworkError(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]any{"id": 1, "login": "u", "avatar_url": ""})
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	s := newTestProviderService(t)
+	s.githubTokenURL, s.githubUserInfoURL = server.URL+"/token", server.URL+"/user"
+	s.githubUserEmailURL = closedServerURL(t)
+
+	_, err := s.getGithubUserInfo("code")
+	assert.Error(t, err)
+}
+
+func TestGetGithubUserInfo_EmailsNonSuccessStatus(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]any{"id": 1, "login": "u", "avatar_url": ""})
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+	failureServer := newOAuthFailureServer(t)
+
+	s := newTestProviderService(t)
+	s.githubTokenURL, s.githubUserInfoURL = server.URL+"/token", server.URL+"/user"
+	s.githubUserEmailURL = failureServer.URL
+
+	_, err := s.getGithubUserInfo("code")
+	assert.Error(t, err)
+}
+
 func TestParseProvider(t *testing.T) {
 	s := &ProviderService{}
 

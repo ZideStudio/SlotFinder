@@ -31,6 +31,11 @@ func TestNewProviderController_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewProviderController(existing))
 }
 
+func TestNewProviderController_Nil_BuildsRealDependencies(t *testing.T) {
+	ctl := NewProviderController(nil)
+	assert.NotNil(t, ctl.signinService)
+}
+
 func TestProviderUrl_InvalidReturnUrl(t *testing.T) {
 	ctl := &ProviderController{signinService: newTestProviderService(t)}
 	c, recorder := newProviderTestContext("google", "returnUrl=not-relative")
