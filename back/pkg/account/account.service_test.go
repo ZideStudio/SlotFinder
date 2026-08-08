@@ -45,31 +45,22 @@ func uniqueEmail(t *testing.T) string {
 	return fmt.Sprintf("%s@example.com", uuid.NewString())
 }
 
-// stubSMTP stubs mail.SmtpSendFunc for the duration of the test. Only safe
-// for code paths that call SendMail synchronously (e.g. ForgotPassword) —
-// for paths that send via `go s.mailService.SendMail(...)` (Create,
-// ResetPassword), use stubSMTPAwait instead so the test doesn't restore the
-// stub while that goroutine might still be reading it (data race).
-func stubSMTP(t *testing.T) {
+// stubSMTP stubs m.SendMailFunc for the duration of the test.
+func stubSMTP(t *testing.T, m *mail.MailService) {
 	t.Helper()
-	original := mail.SmtpSendFunc
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
+	m.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
 }
 
-// stubSMTPAwait stubs mail.SmtpSendFunc and returns a channel that receives
+// stubSMTPAwait stubs m.SendMailFunc and returns a channel that receives
 // once the stub has actually been invoked, so callers can wait for an
-// asynchronously-spawned SendMail goroutine to run before the test (and its
-// cleanup restoring the original SmtpSendFunc) returns.
-func stubSMTPAwait(t *testing.T) <-chan struct{} {
+// asynchronously-spawned SendMail goroutine to run.
+func stubSMTPAwait(t *testing.T, m *mail.MailService) <-chan struct{} {
 	t.Helper()
 	called := make(chan struct{}, 1)
-	original := mail.SmtpSendFunc
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	m.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		called <- struct{}{}
 		return nil
 	}
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
 	return called
 }
 
@@ -178,8 +169,8 @@ func TestCreate_InvalidTimeZone(t *testing.T) {
 }
 
 func TestCreate_Success(t *testing.T) {
-	called := stubSMTPAwait(t)
 	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
 	dto := validCreateDto(t)
 
 	tokens, err := s.Create(dto)
@@ -374,8 +365,8 @@ func TestForgotPassword_AccountNotFound_SilentlyIgnored(t *testing.T) {
 }
 
 func TestForgotPassword_Success(t *testing.T) {
-	stubSMTP(t)
 	s := newTestAccountService(t)
+	stubSMTP(t, s.mailService)
 	email := uniqueEmail(t)
 	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
 
@@ -388,13 +379,11 @@ func TestForgotPassword_Success(t *testing.T) {
 }
 
 func TestForgotPassword_SendMailFails(t *testing.T) {
-	original := mail.SmtpSendFunc
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s := newTestAccountService(t)
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		return errors.New("smtp unavailable")
 	}
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
 
-	s := newTestAccountService(t)
 	email := uniqueEmail(t)
 	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
 
@@ -403,8 +392,8 @@ func TestForgotPassword_SendMailFails(t *testing.T) {
 }
 
 func TestForgotPassword_Cooldown(t *testing.T) {
-	stubSMTP(t)
 	s := newTestAccountService(t)
+	stubSMTP(t, s.mailService)
 	email := uniqueEmail(t)
 	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
 
@@ -453,8 +442,8 @@ func TestResetPassword_ExpiredToken(t *testing.T) {
 }
 
 func TestResetPassword_Success(t *testing.T) {
-	called := stubSMTPAwait(t)
 	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
 	email := uniqueEmail(t)
 	var account model.Account
 	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &account))

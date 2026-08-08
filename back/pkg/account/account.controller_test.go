@@ -63,8 +63,9 @@ func TestAccountController_Create_ServiceError(t *testing.T) {
 }
 
 func TestAccountController_Create_Success(t *testing.T) {
-	called := stubSMTPAwait(t)
-	ctl := &AccountController{accountService: newTestAccountService(t)}
+	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
+	ctl := &AccountController{accountService: s}
 	dto := validCreateDto(t)
 	body, _ := json.Marshal(dto)
 	c, recorder := newAccountTestContext(http.MethodPost, body)
@@ -257,8 +258,8 @@ func TestAccountController_ForgotPassword_InvalidBody(t *testing.T) {
 }
 
 func TestAccountController_ForgotPassword_Success(t *testing.T) {
-	stubSMTP(t)
 	s := newTestAccountService(t)
+	stubSMTP(t, s.mailService)
 	email := uniqueEmail(t)
 	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
 	ctl := &AccountController{accountService: s}

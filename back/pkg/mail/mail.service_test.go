@@ -169,11 +169,8 @@ func TestSendMail_RenderError(t *testing.T) {
 func TestSendMail_Success(t *testing.T) {
 	s := newTestMailService(t)
 
-	original := SmtpSendFunc
-	defer func() { SmtpSendFunc = original }()
-
 	var capturedTo []string
-	SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		capturedTo = to
 		return nil
 	}
@@ -193,9 +190,7 @@ func TestSendMail_Success(t *testing.T) {
 func TestSendMail_DefaultsLanguageAndParams(t *testing.T) {
 	s := newTestMailService(t)
 
-	original := SmtpSendFunc
-	defer func() { SmtpSendFunc = original }()
-	SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
 
 	err := s.SendMail(EmailParams{Template: constants.MAIL_TEMPLATE_WELCOME, To: "a@b.com", Subject: "Welcome"})
 	assert.NoError(t, err)
@@ -204,9 +199,7 @@ func TestSendMail_DefaultsLanguageAndParams(t *testing.T) {
 func TestSendMail_SmtpError(t *testing.T) {
 	s := newTestMailService(t)
 
-	original := SmtpSendFunc
-	defer func() { SmtpSendFunc = original }()
-	SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		return errors.New("connection refused")
 	}
 
@@ -216,7 +209,7 @@ func TestSendMail_SmtpError(t *testing.T) {
 
 func TestSendEventConfirmationEmail_NoEmailOrUsername_NoOp(t *testing.T) {
 	s := newTestMailService(t)
-	// No email/username set -> should return without attempting to send (and thus without needing the SmtpSendFunc stub).
+	// No email/username set -> should return without attempting to send (and thus without needing the SendMailFunc stub).
 	s.SendEventConfirmationEmail(model.Account{}, model.Event{}, uuid.New(), uuid.New(), time.Now(), time.Now())
 }
 
@@ -228,10 +221,8 @@ func TestSendEventCancellationEmail_NoEmailOrUsername_NoOp(t *testing.T) {
 func TestSendEventConfirmationEmail_Success(t *testing.T) {
 	s := newTestMailService(t)
 
-	original := SmtpSendFunc
-	defer func() { SmtpSendFunc = original }()
 	sent := make(chan struct{}, 1)
-	SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		sent <- struct{}{}
 		return nil
 	}
@@ -254,10 +245,8 @@ func TestSendEventConfirmationEmail_Success(t *testing.T) {
 func TestSendEventCancellationEmail_Success(t *testing.T) {
 	s := newTestMailService(t)
 
-	original := SmtpSendFunc
-	defer func() { SmtpSendFunc = original }()
 	sent := make(chan struct{}, 1)
-	SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		sent <- struct{}{}
 		return nil
 	}

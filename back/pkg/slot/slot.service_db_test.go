@@ -170,15 +170,13 @@ func TestSlotService_ConfirmSlot_InvalidEndsAt(t *testing.T) {
 }
 
 func TestSlotService_ConfirmSlot_Success(t *testing.T) {
-	original := mail.SmtpSendFunc
+	s := newTestSlotService(t)
 	called := make(chan struct{}, 1)
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		called <- struct{}{}
 		return nil
 	}
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
 
-	s := newTestSlotService(t)
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
 
@@ -193,8 +191,7 @@ func TestSlotService_ConfirmSlot_Success(t *testing.T) {
 	require.NoError(t, s.eventRepository.FindOneById(event.Id, &updatedEvent))
 	assert.Equal(t, constants.EVENT_STATUS_UPCOMING, updatedEvent.Status)
 
-	// Wait for the async confirmation email goroutine (owner is the sole
-	// participant) so it can't race with a later test's SmtpSendFunc stub.
+	// Wait for the async confirmation email goroutine (owner is the sole participant).
 	select {
 	case <-called:
 	case <-time.After(2 * time.Second):
@@ -261,15 +258,13 @@ func TestSlotService_RemoveValidatedSlot_NotValidated(t *testing.T) {
 }
 
 func TestSlotService_RemoveValidatedSlot_Success(t *testing.T) {
-	original := mail.SmtpSendFunc
+	s := newTestSlotService(t)
 	called := make(chan struct{}, 1)
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		called <- struct{}{}
 		return nil
 	}
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
 
-	s := newTestSlotService(t)
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
 

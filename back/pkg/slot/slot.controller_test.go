@@ -3,7 +3,6 @@ package slot
 import (
 	"app/commons/guard"
 	model "app/db/models"
-	"app/pkg/mail"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -83,15 +82,13 @@ func TestSlotController_ConfirmSlot_InvalidBody(t *testing.T) {
 }
 
 func TestSlotController_ConfirmSlot_Success(t *testing.T) {
-	original := mail.SmtpSendFunc
+	s := newTestSlotService(t)
 	called := make(chan struct{}, 1)
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		called <- struct{}{}
 		return nil
 	}
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
 
-	s := newTestSlotService(t)
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
 	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
@@ -122,15 +119,13 @@ func TestSlotController_RemoveValidatedSlot_InvalidSlotId(t *testing.T) {
 }
 
 func TestSlotController_RemoveValidatedSlot_Success(t *testing.T) {
-	original := mail.SmtpSendFunc
+	s := newTestSlotService(t)
 	called := make(chan struct{}, 1)
-	mail.SmtpSendFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		called <- struct{}{}
 		return nil
 	}
-	t.Cleanup(func() { mail.SmtpSendFunc = original })
 
-	s := newTestSlotService(t)
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
 	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute), IsValidated: true}
