@@ -1,5 +1,5 @@
+import PaletteIcon from "@material-symbols/svg-400/outlined/palette.svg";
 import type { Meta, StoryObj } from "storybook-react-rsbuild";
-import PaletteIcon from "@material-symbols/svg-400/outlined/palette.svg?react";
 import { Button } from "./Button";
 
 const meta = {

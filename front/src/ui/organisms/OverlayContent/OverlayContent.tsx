@@ -1,7 +1,7 @@
 import { Heading } from "@Front/ui/atoms/Heading/Heading";
 import { Button } from "@Front/ui/molecules/Button/Button";
 import { ClickIcon } from "@Front/ui/molecules/ClickIcon/ClickIcon";
-import Close from "@material-symbols/svg-400/rounded/close.svg?react";
+import Close from "@material-symbols/svg-400/rounded/close.svg";
 import { type ComponentProps, type ReactNode } from "react";
 
 import "./OverlayContent.scss";

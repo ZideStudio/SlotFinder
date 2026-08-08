@@ -1,5 +1,5 @@
+import GoogleIcon from "@Front/assets/svg/google_icon.svg";
 import type { Meta, StoryObj } from "storybook-react-rsbuild";
-import GoogleIcon from "@Front/assets/svg/google_icon.svg?react";
 import { Icon } from "./Icon";
 
 const meta = {

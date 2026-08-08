@@ -23,7 +23,16 @@ export default defineConfig(({ env }) => {
   const isProduction = env === "production";
 
   return {
-    plugins: [pluginReact(), pluginSvgr(), pluginSass()],
+    plugins: [
+      pluginReact(),
+      pluginSvgr({
+        query: /.*/,
+        svgrOptions: {
+          exportType: "default",
+        },
+      }),
+      pluginSass(),
+    ],
     source: {
       entry: {
         index: "./src/main.ts",

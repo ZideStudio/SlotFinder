@@ -14,7 +14,6 @@ A reusable, accessible Icon atom.
 ```
 
 > ⚠️ The `icon` prop expects a React component, not a JSX element. So you should pass the imported SVG directly without wrapping it in JSX.
-> Don't forget to import your SVGs with the `?react` suffix to ensure they are treated as React components.
 
 ## Props
 
@@ -71,8 +70,8 @@ A reusable, accessible Icon atom.
 ## Example
 
 ```tsx
-import GoogleIcon from '@Front/assets/svg/google_icon.svg?react';
-import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg?react';
+import GoogleIcon from '@Front/assets/svg/google_icon.svg';
+import PaletteIcon from '@material-symbols/svg-400/outlined/palette.svg';
 
 <Icon icon={GoogleIcon} />
 <Icon icon={PaletteIcon} className="custom-color" />
