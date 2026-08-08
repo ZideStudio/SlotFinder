@@ -62,6 +62,42 @@ func createTestUser(t *testing.T) uuid.UUID {
 	return id
 }
 
+func TestNewAvailabilityService_Nil_BuildsRealDependencies(t *testing.T) {
+	s := NewAvailabilityService(nil)
+	assert.NotNil(t, s.slotService)
+	assert.NotNil(t, s.availabilityRepository)
+	assert.NotNil(t, s.eventRepository)
+}
+
+func TestNewAvailabilityService_NonNil_ReturnsSameInstance(t *testing.T) {
+	existing := &AvailabilityService{}
+	s := NewAvailabilityService(existing)
+	assert.Same(t, existing, s)
+}
+
+// createUpcomingEvent creates an event with status UPCOMING (not IN_DECISION) and a future EndsAt.
+func createUpcomingEvent(t *testing.T, db *repository.EventRepository, ownerId uuid.UUID) model.Event {
+	t.Helper()
+	start := alignedNow(t)
+	event := model.Event{
+		Id:       uuid.New(),
+		Name:     "Upcoming Event",
+		Duration: 30,
+		StartsAt: start,
+		EndsAt:   start.Add(4 * time.Hour),
+		OwnerId:  ownerId,
+		Status:   constants.EVENT_STATUS_UPCOMING,
+	}
+	require.NoError(t, db.Create(&event))
+
+	accountEventRepo := repository.NewAccountEventRepository(nil)
+	require.NoError(t, accountEventRepo.Create(&model.AccountEvent{AccountId: ownerId, EventId: event.Id}))
+
+	var found model.Event
+	require.NoError(t, db.FindOneById(event.Id, &found))
+	return found
+}
+
 func TestAvailabilityService_Create_EventNotFound(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	user := &guard.Claims{Id: uuid.New()}
@@ -107,6 +143,32 @@ func TestAvailabilityService_Create_MergesOverlapping(t *testing.T) {
 	var availabilities []model.Availability
 	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
+}
+
+func TestAvailabilityService_Create_InvalidTimes(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	// End before start -> validateAvailabilityTimes rejects it.
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(time.Hour), EndsAt: event.StartsAt}, event.Id, claims)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_START_AFTER_END.Err)
+}
+
+func TestAvailabilityService_Update_InvalidTimes(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// New end before existing start -> validateAvailabilityTimes rejects it.
+	newEnd := event.StartsAt.Add(-time.Hour)
+	_, err = s.Update(&AvailabilityUpdateDto{EndsAt: &newEnd}, created.Id, claims)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_START_AFTER_END.Err)
 }
 
 func TestAvailabilityService_Update_NotFound(t *testing.T) {
@@ -193,4 +255,68 @@ func TestAvailabilityService_Delete_Success(t *testing.T) {
 	var availabilities []model.Availability
 	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 	assert.Len(t, availabilities, 0)
+}
+
+func TestAvailabilityService_Update_EventEnded(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createUpcomingEvent(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	// Bypass Create (which would itself reject an UPCOMING event) to isolate Update's own check.
+	availability := model.Availability{
+		Id:        uuid.New(),
+		StartsAt:  event.StartsAt,
+		EndsAt:    event.StartsAt.Add(time.Hour),
+		AccountId: owner,
+		EventId:   event.Id,
+	}
+	require.NoError(t, s.availabilityRepository.Create(&availability))
+
+	newEnd := event.StartsAt.Add(90 * time.Minute)
+	_, err := s.Update(&AvailabilityUpdateDto{EndsAt: &newEnd}, availability.Id, claims)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
+func TestAvailabilityService_Delete_EventEnded(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createUpcomingEvent(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	// Bypass Create (which would itself reject an UPCOMING event) to isolate Delete's own check.
+	availability := model.Availability{
+		Id:        uuid.New(),
+		StartsAt:  event.StartsAt,
+		EndsAt:    event.StartsAt.Add(time.Hour),
+		AccountId: owner,
+		EventId:   event.Id,
+	}
+	require.NoError(t, s.availabilityRepository.Create(&availability))
+
+	err := s.Delete(availability.Id, claims)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
+func TestAvailabilityService_Update_MergesOverlapping(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	first, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(2 * time.Hour), EndsAt: event.StartsAt.Add(3 * time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// Extend the second availability so it now overlaps the first -> merge.
+	newStart := event.StartsAt.Add(30 * time.Minute)
+	updated, err := s.Update(&AvailabilityUpdateDto{StartsAt: &newStart}, second.Id, claims)
+	require.NoError(t, err)
+	assert.True(t, updated.StartsAt.Equal(first.StartsAt))
+
+	var availabilities []model.Availability
+	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
+	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
 }

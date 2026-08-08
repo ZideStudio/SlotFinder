@@ -41,6 +41,39 @@ func TestNewAvailabilityController_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewAvailabilityController(existing))
 }
 
+func TestNewAvailabilityController_Nil_BuildsRealDependencies(t *testing.T) {
+	ctl := NewAvailabilityController(nil)
+	assert.NotNil(t, ctl.availabilityService)
+}
+
+func TestAvailabilityController_Create_MissingEventId(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	body, _ := json.Marshal(AvailabilityCreateDto{StartsAt: alignedNow(t), EndsAt: alignedNow(t).Add(time.Hour)})
+	c, recorder := newAvailabilityTestContext(t, http.MethodPost, body, "", "", &guard.Claims{Id: uuid.New()})
+
+	ctl.Create(c)
+
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
+}
+
+func TestAvailabilityController_Update_MissingAvailabilityId(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	c, recorder := newAvailabilityTestContext(t, http.MethodPatch, []byte(`{}`), "", "", &guard.Claims{Id: uuid.New()})
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
+}
+
+func TestAvailabilityController_Delete_MissingAvailabilityId(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	c, recorder := newAvailabilityTestContext(t, http.MethodDelete, nil, "", "", &guard.Claims{Id: uuid.New()})
+
+	ctl.Delete(c)
+
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
+}
+
 func TestAvailabilityController_Create_InvalidBody(t *testing.T) {
 	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
 	c, recorder := newAvailabilityTestContext(t, http.MethodPost, []byte(`not-json`), uuid.New().String(), "", &guard.Claims{Id: uuid.New()})
