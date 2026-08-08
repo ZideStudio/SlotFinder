@@ -2,19 +2,18 @@
 @use "../../utils/sass/mixins/helpers";
 
 .card-page {
-  --card-page-margin-top: #{helpers.pxToRem(16)};
+  --card-page-padding-top: #{helpers.pxToRem(16)};
   --card-page-row-gap: #{helpers.pxToRem(16)};
   --logo-width: #{helpers.pxToRem(48)};
 
-  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
-  row-gap: var(--card-page-row-gap);
-  justify-content: center;
-  min-height: 100vh;
+  box-sizing: border-box;
   min-height: 100dvh;
-  margin-top: var(--card-page-margin-top);
-  margin-bottom: #{helpers.pxToRem(16)};
+  padding-top: var(--card-page-padding-top);
+  padding-bottom: #{helpers.pxToRem(16)};
+  flex-direction: column;
+  justify-content: center;
+  row-gap: var(--card-page-row-gap);
 
   &__logo {
     display: block;
@@ -40,6 +39,6 @@
   @include responsive.mediaExceedsWidth("desktop-small") {
     --start: 4;
     --card-page-row-gap: #{helpers.pxToRem(24)};
-    --card-page-margin-top: #{helpers.pxToRem(32)};
+    --card-page-padding-top: #{helpers.pxToRem(32)};
   }
 }
