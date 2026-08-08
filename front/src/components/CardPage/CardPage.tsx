@@ -43,7 +43,7 @@ export const CardPage = ({
       <Heading level={1} className={`${defaultClassName}__title`}>
         {title}
       </Heading>
-      <Card borderWeight="bold">{children}</Card>
+      <Card className="card-page__card" borderWeight="bold">{children}</Card>
     </section>
   );
 };

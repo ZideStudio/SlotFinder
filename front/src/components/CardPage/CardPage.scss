@@ -12,6 +12,7 @@
   padding-top: var(--card-page-padding-top);
   padding-bottom: #{helpers.pxToRem(16)};
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   row-gap: var(--card-page-row-gap);
 
@@ -28,6 +29,18 @@
 
   &__title {
     text-align: center;
+  }
+
+  &__card {
+    --card-padding-inline: #{helpers.pxToRem(16)};
+
+    width: fit-content;
+    padding-inline: var(--card-padding-inline);
+    padding-block: #{helpers.pxToRem(16)};
+
+    @include responsive.mediaExceedsWidth("tablet") {
+      --card-padding-inline: #{helpers.pxToRem(32)};
+    }
   }
 
   @include responsive.mediaExceedsWidth("tablet") {
