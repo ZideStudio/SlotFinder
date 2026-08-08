@@ -83,6 +83,30 @@ func TestEnsureTestJWTKeyPair_AlreadyExists_NoOp(t *testing.T) {
 	assert.Equal(t, publicBefore, publicAfter, "an existing key pair should not be regenerated")
 }
 
+func TestEnsureTestJWTKeyPair_MkdirAllFails(t *testing.T) {
+	dir := t.TempDir()
+	// A file where a directory component is expected makes os.MkdirAll fail.
+	blocker := filepath.Join(dir, "blocker")
+	require.NoError(t, os.WriteFile(blocker, []byte("not a directory"), 0o600))
+
+	privateKeyPath := filepath.Join(blocker, "subdir", "private.pem")
+	publicKeyPath := filepath.Join(blocker, "subdir", "public.pem")
+
+	err := EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath)
+	assert.Error(t, err)
+}
+
+func TestEnsureTestJWTKeyPair_WriteFileFails(t *testing.T) {
+	dir := t.TempDir()
+	// A directory at the target path makes os.WriteFile fail.
+	privateKeyPath := filepath.Join(dir, "private-as-dir")
+	require.NoError(t, os.MkdirAll(privateKeyPath, 0o755))
+	publicKeyPath := filepath.Join(dir, "public.pem")
+
+	err := EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath)
+	assert.Error(t, err)
+}
+
 func TestEnsureTestJWTKeyPair_OnlyPrivateKeyPresent_RegeneratesPair(t *testing.T) {
 	dir := t.TempDir()
 	privateKeyPath := filepath.Join(dir, "private.pem")
