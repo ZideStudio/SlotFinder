@@ -14,7 +14,9 @@ describe("CardPage", () => {
       </BrowserRouter>,
     );
 
-    const logoLink = screen.getByRole("link", { name: "Slot Finder logo" });
+    const logoLink = screen.getByRole("link", {
+      name: "Slot Finder home page",
+    });
     expect(logoLink).toBeInTheDocument();
     expect(logoLink).toHaveAttribute("href", appRoutes.home());
 
