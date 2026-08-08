@@ -4,8 +4,6 @@
 .ds-label-input {
   --font-size: #{helpers.pxToRem(16)};
 
-  display: flex;
-  column-gap: helpers.pxToRem(4);
   font-size: var(--font-size);
   font-weight: 600;
 
