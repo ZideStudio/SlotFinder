@@ -1,70 +1,110 @@
 # 📁 utils
 
-The `utils` folder contains reusable utilities and functionalities used across different parts of the application. These utilities are designed to simplify the code, promote reusability, and enhance the maintainability of the project.
+The utils folder contains shared front-end helpers and support utilities used across the application. It centralizes small, reusable pieces of logic so components and pages can stay focused on business behavior instead of repeating boilerplate.
 
 ## 📑 Table of Contents
 
-- [Usage Example](#usage)
-- [Best Practice](#best-practice)
+- [Structure](#structure)
+- [Available utilities](#available-utilities)
+- [Best practices](#best-practices)
 
-## <span id="usage">🧑🏻‍💻 Example of usage</span>
+## 🧱 Structure
 
-### `formatDate.ts`
+The folder is organized into four main areas:
 
-The `formatDate.ts` file contains a utility function to consistently format dates throughout the application. You can use it to display dates in various components.
+- `constants/`: shared constants such as terminology and duration units
+- `helpers/`: reusable pure functions for common UI and URL logic
+- `sass/`: SCSS mixins and helpers for layout and spacing
+- `testsUtils/`: test helpers for rendering components with providers, routing, and query clients
 
-Example of usage:
+## 🛠️ Available utilities
 
-```typescript
-import { formatDate } from "@Front/utils/formatDate";
+### Helpers
 
-const formattedDate = formatDate(new Date());
+#### `getClassName`
+
+Builds a class name from a base class and optional modifiers.
+
+```ts
+import { getClassName } from "@Front/utils/helpers/getClassName";
+
+const className = getClassName({
+  defaultClassName: "button",
+  modifiers: ["primary", "large"],
+  className: "custom-button",
+});
 ```
 
-### `apiUtils.ts`
+#### `getContrastTextColor`
 
-The `apiUtils.ts` file contains utility functions to simplify API calls. You can find functions to handle HTTP requests, manipulate responses, and manage errors.
+Returns a readable text color (`#000000` or `#FFFFFF`) based on a background hex color.
 
-Example of usage:
+```ts
+import { getContrastTextColor } from "@Front/utils/helpers/getContrastTextColor";
 
-```typescript
-import { fetchData, handleResponse } from "@Front/utils/apiUtils";
+const textColor = getContrastTextColor("#336699");
+```
 
-async function fetchDataAndHandleError() {
-  try {
-    const data = await fetchData("https://api.example.com/data");
-    const processedData = handleResponse(data);
-  } catch (error) {
-    console.error("An error occurred while fetching data:", error);
-  }
+#### `isInternalUrl`
+
+Validates that a URL is a safe internal route and blocks common redirect bypass patterns.
+
+```ts
+import { isInternalUrl } from "@Front/utils/helpers/isInternalUrl";
+
+if (isInternalUrl("/dashboard")) {
+  // safe internal navigation
 }
 ```
 
-```typescript
-import { formatDate, fetchData, handleResponse } from "@Front/utils";
-// Use the utilities as needed
+### Constants
+
+#### `terms.ts`
+
+Exports the current terms version constant.
+
+```ts
+import { TERMS_VERSION } from "@Front/utils/constants/terms";
 ```
 
----
+#### `units.ts`
 
-**_By using the "utils" folder, we organize our utilities efficiently for better reuse and simplified management._**
+Defines the supported duration units and their allowed ranges.
 
-## <span id="best-practice">🎖️ Best Practice</span>
+```ts
+import { UNITS, UNIT_LIMITS } from "@Front/utils/constants/units";
+```
 
-When dealing with utility functions, especially those sourced from external libraries like `date-fns`, it is advisable to follow these best practices for maintaining a structured codebase:
+### Test utilities
 
-#### - Export Libraries from the `utils` Directory
+The test utilities provide shared rendering helpers for React Testing Library, React Query, router context, and application providers.
 
-Always export utility libraries, such as `date-fns` or others, from the `utils` directory. This practice provides a central location for managing library imports and ensures consistent usage throughout the codebase.
+```ts
+import {
+  renderWithQueryClient,
+  renderRoute,
+} from "@Front/utils/testsUtils/customRender/customRender";
+```
 
-#### - Centralized Library Management
+These helpers are especially useful for component and page tests that need authentication, loaders, toasts, or router state.
 
-Exporting libraries through the `utils` directory establishes a centralized point for managing changes or updates to external libraries.
+### Sass utilities
 
-In case of updates, bug fixes, or changes in functionality, modifications can be made at a single location, preventing the need to update multiple parts of the codebase.
+The Sass helpers under `sass/mixins/` provide reusable mixins for spacing, responsive behavior, and common layout patterns.
 
-This approach contributes to better maintainability and ensures that updates to external libraries are efficiently handled.
+Typical files include:
 
----
+- `_spacing.scss`
+- `_responsive.scss`
+- `_helpers.scss`
 
-**_By adhering to this practice, you create a clear separation between custom utility functions and external libraries, making your codebase more organized and reducing the impact of changes from external dependencies._**
+## ✅ Best practices
+
+- Keep utilities small, focused, and side-effect free.
+- Prefer pure functions with explicit return types when possible.
+- Reuse existing helpers before introducing a new one.
+- Keep imports consistent and use the most specific path available.
+- Add or update tests alongside utility changes, especially for helpers in `helpers/__tests__/`.
+- Avoid putting business logic or component-specific behavior inside shared utils.
+
+This folder should remain a lightweight collection of reusable primitives that improve consistency across the codebase.

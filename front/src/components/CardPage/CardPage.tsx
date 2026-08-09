@@ -3,7 +3,7 @@ import { appRoutes } from "@Front/routing/appRoutes";
 import { Card } from "@Front/ui/atoms/Card/Card";
 import { Heading } from "@Front/ui/atoms/Heading/Heading";
 import { Icon } from "@Front/ui/atoms/Icon/Icon";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type { ComponentProps, ReactNode } from "react";
 import { NavLink } from "react-router";
 
