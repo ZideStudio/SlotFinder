@@ -2,19 +2,19 @@
 @use "../../utils/sass/mixins/helpers";
 
 .card-page {
-  --card-page-margin-top: #{helpers.px-to-rem(16)};
-  --card-page-row-gap: #{helpers.px-to-rem(16)};
-  --logo-width: #{helpers.px-to-rem(48)};
+  --card-page-margin-top: #{helpers.pxToRem(16)};
+  --card-page-row-gap: #{helpers.pxToRem(16)};
+  --logo-width: #{helpers.pxToRem(48)};
 
-  display: flex;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--card-page-row-gap);
+  justify-content: center;
   min-height: 100vh;
   min-height: 100dvh;
   margin-top: var(--card-page-margin-top);
-  margin-bottom: #{helpers.px-to-rem(16)};
-  flex-direction: column;
-  justify-content: center;
-  row-gap: var(--card-page-row-gap);
+  margin-bottom: #{helpers.pxToRem(16)};
 
   &__logo {
     display: block;
@@ -31,15 +31,15 @@
     text-align: center;
   }
 
-  @include responsive.media-exceeds-width("tablet") {
+  @include responsive.mediaExceedsWidth("tablet") {
     --cols: 6;
     --start: 2;
-    --logo-width: #{helpers.px-to-rem(64)};
+    --logo-width: #{helpers.pxToRem(64)};
   }
 
-  @include responsive.media-exceeds-width("desktop-small") {
+  @include responsive.mediaExceedsWidth("desktop-small") {
     --start: 4;
-    --card-page-row-gap: #{helpers.px-to-rem(24)};
-    --card-page-margin-top: #{helpers.px-to-rem(32)};
+    --card-page-row-gap: #{helpers.pxToRem(24)};
+    --card-page-margin-top: #{helpers.pxToRem(32)};
   }
 }

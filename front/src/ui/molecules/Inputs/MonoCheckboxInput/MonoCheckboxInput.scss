@@ -3,24 +3,24 @@
 .ds-mono-checkbox-input {
   display: grid;
   grid-template-columns: auto 1fr;
+  gap: helpers.pxToRem(4) helpers.pxToRem(12);
   align-items: center;
-  gap: helpers.px-to-rem(4) helpers.px-to-rem(12);
 
   label {
-    margin-bottom: 0;
-    grid-column: 2;
     grid-row: 1;
+    grid-column: 2;
+    margin-bottom: 0;
     cursor: pointer;
   }
 
   .ds-checkbox-input-atom {
-    grid-column: 1;
     grid-row: 1;
+    grid-column: 1;
   }
 
   .ds-input-error-message {
-    margin-top: 4px;
-    grid-column: 1 / -1;
     grid-row: 2;
+    grid-column: 1 / -1;
+    margin-top: 4px;
   }
 }

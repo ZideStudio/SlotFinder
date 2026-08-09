@@ -2,15 +2,15 @@
 @use "../../utils/sass/mixins/responsive";
 
 .duration-field {
-  margin: 0;
   padding: 0;
+  margin: 0;
   border: 0;
 
   &__legend {
     display: flex;
-    margin-bottom: helpers.px-to-rem(8);
-    column-gap: helpers.px-to-rem(4);
-    font-size: helpers.px-to-rem(18);
+    column-gap: helpers.pxToRem(4);
+    margin-bottom: helpers.pxToRem(8);
+    font-size: helpers.pxToRem(18);
     font-weight: 600;
 
     &-required {
@@ -22,28 +22,28 @@
   &__field {
     display: flex;
     flex-direction: column;
-    gap: helpers.px-to-rem(4);
+    gap: helpers.pxToRem(4);
   }
 
   &__field-label {
     display: flex;
-    margin-right: helpers.px-to-rem(8);
+    gap: helpers.pxToRem(4);
     align-items: center;
-    gap: helpers.px-to-rem(4);
+    margin-right: helpers.pxToRem(8);
   }
 
-  @include responsive.media-exceeds-width("desktop-small") {
+  @include responsive.mediaExceedsWidth("desktop-small") {
     .ds-number-input-atom {
-      width: helpers.px-to-rem(40);
+      width: helpers.pxToRem(40);
     }
   }
 
   &__inputs {
     display: flex;
     flex-direction: column;
-    gap: helpers.px-to-rem(8);
+    gap: helpers.pxToRem(8);
 
-    @include responsive.media-exceeds-width("desktop-small") {
+    @include responsive.mediaExceedsWidth("desktop-small") {
       flex-direction: row;
       align-items: flex-end;
     }

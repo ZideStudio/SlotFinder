@@ -2,27 +2,27 @@
 @use "../../../utils/sass/mixins/responsive";
 
 .ds-button {
-  --text-font-size: #{helpers.px-to-rem(12)};
-  --icon-size: #{helpers.px-to-rem(16)};
+  --text-font-size: #{helpers.pxToRem(12)};
+  --icon-size: #{helpers.pxToRem(16)};
   --button-primary-color: var(--color-white);
   --button-secondary-color: var(--color-primary);
 
   display: flex;
-  width: 100%;
-  padding: helpers.px-to-rem(12) helpers.px-to-rem(24);
-  border: helpers.px-to-rem(2) solid var(--btn-color);
-  border-radius: helpers.px-to-rem(6);
+  gap: helpers.pxToRem(8);
   align-items: center;
   justify-content: center;
-  gap: helpers.px-to-rem(8);
+  width: 100%;
+  padding: helpers.pxToRem(12) helpers.pxToRem(24);
   font-size: var(--text-font-size);
   font-weight: 600;
   color: var(--btn-color);
+  cursor: pointer;
   background-color: var(--btn-color);
+  border: helpers.pxToRem(2) solid var(--btn-color);
+  border-radius: helpers.pxToRem(6);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
-  cursor: pointer;
 
   .ds-icon {
     width: var(--icon-size);
@@ -62,18 +62,18 @@
   }
 
   &:is([disabled], [aria-disabled="true"]) {
-    border-color: transparent;
     color: var(--color-white);
-    background-color: var(--color-grey-400);
     cursor: not-allowed;
+    background-color: var(--color-grey-400);
+    border-color: transparent;
 
     .ds-spinner {
       --ds-spinner-color: currentcolor;
     }
   }
 
-  @include responsive.media-exceeds-width("desktop-small") {
-    --text-font-size: #{helpers.px-to-rem(14)};
-    --icon-size: #{helpers.px-to-rem(20)};
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    --text-font-size: #{helpers.pxToRem(14)};
+    --icon-size: #{helpers.pxToRem(20)};
   }
 }

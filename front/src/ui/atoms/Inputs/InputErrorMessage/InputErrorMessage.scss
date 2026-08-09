@@ -2,24 +2,24 @@
 @use "../../../../utils/sass/mixins/responsive";
 
 .ds-input-error-message {
-  --text-font-size: #{helpers.px-to-rem(14)};
-  --icon-size: #{helpers.px-to-rem(16)};
+  --text-font-size: #{helpers.pxToRem(14)};
+  --icon-size: #{helpers.pxToRem(16)};
 
   display: flex;
-  align-items: center;
   gap: 0.5rem;
+  align-items: center;
   font-size: var(--text-font-size);
   color: var(--color-error);
 
-  @include responsive.media-exceeds-width("desktop-small") {
-    --text-font-size: #{helpers.px-to-rem(16)};
-    --icon-size: #{helpers.px-to-rem(20)};
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    --text-font-size: #{helpers.pxToRem(16)};
+    --icon-size: #{helpers.pxToRem(20)};
   }
 
   &__icon {
+    flex-shrink: 0;
     width: var(--icon-size);
     height: var(--icon-size);
-    flex-shrink: 0;
     fill: var(--color-error);
   }
 }

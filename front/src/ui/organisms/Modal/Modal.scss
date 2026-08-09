@@ -3,21 +3,21 @@
 
 .ds-modal {
   width: 100%;
+  padding: helpers.pxToRem(12);
   margin: auto auto 0;
-  padding: helpers.px-to-rem(12);
-  border: helpers.px-to-rem(1) solid var(--color-grey-300);
-  border-radius: helpers.px-to-rem(10) helpers.px-to-rem(10) 0 0;
+  border: helpers.pxToRem(1) solid var(--color-grey-300);
+  border-radius: helpers.pxToRem(10) helpers.pxToRem(10) 0 0;
 
   &[open] {
     display: flex;
     flex-direction: column;
-    row-gap: helpers.px-to-rem(12);
+    row-gap: helpers.pxToRem(12);
   }
 
-  @include responsive.media-exceeds-width(tablet) {
+  @include responsive.mediaExceedsWidth(tablet) {
     width: fit-content;
-    min-width: helpers.px-to-rem(300);
+    min-width: helpers.pxToRem(300);
     margin: auto;
-    border-radius: helpers.px-to-rem(10);
+    border-radius: helpers.pxToRem(10);
   }
 }

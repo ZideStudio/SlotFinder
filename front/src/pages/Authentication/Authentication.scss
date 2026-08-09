@@ -11,12 +11,12 @@
     --cols: 4;
     --start: 1;
 
-    @include responsive.media-exceeds-width("tablet") {
+    @include responsive.mediaExceedsWidth("tablet") {
       --cols: 2;
       --start: 4;
     }
 
-    @include responsive.media-exceeds-width("desktop-small") {
+    @include responsive.mediaExceedsWidth("desktop-small") {
       --start: 6;
     }
   }
