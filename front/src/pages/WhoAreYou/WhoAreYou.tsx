@@ -4,14 +4,20 @@ import { ColorField } from "@Front/components/fields/ColorField/ColorField";
 import { PictureUploadField } from "@Front/components/fields/PictureUploadField/PictureUploadField";
 import { TextField } from "@Front/components/fields/TextField/TextField";
 import { Button } from "@Front/ui/molecules/Button/Button";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { AVATAR_FILE_TYPES } from "./constants";
+import type { WhoAreYouFormData } from "./types";
+import { getSchema } from "./validation";
 
 import "./WhoAreYou.scss";
 
 export const WhoAreYou = () => {
   const { t } = useTranslation("whoAreYou");
-  const methods = useForm();
+  const methods = useForm<WhoAreYouFormData>({
+    resolver: yupResolver(getSchema(t)),
+  });
 
   return (
     <CardPage className="who-are-you" title={t("title")}>
@@ -19,13 +25,19 @@ export const WhoAreYou = () => {
         <form
           className="who-are-you-form"
           onSubmit={methods.handleSubmit((data) => console.log(data))}
+          noValidate
         >
-          <PictureUploadField label={t("avatarLabel")} name="avatar" required />
+          <PictureUploadField
+            label={t("avatarLabel")}
+            name="avatar"
+            accept={AVATAR_FILE_TYPES.join(",")}
+            required
+          />
           <TextField
             label={t("userNameLabel")}
             name="userName"
-            required
             autoComplete="username"
+            required
           />
           <ColorField
             label={t("colorLabel")}
