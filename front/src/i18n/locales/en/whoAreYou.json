@@ -1,8 +1,17 @@
 {
   "title": "Who are you?",
   "avatarLabel": "Avatar",
+  "avatarRequired": "The avatar is required",
+  "avatarFileTypeError": "The avatar file must be a PNG, JPEG, or WEBP image",
+  "avatarFileSizeError": "The avatar file size must be less than {{maxSize}} MB",
   "userNameLabel": "Username",
+  "requiredUsername": "Username is required",
+  "minLengthUsername": "Username must be at least {{min}} characters",
+  "maxLengthUsername": "Username must be at most {{max}} characters",
   "colorLabel": "Favorite color",
   "colorDescription": "Choose your color",
-  "termsAcceptedLabel": "I accept the terms and conditions of use"
+  "colorRequired": "You must choose a color",
+  "colorInvalid": "The color must be a valid hexadecimal code (ex: #RRGGBB)",
+  "termsAcceptedLabel": "I accept the terms and conditions of use",
+  "termsAcceptedError": "You must accept the terms and conditions of use"
 }
