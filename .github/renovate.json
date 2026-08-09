@@ -12,7 +12,7 @@
     "mergeConfidence": null
   },
   "npm": {
-    "rangeStrategy": "bump"
+    "rangeStrategy": "pin"
   },
   "postUpdateOptions": ["gomodTidyE"],
   "packageRules": [
