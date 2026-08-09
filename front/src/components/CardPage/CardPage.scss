@@ -6,15 +6,15 @@
   --card-page-row-gap: #{helpers.pxToRem(16)};
   --logo-width: #{helpers.pxToRem(48)};
 
-  display: flex;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--card-page-row-gap);
+  align-items: center;
+  justify-content: center;
   min-height: 100dvh;
   padding-top: var(--card-page-padding-top);
   padding-bottom: #{helpers.pxToRem(16)};
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  row-gap: var(--card-page-row-gap);
 
   &__logo {
     display: block;
@@ -35,8 +35,8 @@
     --card-padding-inline: #{helpers.pxToRem(16)};
 
     width: fit-content;
-    padding-inline: var(--card-padding-inline);
     padding-block: #{helpers.pxToRem(16)};
+    padding-inline: var(--card-padding-inline);
 
     @include responsive.mediaExceedsWidth("tablet") {
       --card-padding-inline: #{helpers.pxToRem(32)};
