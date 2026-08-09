@@ -1,5 +1,5 @@
 import { Icon, type SvgIcon } from "@Front/ui/atoms/Icon/Icon";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
 
 import "./ClickIcon.scss";

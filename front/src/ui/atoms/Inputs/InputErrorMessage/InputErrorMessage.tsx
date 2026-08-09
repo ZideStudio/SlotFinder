@@ -1,4 +1,4 @@
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import ErrorIcon from "@material-symbols/svg-400/outlined/error.svg";
 import { type ReactNode } from "react";
 import "./InputErrorMessage.scss";

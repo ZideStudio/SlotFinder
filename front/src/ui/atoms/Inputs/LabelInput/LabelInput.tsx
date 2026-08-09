@@ -1,4 +1,4 @@
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type { ReactNode } from "react";
 import "./LabelInput.scss";
 

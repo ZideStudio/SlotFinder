@@ -1,5 +1,5 @@
-import { getClassName } from "@Front/utils/getClassName";
-import { getContrastTextColor } from "@Front/utils/getContrastTextColor";
+import { getClassName } from "@Front/utils/helpers/getClassName";
+import { getContrastTextColor } from "@Front/utils/helpers/getContrastTextColor";
 import { type CSSProperties, type ReactNode } from "react";
 
 import "./Tag.scss";

@@ -1,5 +1,5 @@
 import { DurationInput } from "@Front/components/DurationInput/DurationInput";
-import { UNITS } from "@Front/utils/units";
+import { UNITS } from "@Front/utils/constants/units";
 import { get, useFormContext, type FieldError } from "react-hook-form";
 
 type DurationFieldProps = {

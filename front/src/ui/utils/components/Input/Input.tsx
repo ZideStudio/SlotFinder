@@ -1,11 +1,11 @@
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import {
-  useId,
-  type ComponentProps,
-  type ElementType,
-  type ReactNode,
+    useId,
+    type ComponentProps,
+    type ElementType,
+    type ReactNode,
 } from "react";
 import "./Input.scss";
 

@@ -1,11 +1,11 @@
 import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import {
-  useId,
-  type ComponentProps,
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-  type RefObject,
+    useId,
+    type ComponentProps,
+    type ComponentPropsWithoutRef,
+    type ReactNode,
+    type RefObject,
 } from "react";
 import { OverlayContent } from "../OverlayContent/OverlayContent";
 

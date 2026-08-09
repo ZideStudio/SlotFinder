@@ -1,11 +1,11 @@
-import { type ComponentProps, useId } from "react";
-import { useTranslation } from "react-i18next";
-import { getClassName } from "@Front/utils/getClassName";
-import "./DurationInput.scss";
+import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { NumberInputAtom } from "@Front/ui/atoms/Inputs/NumberInputAtom/NumberInputAtom";
-import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
-import { type DurationUnit, UNIT_LIMITS } from "@Front/utils/units";
+import { type DurationUnit, UNIT_LIMITS } from "@Front/utils/constants/units";
+import { getClassName } from "@Front/utils/helpers/getClassName";
+import { type ComponentProps, useId } from "react";
+import { useTranslation } from "react-i18next";
+import "./DurationInput.scss";
 
 type UnitFieldProps = {
   unit: DurationUnit;

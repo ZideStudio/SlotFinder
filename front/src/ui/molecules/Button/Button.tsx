@@ -1,11 +1,11 @@
 import { Icon } from "@Front/ui/atoms/Icon/Icon";
 import { Spinner } from "@Front/ui/atoms/Spinner/Spinner";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type {
-  ComponentPropsWithoutRef,
-  ElementType,
-  FC,
-  SVGProps,
+    ComponentPropsWithoutRef,
+    ElementType,
+    FC,
+    SVGProps,
 } from "react";
 import "./Button.scss";
 

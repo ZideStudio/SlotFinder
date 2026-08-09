@@ -2,12 +2,12 @@ import { FileUploadInputAtom } from "@Front/ui/atoms/Inputs/FileUploadInputAtom/
 import { type InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { type LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { Input } from "@Front/ui/utils/components/Input/Input";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import {
-  type ChangeEvent,
-  type ComponentProps,
-  useCallback,
-  useRef,
+    type ChangeEvent,
+    type ComponentProps,
+    useCallback,
+    useRef,
 } from "react";
 import "./PictureUploadInput.scss";
 
