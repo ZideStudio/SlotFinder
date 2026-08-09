@@ -2,13 +2,13 @@
 @use "../../../../utils/sass/mixins/responsive";
 
 .ds-textarea-input-atom {
-  @extend %input-base;
+  @extend %inputBase;
 
   min-height: 3rem;
   resize: vertical;
 }
 
-@include responsive.media-less-than-width("tablet") {
+@include responsive.mediaLessThanWidth("tablet") {
   .ds-textarea-input-atom {
     box-sizing: border-box;
   }

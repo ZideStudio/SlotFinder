@@ -7,11 +7,11 @@
   border: 1px solid black;
   border-radius: 0.5rem;
 
-  @include responsive.media-exceeds-width("tablet") {
+  @include responsive.mediaExceedsWidth("tablet") {
     --start: 3;
   }
 
-  @include responsive.media-exceeds-width("desktop-small") {
+  @include responsive.mediaExceedsWidth("desktop-small") {
     --start: 5;
   }
 

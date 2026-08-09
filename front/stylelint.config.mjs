@@ -1,18 +1,18 @@
 const config = {
-  plugins: ['stylelint-scss'],
-  extends: ['@pplancq/stylelint-config'],
+  plugins: ["stylelint-scss"],
+  extends: ["@pplancq/stylelint-config"],
   rules: {
-    'selector-not-notation': null,
-    'color-function-alias-notation': null,
+    "selector-not-notation": null,
+    "function-name-case": null,
     // BEM pattern enforcement using stylelint-scss plugin's selector-class-pattern rule
     // Supports patterns like: .ds-tag, .ds-tag__element, .ds-tag--modifier, .util-flex
-    // resolveNestedSelectors: true allows validation of SCSS nested selectors with &
-    'scss/selector-class-pattern': [
-      '^[a-z]([a-z0-9-]+)?(__[a-z0-9-]+)?(--[a-z0-9-]+)?$',
+    // ResolveNestedSelectors: true allows validation of SCSS nested selectors with &
+    "scss/selector-class-pattern": [
+      "^[a-z]([a-z0-9-]+)?(__[a-z0-9-]+)?(--[a-z0-9-]+)?$",
       {
         resolveNestedSelectors: true,
         message:
-          'Expected class selector to follow BEM pattern: .block__element--modifier (e.g., .ds-tag, .ds-tag__icon, .ds-tag--filled, .util-flex)',
+          "Expected class selector to follow BEM pattern: .block__element--modifier (e.g., .ds-tag, .ds-tag__icon, .ds-tag--filled, .util-flex)",
       },
     ],
   },

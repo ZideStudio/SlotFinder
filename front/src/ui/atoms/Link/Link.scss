@@ -2,20 +2,20 @@
 @use "../../../utils/sass/mixins/responsive";
 
 .ds-link {
-  --font-size: #{helpers.px-to-rem(14)};
+  --font-size: #{helpers.pxToRem(14)};
 
   font-size: var(--font-size);
-  text-decoration: none;
   color: var(--color-primary, #1a73e8);
+  text-decoration: none;
   cursor: pointer;
 
-  @include responsive.media-exceeds-width("desktop-small") {
-    --font-size: #{helpers.px-to-rem(16)};
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    --font-size: #{helpers.pxToRem(16)};
   }
 
   &:hover {
-    text-decoration: underline;
     color: var(--color-primary-dark, #1a73e8);
+    text-decoration: underline;
   }
 
   &:focus-visible {

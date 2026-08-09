@@ -7,15 +7,15 @@
 
 .ds-popover {
   --card-color-background: var(--color-white);
-  --popover-row-gap: #{helpers.px-to-rem(12)};
+  --popover-row-gap: #{helpers.pxToRem(12)};
   --popover-width: 100%;
-  --popover-border-radius: #{helpers.px-to-rem(10)} #{helpers.px-to-rem(10)} 0 0;
+  --popover-border-radius: #{helpers.pxToRem(10)} #{helpers.pxToRem(10)} 0 0;
 
   position: fixed;
-  inset-inline: 0;
   inset-block: auto 0;
-  display: revert;
+  inset-inline: 0;
   box-sizing: border-box;
+  display: revert;
   margin-inline-start: 5px;
 
   &:popover-open {
@@ -23,8 +23,8 @@
     flex-direction: column;
     row-gap: var(--popover-row-gap);
 
-    @include responsive.media-exceeds-width("desktop-small") {
-      --popover-row-gap: #{helpers.px-to-rem(16)};
+    @include responsive.mediaExceedsWidth("desktop-small") {
+      --popover-row-gap: #{helpers.pxToRem(16)};
     }
   }
 
@@ -33,14 +33,14 @@
     border-radius: var(--popover-border-radius);
   }
 
-  @include responsive.media-exceeds-width("tablet") {
+  @include responsive.mediaExceedsWidth("tablet") {
     --popover-width: fit-content;
-    --popover-border-radius: #{helpers.px-to-rem(8)};
+    --popover-border-radius: #{helpers.pxToRem(8)};
 
-    inset-inline: anchor(right) auto;
     inset-block: anchor(top) auto;
+    inset-inline: anchor(right) auto;
+    max-width: helpers.pxToRem(300);
     position-anchor: var(--popover-anchor-name);
-    max-width: helpers.px-to-rem(300);
     position-try-fallbacks:
       --ds-popover-flip-left, --ds-popover-flip-up, --ds-popover-flip-left-up;
   }
@@ -55,6 +55,6 @@
 }
 
 @position-try --ds-popover-flip-left-up {
-  inset-inline: auto anchor(left);
   inset-block: auto anchor(bottom);
+  inset-inline: auto anchor(left);
 }

@@ -2,13 +2,13 @@
 
 .ds-toast-container {
   position: fixed;
-  z-index: 1000;
-  bottom: helpers.px-to-rem(20);
+  bottom: helpers.pxToRem(20);
   left: 50%;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
+  gap: helpers.pxToRem(10);
   align-items: center;
-  gap: helpers.px-to-rem(10);
-  transform: translateX(-50%);
   pointer-events: none;
+  transform: translateX(-50%);
 }

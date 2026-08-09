@@ -2,10 +2,10 @@
 
 .ds-card {
   height: fit-content;
-  padding: helpers.px-to-rem(16px);
-  border: 1px solid var(--color-black);
-  border-radius: helpers.px-to-rem(8px);
+  padding: helpers.pxToRem(16px);
   background-color: var(--card-color-background);
+  border: 1px solid var(--color-black);
+  border-radius: helpers.pxToRem(8px);
 
   &--bold {
     border-width: 2px;

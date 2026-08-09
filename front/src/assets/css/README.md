@@ -224,12 +224,12 @@ When not supported:
     --cols: 4;
     --start: 1;
 
-    @include responsive.media-exceeds-width("tablet") {
+    @include responsive.mediaExceedsWidth("tablet") {
       --cols: 2;
       --start: 4;
     }
 
-    @include responsive.media-exceeds-width("desktop-small") {
+    @include responsive.mediaExceedsWidth("desktop-small") {
       --start: 6;
     }
   }
@@ -238,11 +238,11 @@ When not supported:
     --cols: 4;
     --start: 1;
 
-    @include responsive.media-exceeds-width("tablet") {
+    @include responsive.mediaExceedsWidth("tablet") {
       --start: 3;
     }
 
-    @include responsive.media-exceeds-width("desktop-small") {
+    @include responsive.mediaExceedsWidth("desktop-small") {
       --start: 5;
     }
   }
@@ -268,13 +268,13 @@ When not supported:
 
 `_inputs.scss` defines a Sass placeholder selector:
 
-- `%input-base`
+- `%inputBase`
 
 It is consumed in input atoms with Sass `@extend`, for example:
 
-- `TextInputAtom.scss` extends `%input-base`
+- `TextInputAtom.scss` extends `%inputBase`
 
-### What `%input-base` provides
+### What `%inputBase` provides
 
 - full-width input layout
 - base shadow, radius, and typography
@@ -291,7 +291,7 @@ This ensures a single source of truth for text-like input controls.
 2. Use token variables instead of hardcoded values whenever possible.
 3. Use `.grid` for page-level layout and `.subgrid` for nested alignment.
 4. Set placement through `--cols` and `--start` on item classes.
-5. Reuse `%input-base` for any new text-like input atom.
+5. Reuse `%inputBase` for any new text-like input atom.
 6. Keep spacing consistent with `--margin-*`, `--padding-*`, and `--gap-*` tokens.
 
 ## Related Files

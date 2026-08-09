@@ -4,14 +4,14 @@
 .ds-picture-upload-input {
   display: flex;
   flex-direction: column;
-  gap: helpers.px-to-rem(8);
+  gap: helpers.pxToRem(8);
 
   &__preview {
-    max-width: helpers.px-to-rem(100);
+    max-width: helpers.pxToRem(100);
     object-fit: cover;
 
-    @include responsive.media-exceeds-width("desktop-small") {
-      max-width: helpers.px-to-rem(200);
+    @include responsive.mediaExceedsWidth("desktop-small") {
+      max-width: helpers.pxToRem(200);
     }
   }
 }

@@ -2,12 +2,12 @@
 
 .ds-tag {
   display: inline-flex;
-  max-width: helpers.px-to-rem(150);
-  padding: helpers.px-to-rem(10);
-  border: 1px solid var(--tag-color);
-  border-radius: helpers.px-to-rem(10);
   align-items: center;
   justify-content: center;
+  max-width: helpers.pxToRem(150);
+  padding: helpers.pxToRem(10);
+  border: 1px solid var(--tag-color);
+  border-radius: helpers.pxToRem(10);
 
   &--filled {
     background-color: var(--tag-color);

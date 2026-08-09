@@ -2,29 +2,29 @@
 @use "../../../utils/sass/mixins/helpers";
 
 .ds-heading {
-  --ds-heading-font-size: #{helpers.px-to-rem(16)};
+  --ds-heading-font-size: #{helpers.pxToRem(16)};
 
   font-size: var(--ds-heading-font-size);
 
   &:where(h1) {
-    --ds-heading-font-size: #{helpers.px-to-rem(24)};
+    --ds-heading-font-size: #{helpers.pxToRem(24)};
 
-    @include responsive.media-exceeds-width("tablet") {
-      --ds-heading-font-size: #{helpers.px-to-rem(32)};
+    @include responsive.mediaExceedsWidth("tablet") {
+      --ds-heading-font-size: #{helpers.pxToRem(32)};
     }
   }
 
   &:where(h2) {
-    --ds-heading-font-size: #{helpers.px-to-rem(20)};
+    --ds-heading-font-size: #{helpers.pxToRem(20)};
 
-    @include responsive.media-exceeds-width("tablet") {
-      --ds-heading-font-size: #{helpers.px-to-rem(24)};
+    @include responsive.mediaExceedsWidth("tablet") {
+      --ds-heading-font-size: #{helpers.pxToRem(24)};
     }
   }
 
   &:where(h3) {
-    @include responsive.media-exceeds-width("tablet") {
-      --ds-heading-font-size: #{helpers.px-to-rem(20)};
+    @include responsive.mediaExceedsWidth("tablet") {
+      --ds-heading-font-size: #{helpers.pxToRem(20)};
     }
   }
 }

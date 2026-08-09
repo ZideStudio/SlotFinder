@@ -6,22 +6,22 @@
   --outline-color: var(--color-primary-50);
 
   display: flex;
-  width: fit-content;
-  padding: helpers.px-to-rem(6) helpers.px-to-rem(12);
-  border-radius: helpers.px-to-rem(10);
+  gap: helpers.pxToRem(8);
   align-items: center;
-  gap: helpers.px-to-rem(8);
+  width: fit-content;
+  padding: helpers.pxToRem(6) helpers.pxToRem(12);
   font-weight: 600;
+  cursor: pointer;
   outline: var(--outline-width) solid var(--outline-color);
+  border-radius: helpers.pxToRem(10);
   transition:
     outline-color 0.3s ease,
     filter 0.3s ease;
-  cursor: pointer;
 
   &__icon {
-    width: helpers.px-to-rem(20);
-    height: helpers.px-to-rem(20);
     flex-shrink: 0;
+    width: helpers.pxToRem(20);
+    height: helpers.pxToRem(20);
   }
 
   &:focus-within,
@@ -40,10 +40,10 @@
   }
 
   &__description {
-    font-size: helpers.px-to-rem(14);
+    font-size: helpers.pxToRem(14);
 
-    @include responsive.media-exceeds-width("desktop-small") {
-      font-size: helpers.px-to-rem(16);
+    @include responsive.mediaExceedsWidth("desktop-small") {
+      font-size: helpers.pxToRem(16);
     }
   }
 
@@ -52,7 +52,7 @@
     width: 0;
     height: 0;
     overflow: hidden;
-    opacity: 0;
     pointer-events: none;
+    opacity: 0;
   }
 }

@@ -9,29 +9,31 @@ $breakpoints: (
   desktop-large: 1600,
 );
 
-@mixin media-exceeds-width($name) {
+@mixin mediaExceedsWidth($name) {
   @if not map.has-key($breakpoints, $name) {
     @error "The breakpoint #{$name} does not exist.";
   }
+
   $value: map.get($breakpoints, $name);
 
-  @media (width >= #{helpers.px-to-rem($value)}) {
+  @media (width >= #{helpers.pxToRem($value)}) {
     @content;
   }
 }
 
-@mixin media-less-than-width($name) {
+@mixin mediaLessThanWidth($name) {
   @if not map.has-key($breakpoints, $name) {
     @error "The breakpoint #{$name} does not exist.";
   }
+
   $value: map.get($breakpoints, $name);
 
-  @media (width < #{helpers.px-to-rem($value)}) {
+  @media (width < #{helpers.pxToRem($value)}) {
     @content;
   }
 }
 
-@mixin media-between-widths($start, $end) {
+@mixin mediaBetweenWidths($start, $end) {
   @if not map.has-key($breakpoints, $start) {
     @error "The breakpoint #{$start} does not exist.";
   }
@@ -47,7 +49,7 @@ $breakpoints: (
     @error "The start breakpoint (#{$startValue}) must be less than the end breakpoint (#{$endValue}).";
   }
 
-  @media (width >= #{helpers.px-to-rem($startValue)}) and (width < #{helpers.px-to-rem($endValue)}) {
+  @media (width >= #{helpers.pxToRem($startValue)}) and (width < #{helpers.pxToRem($endValue)}) {
     @content;
   }
 }

@@ -4,30 +4,30 @@
   --checkbox-check-offset: -1px;
 
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
   margin: 0;
+  color: var(--checkbox-atom-color);
+  appearance: none;
+  cursor: pointer;
+  background-color: transparent;
   border: var(--checkbox-outline-size) solid var(--checkbox-atom-color);
   border-radius: 3px;
-  align-items: center;
-  justify-content: center;
-  color: var(--checkbox-atom-color);
-  background-color: transparent;
   transition:
     background-color 200ms ease,
     color 200ms ease;
-  cursor: pointer;
-  appearance: none;
 
   &::after {
     width: 0.45rem;
     height: 0.65rem;
+    content: "";
     border-right: 2px solid var(--color-grey-100);
     border-bottom: 2px solid var(--color-grey-100);
     opacity: 0;
     transform: rotate(45deg) translateY(var(--checkbox-check-offset))
       translateX(var(--checkbox-check-offset));
-    content: "";
   }
 
   &:checked {

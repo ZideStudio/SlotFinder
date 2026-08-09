@@ -2,36 +2,36 @@
 @use "../../utils/sass/mixins/spacing";
 @use "../../utils/sass/mixins/responsive";
 
-$responsive-grid: (
+$responsiveGrid: (
   tablet: (
     cols: 8,
-    margin-h: spacing.get-margin-horizontal(4),
-    gap: spacing.get-gap(4),
-    row-gap: spacing.get-gap(4),
+    margin-h: spacing.getMarginHorizontal(4),
+    gap: spacing.getGap(4),
+    row-gap: spacing.getGap(4),
   ),
   desktop-small: (
     cols: 12,
     margin-h: var(--margin-8),
-    gap: spacing.get-gap(4),
-    row-gap: spacing.get-gap(4),
+    gap: spacing.getGap(4),
+    row-gap: spacing.getGap(4),
   ),
   desktop-medium: (
     cols: 12,
     margin-h: var(--margin-10),
-    gap: spacing.get-gap(4),
-    row-gap: spacing.get-gap(4),
+    gap: spacing.getGap(4),
+    row-gap: spacing.getGap(4),
   ),
   desktop-large: (
     cols: 12,
     margin-h: auto,
-    gap: spacing.get-gap(4),
-    row-gap: spacing.get-gap(4),
+    gap: spacing.getGap(4),
+    row-gap: spacing.getGap(4),
   ),
 );
 
-@mixin generate-responsive-grid($responsive-grid) {
-  @each $breakpoint, $settings in $responsive-grid {
-    @include responsive.media-exceeds-width($breakpoint) {
+@mixin generateResponsiveGrid($responsiveGrid) {
+  @each $breakpoint, $settings in $responsiveGrid {
+    @include responsive.mediaExceedsWidth($breakpoint) {
       @each $property, $value in $settings {
         --#{$property}: #{$value};
       }
@@ -41,19 +41,17 @@ $responsive-grid: (
 
 .grid {
   --cols: 4;
-  --row-gap: #{spacing.get-gap(2)};
+  --row-gap: #{spacing.getGap(2)};
   --start: auto;
 
   display: grid;
-
-  @include spacing.init-margin-horizontal("margin-h", 2);
-  @include spacing.init-spacing(spacing.get-gap(2), "column-gap", "gap");
-
-  max-width: helpers.px-to-rem(1440);
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
   row-gap: var(--row-gap);
+  max-width: helpers.pxToRem(1440);
 
-  @include generate-responsive-grid($responsive-grid);
+  @include spacing.initMarginHorizontal("margin-h", 2);
+  @include spacing.initSpacing(spacing.getGap(2), "column-gap", "gap");
+  @include generateResponsiveGrid($responsiveGrid);
 }
 
 .grid > *,
@@ -63,8 +61,8 @@ $responsive-grid: (
 
 .subgrid {
   display: grid;
-  align-content: start;
   row-gap: var(--row-gap);
+  align-content: start;
 
   @supports (grid-template-columns: subgrid) {
     grid-template-columns: subgrid;

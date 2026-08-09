@@ -2,15 +2,15 @@
 @use "../../../../utils/sass/mixins/responsive";
 
 .ds-label-input {
-  --font-size: #{helpers.px-to-rem(16)};
+  --font-size: #{helpers.pxToRem(16)};
 
   display: flex;
-  column-gap: helpers.px-to-rem(4);
+  column-gap: helpers.pxToRem(4);
   font-size: var(--font-size);
   font-weight: 600;
 
-  @include responsive.media-exceeds-width("desktop-small") {
-    --font-size: #{helpers.px-to-rem(18)};
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    --font-size: #{helpers.pxToRem(18)};
   }
 
   span {

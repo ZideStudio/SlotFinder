@@ -3,9 +3,9 @@
 
 .dashboard {
   display: flex;
-  height: 100vh;
-  grid-column: 1 / -1;
   flex-direction: column;
+  grid-column: 1 / -1;
+  height: 100vh;
 
   &__header {
     position: fixed;
@@ -15,10 +15,10 @@
 
   &__content {
     display: flex;
-    min-height: 0;
-    margin-top: #{helpers.px-to-rem(90)};
     flex: 1;
     flex-direction: column;
+    min-height: 0;
+    margin-top: #{helpers.pxToRem(90)};
 
     &--header {
       display: flex;
@@ -29,26 +29,26 @@
     &--header-buttons {
       width: fit-content;
 
-      @include responsive.media-exceeds-width("mobile") {
-        width: #{helpers.px-to-rem(200)};
+      @include responsive.mediaExceedsWidth("mobile") {
+        width: #{helpers.pxToRem(200)};
       }
     }
 
     &--no-events {
       display: flex;
-      margin-bottom: #{helpers.px-to-rem(90)};
       flex: 1;
       flex-direction: column;
+      gap: #{helpers.pxToRem(10)};
       align-items: center;
       justify-content: center;
-      gap: #{helpers.px-to-rem(10)};
-      font-size: #{helpers.px-to-rem(20)};
+      margin-bottom: #{helpers.pxToRem(90)};
+      font-size: #{helpers.pxToRem(20)};
       font-weight: 500;
     }
 
     &--no-events-icon {
-      width: #{helpers.px-to-rem(100)};
-      height: #{helpers.px-to-rem(100)};
+      width: #{helpers.pxToRem(100)};
+      height: #{helpers.pxToRem(100)};
     }
   }
 }
