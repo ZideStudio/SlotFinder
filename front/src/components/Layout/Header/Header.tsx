@@ -3,7 +3,7 @@ import { appRoutes } from "@Front/routing/appRoutes";
 import type { RouteHandle } from "@Front/routing/routeHandle";
 import { Icon } from "@Front/ui/atoms/Icon/Icon";
 import { Button } from "@Front/ui/molecules/Button/Button";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import AddCalendarIcon from "@material-symbols/svg-400/outlined/calendar_add_on.svg";
 import Person from "@material-symbols/svg-400/outlined/person.svg";
 import { useMemo } from "react";
