@@ -185,4 +185,4 @@ jobs:
           onlyChanged: false
           zip: true
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          autoAcceptChanges: "main"
+          autoAcceptChanges: "develop"
