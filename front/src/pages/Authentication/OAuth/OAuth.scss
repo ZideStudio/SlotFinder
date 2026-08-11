@@ -23,7 +23,7 @@
 
   &__list {
     display: flex;
-    gap: helpers.px-to-rem(16);
+    gap: helpers.pxToRem(16);
     align-items: center;
     justify-content: center;
   }

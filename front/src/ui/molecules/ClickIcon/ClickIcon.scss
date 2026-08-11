@@ -2,7 +2,9 @@
 @use "../../../utils/sass/mixins/responsive";
 
 .ds-click-icon {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   background: none;
   border: none;
@@ -14,7 +16,7 @@
     height: var(--icon-size);
   }
 
-  @include responsive.media-exceeds-width("desktop-small") {
+  @include responsive.mediaExceedsWidth("desktop-small") {
     --icon-size: #{helpers.pxToRem(24)};
   }
 
