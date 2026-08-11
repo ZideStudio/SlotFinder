@@ -21,17 +21,17 @@
   &--bordered {
     width: helpers.pxToRem(48);
     height: helpers.pxToRem(48);
+    background-color: var(--color-white, #fff);
     border: helpers.pxToRem(1) solid var(--color-grey-300, #d0d5dd);
     border-radius: helpers.pxToRem(12);
-    background-color: var(--color-white, #fff);
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease,
       background-color 0.2s ease;
 
     &:hover {
-      border-color: var(--color-primary, #1a73e8);
       background-color: var(--color-grey-100, #f8fafc);
+      border-color: var(--color-primary, #1a73e8);
     }
 
     &:focus-visible {

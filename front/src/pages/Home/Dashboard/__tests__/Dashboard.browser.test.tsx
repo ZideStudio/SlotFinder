@@ -8,6 +8,7 @@ describe("Dashboard Page", () => {
   beforeEach(() => {
     worker.use(getAuthStatus200);
   });
+
   it("should render the dashboard heading", async () => {
     await renderBrowserRoute({ initialEntry: appRoutes.home() });
 
