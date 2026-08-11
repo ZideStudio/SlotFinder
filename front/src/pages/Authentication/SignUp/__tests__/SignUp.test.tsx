@@ -40,8 +40,7 @@ describe("SignUp", () => {
       screen.getByRole("button", { name: "signUp.submit" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", {
-        level: 2,
+      screen.getByRole("navigation", {
         name: "authentication.signInWithProvider",
       }),
     ).toBeInTheDocument();

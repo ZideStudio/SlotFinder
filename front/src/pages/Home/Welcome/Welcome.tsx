@@ -1,4 +1,5 @@
 import { appRoutes } from "@Front/routing/appRoutes";
+import { Heading } from "@Front/ui/atoms/Heading/Heading";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
 
@@ -7,7 +8,7 @@ export const Welcome = () => {
 
   return (
     <>
-      <h1>{t("title")}</h1>
+      <Heading level={1}>{t("title")}</Heading>
       <NavLink to={appRoutes.signUp()}>Sign Up</NavLink>
     </>
   );

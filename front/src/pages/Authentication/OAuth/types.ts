@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { FC, SVGProps } from "react";
 
 export type OAuthProviderName = "discord" | "google" | "github";
 
@@ -7,5 +7,5 @@ export type OAuthProvider = {
   label: string;
   href: string;
   ariaLabel: `signInWith${Capitalize<OAuthProviderName>}`;
-  icon: ReactNode;
+  icon: FC<SVGProps<SVGSVGElement>>;
 };

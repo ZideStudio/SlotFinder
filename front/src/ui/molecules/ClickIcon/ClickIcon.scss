@@ -2,8 +2,10 @@
 @use "../../../utils/sass/mixins/responsive";
 
 .ds-click-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
-  cursor: pointer;
   background: none;
   border: none;
 
@@ -16,5 +18,27 @@
 
   @include responsive.mediaExceedsWidth("desktop-small") {
     --icon-size: #{helpers.pxToRem(24)};
+  }
+
+  &--bordered {
+    width: helpers.pxToRem(48);
+    height: helpers.pxToRem(48);
+    background-color: var(--color-white, #fff);
+    border: helpers.pxToRem(1) solid var(--color-grey-300, #d0d5dd);
+    border-radius: helpers.pxToRem(12);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+
+    &:hover {
+      background-color: var(--color-grey-100, #f8fafc);
+      border-color: var(--color-primary, #1a73e8);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-dark, #1a73e8);
+      outline-offset: 2px;
+    }
   }
 }

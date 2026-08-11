@@ -1,8 +1,14 @@
 import { appRoutes } from "@Front/routing/appRoutes";
 import { screen } from "@testing-library/react";
 import { renderBrowserRoute } from "@Front/utils/testsUtils/customRender/customRender.browser";
+import { worker } from "@Mocks/browser";
+import { getAuthStatus200 } from "@Mocks/handlers/authStatusHandlers";
 
 describe("Dashboard Page", () => {
+  beforeEach(() => {
+    worker.use(getAuthStatus200);
+  });
+
   it("should render the dashboard heading", async () => {
     await renderBrowserRoute({ initialEntry: appRoutes.home() });
 

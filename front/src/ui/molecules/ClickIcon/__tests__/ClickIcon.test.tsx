@@ -30,6 +30,11 @@ describe("ClickIcon", () => {
     expect(anchor).toHaveAttribute("href", "/test");
   });
 
+  it("applies the bordered variant class", () => {
+    render(<ClickIcon icon={TestIcon} variant="bordered" />);
+    expect(screen.getByRole("button")).toHaveClass("ds-click-icon--bordered");
+  });
+
   describe("type attribute", () => {
     it('has type="button" by default', () => {
       render(<ClickIcon icon={TestIcon} />);

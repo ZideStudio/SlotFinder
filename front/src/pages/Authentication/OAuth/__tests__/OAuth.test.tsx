@@ -21,16 +21,6 @@ describe("OAuth", () => {
     vi.restoreAllMocks();
   });
 
-  it("should render heading with correct text and aria-labelledby", () => {
-    renderOAuth();
-    expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "authentication.signInWithProvider",
-      }),
-    ).toBeInTheDocument();
-  });
-
   it("should render all OAuth providers as links with correct aria-labels and generated URLs", () => {
     const RETURN_URL = encodeURIComponent("/");
 
@@ -46,7 +36,6 @@ describe("OAuth", () => {
         `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/${provider.id}/url?returnUrl=${RETURN_URL}`,
       );
       expect(link).toHaveAttribute("rel", "noopener noreferrer");
-      expect(screen.getByText(provider.label)).toBeInTheDocument();
     }
   });
 
