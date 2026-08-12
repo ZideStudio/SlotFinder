@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	"app/commons/guard"
 	"app/commons/lib"
+	appdb "app/db"
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/signin"
@@ -14,6 +15,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func newTestEventService(t *testing.T) *EventService {
@@ -36,6 +39,59 @@ func createTestOwner(t *testing.T) uuid.UUID {
 		Id: id, UserName: &username,
 	}, &model.Account{}))
 	return id
+}
+
+// closedRepoDB returns a gorm.DB whose underlying connection is already
+// closed, so any query through it fails immediately — used to force a
+// repository-level error independently of the other repositories on the
+// service, which keep using the real shared test DB.
+func closedRepoDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	sqlDB, err := database.DB()
+	require.NoError(t, err)
+	require.NoError(t, sqlDB.Close())
+	return database
+}
+
+// setQueryOnly flips the shared test DB read-only for the duration of the
+// test, so prior SELECTs in the code path under test keep working while the
+// next write fails. Restored via t.Cleanup.
+func setQueryOnly(t *testing.T, on bool) {
+	t.Helper()
+	sqlDB, err := appdb.GetDB().DB()
+	require.NoError(t, err)
+	value := "OFF"
+	if on {
+		value = "ON"
+	}
+	_, err = sqlDB.Exec("PRAGMA query_only = " + value)
+	require.NoError(t, err)
+	t.Cleanup(func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") })
+}
+
+// createEndedEventForOwner creates an event whose EndsAt is already in the
+// past (and status not yet FINISHED), so CheckAndAutoUpdateStatus attempts
+// to auto-transition it via eventRepository.Updates.
+func createEndedEventForOwner(t *testing.T, s *EventService, ownerId uuid.UUID) model.Event {
+	t.Helper()
+	start := time.Now().UTC().Add(-4 * time.Hour)
+	event := model.Event{
+		Id:       uuid.New(),
+		Name:     "Ended Event",
+		Duration: 60,
+		StartsAt: start,
+		EndsAt:   start.Add(time.Hour),
+		OwnerId:  ownerId,
+		Status:   constants.EVENT_STATUS_IN_DECISION,
+	}
+	require.NoError(t, s.eventRepository.Create(&event))
+	require.NoError(t, s.accountEventRepository.Create(&model.AccountEvent{AccountId: ownerId, EventId: event.Id}))
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	return found
 }
 
 func validEventCreateDto() *EventCreateDto {
@@ -106,6 +162,25 @@ func TestEventService_Create_Success(t *testing.T) {
 
 	var accountEvent model.AccountEvent
 	require.NoError(t, s.accountEventRepository.FindByAccountAndEventId(ownerId, resp.Id, &accountEvent))
+}
+
+func TestEventService_Create_RepositoryCreateError(t *testing.T) {
+	s := newTestEventService(t)
+	dto := validEventCreateDto()
+	setQueryOnly(t, true)
+
+	_, err := s.Create(dto, &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestEventService_Create_AccountEventCreateError_RollsBackEvent(t *testing.T) {
+	s := newTestEventService(t)
+	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+	dto := validEventCreateDto()
+	username := "owner"
+
+	_, err := s.Create(dto, &guard.Claims{Id: uuid.New(), Username: &username})
+	assert.Error(t, err)
 }
 
 func TestEventService_Update_NotFound(t *testing.T) {
@@ -187,6 +262,56 @@ func TestEventService_Update_DescriptionCleared(t *testing.T) {
 	assert.Nil(t, found.Description)
 }
 
+func TestEventService_Update_DescriptionSet(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	description := "A real description"
+	err := s.Update(event.Id, &EventUpdateDto{Description: &description}, &guard.Claims{Id: owner})
+	assert.NoError(t, err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	require.NotNil(t, found.Description)
+	assert.Equal(t, description, *found.Description)
+}
+
+func TestEventService_Update_RepositoryUpdatesError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	name := "Renamed"
+	err := s.Update(event.Id, &EventUpdateDto{Name: &name}, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestEventService_Update_SlotRepositoryDeleteError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	s.slotRepository = repository.NewSlotRepository(closedRepoDB(t))
+
+	newStart := event.StartsAt.Add(time.Hour)
+	newEnd := event.EndsAt.Add(time.Hour)
+	err := s.Update(event.Id, &EventUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestEventService_Update_AvailabilityRepositoryDeleteError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+
+	newStart := event.StartsAt.Add(time.Hour)
+	newEnd := event.EndsAt.Add(time.Hour)
+	err := s.Update(event.Id, &EventUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
 func TestEventService_Update_InvalidDates(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
@@ -263,6 +388,26 @@ func TestEventService_GetUserEvents(t *testing.T) {
 	assert.Len(t, pagination.Data, 2)
 }
 
+func TestEventService_GetUserEvents_RepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+
+	pagination := &lib.Pagination[EventListItemDto]{Limit: 10}
+	err := s.GetUserEvents(&guard.Claims{Id: uuid.New()}, pagination)
+	assert.Error(t, err)
+}
+
+func TestEventService_GetUserEvents_AutoFinishUpdateError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	createEndedEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	pagination := &lib.Pagination[EventListItemDto]{Limit: 10}
+	err := s.GetUserEvents(&guard.Claims{Id: owner}, pagination)
+	assert.Error(t, err)
+}
+
 func TestEventService_GetEventSummary_NotFound(t *testing.T) {
 	s := newTestEventService(t)
 	_, err := s.GetEventSummary(uuid.New())
@@ -277,6 +422,24 @@ func TestEventService_GetEventSummary_Success(t *testing.T) {
 	dto, err := s.GetEventSummary(event.Id)
 	assert.NoError(t, err)
 	assert.Equal(t, event.Name, dto.Name)
+}
+
+func TestEventService_GetEventSummary_RepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+
+	_, err := s.GetEventSummary(uuid.New())
+	assert.Error(t, err)
+}
+
+func TestEventService_GetEventSummary_AutoFinishUpdateError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createEndedEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	_, err := s.GetEventSummary(event.Id)
+	assert.Error(t, err)
 }
 
 func TestEventService_GetEvent_NotFound(t *testing.T) {
@@ -302,6 +465,34 @@ func TestEventService_GetEvent_Success(t *testing.T) {
 	dto, err := s.GetEvent(event.Id, &guard.Claims{Id: owner})
 	assert.NoError(t, err)
 	assert.Equal(t, event.Name, dto.Name)
+}
+
+func TestEventService_GetEvent_RepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+
+	_, err := s.GetEvent(uuid.New(), &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestEventService_GetEvent_AutoFinishUpdateError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createEndedEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	_, err := s.GetEvent(event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestEventService_GetEvent_AccountEventRepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+
+	_, err := s.GetEvent(event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
 }
 
 func TestEventService_JoinEvent_NotFound(t *testing.T) {
@@ -346,6 +537,44 @@ func TestEventService_JoinEvent_Success(t *testing.T) {
 	require.NoError(t, s.accountEventRepository.FindByAccountAndEventId(newMember, event.Id, &accountEvent))
 }
 
+func TestEventService_JoinEvent_EventRepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+
+	_, err := s.JoinEvent(uuid.New(), &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestEventService_JoinEvent_AccountEventLookupError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestEventService_JoinEvent_AutoFinishUpdateError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createEndedEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
+func TestEventService_JoinEvent_AccountEventCreateError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+}
+
 func TestEventService_UpdateProfile_NotAMember(t *testing.T) {
 	s := newTestEventService(t)
 	err := s.UpdateProfile(&EventProfileDto{Color: "#FFFFFF"}, uuid.New(), &guard.Claims{Id: uuid.New()})
@@ -373,6 +602,26 @@ func TestEventService_UpdateProfile_Success(t *testing.T) {
 	require.NoError(t, s.accountEventRepository.FindByAccountAndEventId(owner, event.Id, &accountEvent))
 	require.NotNil(t, accountEvent.Color)
 	assert.Equal(t, "#AABBCC", *accountEvent.Color)
+}
+
+func TestEventService_UpdateProfile_LookupError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+
+	err := s.UpdateProfile(&EventProfileDto{Color: "#AABBCC"}, event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestEventService_UpdateProfile_RepositoryUpdatesError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	setQueryOnly(t, true)
+
+	err := s.UpdateProfile(&EventProfileDto{Color: "#AABBCC"}, event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
 }
 
 func TestNewEventService_ReusesProvidedInstance(t *testing.T) {
