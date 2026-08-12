@@ -2,6 +2,7 @@ package event
 
 import (
 	"app/commons/guard"
+	"app/db/repository"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -134,6 +135,18 @@ func TestEventController_GetUserEvents_Success(t *testing.T) {
 	ctl.GetUserEvents(c)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestEventController_GetUserEvents_ServiceError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+	ctl := &EventController{eventService: s}
+
+	c, recorder := newEventTestContext(t, http.MethodGet, "/?page=1&limit=10", nil, "", &guard.Claims{Id: uuid.New()})
+
+	ctl.GetUserEvents(c)
+
+	assert.NotEqual(t, http.StatusOK, recorder.Code)
 }
 
 func TestEventController_GetUserEvents_InvalidPagination(t *testing.T) {
