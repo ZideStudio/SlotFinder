@@ -43,6 +43,8 @@ func (suite *ErrorPathsRepoTestSuite) TestAccountRepository_Errors() {
 	assert.Error(suite.T(), repo.FindOneByResetToken("token", &account))
 	assert.Error(suite.T(), repo.UpdateResetToken(uuid.New(), strPtr("token"), timePtr(time.Now())))
 	assert.Error(suite.T(), repo.Delete(uuid.New()))
+	_, _, err := repo.FindAvatarById(uuid.New())
+	assert.Error(suite.T(), err)
 }
 
 func (suite *ErrorPathsRepoTestSuite) TestSlotRepository_Errors() {
