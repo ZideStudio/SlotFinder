@@ -241,6 +241,24 @@ func (suite *AccountRepoTestSuite) TestDelete_NotFound() {
 	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
 }
 
+// TestDelete_DeleteQueryFails targets Delete's second query (the actual
+// DELETE) specifically: PRAGMA query_only lets the preceding lookup SELECT
+// succeed while failing the write, unlike a closed connection which would
+// fail at the very first query.
+func (suite *AccountRepoTestSuite) TestDelete_DeleteQueryFails() {
+	dto := suite.createDto()
+	var account model.Account
+	suite.Require().NoError(suite.repo.Create(dto, &account))
+
+	sqlDB, err := suite.db.DB()
+	suite.Require().NoError(err)
+	_, err = sqlDB.Exec("PRAGMA query_only = ON")
+	suite.Require().NoError(err)
+	defer func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") }()
+
+	assert.Error(suite.T(), suite.repo.Delete(account.Id))
+}
+
 func TestAccountRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(AccountRepoTestSuite))
 }
