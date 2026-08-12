@@ -37,7 +37,6 @@ services:
       - traefik
 
   devtools:
-    profiles: ["devcontainer"]
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
