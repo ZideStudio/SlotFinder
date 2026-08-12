@@ -616,6 +616,80 @@ func (suite *AvailabilityRepoTestSuite) TestUpdate_NilPointer() {
 	assert.Error(suite.T(), err)
 }
 
+// TestUpdate_NotFound targets the reload-after-update step: updating a
+// non-existent row succeeds (0 rows affected, no error), so it's the
+// following reload that surfaces gorm.ErrRecordNotFound.
+func (suite *AvailabilityRepoTestSuite) TestUpdate_NotFound() {
+	err := suite.repo.Update(&model.Availability{Id: uuid.New()})
+	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
+}
+
+// TestDeleteOutOfEventRangeAndAdjustOverlaps_FindQueryFails uses its own DB
+// (instead of the shared suite DB) so dropping a table doesn't break the
+// other tests in this suite.
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_FindQueryFails() {
+	db := NewTestDB(suite.T())
+	repo := repository.NewAvailabilityRepository(db)
+
+	sqlDB, err := db.DB()
+	suite.Require().NoError(err)
+	_, err = sqlDB.Exec("DROP TABLE availability")
+	suite.Require().NoError(err)
+
+	err = repo.DeleteOutOfEventRangeAndAdjustOverlaps(uuid.New(), time.Now(), time.Now().Add(time.Hour))
+	assert.Error(suite.T(), err)
+}
+
+// TestDeleteOutOfEventRangeAndAdjustOverlaps_AdjustUpdateFails uses PRAGMA
+// query_only so the Find query succeeds but the adjust Update fails.
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_AdjustUpdateFails() {
+	db := NewTestDB(suite.T())
+	repo := repository.NewAvailabilityRepository(db)
+
+	accountId := uuid.New()
+	db.Create(&model.Account{Id: accountId})
+	eventId := uuid.New()
+	startsAt := time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC)
+	endsAt := time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC)
+	db.Create(&model.Event{Id: eventId, Name: "Event", Duration: 60, StartsAt: startsAt, EndsAt: endsAt, OwnerId: accountId, Status: "IN_DECISION"})
+	// Overlaps the event range on the left -> needs adjusting, not deleting.
+	db.Create(&model.Availability{Id: uuid.New(), AccountId: accountId, EventId: eventId,
+		StartsAt: startsAt.Add(-48 * time.Hour), EndsAt: startsAt.Add(24 * time.Hour)})
+
+	sqlDB, err := db.DB()
+	suite.Require().NoError(err)
+	_, err = sqlDB.Exec("PRAGMA query_only = ON")
+	suite.Require().NoError(err)
+
+	err = repo.DeleteOutOfEventRangeAndAdjustOverlaps(eventId, startsAt, endsAt)
+	assert.Error(suite.T(), err)
+}
+
+// TestDeleteOutOfEventRangeAndAdjustOverlaps_DeleteQueryFails uses PRAGMA
+// query_only so the Find query succeeds but the final Delete fails.
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_DeleteQueryFails() {
+	db := NewTestDB(suite.T())
+	repo := repository.NewAvailabilityRepository(db)
+
+	accountId := uuid.New()
+	db.Create(&model.Account{Id: accountId})
+	eventId := uuid.New()
+	startsAt := time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC)
+	endsAt := time.Date(2024, 1, 20, 0, 0, 0, 0, time.UTC)
+	db.Create(&model.Event{Id: eventId, Name: "Event", Duration: 60, StartsAt: startsAt, EndsAt: endsAt, OwnerId: accountId, Status: "IN_DECISION"})
+	// Entirely outside the event range -> needs deleting, not adjusting.
+	db.Create(&model.Availability{Id: uuid.New(), AccountId: accountId, EventId: eventId,
+		StartsAt: startsAt.Add(-72 * time.Hour), EndsAt: startsAt.Add(-48 * time.Hour)})
+
+	sqlDB, err := db.DB()
+	suite.Require().NoError(err)
+	_, err = sqlDB.Exec("PRAGMA query_only = ON")
+	suite.Require().NoError(err)
+
+	err = repo.DeleteOutOfEventRangeAndAdjustOverlaps(eventId, startsAt, endsAt)
+	assert.Error(suite.T(), err)
+}
+
 // Run the test suite
 func TestAvailabilityRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(AvailabilityRepoTestSuite))
