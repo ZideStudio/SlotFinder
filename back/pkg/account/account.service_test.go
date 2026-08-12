@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"net/smtp"
+	"os"
 	"testing"
 	"time"
 
@@ -20,6 +21,8 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 // NOTE: Do not call NewAccountService(nil) in tests — build the struct
@@ -73,6 +76,53 @@ func awaitSMTP(t *testing.T, called <-chan struct{}) {
 	}
 }
 
+// closedRepoDB returns a gorm.DB whose underlying connection is already
+// closed, so any query through it fails immediately — used to force a
+// repository-level error independently of the other repositories on the
+// service, which keep using the real shared test DB.
+func closedRepoDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	sqlDB, err := database.DB()
+	require.NoError(t, err)
+	require.NoError(t, sqlDB.Close())
+	return database
+}
+
+// setQueryOnly flips the shared test DB read-only for the duration of the
+// test, so prior SELECTs in the code path under test keep working while the
+// next write fails. Restored via t.Cleanup.
+func setQueryOnly(t *testing.T, on bool) {
+	t.Helper()
+	sqlDB, err := appdb.GetDB().DB()
+	require.NoError(t, err)
+	value := "OFF"
+	if on {
+		value = "ON"
+	}
+	_, err = sqlDB.Exec("PRAGMA query_only = " + value)
+	require.NoError(t, err)
+	t.Cleanup(func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") })
+}
+
+// signinServiceWithBadPrivateKey builds a signin.SigninService whose
+// GenerateAccessToken always fails, by pointing AUTH_PRIVATE_PEM_PATH at a
+// nonexistent file for the duration of construction only. The env var (and
+// global config) is restored before this returns, but the constructed
+// service keeps its own captured (bad) config, since NewSigninService(nil)
+// snapshots config.GetConfig() at construction time.
+func signinServiceWithBadPrivateKey(t *testing.T) *signin.SigninService {
+	t.Helper()
+	orig := os.Getenv("AUTH_PRIVATE_PEM_PATH")
+	require.NoError(t, os.Setenv("AUTH_PRIVATE_PEM_PATH", "/nonexistent/private.pem"))
+	config.Init()
+	s := signin.NewSigninService(nil)
+	require.NoError(t, os.Setenv("AUTH_PRIVATE_PEM_PATH", orig))
+	config.Init()
+	return s
+}
+
 func TestNewAccountService_ReusesProvidedInstance(t *testing.T) {
 	existing := &AccountService{}
 	assert.Same(t, existing, NewAccountService(existing))
@@ -106,6 +156,14 @@ func TestCheckUserNameAvailability(t *testing.T) {
 	excluded, err := s.CheckUserNameAvailability(username, &account.Id)
 	assert.NoError(t, err)
 	assert.True(t, excluded)
+}
+
+func TestCheckUserNameAvailability_RepositoryError(t *testing.T) {
+	s := newTestAccountService(t)
+	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+
+	_, err := s.CheckUserNameAvailability("someone", nil)
+	assert.Error(t, err)
 }
 
 func validCreateDto(t *testing.T) *AccountCreateDto {
@@ -196,6 +254,36 @@ func TestCreate_Success_FrenchLanguage(t *testing.T) {
 	assert.NotEmpty(t, tokens.AccessToken)
 
 	awaitSMTP(t, called)
+}
+
+func TestCreate_EmailLookupError(t *testing.T) {
+	s := newTestAccountService(t)
+	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+	dto := validCreateDto(t)
+
+	_, err := s.Create(dto)
+	assert.Error(t, err)
+}
+
+func TestCreate_RepositoryCreateError(t *testing.T) {
+	s := newTestAccountService(t)
+	dto := validCreateDto(t)
+	setQueryOnly(t, true)
+
+	_, err := s.Create(dto)
+	assert.Error(t, err)
+}
+
+func TestCreate_GenerateTokensError_RollsBackAccount(t *testing.T) {
+	s := newTestAccountService(t)
+	s.signinService = signinServiceWithBadPrivateKey(t)
+	dto := validCreateDto(t)
+
+	_, err := s.Create(dto)
+	assert.Error(t, err)
+
+	var found model.Account
+	assert.ErrorIs(t, s.accountRepository.FindOneByEmail(dto.Email, &found), gorm.ErrRecordNotFound, "the account created before token generation failed should be rolled back")
 }
 
 func TestGetMe_Found(t *testing.T) {
@@ -395,6 +483,46 @@ func TestUpdate_AccountNotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestUpdate_EmailChanged(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "email-"+uuid.NewString())
+	newEmail := uniqueEmail(t)
+
+	dto, _, err := s.Update(&AccountUpdateDto{Email: &newEmail}, account.Id)
+	assert.NoError(t, err)
+	assert.Equal(t, &newEmail, dto.Email)
+}
+
+func TestUpdate_LanguageChanged(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "lang-"+uuid.NewString())
+	lang := constants.ACCOUNT_LANGUAGE_FR
+
+	dto, _, err := s.Update(&AccountUpdateDto{Language: &lang}, account.Id)
+	assert.NoError(t, err)
+	assert.Equal(t, lang, dto.Language)
+}
+
+func TestUpdate_RepositoryUpdatesError(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "updfail-"+uuid.NewString())
+	color := "#123456"
+	setQueryOnly(t, true)
+
+	_, _, err := s.Update(&AccountUpdateDto{Color: &color}, account.Id)
+	assert.Error(t, err)
+}
+
+func TestUpdate_GenerateTokensError_RollsBackAccount(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "tokenfail-"+uuid.NewString())
+	s.signinService = signinServiceWithBadPrivateKey(t)
+	newName := "renamed-" + uuid.NewString()
+
+	_, _, err := s.Update(&AccountUpdateDto{UserName: &newName}, account.Id)
+	assert.Error(t, err)
+}
+
 func TestForgotPassword_AccountNotFound_SilentlyIgnored(t *testing.T) {
 	s := newTestAccountService(t)
 	err := s.ForgotPassword(&ForgotPasswordDto{Email: uniqueEmail(t)})
@@ -450,6 +578,37 @@ func TestForgotPassword_Cooldown(t *testing.T) {
 	assert.ErrorIs(t, err, constants.ERR_PASSWORD_RESET_TOO_FREQUENT.Err)
 }
 
+func TestForgotPassword_EmailLookupError(t *testing.T) {
+	s := newTestAccountService(t)
+	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: uniqueEmail(t)})
+	assert.Error(t, err)
+}
+
+func TestForgotPassword_EncryptError(t *testing.T) {
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
+
+	orig := os.Getenv("ENCRYPTION_KEY")
+	require.NoError(t, os.Setenv("ENCRYPTION_KEY", "too-short"))
+	t.Cleanup(func() { _ = os.Setenv("ENCRYPTION_KEY", orig) })
+
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: email})
+	assert.Error(t, err)
+}
+
+func TestForgotPassword_UpdateResetTokenError(t *testing.T) {
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
+	setQueryOnly(t, true)
+
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: email})
+	assert.Error(t, err)
+}
+
 func TestResetPassword_InvalidPasswordFormat(t *testing.T) {
 	s := newTestAccountService(t)
 	err := s.ResetPassword(&ResetPasswordDto{Token: "irrelevant", Password: "short"})
@@ -469,6 +628,34 @@ func TestResetPassword_TokenNotFound(t *testing.T) {
 
 	err = s.ResetPassword(&ResetPasswordDto{Token: encrypted, Password: "SuperSecret123!"})
 	assert.ErrorIs(t, err, constants.ERR_INVALID_RESET_TOKEN.Err)
+}
+
+func TestResetPassword_RepositoryLookupError(t *testing.T) {
+	s := newTestAccountService(t)
+	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+	encrypted, err := encryption.Encrypt("some-token")
+	require.NoError(t, err)
+
+	err = s.ResetPassword(&ResetPasswordDto{Token: encrypted, Password: "SuperSecret123!"})
+	assert.Error(t, err)
+}
+
+func TestResetPassword_RepositoryUpdatesError(t *testing.T) {
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &account))
+
+	rawToken := "update-fail-token"
+	expiresAt := time.Now().Add(time.Hour)
+	require.NoError(t, s.accountRepository.UpdateResetToken(account.Id, &rawToken, &expiresAt))
+	encrypted, err := encryption.Encrypt(rawToken)
+	require.NoError(t, err)
+
+	setQueryOnly(t, true)
+
+	err = s.ResetPassword(&ResetPasswordDto{Token: encrypted, Password: "SuperSecret123!"})
+	assert.Error(t, err)
 }
 
 func TestResetPassword_ExpiredToken(t *testing.T) {
@@ -585,5 +772,18 @@ func TestDelete_Success(t *testing.T) {
 func TestDelete_NotFound(t *testing.T) {
 	s := newTestAccountService(t)
 	_, err := s.Delete(uuid.New(), &guard.Claims{})
+	assert.Error(t, err)
+}
+
+// TestDelete_DeleteQueryError targets Delete's final db.GetDB().Delete call:
+// it reads the process-global DB directly (not through a repo field), so
+// query_only on the shared DB reaches it after the initial FindOneById
+// (a SELECT, unaffected) succeeds.
+func TestDelete_DeleteQueryError(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "delfail-"+uuid.NewString())
+	setQueryOnly(t, true)
+
+	_, err := s.Delete(account.Id, &guard.Claims{Id: account.Id})
 	assert.Error(t, err)
 }
