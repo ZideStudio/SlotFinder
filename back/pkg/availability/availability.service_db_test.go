@@ -13,6 +13,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func newTestAvailabilityService(t *testing.T) *AvailabilityService {
@@ -52,6 +54,36 @@ func createEventWithAccess(t *testing.T, db *repository.EventRepository, ownerId
 	var found model.Event
 	require.NoError(t, db.FindOneById(event.Id, &found))
 	return found
+}
+
+// closedRepoDB returns a gorm.DB whose underlying connection is already
+// closed, so any query through it fails immediately — used to force a
+// repository-level error independently of the other repositories on the
+// service, which keep using the real shared test DB.
+func closedRepoDB(t *testing.T) *gorm.DB {
+	t.Helper()
+	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	sqlDB, err := database.DB()
+	require.NoError(t, err)
+	require.NoError(t, sqlDB.Close())
+	return database
+}
+
+// setQueryOnly flips the shared test DB read-only for the duration of the
+// test, so prior SELECTs in the code path under test keep working while the
+// next write fails. Restored via t.Cleanup.
+func setQueryOnly(t *testing.T, on bool) {
+	t.Helper()
+	sqlDB, err := appdb.GetDB().DB()
+	require.NoError(t, err)
+	value := "OFF"
+	if on {
+		value = "ON"
+	}
+	_, err = sqlDB.Exec("PRAGMA query_only = " + value)
+	require.NoError(t, err)
+	t.Cleanup(func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") })
 }
 
 func createTestUser(t *testing.T) uuid.UUID {
@@ -96,6 +128,41 @@ func createUpcomingEvent(t *testing.T, db *repository.EventRepository, ownerId u
 	var found model.Event
 	require.NoError(t, db.FindOneById(event.Id, &found))
 	return found
+}
+
+// createEndedEventWithAccess creates an event whose EndsAt is already in the
+// past (and status not yet FINISHED), so CheckAndAutoUpdateStatus attempts
+// to auto-transition it via eventRepository.Updates.
+func createEndedEventWithAccess(t *testing.T, db *repository.EventRepository, ownerId uuid.UUID) model.Event {
+	t.Helper()
+	start := time.Now().UTC().Add(-4 * time.Hour).Truncate(5 * time.Minute)
+	event := model.Event{
+		Id:       uuid.New(),
+		Name:     "Ended Event",
+		Duration: 30,
+		StartsAt: start,
+		EndsAt:   start.Add(time.Hour),
+		OwnerId:  ownerId,
+		Status:   constants.EVENT_STATUS_IN_DECISION,
+	}
+	require.NoError(t, db.Create(&event))
+
+	accountEventRepo := repository.NewAccountEventRepository(nil)
+	require.NoError(t, accountEventRepo.Create(&model.AccountEvent{AccountId: ownerId, EventId: event.Id}))
+
+	var found model.Event
+	require.NoError(t, db.FindOneById(event.Id, &found))
+	return found
+}
+
+func TestAvailabilityService_Create_AutoFinishUpdateError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEndedEventWithAccess(t, s.eventRepository, owner)
+	setQueryOnly(t, true)
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
 }
 
 func TestAvailabilityService_Create_EventNotFound(t *testing.T) {
@@ -145,6 +212,61 @@ func TestAvailabilityService_Create_MergesOverlapping(t *testing.T) {
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
 }
 
+// TestAvailabilityService_Create_MergesOverlapping_ExtendsEnd covers the
+// merge branch where the *existing* availability's EndsAt is later than the
+// one being created, so it's the existing end that wins.
+func TestAvailabilityService_Create_MergesOverlapping_ExtendsEnd(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(2 * time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// Contained within the first (0-2h): overlaps, but its own EndsAt (1h)
+	// is earlier than the existing one's (2h) -> existing end should win.
+	dto, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(30 * time.Minute), EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+	assert.True(t, dto.EndsAt.Equal(event.StartsAt.Add(2*time.Hour)))
+}
+
+func TestAvailabilityService_Create_FindOverlappingError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestAvailabilityService_Create_RepositoryCreateError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	setQueryOnly(t, true)
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestAvailabilityService_Create_MergePath_DeleteByIdsError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	setQueryOnly(t, true)
+
+	// Overlaps with the first -> enters the merge path, whose DeleteByIds call fails.
+	_, err = s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(30 * time.Minute), EndsAt: event.StartsAt.Add(90 * time.Minute)}, event.Id, claims)
+	assert.Error(t, err)
+}
+
 func TestAvailabilityService_Create_InvalidTimes(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)
@@ -175,6 +297,14 @@ func TestAvailabilityService_Update_NotFound(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	_, err := s.Update(&AvailabilityUpdateDto{}, uuid.New(), &guard.Claims{Id: uuid.New()})
 	assert.ErrorIs(t, err, constants.ERR_AVAILABILITY_NOT_FOUND.Err)
+}
+
+func TestAvailabilityService_Update_FindOneByIdError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+
+	_, err := s.Update(&AvailabilityUpdateDto{}, uuid.New(), &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
 }
 
 func TestAvailabilityService_Update_AccessDenied(t *testing.T) {
@@ -220,10 +350,80 @@ func TestAvailabilityService_Update_Success(t *testing.T) {
 	assert.True(t, updated.EndsAt.Equal(newEnd))
 }
 
+func TestAvailabilityService_Update_NoMergeCase_RepositoryUpdateError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	setQueryOnly(t, true)
+
+	newEnd := event.StartsAt.Add(90 * time.Minute)
+	_, err = s.Update(&AvailabilityUpdateDto{EndsAt: &newEnd}, created.Id, claims)
+	assert.Error(t, err)
+}
+
+// TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd covers the
+// merge branch where the *existing* (found-overlapping) availability's
+// EndsAt is later than the one being updated, so it's the existing end that
+// wins.
+func TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	// Wide, will be "existing" once the second one is updated to overlap it.
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(2 * time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// Initially non-overlapping.
+	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(3 * time.Hour), EndsAt: event.StartsAt.Add(3*time.Hour + 30*time.Minute)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// Move it to be fully contained within the wide one's range -> overlaps,
+	// and its own EndsAt is earlier than the existing (wide) one's -> existing wins.
+	newStart := event.StartsAt.Add(30 * time.Minute)
+	newEnd := event.StartsAt.Add(time.Hour)
+	updated, err := s.Update(&AvailabilityUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, second.Id, claims)
+	require.NoError(t, err)
+	assert.True(t, updated.EndsAt.Equal(event.StartsAt.Add(2*time.Hour)))
+}
+
+func TestAvailabilityService_Update_MergePath_DeleteByIdsError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(2 * time.Hour), EndsAt: event.StartsAt.Add(3 * time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	setQueryOnly(t, true)
+
+	// Extend the second so it now overlaps the first -> merge path, whose DeleteByIds call fails.
+	newStart := event.StartsAt.Add(30 * time.Minute)
+	_, err = s.Update(&AvailabilityUpdateDto{StartsAt: &newStart}, second.Id, claims)
+	assert.Error(t, err)
+}
+
 func TestAvailabilityService_Delete_NotFound(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
 	assert.ErrorIs(t, err, constants.ERR_AVAILABILITY_NOT_FOUND.Err)
+}
+
+func TestAvailabilityService_Delete_FindOneByIdError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+
+	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
 }
 
 func TestAvailabilityService_Delete_AccessDenied(t *testing.T) {
@@ -255,6 +455,53 @@ func TestAvailabilityService_Delete_Success(t *testing.T) {
 	var availabilities []model.Availability
 	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 	assert.Len(t, availabilities, 0)
+}
+
+// TestAvailabilityService_Delete_EventAccessDenied covers the case where the
+// caller owns the availability but was later removed from the event.
+func TestAvailabilityService_Delete_EventAccessDenied(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	require.NoError(t, appdb.GetDB().Where("account_id = ? AND event_id = ?", owner, event.Id).Delete(&model.AccountEvent{}).Error)
+
+	err = s.Delete(created.Id, claims)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ACCESS_DENIED.Err)
+}
+
+func TestAvailabilityService_Delete_AutoFinishUpdateError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEndedEventWithAccess(t, s.eventRepository, owner)
+
+	// Insert directly (bypassing Create, which would itself reject an ended event).
+	availability := model.Availability{Id: uuid.New(), StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour), AccountId: owner, EventId: event.Id}
+	require.NoError(t, s.availabilityRepository.Create(&availability))
+
+	setQueryOnly(t, true)
+
+	err := s.Delete(availability.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+}
+
+func TestAvailabilityService_Delete_RepositoryDeleteError(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
+	require.NoError(t, err)
+
+	setQueryOnly(t, true)
+
+	err = s.Delete(created.Id, claims)
+	assert.Error(t, err)
 }
 
 func TestAvailabilityService_Update_EventEnded(t *testing.T) {
