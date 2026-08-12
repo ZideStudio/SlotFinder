@@ -263,6 +263,23 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 	})
 }
 
+// TestSetEventDatesFromDto_EndDateInPast_NoStartDateChange covers the "else
+// if" branch: no new start date provided, but the new end date is in the
+// past (and doesn't trip the start-after-end or duration-too-short checks
+// first).
+func TestSetEventDatesFromDto_EndDateInPast_NoStartDateChange(t *testing.T) {
+	testEvent := &model.Event{
+		Id:       uuid.New(),
+		StartsAt: time.Now().AddDate(0, 0, -10),
+		EndsAt:   time.Now().AddDate(0, 0, -5),
+	}
+	newEnd := time.Now().AddDate(0, 0, -3)
+
+	err := SetEventDatesFromDto(testEvent, nil, &newEnd)
+
+	assert.ErrorIs(t, err, constants.ERR_EVENT_START_BEFORE_TODAY.Err)
+}
+
 func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
 	t.Run("should return error when end date conflicts with validated slot", func(t *testing.T) {
 		baseDate := time.Now().AddDate(1, 0, 0)
