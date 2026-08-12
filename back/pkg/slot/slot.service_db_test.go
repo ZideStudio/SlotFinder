@@ -6,6 +6,7 @@ import (
 	"app/db/repository"
 	"app/pkg/mail"
 	"app/pkg/sse"
+	"app/testutils"
 	"net/smtp"
 	"testing"
 	"time"
@@ -13,26 +14,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
-
-// closedRepoDB returns a gorm.DB whose underlying connection is already
-// closed, so any query through it fails immediately — used to force a
-// single repository's calls to fail while the rest of the service keeps
-// using the real shared test DB.
-func closedRepoDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	sqlDB, err := database.DB()
-	require.NoError(t, err)
-	require.NoError(t, sqlDB.Close())
-	return database
-}
 
 func newTestSlotService(t *testing.T) *SlotService {
 	t.Helper()
+	testutils.TestDB(t)
 	return &SlotService{
 		slotRepository:         repository.NewSlotRepository(nil),
 		eventRepository:        repository.NewEventRepository(nil),
@@ -106,7 +92,7 @@ func TestSlotService_ConfirmSlot_EventUpdateFails(t *testing.T) {
 	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
 	require.NoError(t, s.slotRepository.Create(&slotEntity))
 
-	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
 
 	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
 	assert.Error(t, err)
@@ -120,7 +106,7 @@ func TestSlotService_ConfirmSlot_ParticipantsLookupFails_StillSucceeds(t *testin
 	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
 	require.NoError(t, s.slotRepository.Create(&slotEntity))
 
-	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+	s.accountEventRepository = repository.NewAccountEventRepository(testutils.ClosedDB(t))
 
 	resp, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
 	assert.NoError(t, err)
@@ -207,7 +193,7 @@ func TestSlotService_RemoveValidatedSlot_EventUpdateFails(t *testing.T) {
 	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute), IsValidated: true}
 	require.NoError(t, s.slotRepository.Create(&slotEntity))
 
-	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
 
 	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
 	assert.Error(t, err)
@@ -221,7 +207,7 @@ func TestSlotService_RemoveValidatedSlot_ParticipantsLookupFails_StillSucceeds(t
 	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute), IsValidated: true}
 	require.NoError(t, s.slotRepository.Create(&slotEntity))
 
-	s.accountEventRepository = repository.NewAccountEventRepository(closedRepoDB(t))
+	s.accountEventRepository = repository.NewAccountEventRepository(testutils.ClosedDB(t))
 
 	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
 	assert.NoError(t, err)
@@ -273,14 +259,15 @@ func TestSlotService_RemoveValidatedSlot_Success(t *testing.T) {
 
 	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
 	assert.NoError(t, err)
+	// RemoveValidatedSlot also spawns `go s.LoadSlots(...)`, which reuses this
+	// test's dedicated connection; give it a head start before querying again.
+	testutils.AwaitAsyncDBWork(t)
 
 	var updatedEvent model.Event
 	require.NoError(t, s.eventRepository.FindOneById(event.Id, &updatedEvent))
 	assert.Equal(t, constants.EVENT_STATUS_IN_DECISION, updatedEvent.Status)
 
-	// Wait for the async cancellation email goroutine (owner is the sole
-	// participant); RemoveValidatedSlot also spawns `go s.LoadSlots(...)`,
-	// which races on nothing test-visible, so it's not separately awaited.
+	// Wait for the async cancellation email goroutine (owner is the sole participant).
 	select {
 	case <-called:
 	case <-time.After(2 * time.Second):
@@ -350,7 +337,7 @@ func TestSlotService_LoadSlots_DeleteSlotsFails_NoOp(t *testing.T) {
 	participant := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id, participant.Id)
 
-	s.slotRepository = repository.NewSlotRepository(closedRepoDB(t))
+	s.slotRepository = repository.NewSlotRepository(testutils.ClosedDB(t))
 
 	// Should not panic; the deletion error is logged and swallowed.
 	s.LoadSlots(event.Id)
@@ -362,7 +349,7 @@ func TestSlotService_LoadSlots_AvailabilitiesLookupFails_NoOp(t *testing.T) {
 	participant := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id, participant.Id)
 
-	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+	s.availabilityRepository = repository.NewAvailabilityRepository(testutils.ClosedDB(t))
 
 	// Should not panic; the lookup error is logged and swallowed.
 	s.LoadSlots(event.Id)

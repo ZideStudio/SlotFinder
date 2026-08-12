@@ -7,6 +7,7 @@ import (
 	appdb "app/db"
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"os"
 	"path/filepath"
 	"testing"
@@ -15,26 +16,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
-
-// closedRepoDB returns a gorm.DB whose underlying connection is already
-// closed, so any query through it fails immediately — used to force a
-// repository-level error independently of the other repositories on the
-// service, which keep using the real shared test DB.
-func closedRepoDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	sqlDB, err := database.DB()
-	require.NoError(t, err)
-	require.NoError(t, sqlDB.Close())
-	return database
-}
 
 func newTestSigninService(t *testing.T) *SigninService {
 	t.Helper()
+	testutils.TestDB(t)
 	return &SigninService{
 		accountRepository:      repository.NewAccountRepository(nil),
 		refreshTokenRepository: repository.NewRefreshTokenRepository(nil),
@@ -67,7 +53,7 @@ func TestNewSigninService_Nil_BuildsRealDependencies(t *testing.T) {
 
 func TestSignin_AccountRepositoryError(t *testing.T) {
 	s := newTestSigninService(t)
-	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+	s.accountRepository = repository.NewAccountRepository(testutils.ClosedDB(t))
 
 	_, err := s.Signin(&SigninDto{Identifier: "someone", Password: "whatever"})
 	assert.Error(t, err)
@@ -109,7 +95,8 @@ func TestGenerateAccessToken(t *testing.T) {
 
 func TestGenerateTokens(t *testing.T) {
 	s := newTestSigninService(t)
-	tokens, err := s.GenerateTokens(&guard.Claims{Id: uuid.New()})
+	accountId := createTestAccount(t, s, "gentokens-"+uuid.NewString(), "")
+	tokens, err := s.GenerateTokens(&guard.Claims{Id: accountId})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tokens.AccessToken)
 	assert.NotEmpty(t, tokens.RefreshToken)
@@ -127,7 +114,7 @@ func TestGenerateTokens_AccessTokenFails(t *testing.T) {
 
 func TestGenerateTokens_RefreshTokenRepositoryError(t *testing.T) {
 	s := newTestSigninService(t)
-	s.refreshTokenRepository = repository.NewRefreshTokenRepository(closedRepoDB(t))
+	s.refreshTokenRepository = repository.NewRefreshTokenRepository(testutils.ClosedDB(t))
 
 	_, err := s.GenerateTokens(&guard.Claims{Id: uuid.New()})
 	assert.Error(t, err)
@@ -157,7 +144,7 @@ func TestGenerateAccessToken_PrivateKeyFileInvalid(t *testing.T) {
 
 func TestRefreshAccessToken_RefreshTokenRepositoryError(t *testing.T) {
 	s := newTestSigninService(t)
-	s.refreshTokenRepository = repository.NewRefreshTokenRepository(closedRepoDB(t))
+	s.refreshTokenRepository = repository.NewRefreshTokenRepository(testutils.ClosedDB(t))
 
 	_, err := s.RefreshAccessToken("some-token")
 	assert.Error(t, err)
@@ -172,7 +159,7 @@ func TestRefreshAccessToken_InvalidToken(t *testing.T) {
 
 func TestRefreshAccessToken_ExpiredToken(t *testing.T) {
 	s := newTestSigninService(t)
-	accountId := uuid.New()
+	accountId := createTestAccount(t, s, "expiredtoken-"+uuid.NewString(), "")
 	rawToken, err := s.refreshTokenRepository.Create(accountId, time.Now().Add(-time.Hour))
 	require.NoError(t, err)
 
@@ -182,7 +169,7 @@ func TestRefreshAccessToken_ExpiredToken(t *testing.T) {
 
 func TestRefreshAccessToken_RevokedToken(t *testing.T) {
 	s := newTestSigninService(t)
-	accountId := uuid.New()
+	accountId := createTestAccount(t, s, "revokedtoken-"+uuid.NewString(), "")
 	rawToken, err := s.refreshTokenRepository.Create(accountId, time.Now().Add(time.Hour))
 	require.NoError(t, err)
 
@@ -214,10 +201,16 @@ func TestRefreshAccessToken_Success(t *testing.T) {
 	assert.True(t, oldToken.IsRevoked)
 }
 
-func TestRefreshAccessToken_AccountNotFound(t *testing.T) {
+// Forces the account-lookup branch via a closed repository: a token for a
+// nonexistent account can't be created directly anymore — refresh_token.account_id
+// has an ON DELETE CASCADE foreign key, so it can never outlive its account.
+func TestRefreshAccessToken_AccountLookupFails(t *testing.T) {
 	s := newTestSigninService(t)
-	rawToken, err := s.refreshTokenRepository.Create(uuid.New(), time.Now().Add(time.Hour))
+	accountId := createTestAccount(t, s, "accountlookupfails-"+uuid.NewString(), "")
+	rawToken, err := s.refreshTokenRepository.Create(accountId, time.Now().Add(time.Hour))
 	require.NoError(t, err)
+
+	s.accountRepository = repository.NewAccountRepository(testutils.ClosedDB(t))
 
 	_, err = s.RefreshAccessToken(rawToken)
 	assert.Error(t, err)

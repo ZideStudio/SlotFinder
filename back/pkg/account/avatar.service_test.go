@@ -3,6 +3,7 @@ package account
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"bytes"
 	"errors"
 	"image"
@@ -15,17 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
-
-func testDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	require.NoError(t, database.AutoMigrate(&model.Account{}, &model.AccountProvider{}))
-	return database
-}
 
 // validPNG builds a small, valid PNG image so it can be decoded and
 // re-encoded by lib.ProcessAvatar / lib.ProcessAvatarFromURL.
@@ -95,7 +86,7 @@ func TestFetchAndStoreGravatar_FetchFails(t *testing.T) {
 }
 
 func TestFindAvatarById(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	accountRepo := repository.NewAccountRepository(db)
 	avatarBytes := []byte("some-avatar-bytes")
 	account := model.Account{Id: uuid.New(), AvatarData: avatarBytes}
@@ -109,7 +100,7 @@ func TestFindAvatarById(t *testing.T) {
 }
 
 func TestFindAvatarById_NotFound(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	s := &AvatarService{accountRepository: repository.NewAccountRepository(db)}
 	_, _, err := s.FindAvatarById(uuid.New())
 	// FindAvatarById uses Scan (not First), so a missing row does not error;
@@ -166,7 +157,7 @@ func TestUploadAvatar_FromURL_NonSuccessStatus(t *testing.T) {
 }
 
 func TestUploadUserAvatar_Success(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	accountRepo := repository.NewAccountRepository(db)
 	account := model.Account{Id: uuid.New()}
 	require.NoError(t, db.Create(&account).Error)
@@ -182,7 +173,7 @@ func TestUploadUserAvatar_Success(t *testing.T) {
 }
 
 func TestUploadUserAvatar_ProcessingFails(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	s := &AvatarService{accountRepository: repository.NewAccountRepository(db)}
 	err := s.UploadUserAvatar([]byte("not-an-image"), uuid.New())
 	assert.Error(t, err)

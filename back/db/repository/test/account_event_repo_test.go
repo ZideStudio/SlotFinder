@@ -3,6 +3,7 @@ package test
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
@@ -18,15 +19,9 @@ type AccountEventRepoTestSuite struct {
 	repo *repository.AccountEventRepository
 }
 
-func (suite *AccountEventRepoTestSuite) SetupSuite() {
-	suite.db = NewTestDB(suite.T())
-	suite.repo = repository.NewAccountEventRepository(suite.db)
-}
-
 func (suite *AccountEventRepoTestSuite) SetupTest() {
-	suite.db.Where("1 = 1").Delete(&model.AccountEvent{})
-	suite.db.Where("1 = 1").Delete(&model.Event{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
+	suite.db = testutils.TestDB(suite.T())
+	suite.repo = repository.NewAccountEventRepository(suite.db)
 }
 
 func (suite *AccountEventRepoTestSuite) createAccount(username string) model.Account {

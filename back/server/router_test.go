@@ -1,6 +1,8 @@
 package server
 
 import (
+	"app/db"
+	"app/testutils"
 	"net/http/httptest"
 	"testing"
 
@@ -20,8 +22,14 @@ func TestNewRouter_Healthz(t *testing.T) {
 	assert.Equal(t, "work", recorder.Body.String())
 }
 
+// Uses a dedicated connection, not the shared base: db.TestConnection()
+// closes whatever pool it's handed, which would break tests running after.
 func TestNewRouter_Readyz(t *testing.T) {
 	gin.SetMode(gin.TestMode)
+	base := testutils.BaseDB(t)
+	db.SetDBForTests(testutils.FreshDB(t))
+	t.Cleanup(func() { db.SetDBForTests(base) })
+
 	router := NewRouter()
 
 	req := httptest.NewRequest("GET", "/readyz", nil)

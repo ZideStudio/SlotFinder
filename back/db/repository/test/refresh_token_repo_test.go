@@ -3,6 +3,7 @@ package test
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
@@ -18,14 +19,9 @@ type RefreshTokenRepoTestSuite struct {
 	repo *repository.RefreshTokenRepository
 }
 
-func (suite *RefreshTokenRepoTestSuite) SetupSuite() {
-	suite.db = NewTestDB(suite.T())
-	suite.repo = repository.NewRefreshTokenRepository(suite.db)
-}
-
 func (suite *RefreshTokenRepoTestSuite) SetupTest() {
-	suite.db.Where("1 = 1").Delete(&model.RefreshToken{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
+	suite.db = testutils.TestDB(suite.T())
+	suite.repo = repository.NewRefreshTokenRepository(suite.db)
 }
 
 func (suite *RefreshTokenRepoTestSuite) createAccount() model.Account {

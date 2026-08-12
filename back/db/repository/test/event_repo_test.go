@@ -1,8 +1,10 @@
 package test
 
 import (
+	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
@@ -20,18 +22,10 @@ type EventRepoTestSuite struct {
 	accountEventDb *repository.AccountEventRepository
 }
 
-func (suite *EventRepoTestSuite) SetupSuite() {
-	suite.db = NewTestDB(suite.T())
+func (suite *EventRepoTestSuite) SetupTest() {
+	suite.db = testutils.TestDB(suite.T())
 	suite.repo = repository.NewEventRepository(suite.db)
 	suite.accountEventDb = repository.NewAccountEventRepository(suite.db)
-}
-
-func (suite *EventRepoTestSuite) SetupTest() {
-	suite.db.Where("1 = 1").Delete(&model.AccountEvent{})
-	suite.db.Where("1 = 1").Delete(&model.Availability{})
-	suite.db.Where("1 = 1").Delete(&model.Slot{})
-	suite.db.Where("1 = 1").Delete(&model.Event{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
 }
 
 func (suite *EventRepoTestSuite) createAccount(username string) model.Account {
@@ -57,6 +51,40 @@ func (suite *EventRepoTestSuite) TestCreate_Success() {
 
 	var found model.Event
 	assert.NoError(suite.T(), suite.db.Where("id = ?", event.Id).First(&found).Error)
+}
+
+// Covers every constants.EventStatuses value, so one added without a
+// matching migration fails here instead of only in production. SQLite never
+// enforced this enum at all — only meaningful now that tests hit Postgres.
+func (suite *EventRepoTestSuite) TestCreate_EachValidStatus_Accepted() {
+	owner := suite.createAccount("owner")
+
+	for _, status := range constants.EventStatuses {
+		event := model.Event{
+			Id: uuid.New(), Name: "Event " + string(status), Duration: 30,
+			StartsAt: time.Now().Add(time.Hour), EndsAt: time.Now().Add(2 * time.Hour),
+			OwnerId: owner.Id, Status: status,
+		}
+		suite.Require().NoError(suite.repo.Create(&event), "status %q should be accepted by the event_status enum", status)
+
+		var found model.Event
+		suite.Require().NoError(suite.db.Where("id = ?", event.Id).First(&found).Error)
+		assert.Equal(suite.T(), status, found.Status)
+	}
+}
+
+// Asserts the event_status enum actually constrains the column at the
+// database level, not just via application-side validation.
+func (suite *EventRepoTestSuite) TestCreate_InvalidStatus_RejectedByEnum() {
+	owner := suite.createAccount("owner")
+	event := model.Event{
+		Id: uuid.New(), Name: "Event", Duration: 30,
+		StartsAt: time.Now().Add(time.Hour), EndsAt: time.Now().Add(2 * time.Hour),
+		OwnerId: owner.Id, Status: constants.EventStatus("NOT_A_REAL_STATUS"),
+	}
+
+	err := suite.repo.Create(&event)
+	assert.Error(suite.T(), err)
 }
 
 func (suite *EventRepoTestSuite) TestUpdates_Success() {
@@ -191,7 +219,7 @@ func TestEventRepoTestSuite(t *testing.T) {
 // account_event, so it still succeeds; dropping event only breaks the
 // subsequent subquery/Pluck.
 func TestFindEventsByAccountId_PluckQueryFails(t *testing.T) {
-	database := NewTestDB(t)
+	database := testutils.TestDB(t)
 	repo := repository.NewEventRepository(database)
 
 	require.NoError(t, database.Migrator().DropTable(&model.Event{}))

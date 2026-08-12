@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 
 // ErrorPathsRepoTestSuite exercises the "unexpected DB error" branches of every
 // repository (as opposed to gorm.ErrRecordNotFound, which is expected/handled
-// separately). Each test gets a fresh in-memory DB whose underlying connection
+// separately). Each test gets a fresh connection whose underlying connection
 // is closed immediately, so every query fails with a generic driver error and
 // hits the repositories' log.Error()+return err branches.
 type ErrorPathsRepoTestSuite struct {
@@ -24,10 +25,7 @@ type ErrorPathsRepoTestSuite struct {
 }
 
 func (suite *ErrorPathsRepoTestSuite) SetupTest() {
-	suite.db = NewTestDB(suite.T())
-	sqlDB, err := suite.db.DB()
-	suite.Require().NoError(err)
-	suite.Require().NoError(sqlDB.Close())
+	suite.db = testutils.ClosedDB(suite.T())
 }
 
 func (suite *ErrorPathsRepoTestSuite) TestAccountRepository_Errors() {

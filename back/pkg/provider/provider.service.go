@@ -163,9 +163,15 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 			}
 		}
 
+		accountId, err := uuid.Parse(authUserId)
+		if err != nil {
+			return providerAccountResponse, fmt.Errorf("invalid userId: %w", err)
+		}
+
 		providerAccountResponse.AccountProvider = &model.AccountProvider{
-			Provider: providerUser.Provider,
-			Id:       providerUser.ProviderAccount.Id,
+			AccountId: accountId,
+			Provider:  providerUser.Provider,
+			Id:        providerUser.ProviderAccount.Id,
 		}
 
 		return providerAccountResponse, nil

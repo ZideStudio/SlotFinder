@@ -3,6 +3,7 @@ package sse
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -278,14 +278,10 @@ func TestHandleSSEConnection_BroadcastsMessageToConnectedClient(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "data: ")
 }
 
-// testDB opens a throwaway in-memory sqlite DB migrated for the models this
-// package's repositories touch (Event/Slot/Account/Availability/AccountEvent).
+// testDB returns a *gorm.DB scoped to a fresh, isolated test transaction.
 func testDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	require.NoError(t, database.AutoMigrate(&model.Account{}, &model.Event{}, &model.Slot{}, &model.Availability{}, &model.AccountEvent{}))
-	return database
+	return testutils.TestDB(t)
 }
 
 // closedRepoDB returns a gorm.DB whose underlying connection is already
@@ -294,11 +290,7 @@ func testDB(t *testing.T) *gorm.DB {
 // using a working DB.
 func closedRepoDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	database := testDB(t)
-	sqlDB, err := database.DB()
-	require.NoError(t, err)
-	require.NoError(t, sqlDB.Close())
-	return database
+	return testutils.ClosedDB(t)
 }
 
 func TestHandleSSEConnection_SlotsLookupFails_FallsBackToEmpty(t *testing.T) {

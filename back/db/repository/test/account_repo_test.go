@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
@@ -19,14 +20,9 @@ type AccountRepoTestSuite struct {
 	repo *repository.AccountRepository
 }
 
-func (suite *AccountRepoTestSuite) SetupSuite() {
-	suite.db = NewTestDB(suite.T())
-	suite.repo = repository.NewAccountRepository(suite.db)
-}
-
 func (suite *AccountRepoTestSuite) SetupTest() {
-	suite.db.Where("1 = 1").Delete(&model.AccountProvider{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
+	suite.db = testutils.TestDB(suite.T())
+	suite.repo = repository.NewAccountRepository(suite.db)
 }
 
 func (suite *AccountRepoTestSuite) createDto() repository.AccountCreateDto {
@@ -242,19 +238,15 @@ func (suite *AccountRepoTestSuite) TestDelete_NotFound() {
 }
 
 // TestDelete_DeleteQueryFails targets Delete's second query (the actual
-// DELETE) specifically: PRAGMA query_only lets the preceding lookup SELECT
-// succeed while failing the write, unlike a closed connection which would
-// fail at the very first query.
+// DELETE) specifically: a read-only transaction lets the preceding lookup
+// SELECT succeed while failing the write, unlike a closed connection which
+// would fail at the very first query.
 func (suite *AccountRepoTestSuite) TestDelete_DeleteQueryFails() {
 	dto := suite.createDto()
 	var account model.Account
 	suite.Require().NoError(suite.repo.Create(dto, &account))
 
-	sqlDB, err := suite.db.DB()
-	suite.Require().NoError(err)
-	_, err = sqlDB.Exec("PRAGMA query_only = ON")
-	suite.Require().NoError(err)
-	defer func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") }()
+	testutils.MakeReadOnly(suite.T())
 
 	assert.Error(suite.T(), suite.repo.Delete(account.Id))
 }

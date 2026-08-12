@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 
 	"github.com/google/uuid"
@@ -18,14 +19,9 @@ type AccountProvidersRepoTestSuite struct {
 	repo *repository.AccountProvidersRepository
 }
 
-func (suite *AccountProvidersRepoTestSuite) SetupSuite() {
-	suite.db = NewTestDB(suite.T())
-	suite.repo = repository.NewAccountProvidersRepository(suite.db)
-}
-
 func (suite *AccountProvidersRepoTestSuite) SetupTest() {
-	suite.db.Where("1 = 1").Delete(&model.AccountProvider{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
+	suite.db = testutils.TestDB(suite.T())
+	suite.repo = repository.NewAccountProvidersRepository(suite.db)
 }
 
 func (suite *AccountProvidersRepoTestSuite) createAccount() model.Account {

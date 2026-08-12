@@ -2,25 +2,18 @@ package provider
 
 import (
 	"app/config"
-	"app/db"
-	model "app/db/models"
 	"app/testutils"
 	"os"
 	"testing"
-
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
-// TestMain wires the process-global config/DB singletons this package's
+// TestMain wires the process-global config singleton this package's
 // NewXService(nil) fallbacks depend on (ProviderService composes
 // signinService, accountService, avatarService, mailService — all built the
 // same way). See the equivalent, more detailed comment in
 // pkg/account/main_test.go for why this is necessary and safe for tests.
 func TestMain(m *testing.M) {
-	if os.Getenv("DB_PORT") == "" {
-		_ = os.Setenv("DB_PORT", "5432")
-	}
+	testutils.LoadTestEnv()
 	if os.Getenv("AUTH_PRIVATE_PEM_PATH") == "" {
 		_ = os.Setenv("AUTH_PRIVATE_PEM_PATH", "../../config/jwt/private.pem")
 	}
@@ -49,18 +42,6 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	config.Init()
-
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	if err := database.AutoMigrate(&model.Account{}, &model.AccountProvider{}, &model.RefreshToken{}); err != nil {
-		panic(err)
-	}
-	if sqlDB, err := database.DB(); err == nil {
-		sqlDB.SetMaxOpenConns(1)
-	}
-	db.SetDBForTests(database)
 
 	os.Exit(m.Run())
 }

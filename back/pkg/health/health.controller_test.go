@@ -2,16 +2,13 @@ package health
 
 import (
 	"app/db"
-	model "app/db/models"
+	"app/testutils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func newTestContext() (*gin.Context, *httptest.ResponseRecorder) {
@@ -42,10 +39,10 @@ func TestHealthController_Ready_DbNotReady(t *testing.T) {
 	assert.Equal(t, "db not ready", recorder.Body.String())
 }
 
+// Uses a dedicated connection, not the shared base: db.TestConnection()
+// closes whatever pool it's handed, which would break tests running after.
 func TestHealthController_Ready_DbReady(t *testing.T) {
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	require.NoError(t, database.AutoMigrate(&model.Account{}))
+	database := testutils.FreshDB(t)
 	db.SetDBForTests(database)
 	t.Cleanup(func() { db.SetDBForTests(nil) })
 

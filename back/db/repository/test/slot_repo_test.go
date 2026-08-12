@@ -3,6 +3,7 @@ package test
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
@@ -18,15 +19,9 @@ type SlotRepoTestSuite struct {
 	repo *repository.SlotRepository
 }
 
-func (suite *SlotRepoTestSuite) SetupSuite() {
-	suite.db = NewTestDB(suite.T())
-	suite.repo = repository.NewSlotRepository(suite.db)
-}
-
 func (suite *SlotRepoTestSuite) SetupTest() {
-	suite.db.Where("1 = 1").Delete(&model.Slot{})
-	suite.db.Where("1 = 1").Delete(&model.Event{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
+	suite.db = testutils.TestDB(suite.T())
+	suite.repo = repository.NewSlotRepository(suite.db)
 }
 
 func (suite *SlotRepoTestSuite) createAccount() model.Account {

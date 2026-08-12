@@ -3,6 +3,7 @@ package event
 import (
 	"app/commons/guard"
 	"app/db/repository"
+	"app/testutils"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -139,7 +140,7 @@ func TestEventController_GetUserEvents_Success(t *testing.T) {
 
 func TestEventController_GetUserEvents_ServiceError(t *testing.T) {
 	s := newTestEventService(t)
-	s.eventRepository = repository.NewEventRepository(closedRepoDB(t))
+	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
 	ctl := &EventController{eventService: s}
 
 	c, recorder := newEventTestContext(t, http.MethodGet, "/?page=1&limit=10", nil, "", &guard.Claims{Id: uuid.New()})
@@ -237,7 +238,7 @@ func TestEventController_JoinEvent_Success(t *testing.T) {
 	event := createTestEventForOwner(t, s, owner)
 	ctl := &EventController{eventService: s}
 
-	newMember := uuid.New()
+	newMember := createTestOwner(t)
 	c, recorder := newEventTestContext(t, http.MethodPost, "/", nil, event.Id.String(), &guard.Claims{Id: newMember})
 
 	ctl.JoinEvent(c)

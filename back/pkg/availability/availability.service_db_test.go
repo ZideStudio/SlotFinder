@@ -7,18 +7,18 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/slot"
+	"app/testutils"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func newTestAvailabilityService(t *testing.T) *AvailabilityService {
 	t.Helper()
+	testutils.TestDB(t)
 	return &AvailabilityService{
 		slotService:            slot.NewSlotService(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
@@ -54,36 +54,6 @@ func createEventWithAccess(t *testing.T, db *repository.EventRepository, ownerId
 	var found model.Event
 	require.NoError(t, db.FindOneById(event.Id, &found))
 	return found
-}
-
-// closedRepoDB returns a gorm.DB whose underlying connection is already
-// closed, so any query through it fails immediately — used to force a
-// repository-level error independently of the other repositories on the
-// service, which keep using the real shared test DB.
-func closedRepoDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	sqlDB, err := database.DB()
-	require.NoError(t, err)
-	require.NoError(t, sqlDB.Close())
-	return database
-}
-
-// setQueryOnly flips the shared test DB read-only for the duration of the
-// test, so prior SELECTs in the code path under test keep working while the
-// next write fails. Restored via t.Cleanup.
-func setQueryOnly(t *testing.T, on bool) {
-	t.Helper()
-	sqlDB, err := appdb.GetDB().DB()
-	require.NoError(t, err)
-	value := "OFF"
-	if on {
-		value = "ON"
-	}
-	_, err = sqlDB.Exec("PRAGMA query_only = " + value)
-	require.NoError(t, err)
-	t.Cleanup(func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") })
 }
 
 func createTestUser(t *testing.T) uuid.UUID {
@@ -159,7 +129,7 @@ func TestAvailabilityService_Create_AutoFinishUpdateError(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)
 	event := createEndedEventWithAccess(t, s.eventRepository, owner)
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
 	assert.Error(t, err)
@@ -235,7 +205,7 @@ func TestAvailabilityService_Create_FindOverlappingError(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)
 	event := createEventWithAccess(t, s.eventRepository, owner)
-	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+	s.availabilityRepository = repository.NewAvailabilityRepository(testutils.ClosedDB(t))
 
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
 	assert.Error(t, err)
@@ -245,7 +215,7 @@ func TestAvailabilityService_Create_RepositoryCreateError(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)
 	event := createEventWithAccess(t, s.eventRepository, owner)
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
 	assert.Error(t, err)
@@ -260,7 +230,7 @@ func TestAvailabilityService_Create_MergePath_DeleteByIdsError(t *testing.T) {
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
 
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	// Overlaps with the first -> enters the merge path, whose DeleteByIds call fails.
 	_, err = s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(30 * time.Minute), EndsAt: event.StartsAt.Add(90 * time.Minute)}, event.Id, claims)
@@ -301,7 +271,7 @@ func TestAvailabilityService_Update_NotFound(t *testing.T) {
 
 func TestAvailabilityService_Update_FindOneByIdError(t *testing.T) {
 	s := newTestAvailabilityService(t)
-	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+	s.availabilityRepository = repository.NewAvailabilityRepository(testutils.ClosedDB(t))
 
 	_, err := s.Update(&AvailabilityUpdateDto{}, uuid.New(), &guard.Claims{Id: uuid.New()})
 	assert.Error(t, err)
@@ -359,7 +329,7 @@ func TestAvailabilityService_Update_NoMergeCase_RepositoryUpdateError(t *testing
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
 
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	newEnd := event.StartsAt.Add(90 * time.Minute)
 	_, err = s.Update(&AvailabilityUpdateDto{EndsAt: &newEnd}, created.Id, claims)
@@ -404,7 +374,7 @@ func TestAvailabilityService_Update_MergePath_DeleteByIdsError(t *testing.T) {
 	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(2 * time.Hour), EndsAt: event.StartsAt.Add(3 * time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
 
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	// Extend the second so it now overlaps the first -> merge path, whose DeleteByIds call fails.
 	newStart := event.StartsAt.Add(30 * time.Minute)
@@ -420,7 +390,7 @@ func TestAvailabilityService_Delete_NotFound(t *testing.T) {
 
 func TestAvailabilityService_Delete_FindOneByIdError(t *testing.T) {
 	s := newTestAvailabilityService(t)
-	s.availabilityRepository = repository.NewAvailabilityRepository(closedRepoDB(t))
+	s.availabilityRepository = repository.NewAvailabilityRepository(testutils.ClosedDB(t))
 
 	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
 	assert.Error(t, err)
@@ -483,7 +453,7 @@ func TestAvailabilityService_Delete_AutoFinishUpdateError(t *testing.T) {
 	availability := model.Availability{Id: uuid.New(), StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour), AccountId: owner, EventId: event.Id}
 	require.NoError(t, s.availabilityRepository.Create(&availability))
 
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	err := s.Delete(availability.Id, &guard.Claims{Id: owner})
 	assert.Error(t, err)
@@ -498,7 +468,7 @@ func TestAvailabilityService_Delete_RepositoryDeleteError(t *testing.T) {
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
 
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	err = s.Delete(created.Id, claims)
 	assert.Error(t, err)

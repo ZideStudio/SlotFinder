@@ -3,6 +3,7 @@ package auth
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +13,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -23,19 +23,7 @@ import (
 
 func testDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	require.NoError(t, database.AutoMigrate(&model.Account{}, &model.RefreshToken{}))
-
-	// A ":memory:" sqlite DSN is a fresh, isolated DB per *connection*. Some
-	// of these tests query it concurrently from a background goroutine (the
-	// cleanup ticker), so pin the pool to a single connection or those
-	// queries would silently hit an empty, unmigrated database.
-	sqlDB, err := database.DB()
-	require.NoError(t, err)
-	sqlDB.SetMaxOpenConns(1)
-
-	return database
+	return testutils.TestDB(t)
 }
 
 func newTestContext() (*gin.Context, *httptest.ResponseRecorder) {
@@ -145,11 +133,17 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 
 	fake.Advance(refreshTokenCleanupInterval)
 
-	require.Eventually(t, func() bool {
-		var count int64
-		db.Model(&model.RefreshToken{}).Where("id = ?", expired.Id).Count(&count)
-		return count == 0
-	}, time.Second, 10*time.Millisecond, "expected the cleanup ticker to delete the expired token")
+	// A single wait-then-check instead of require.Eventually: Eventually
+	// polls by spawning a new goroutine per tick, and every one of them would
+	// share this test's single dedicated Postgres connection (testutils.TestDB)
+	// with the cleanup goroutine's own DeleteExpired() call — concurrent
+	// access jackc/pgx connections don't support and that intermittently
+	// fails with "driver: bad connection".
+	testutils.AwaitAsyncDBWork(t)
+
+	var count int64
+	require.NoError(t, db.Model(&model.RefreshToken{}).Where("id = ?", expired.Id).Count(&count).Error)
+	assert.Equal(t, int64(0), count, "expected the cleanup ticker to delete the expired token")
 }
 
 func TestCleanRefreshTokens_StopsOnCancel(t *testing.T) {

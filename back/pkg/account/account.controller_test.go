@@ -4,6 +4,7 @@ import (
 	"app/commons/guard"
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"bytes"
 	"encoding/json"
 	"image"
@@ -287,7 +288,7 @@ func TestAccountController_UploadAvatar_Success(t *testing.T) {
 }
 
 func TestAccountController_UploadAvatar_RepositoryError(t *testing.T) {
-	ctl := &AccountController{avatarService: &AvatarService{accountRepository: repository.NewAccountRepository(closedRepoDB(t))}}
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: repository.NewAccountRepository(testutils.ClosedDB(t))}}
 	body, contentType := multipartImageRequest(t, "image", "avatar.png", validPNGBytes(t))
 	c, recorder := newUploadAvatarContext(t, uuid.New(), body, contentType)
 
@@ -381,7 +382,7 @@ func TestAccountController_GetAvatar_NotFound(t *testing.T) {
 }
 
 func TestAccountController_GetAvatar_RepositoryError(t *testing.T) {
-	ctl := &AccountController{avatarService: &AvatarService{accountRepository: repository.NewAccountRepository(closedRepoDB(t))}}
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: repository.NewAccountRepository(testutils.ClosedDB(t))}}
 	c, _ := newGetAvatarContext(uuid.New().String())
 
 	ctl.GetAvatar(c)

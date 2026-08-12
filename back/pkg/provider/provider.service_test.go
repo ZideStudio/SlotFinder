@@ -10,6 +10,7 @@ import (
 	"app/pkg/account"
 	"app/pkg/mail"
 	"app/pkg/signin"
+	"app/testutils"
 	"bytes"
 	"fmt"
 	"image"
@@ -24,16 +25,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 // NOTE: Do not call NewProviderService(nil) in most tests — build the struct
 // directly instead (same rationale documented in pkg/account tests). Nested
-// NewXService(nil) calls are safe here because TestMain wires db.SetDB and
-// config.Init.
+// NewXService(nil) calls are safe here because newTestProviderService wires
+// up a fresh test transaction and config.Init points at real (test) values.
 func newTestProviderService(t *testing.T) *ProviderService {
 	t.Helper()
+	testutils.TestDB(t)
 	return &ProviderService{
 		accountProvidersRepository: repository.NewAccountProvidersRepository(nil),
 		accountRepository:          repository.NewAccountRepository(nil),
@@ -77,36 +78,6 @@ func awaitSMTP(t *testing.T, called <-chan struct{}) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("expected the async SendMail goroutine to run")
 	}
-}
-
-// closedRepoDB returns a gorm.DB whose underlying connection is already
-// closed, so any query through it fails immediately — used to force a
-// repository-level error independently of the other repositories on the
-// service, which keep using the real shared test DB.
-func closedRepoDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	sqlDB, err := database.DB()
-	require.NoError(t, err)
-	require.NoError(t, sqlDB.Close())
-	return database
-}
-
-// setQueryOnly flips the shared test DB read-only for the duration of the
-// test, so prior SELECTs in the code path under test keep working while the
-// next write fails. Restored via t.Cleanup.
-func setQueryOnly(t *testing.T, on bool) {
-	t.Helper()
-	sqlDB, err := appdb.GetDB().DB()
-	require.NoError(t, err)
-	value := "OFF"
-	if on {
-		value = "ON"
-	}
-	_, err = sqlDB.Exec("PRAGMA query_only = " + value)
-	require.NoError(t, err)
-	t.Cleanup(func() { _, _ = sqlDB.Exec("PRAGMA query_only = OFF") })
 }
 
 // signinServiceWithBadPrivateKey builds a signin.SigninService whose
@@ -317,7 +288,7 @@ func TestCreateProviderAccount_EmailAlreadyExists_DifferentProvider(t *testing.T
 
 func TestCreateProviderAccount_EmailLookupError(t *testing.T) {
 	s := newTestProviderService(t)
-	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+	s.accountRepository = repository.NewAccountRepository(testutils.ClosedDB(t))
 	email := uniqueEmail(t)
 
 	_, err := s.createProviderAccount(CreateProviderAccountDto{
@@ -329,7 +300,7 @@ func TestCreateProviderAccount_EmailLookupError(t *testing.T) {
 
 func TestCreateProviderAccount_ProviderLookupError(t *testing.T) {
 	s := newTestProviderService(t)
-	s.accountProvidersRepository = repository.NewAccountProvidersRepository(closedRepoDB(t))
+	s.accountProvidersRepository = repository.NewAccountProvidersRepository(testutils.ClosedDB(t))
 	email := uniqueEmail(t)
 
 	_, err := s.createProviderAccount(CreateProviderAccountDto{
@@ -545,7 +516,7 @@ func TestProviderCallback_NewAccount_RepositoryCreateError(t *testing.T) {
 	server := newOAuthSuccessServer(t, "google-sub-"+uuid.NewString(), "newgoogleuser", email)
 	s := newTestProviderService(t)
 	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
-	setQueryOnly(t, true)
+	testutils.MakeReadOnly(t)
 
 	_, err := s.ProviderCallback("google", "good-code", "")
 	assert.Error(t, err)
@@ -711,7 +682,7 @@ func TestProviderCallback_LinkProvider_AccountLookupError(t *testing.T) {
 	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
 	s := newTestProviderService(t)
 	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
-	s.accountRepository = repository.NewAccountRepository(closedRepoDB(t))
+	s.accountRepository = repository.NewAccountRepository(testutils.ClosedDB(t))
 
 	_, err := s.ProviderCallback("discord", "good-code", uuid.New().String())
 	assert.Error(t, err)
