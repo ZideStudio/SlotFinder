@@ -91,6 +91,20 @@ jobs:
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18.4-alpine
+        env:
+          POSTGRES_DB: slotfinder
+          POSTGRES_USER: slotfinder
+          POSTGRES_PASSWORD: slotfinder
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -98,18 +112,12 @@ jobs:
       - name: Setup Go
         uses: ./.github/actions/setup-go
 
-      - name: Start PostgreSQL
-        run: |
-          sudo systemctl start postgresql.service
-          sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'slotfinder';"
-          sudo -u postgres createdb slotfinder
-
       - name: Run tests
         working-directory: ${{ env.BACK_FOLDER }}
         env:
           DB_HOST: localhost
           DB_PORT: "5432"
-          DB_USER: postgres
+          DB_USER: slotfinder
           DB_PASSWORD: slotfinder
           DB_NAME: slotfinder
         run: go test -v ./... -race -coverpkg=./... -coverprofile=coverage.txt -covermode=atomic
