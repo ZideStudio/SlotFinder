@@ -91,6 +91,20 @@ jobs:
     if: needs.detect-changes.outputs.back == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18.4-alpine
+        env:
+          POSTGRES_DB: slotfinder
+          POSTGRES_USER: slotfinder
+          POSTGRES_PASSWORD: slotfinder
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -100,13 +114,17 @@ jobs:
 
       - name: Run tests
         working-directory: ${{ env.BACK_FOLDER }}
-        run: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
+        env:
+          DB_HOST: localhost
+          DB_PORT: "5432"
+          DB_USER: slotfinder
+          DB_PASSWORD: slotfinder
+          DB_NAME: slotfinder
+        run: go test -v ./... -race -coverpkg=./... -coverprofile=coverage.txt -covermode=atomic
 
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-        with:
-          file: ${{ env.BACK_FOLDER }}/coverage.txt
-          flags: backend
+      - name: Show coverage report
+        working-directory: ${{ env.BACK_FOLDER }}
+        run: go tool cover -func=coverage.txt
 
   build:
     name: Back Build
