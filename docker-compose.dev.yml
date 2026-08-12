@@ -27,6 +27,7 @@ services:
       - POSTGRES_DB=slotfinder
       - POSTGRES_USER=slotfinder
       - POSTGRES_PASSWORD=slotfinder
+      - POSTGRES_MULTIPLE_DATABASES=slotfinder_test
     volumes:
       - postgres_data:/var/lib/postgresql
       - ./db/init:/docker-entrypoint-initdb.d
