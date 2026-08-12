@@ -286,6 +286,16 @@ func TestAccountController_UploadAvatar_Success(t *testing.T) {
 	assert.NotEmpty(t, found.AvatarData)
 }
 
+func TestAccountController_UploadAvatar_RepositoryError(t *testing.T) {
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: repository.NewAccountRepository(closedRepoDB(t))}}
+	body, contentType := multipartImageRequest(t, "image", "avatar.png", validPNGBytes(t))
+	c, recorder := newUploadAvatarContext(t, uuid.New(), body, contentType)
+
+	ctl.UploadAvatar(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
 func TestAccountController_ForgotPassword_InvalidBody(t *testing.T) {
 	ctl := &AccountController{accountService: newTestAccountService(t)}
 	c, recorder := newAccountTestContext(http.MethodPost, []byte(`not-json`))
@@ -368,6 +378,15 @@ func TestAccountController_GetAvatar_NotFound(t *testing.T) {
 	ctl.GetAvatar(c)
 
 	assert.Equal(t, http.StatusNotFound, c.Writer.Status())
+}
+
+func TestAccountController_GetAvatar_RepositoryError(t *testing.T) {
+	ctl := &AccountController{avatarService: &AvatarService{accountRepository: repository.NewAccountRepository(closedRepoDB(t))}}
+	c, _ := newGetAvatarContext(uuid.New().String())
+
+	ctl.GetAvatar(c)
+
+	assert.Equal(t, http.StatusInternalServerError, c.Writer.Status())
 }
 
 func TestAccountController_GetAvatar_Success(t *testing.T) {
