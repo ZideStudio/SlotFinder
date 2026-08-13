@@ -1,6 +1,6 @@
 {
   "name": "slotfinder-dev",
-  "dockerComposeFile": ["../docker-compose.dev.yml"],
+  "dockerComposeFile": ["../docker/docker-compose.dev.yml"],
   "service": "devtools",
   "workspaceFolder": "/workspace",
   "runServices": ["traefik", "postgres", "devtools"],

@@ -26,7 +26,7 @@ services:
     networks:
       - zide-traefik-n
     env_file:
-      - .env
+      - ../.env
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=zide-traefik-n"

@@ -1,7 +1,7 @@
 services:
   traefik:
     build:
-      context: ./docker
+      context: .
       dockerfile: Dockerfile.traefik
     command:
       - --api.insecure=true
@@ -12,7 +12,7 @@ services:
       - --entrypoints.http.http.redirections.entrypoint.scheme=https
       - --providers.file.directory=/etc/traefik/conf.d
     volumes:
-      - ./docker/traefik-dynamic.yml:/etc/traefik/conf.d/dynamic.yml:ro
+      - ./traefik-dynamic.yml:/etc/traefik/conf.d/dynamic.yml:ro
     ports:
       - "80:80"
       - "443:443"
@@ -30,7 +30,7 @@ services:
       - POSTGRES_MULTIPLE_DATABASES=slotfinder_test
     volumes:
       - postgres_data:/var/lib/postgresql
-      - ./db/init:/docker-entrypoint-initdb.d
+      - ../db/init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:
@@ -38,7 +38,7 @@ services:
 
   devtools:
     build:
-      context: .
+      context: ..
       dockerfile: .devcontainer/Dockerfile
     user: vscode
     environment:
@@ -46,7 +46,7 @@ services:
       - GOBIN=/go/bin
       - PATH=/home/vscode/.local/share/mise/shims:/home/vscode/.local/bin:/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     volumes:
-      - ./:/workspace
+      - ../:/workspace
       - go-mod-cache:/home/vscode/go/pkg/mod
       - ~/.gitconfig:/home/vscode/.gitconfig:ro
       - ~/.ssh:/home/vscode/.ssh:ro
