@@ -269,14 +269,6 @@ func MakeReadOnly(t testingT) {
 	}
 }
 
-// AwaitAsyncDBWork gives a fire-and-forget goroutine (e.g. "go
-// s.slotService.LoadSlots(...)") time to finish before the test queries
-// again — it shares this test's connection, and pgx isn't concurrency-safe.
-func AwaitAsyncDBWork(t *testing.T) {
-	t.Helper()
-	time.Sleep(100 * time.Millisecond)
-}
-
 // AwaitAsyncDBWorkUntil retries check every 100ms instead of giving up after
 // one sleep. Run check in this goroutine, never a new one — require.Eventually
 // would race on the shared connection.
