@@ -617,6 +617,18 @@ func TestProviderCallback_Discord_NewAccount_MissingUsername(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestProviderCallback_Discord_NewAccount_MissingEmail(t *testing.T) {
+	server := newDiscordOAuthServer(t, "discord-id-"+uuid.NewString(), "newdiscorduser", "")
+	s := newTestProviderService(t)
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
+
+	_, err := s.ProviderCallback("discord", "good-code", "")
+	assert.Error(t, err)
+}
+
 func TestProviderCallback_Github_TokenNetworkError(t *testing.T) {
 	url := closedServerURL(t)
 	s := newTestProviderService(t)
