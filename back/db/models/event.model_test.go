@@ -94,3 +94,61 @@ func TestEvent_HasUserAccess_Found(t *testing.T) {
 	event := Event{AccountEvents: []AccountEvent{{AccountId: userId}}}
 	assert.True(t, event.HasUserAccess(&userId))
 }
+
+func TestEvent_HasUserAccess_NotFound(t *testing.T) {
+	userId := uuid.New()
+	event := Event{AccountEvents: []AccountEvent{{AccountId: uuid.New()}}}
+	assert.False(t, event.HasUserAccess(&userId))
+}
+
+func TestEvent_IsOwner_Matching(t *testing.T) {
+	ownerId := uuid.New()
+	event := Event{OwnerId: ownerId}
+	assert.True(t, event.IsOwner(&ownerId))
+}
+
+func TestEvent_IsOwner_NotMatching(t *testing.T) {
+	event := Event{OwnerId: uuid.New()}
+	otherId := uuid.New()
+	assert.False(t, event.IsOwner(&otherId))
+}
+
+func TestEvent_GetValidatedSlot_EmptySlots(t *testing.T) {
+	event := Event{Slots: []Slot{}}
+	assert.Nil(t, event.GetValidatedSlot())
+}
+
+func TestEvent_GetValidatedSlot_Found(t *testing.T) {
+	slotId := uuid.New()
+	event := Event{Slots: []Slot{{IsValidated: false}, {Id: slotId, IsValidated: true}}}
+
+	slot := event.GetValidatedSlot()
+
+	assert.NotNil(t, slot)
+	assert.Equal(t, slotId, slot.Id)
+}
+
+func TestEvent_HasOneOfStatuses_NilStatuses(t *testing.T) {
+	event := Event{Status: constants.EVENT_STATUS_UPCOMING}
+	assert.False(t, event.HasOneOfStatuses(nil))
+}
+
+func TestEvent_HasOneOfStatuses_Matching(t *testing.T) {
+	event := Event{Status: constants.EVENT_STATUS_UPCOMING}
+	statuses := []constants.EventStatus{constants.EVENT_STATUS_UPCOMING}
+	assert.True(t, event.HasOneOfStatuses(&statuses))
+}
+
+func TestEvent_HasOneOfStatuses_NotMatching(t *testing.T) {
+	event := Event{Status: constants.EVENT_STATUS_UPCOMING}
+	statuses := []constants.EventStatus{constants.EVENT_STATUS_FINISHED}
+	assert.False(t, event.HasOneOfStatuses(&statuses))
+}
+
+func TestEvent_TableName(t *testing.T) {
+	assert.Equal(t, "event", Event{}.TableName())
+}
+
+func TestSlot_TableName(t *testing.T) {
+	assert.Equal(t, "slot", Slot{}.TableName())
+}
