@@ -201,6 +201,18 @@ func TestRefreshAccessToken_Success(t *testing.T) {
 	assert.True(t, oldToken.IsRevoked)
 }
 
+func TestRefreshAccessToken_RevokeFails(t *testing.T) {
+	s := newTestSigninService(t)
+	accountId := createTestAccount(t, s, "revokefails-"+uuid.NewString(), "")
+	rawToken, err := s.refreshTokenRepository.Create(accountId, time.Now().Add(time.Hour))
+	require.NoError(t, err)
+
+	testutils.MakeReadOnly(t)
+
+	_, err = s.RefreshAccessToken(rawToken)
+	assert.Error(t, err)
+}
+
 // Forces the account-lookup branch via a closed repository: a token for a
 // nonexistent account can't be created directly anymore — refresh_token.account_id
 // has an ON DELETE CASCADE foreign key, so it can never outlive its account.
