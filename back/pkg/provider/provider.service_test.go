@@ -96,40 +96,46 @@ func tokenOnlyServer(t *testing.T) *httptest.Server {
 	return server
 }
 
-func TestGetGoogleUserInfo_UserInfoNetworkError(t *testing.T) {
-	tokenServer := tokenOnlyServer(t)
-	s := newTestProviderService(t)
-	s.httpClient = oauthRedirectClient(t, map[string]string{
-		realGoogleTokenURL:    tokenServer.URL,
-		realGoogleUserInfoURL: closedServerURL(t),
-	})
+func TestGetUserInfo_UserInfoNetworkError(t *testing.T) {
+	cases := []struct {
+		name        string
+		tokenURL    string
+		userInfoURL string
+		call        func(s *ProviderService, code string) (ProviderAccount, error)
+	}{
+		{
+			name:        "google",
+			tokenURL:    realGoogleTokenURL,
+			userInfoURL: realGoogleUserInfoURL,
+			call:        (*ProviderService).getGoogleUserInfo,
+		},
+		{
+			name:        "discord",
+			tokenURL:    realDiscordTokenURL,
+			userInfoURL: realDiscordUserInfoURL,
+			call:        (*ProviderService).getDiscordUserInfo,
+		},
+		{
+			name:        "github",
+			tokenURL:    realGithubTokenURL,
+			userInfoURL: realGithubUserInfoURL,
+			call:        (*ProviderService).getGithubUserInfo,
+		},
+	}
 
-	_, err := s.getGoogleUserInfo("code")
-	assert.Error(t, err)
-}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tokenServer := tokenOnlyServer(t)
+			s := newTestProviderService(t)
+			s.httpClient = oauthRedirectClient(t, map[string]string{
+				tc.tokenURL:    tokenServer.URL,
+				tc.userInfoURL: closedServerURL(t),
+			})
 
-func TestGetDiscordUserInfo_UserInfoNetworkError(t *testing.T) {
-	tokenServer := tokenOnlyServer(t)
-	s := newTestProviderService(t)
-	s.httpClient = oauthRedirectClient(t, map[string]string{
-		realDiscordTokenURL:    tokenServer.URL,
-		realDiscordUserInfoURL: closedServerURL(t),
-	})
-
-	_, err := s.getDiscordUserInfo("code")
-	assert.Error(t, err)
-}
-
-func TestGetGithubUserInfo_UserInfoNetworkError(t *testing.T) {
-	tokenServer := tokenOnlyServer(t)
-	s := newTestProviderService(t)
-	s.httpClient = oauthRedirectClient(t, map[string]string{
-		realGithubTokenURL:    tokenServer.URL,
-		realGithubUserInfoURL: closedServerURL(t),
-	})
-
-	_, err := s.getGithubUserInfo("code")
-	assert.Error(t, err)
+			_, err := tc.call(s, "code")
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestGetGithubUserInfo_UserInfoNonSuccessStatus(t *testing.T) {
