@@ -24,7 +24,7 @@ func EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
 	}
 
 	lockPath := privateKeyPath + ".generating.lock"
-	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath)
+	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath, time.Now().Add(30*time.Second))
 	if err != nil {
 		return err
 	}
@@ -49,8 +49,7 @@ func EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
 // acquireGenerationLock returns a held lock file if the caller should
 // generate the keypair, or (nil, nil) if another process already finished
 // generating it while this one was waiting.
-func acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath string) (*os.File, error) {
-	deadline := time.Now().Add(30 * time.Second)
+func acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath string, deadline time.Time) (*os.File, error) {
 	for {
 		lockFile, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
 		if err == nil {
@@ -69,10 +68,9 @@ func acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath string) (*os.
 	}
 }
 
+// generateTestJWTKeyPair assumes privateKeyPath's directory already exists
+// (its caller, EnsureTestJWTKeyPair, creates it before acquiring the lock).
 func generateTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
-	if err := os.MkdirAll(filepath.Dir(privateKeyPath), 0o755); err != nil {
-		return err
-	}
 	if err := os.MkdirAll(filepath.Dir(publicKeyPath), 0o755); err != nil {
 		return err
 	}

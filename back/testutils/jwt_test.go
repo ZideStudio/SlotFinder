@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -127,6 +128,55 @@ func TestEnsureTestJWTKeyPair_PublicKeyWriteFileFails(t *testing.T) {
 	require.NoError(t, os.MkdirAll(publicKeyPath, 0o755))
 
 	err := EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath)
+	assert.Error(t, err)
+}
+
+func TestAcquireGenerationLock_ReturnsNilNilWhenAnotherProcessFinishes(t *testing.T) {
+	dir := t.TempDir()
+	privateKeyPath := filepath.Join(dir, "private.pem")
+	publicKeyPath := filepath.Join(dir, "public.pem")
+	lockPath := privateKeyPath + ".generating.lock"
+
+	// Simulate another process holding the lock, then finishing generation.
+	require.NoError(t, os.WriteFile(lockPath, nil, 0o600))
+	t.Cleanup(func() { _ = os.Remove(lockPath) })
+	go func() {
+		time.Sleep(30 * time.Millisecond)
+		_ = os.WriteFile(privateKeyPath, []byte("x"), 0o600)
+		_ = os.WriteFile(publicKeyPath, []byte("x"), 0o600)
+	}()
+
+	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath, time.Now().Add(2*time.Second))
+
+	assert.NoError(t, err)
+	assert.Nil(t, lockFile)
+}
+
+func TestAcquireGenerationLock_TimesOutWhenLockNeverReleased(t *testing.T) {
+	dir := t.TempDir()
+	privateKeyPath := filepath.Join(dir, "private.pem")
+	publicKeyPath := filepath.Join(dir, "public.pem")
+	lockPath := privateKeyPath + ".generating.lock"
+
+	require.NoError(t, os.WriteFile(lockPath, nil, 0o600))
+	t.Cleanup(func() { _ = os.Remove(lockPath) })
+
+	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath, time.Now().Add(30*time.Millisecond))
+
+	assert.Nil(t, lockFile)
+	assert.ErrorContains(t, err, "timed out waiting")
+}
+
+func TestAcquireGenerationLock_ReturnsErrorOnUnexpectedOpenFileError(t *testing.T) {
+	dir := t.TempDir()
+	// "sub" doesn't exist, so O_CREATE fails with ENOENT, not EEXIST.
+	privateKeyPath := filepath.Join(dir, "sub", "private.pem")
+	publicKeyPath := filepath.Join(dir, "sub", "public.pem")
+	lockPath := privateKeyPath + ".generating.lock"
+
+	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath, time.Now().Add(2*time.Second))
+
+	assert.Nil(t, lockFile)
 	assert.Error(t, err)
 }
 

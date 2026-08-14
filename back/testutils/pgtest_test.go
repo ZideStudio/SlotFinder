@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -142,6 +143,24 @@ func TestOpenDedicatedConn_FatalsWhenDatabaseUnreachable(t *testing.T) {
 	})
 
 	assert.Contains(t, msg, "failed to open postgres connection")
+}
+
+func TestTestDB_FatalsWhenAnotherTestIsActive(t *testing.T) {
+	TestDB(t) // owns the active slot for the rest of this test, via t.Cleanup
+
+	msg := expectFatal(t, func() {
+		TestDB(fakeT{})
+	})
+
+	assert.Contains(t, msg, "another test's TestDB is still active")
+}
+
+func TestAwaitAsyncDBWorkUntil_TimesOutWhenCheckNeverSucceeds(t *testing.T) {
+	msg := expectFatal(t, func() {
+		AwaitAsyncDBWorkUntil(fakeT{}, 30*time.Millisecond, func() bool { return false })
+	})
+
+	assert.Contains(t, msg, "timed out waiting for async DB work to complete")
 }
 
 func TestMakeReadOnly_FatalsWhenConnectionClosed(t *testing.T) {

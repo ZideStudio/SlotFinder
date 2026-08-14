@@ -44,11 +44,11 @@ func StubSMTPAwait(t *testing.T, target *SendMailFunc) <-chan struct{} {
 // AwaitSMTP blocks until called receives (see StubSMTPAwait) or fails the
 // test after 2s, for callers waiting on an asynchronously-spawned SendMail
 // goroutine.
-func AwaitSMTP(t *testing.T, called <-chan struct{}) {
+func AwaitSMTP(t testingT, called <-chan struct{}) {
 	t.Helper()
 	select {
 	case <-called:
 	case <-time.After(2 * time.Second):
-		t.Fatal("expected the async SendMail goroutine to run")
+		t.Fatalf("expected the async SendMail goroutine to run")
 	}
 }

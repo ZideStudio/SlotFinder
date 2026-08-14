@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"testing"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -272,7 +271,7 @@ func MakeReadOnly(t testingT) {
 // AwaitAsyncDBWorkUntil retries check every 100ms instead of giving up after
 // one sleep. Run check in this goroutine, never a new one — require.Eventually
 // would race on the shared connection.
-func AwaitAsyncDBWorkUntil(t *testing.T, timeout time.Duration, check func() bool) {
+func AwaitAsyncDBWorkUntil(t testingT, timeout time.Duration, check func() bool) {
 	t.Helper()
 	const interval = 100 * time.Millisecond
 	deadline := time.Now().Add(timeout)
@@ -282,7 +281,7 @@ func AwaitAsyncDBWorkUntil(t *testing.T, timeout time.Duration, check func() boo
 			return
 		}
 		if time.Now().After(deadline) {
-			t.Fatal("timed out waiting for async DB work to complete")
+			t.Fatalf("timed out waiting for async DB work to complete")
 		}
 	}
 }
