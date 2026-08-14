@@ -107,6 +107,29 @@ func TestEnsureTestJWTKeyPair_WriteFileFails(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestEnsureTestJWTKeyPair_PublicKeyMkdirAllFails(t *testing.T) {
+	dir := t.TempDir()
+	privateKeyPath := filepath.Join(dir, "private.pem")
+	// A file where a directory is expected makes the public key's MkdirAll fail.
+	blocker := filepath.Join(dir, "blocker")
+	require.NoError(t, os.WriteFile(blocker, []byte("not a directory"), 0o600))
+	publicKeyPath := filepath.Join(blocker, "subdir", "public.pem")
+
+	err := EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath)
+	assert.Error(t, err)
+}
+
+func TestEnsureTestJWTKeyPair_PublicKeyWriteFileFails(t *testing.T) {
+	dir := t.TempDir()
+	privateKeyPath := filepath.Join(dir, "private.pem")
+	// A directory at the target path makes the public key's os.WriteFile fail.
+	publicKeyPath := filepath.Join(dir, "public-as-dir")
+	require.NoError(t, os.MkdirAll(publicKeyPath, 0o755))
+
+	err := EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath)
+	assert.Error(t, err)
+}
+
 func TestEnsureTestJWTKeyPair_OnlyPrivateKeyPresent_RegeneratesPair(t *testing.T) {
 	dir := t.TempDir()
 	privateKeyPath := filepath.Join(dir, "private.pem")
