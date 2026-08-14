@@ -13,18 +13,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 // NOTE: Do not call NewAuthController(nil) with the real 24h ticker in most
 // tests — it starts a background goroutine wired to real dependencies.
 // Build the controller struct directly instead, same pattern used elsewhere
 // in this codebase for unit tests.
-
-func testDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	return testutils.TestDB(t)
-}
 
 func newTestContext() (*gin.Context, *httptest.ResponseRecorder) {
 	gin.SetMode(gin.TestMode)
@@ -44,7 +38,7 @@ func TestStatus(t *testing.T) {
 }
 
 func TestLogout_NoCookie(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	ctl := &AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)}
 	c, recorder := newTestContext()
 
@@ -55,7 +49,7 @@ func TestLogout_NoCookie(t *testing.T) {
 }
 
 func TestLogout_InvalidCookie_StillClearsCookies(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	ctl := &AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)}
 	c, recorder := newTestContext()
 	c.Request.AddCookie(&http.Cookie{Name: "refresh_token", Value: "unknown-token"})
@@ -66,7 +60,7 @@ func TestLogout_InvalidCookie_StillClearsCookies(t *testing.T) {
 }
 
 func TestLogout_ValidCookie_RevokesToken(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	repo := repository.NewRefreshTokenRepository(db)
 	ctl := &AuthController{refreshTokenRepository: repo}
 
@@ -97,7 +91,7 @@ func TestNewAuthController_Nil_BuildsDefaultAndStartsCleanup(t *testing.T) {
 }
 
 func TestNewAuthController_ReusesProvidedInstance(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	provided := &AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)}
 
 	ctl := NewAuthController(provided)
@@ -114,7 +108,7 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 	refreshCleanupClock = fake
 	defer func() { refreshCleanupClock = original }()
 
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	repo := repository.NewRefreshTokenRepository(db)
 	account := model.Account{Id: uuid.New()}
 	require.NoError(t, db.Create(&account).Error)
@@ -149,7 +143,7 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 func TestCleanRefreshTokens_StopsOnCancel(t *testing.T) {
 	// The real 24h interval never fires within this test's lifetime, so the
 	// only thing to verify is that cancellation stops the goroutine cleanly.
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	ctl := NewAuthController(&AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)})
 
 	ctl.cleanupCancel()

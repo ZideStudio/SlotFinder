@@ -165,8 +165,8 @@ func TestBroadcastSlotsUpdate_SkipsClientMissingFromRegistry(t *testing.T) {
 
 func TestHandleSSEConnection_EventNotFound(t *testing.T) {
 	s := newTestService()
-	s.eventRepository = repository.NewEventRepository(testDB(t))
-	s.slotRepository = repository.NewSlotRepository(testDB(t))
+	s.eventRepository = repository.NewEventRepository(testutils.TestDB(t))
+	s.slotRepository = repository.NewSlotRepository(testutils.TestDB(t))
 
 	gin.SetMode(gin.TestMode)
 	recorder := httptest.NewRecorder()
@@ -179,7 +179,7 @@ func TestHandleSSEConnection_EventNotFound(t *testing.T) {
 }
 
 func TestHandleSSEConnection_AccessDenied(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	s := newTestService()
 	s.eventRepository = repository.NewEventRepository(db)
 	s.slotRepository = repository.NewSlotRepository(db)
@@ -202,7 +202,7 @@ func TestHandleSSEConnection_AccessDenied(t *testing.T) {
 }
 
 func TestHandleSSEConnection_StreamsInitialMessageThenCloses(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	s := newTestService()
 	s.eventRepository = repository.NewEventRepository(db)
 	s.slotRepository = repository.NewSlotRepository(db)
@@ -236,7 +236,7 @@ func TestHandleSSEConnection_StreamsInitialMessageThenCloses(t *testing.T) {
 }
 
 func TestHandleSSEConnection_BroadcastsMessageToConnectedClient(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	s := newTestService()
 	s.eventRepository = repository.NewEventRepository(db)
 	s.slotRepository = repository.NewSlotRepository(db)
@@ -278,12 +278,6 @@ func TestHandleSSEConnection_BroadcastsMessageToConnectedClient(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "data: ")
 }
 
-// testDB returns a *gorm.DB scoped to a fresh, isolated test transaction.
-func testDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	return testutils.TestDB(t)
-}
-
 // closedRepoDB returns a gorm.DB whose underlying connection is already
 // closed, so any query through it fails immediately — used to force a
 // single repository's calls to fail while the rest of the service keeps
@@ -294,7 +288,7 @@ func closedRepoDB(t *testing.T) *gorm.DB {
 }
 
 func TestHandleSSEConnection_SlotsLookupFails_FallsBackToEmpty(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	s := newTestService()
 	s.eventRepository = repository.NewEventRepository(db)
 	s.slotRepository = repository.NewSlotRepository(closedRepoDB(t))

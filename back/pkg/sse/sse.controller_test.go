@@ -3,6 +3,7 @@ package sse
 import (
 	"app/commons/guard"
 	"app/db/repository"
+	"app/testutils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,7 +62,7 @@ func TestConnect_Unauthenticated_InvalidClaimsType(t *testing.T) {
 }
 
 func TestConnect_DelegatesToService(t *testing.T) {
-	db := testDB(t)
+	db := testutils.TestDB(t)
 	svc := newTestService()
 	svc.eventRepository = repository.NewEventRepository(db)
 	svc.slotRepository = repository.NewSlotRepository(db)
