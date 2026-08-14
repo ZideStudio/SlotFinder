@@ -452,10 +452,14 @@ func TestAvailabilityService_Delete_Success(t *testing.T) {
 
 	err = s.Delete(created.Id, claims)
 	assert.NoError(t, err)
-	testutils.AwaitAsyncDBWork(t)
 
 	var availabilities []model.Availability
-	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
+			return false
+		}
+		return len(availabilities) == 0
+	})
 	assert.Len(t, availabilities, 0)
 }
 

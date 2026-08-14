@@ -306,11 +306,15 @@ func TestSlotService_RemoveValidatedSlot_Success(t *testing.T) {
 	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
 	assert.NoError(t, err)
 	// RemoveValidatedSlot also spawns `go s.LoadSlots(...)`, which reuses this
-	// test's dedicated connection; give it a head start before querying again.
-	testutils.AwaitAsyncDBWork(t)
-
+	// test's dedicated connection; poll (in this goroutine) instead of
+	// blindly sleeping before querying again.
 	var updatedEvent model.Event
-	require.NoError(t, s.eventRepository.FindOneById(event.Id, &updatedEvent))
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := s.eventRepository.FindOneById(event.Id, &updatedEvent); err != nil {
+			return false
+		}
+		return updatedEvent.Status == constants.EVENT_STATUS_IN_DECISION
+	})
 	assert.Equal(t, constants.EVENT_STATUS_IN_DECISION, updatedEvent.Status)
 
 	// Wait for the async cancellation email goroutine (owner is the sole participant).

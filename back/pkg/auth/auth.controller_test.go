@@ -155,16 +155,19 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 
 	fake.Advance(refreshTokenCleanupInterval)
 
-	// A single wait-then-check instead of require.Eventually: Eventually
-	// polls by spawning a new goroutine per tick, and every one of them would
-	// share this test's single dedicated Postgres connection (testutils.TestDB)
-	// with the cleanup goroutine's own DeleteExpired() call — concurrent
-	// access jackc/pgx connections don't support and that intermittently
-	// fails with "driver: bad connection".
-	testutils.AwaitAsyncDBWork(t)
-
+	// Poll in this same goroutine instead of require.Eventually: Eventually
+	// spawns a new goroutine per tick, and every one of them would share this
+	// test's single dedicated Postgres connection (testutils.TestDB) with the
+	// cleanup goroutine's own DeleteExpired() call — concurrent access jackc/pgx
+	// connections don't support and that intermittently fails with "driver:
+	// bad connection".
 	var count int64
-	require.NoError(t, db.Model(&model.RefreshToken{}).Where("id = ?", expired.Id).Count(&count).Error)
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := db.Model(&model.RefreshToken{}).Where("id = ?", expired.Id).Count(&count).Error; err != nil {
+			return false
+		}
+		return count == 0
+	})
 	assert.Equal(t, int64(0), count, "expected the cleanup ticker to delete the expired token")
 }
 

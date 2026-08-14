@@ -220,10 +220,14 @@ func TestEventService_Update_BreakingChange_RecalculatesSlots(t *testing.T) {
 	newEnd := event.EndsAt.Add(time.Hour)
 	err := s.Update(event.Id, &EventUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, &guard.Claims{Id: owner})
 	assert.NoError(t, err)
-	testutils.AwaitAsyncDBWork(t)
 
 	var found model.Event
-	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
+			return false
+		}
+		return found.StartsAt.Equal(newStart)
+	})
 	assert.True(t, found.StartsAt.Equal(newStart))
 }
 
@@ -310,10 +314,14 @@ func TestEventService_Update_DaysOnly_RecalculatesSlots(t *testing.T) {
 	days := 2
 	err := s.Update(event.Id, &EventUpdateDto{Days: &days}, &guard.Claims{Id: owner})
 	assert.NoError(t, err)
-	testutils.AwaitAsyncDBWork(t)
 
 	var found model.Event
-	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
+			return false
+		}
+		return found.Duration != event.Duration
+	})
 	assert.NotEqual(t, event.Duration, found.Duration)
 }
 
@@ -325,10 +333,14 @@ func TestEventService_Update_MinutesOnly_RecalculatesSlots(t *testing.T) {
 	minutes := 30
 	err := s.Update(event.Id, &EventUpdateDto{Minutes: &minutes}, &guard.Claims{Id: owner})
 	assert.NoError(t, err)
-	testutils.AwaitAsyncDBWork(t)
 
 	var found model.Event
-	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
+			return false
+		}
+		return found.Duration != event.Duration
+	})
 	assert.NotEqual(t, event.Duration, found.Duration)
 }
 
@@ -350,10 +362,14 @@ func TestEventService_Update_DurationOnly_RecalculatesSlots(t *testing.T) {
 	hours := 2
 	err := s.Update(event.Id, &EventUpdateDto{Hours: &hours}, &guard.Claims{Id: owner})
 	assert.NoError(t, err)
-	testutils.AwaitAsyncDBWork(t)
 
 	var found model.Event
-	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
+		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
+			return false
+		}
+		return found.Duration != event.Duration
+	})
 	assert.NotEqual(t, event.Duration, found.Duration)
 }
 

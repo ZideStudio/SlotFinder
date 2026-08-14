@@ -287,3 +287,30 @@ func AwaitAsyncDBWork(t *testing.T) {
 	t.Helper()
 	time.Sleep(100 * time.Millisecond)
 }
+
+// AwaitAsyncDBWorkUntil waits the same 100ms as AwaitAsyncDBWork before
+// re-running check (on the caller's own dedicated connection), but — unlike a
+// single blind sleep — retries a few more times, 100ms apart, instead of
+// giving up after one shot when the goroutine hasn't finished yet under load.
+// check runs synchronously in the calling test goroutine — never spawn a new
+// goroutine per poll (e.g. via require.Eventually): a second goroutine
+// querying the same dedicated connection concurrently with the test's own
+// fire-and-forget goroutine is exactly the "driver: bad connection" failure
+// mode this helper exists to avoid. For the same reason, check should treat
+// its own query errors as "not ready yet" (return false) rather than fail
+// the test outright — a transient error while the async goroutine is still
+// mid-query on the shared connection isn't itself a real failure.
+func AwaitAsyncDBWorkUntil(t *testing.T, timeout time.Duration, check func() bool) {
+	t.Helper()
+	const interval = 100 * time.Millisecond
+	deadline := time.Now().Add(timeout)
+	for {
+		time.Sleep(interval)
+		if check() {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("timed out waiting for async DB work to complete")
+		}
+	}
+}
