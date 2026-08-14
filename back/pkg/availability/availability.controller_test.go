@@ -93,6 +93,17 @@ func TestAvailabilityController_Create_InvalidBody(t *testing.T) {
 // against the controller (bypassing that middleware) would just crash the
 // test process, so it's intentionally not covered here.
 
+func TestAvailabilityController_Create_InvalidClaimsType(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	body, _ := json.Marshal(AvailabilityCreateDto{StartsAt: alignedNow(t), EndsAt: alignedNow(t).Add(time.Hour)})
+	c, recorder := newAvailabilityTestContext(t, http.MethodPost, body, uuid.New().String(), "", nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.Create(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
 func TestAvailabilityController_Create_InvalidEventId(t *testing.T) {
 	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
 	body, _ := json.Marshal(AvailabilityCreateDto{StartsAt: alignedNow(t), EndsAt: alignedNow(t).Add(time.Hour)})
@@ -117,6 +128,25 @@ func TestAvailabilityController_Create_Success(t *testing.T) {
 	ctl.Create(c)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestAvailabilityController_Update_InvalidBody(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	c, recorder := newAvailabilityTestContext(t, http.MethodPatch, []byte(`not-json`), "", uuid.New().String(), &guard.Claims{Id: uuid.New()})
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+}
+
+func TestAvailabilityController_Update_InvalidClaimsType(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	c, recorder := newAvailabilityTestContext(t, http.MethodPatch, []byte(`{}`), "", uuid.New().String(), nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.Update(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
 
 func TestAvailabilityController_Update_InvalidAvailabilityId(t *testing.T) {
@@ -145,6 +175,16 @@ func TestAvailabilityController_Update_Success(t *testing.T) {
 	ctl.Update(c)
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestAvailabilityController_Delete_InvalidClaimsType(t *testing.T) {
+	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}
+	c, recorder := newAvailabilityTestContext(t, http.MethodDelete, nil, "", uuid.New().String(), nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.Delete(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
 
 func TestAvailabilityController_Delete_InvalidAvailabilityId(t *testing.T) {
