@@ -7,24 +7,28 @@ import (
 )
 
 func TestEventStatus_Scan_Nil(t *testing.T) {
+	t.Parallel()
 	var status EventStatus = "UPCOMING"
 	assert.NoError(t, status.Scan(nil))
 	assert.Equal(t, EventStatus(""), status)
 }
 
 func TestEventStatus_Scan_Bytes(t *testing.T) {
+	t.Parallel()
 	var status EventStatus
 	assert.NoError(t, status.Scan([]byte("UPCOMING")))
 	assert.Equal(t, EVENT_STATUS_UPCOMING, status)
 }
 
 func TestEventStatus_Scan_String(t *testing.T) {
+	t.Parallel()
 	var status EventStatus
 	assert.NoError(t, status.Scan("FINISHED"))
 	assert.Equal(t, EVENT_STATUS_FINISHED, status)
 }
 
 func TestEventStatus_Scan_UnsupportedType(t *testing.T) {
+	t.Parallel()
 	var status EventStatus
 	err := status.Scan(123)
 	assert.Error(t, err)
@@ -32,6 +36,7 @@ func TestEventStatus_Scan_UnsupportedType(t *testing.T) {
 }
 
 func TestEventStatus_Value(t *testing.T) {
+	t.Parallel()
 	status := EVENT_STATUS_IN_DECISION
 	value, err := status.Value()
 	assert.NoError(t, err)

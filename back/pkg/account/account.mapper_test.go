@@ -9,6 +9,7 @@ import (
 )
 
 func TestMapToAccountResponseDto_WithProviders(t *testing.T) {
+	t.Parallel()
 	username := "mapped"
 	account := model.Account{
 		UserName: &username,
@@ -27,6 +28,7 @@ func TestMapToAccountResponseDto_WithProviders(t *testing.T) {
 }
 
 func TestMapToAccountResponseDto_NoProviders(t *testing.T) {
+	t.Parallel()
 	dto := MapToAccountResponseDto(model.Account{})
 	assert.Empty(t, dto.Providers)
 }

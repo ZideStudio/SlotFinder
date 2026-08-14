@@ -9,11 +9,13 @@ import (
 )
 
 func TestAccount_ComparePassword_NilPassword(t *testing.T) {
+	t.Parallel()
 	account := Account{Password: nil}
 	assert.False(t, account.ComparePassword("anything"))
 }
 
 func TestAccount_ComparePassword_CorrectPassword(t *testing.T) {
+	t.Parallel()
 	hash, err := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
 	require.NoError(t, err)
 	hashed := string(hash)
@@ -23,6 +25,7 @@ func TestAccount_ComparePassword_CorrectPassword(t *testing.T) {
 }
 
 func TestAccount_ComparePassword_WrongPassword(t *testing.T) {
+	t.Parallel()
 	hash, err := bcrypt.GenerateFromPassword([]byte("correct-password"), bcrypt.MinCost)
 	require.NoError(t, err)
 	hashed := string(hash)
@@ -32,6 +35,7 @@ func TestAccount_ComparePassword_WrongPassword(t *testing.T) {
 }
 
 func TestAccount_Sanitized_WithOverrideColor(t *testing.T) {
+	t.Parallel()
 	username := "alice"
 	overrideColor := "#ffffff"
 	account := Account{UserName: &username, Color: "#000000"}
@@ -42,14 +46,17 @@ func TestAccount_Sanitized_WithOverrideColor(t *testing.T) {
 }
 
 func TestAccount_TableName(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "account", Account{}.TableName())
 }
 
 func TestAccountEvent_TableName(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "account_event", AccountEvent{}.TableName())
 }
 
 func TestAccountEvent_Sanitized(t *testing.T) {
+	t.Parallel()
 	username := "alice"
 	ownerName := "bob"
 	color := "#123456"
@@ -67,13 +74,16 @@ func TestAccountEvent_Sanitized(t *testing.T) {
 }
 
 func TestAccountProvider_TableName(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "account_provider", AccountProvider{}.TableName())
 }
 
 func TestAvailability_TableName(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "availability", Availability{}.TableName())
 }
 
 func TestRefreshToken_TableName(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "refresh_token", RefreshToken{}.TableName())
 }

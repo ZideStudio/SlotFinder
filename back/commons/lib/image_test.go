@@ -36,6 +36,7 @@ func decodeJPEGSize(t *testing.T, data []byte) (int, int) {
 }
 
 func TestProcessAvatar_SmallImage_KeepsDimensions(t *testing.T) {
+	t.Parallel()
 	input := buildPNG(t, 100, 50)
 	out, err := ProcessAvatar(input)
 	require.NoError(t, err)
@@ -46,6 +47,7 @@ func TestProcessAvatar_SmallImage_KeepsDimensions(t *testing.T) {
 }
 
 func TestProcessAvatar_LargeImage_ResizesToMaxDimension(t *testing.T) {
+	t.Parallel()
 	input := buildPNG(t, 1000, 500) // 2:1 ratio, width is the larger side
 	out, err := ProcessAvatar(input)
 	require.NoError(t, err)
@@ -56,6 +58,7 @@ func TestProcessAvatar_LargeImage_ResizesToMaxDimension(t *testing.T) {
 }
 
 func TestProcessAvatar_LargeImage_TallAspectRatio(t *testing.T) {
+	t.Parallel()
 	input := buildPNG(t, 500, 1000) // height is the larger side
 	out, err := ProcessAvatar(input)
 	require.NoError(t, err)
@@ -66,6 +69,7 @@ func TestProcessAvatar_LargeImage_TallAspectRatio(t *testing.T) {
 }
 
 func TestProcessAvatar_OutputIsValidJPEG(t *testing.T) {
+	t.Parallel()
 	input := buildPNG(t, 20, 20)
 	out, err := ProcessAvatar(input)
 	require.NoError(t, err)
@@ -76,6 +80,7 @@ func TestProcessAvatar_OutputIsValidJPEG(t *testing.T) {
 }
 
 func TestProcessAvatar_ExtremeWideAspectRatio_ClampsHeightTo1(t *testing.T) {
+	t.Parallel()
 	input := buildPNG(t, 1000, 1)
 	out, err := ProcessAvatar(input)
 	require.NoError(t, err)
@@ -86,6 +91,7 @@ func TestProcessAvatar_ExtremeWideAspectRatio_ClampsHeightTo1(t *testing.T) {
 }
 
 func TestProcessAvatar_ExtremeTallAspectRatio_ClampsWidthTo1(t *testing.T) {
+	t.Parallel()
 	input := buildPNG(t, 1, 1000)
 	out, err := ProcessAvatar(input)
 	require.NoError(t, err)
@@ -96,11 +102,13 @@ func TestProcessAvatar_ExtremeTallAspectRatio_ClampsWidthTo1(t *testing.T) {
 }
 
 func TestProcessAvatar_InvalidBytes(t *testing.T) {
+	t.Parallel()
 	_, err := ProcessAvatar([]byte("not-an-image"))
 	assert.Error(t, err)
 }
 
 func TestProcessAvatarFromURL_Success(t *testing.T) {
+	t.Parallel()
 	body := buildPNG(t, 20, 20)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write(body)
@@ -114,6 +122,7 @@ func TestProcessAvatarFromURL_Success(t *testing.T) {
 }
 
 func TestProcessAvatarFromURL_NonSuccessStatus(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	}))
@@ -124,6 +133,7 @@ func TestProcessAvatarFromURL_NonSuccessStatus(t *testing.T) {
 }
 
 func TestProcessAvatarFromURL_ConnectionRefused(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 	url := server.URL
 	server.Close()
@@ -133,6 +143,7 @@ func TestProcessAvatarFromURL_ConnectionRefused(t *testing.T) {
 }
 
 func TestProcessAvatarFromURL_ExceedsMaxDownloadBytes(t *testing.T) {
+	t.Parallel()
 	chunk := bytes.Repeat([]byte{0}, 1<<20) // 1 MB chunk
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Stream slightly more than maxDownloadBytes (10 MB) of zero bytes.
@@ -149,6 +160,7 @@ func TestProcessAvatarFromURL_ExceedsMaxDownloadBytes(t *testing.T) {
 }
 
 func TestProcessAvatarFromURL_BodyReadError(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Declare more bytes than sent, then close the connection early to force a read error.
 		w.Header().Set("Content-Length", "1000")
@@ -167,6 +179,7 @@ func TestProcessAvatarFromURL_BodyReadError(t *testing.T) {
 }
 
 func TestProcessAvatarFromURL_InvalidBody(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("not-an-image"))
 	}))

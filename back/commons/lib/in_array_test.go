@@ -7,13 +7,16 @@ import (
 )
 
 func TestInArray_Found(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, 1, InArray("b", []string{"a", "b", "c"}))
 }
 
 func TestInArray_NotFound(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, -1, InArray("z", []string{"a", "b", "c"}))
 }
 
 func TestInArray_EmptySlice(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, -1, InArray(1, []int{}))
 }

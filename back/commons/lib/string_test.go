@@ -7,6 +7,7 @@ import (
 )
 
 func TestIsHexa(t *testing.T) {
+	t.Parallel()
 	assert.True(t, IsHexa("#FFFFFF"))
 	assert.True(t, IsHexa("#abc123"))
 	assert.False(t, IsHexa("#FFF"))
@@ -16,11 +17,13 @@ func TestIsHexa(t *testing.T) {
 }
 
 func TestBoolToString(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "true", BoolToString(true))
 	assert.Equal(t, "false", BoolToString(false))
 }
 
 func TestCapitalize(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "Hello", Capitalize("hello"))
 	assert.Equal(t, "Hello", Capitalize("Hello"))
 	assert.Equal(t, "", Capitalize(""))

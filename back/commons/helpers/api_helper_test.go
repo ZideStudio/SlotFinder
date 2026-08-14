@@ -28,6 +28,7 @@ type sampleBody struct {
 }
 
 func TestSetHttpContextBody_Success(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext([]byte(`{"name":"hello"}`))
 
 	var body sampleBody
@@ -38,6 +39,7 @@ func TestSetHttpContextBody_Success(t *testing.T) {
 }
 
 func TestSetHttpContextBody_InvalidJSON(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext([]byte(`not-json`))
 
 	var body sampleBody
@@ -47,6 +49,7 @@ func TestSetHttpContextBody_InvalidJSON(t *testing.T) {
 }
 
 func TestSetHttpContextBody_MissingRequiredField(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext([]byte(`{}`))
 
 	var body sampleBody
@@ -56,6 +59,7 @@ func TestSetHttpContextBody_MissingRequiredField(t *testing.T) {
 }
 
 func TestHandleJSONResponse_Success(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext(nil)
 
 	HandleJSONResponse(c, map[string]string{"key": "value"}, nil)
@@ -67,6 +71,7 @@ func TestHandleJSONResponse_Success(t *testing.T) {
 }
 
 func TestHandleJSONResponse_CustomError_WithStatus(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext(nil)
 
 	HandleJSONResponse(c, nil, constants.ERR_NOT_AUTHENTICATED.Err)
@@ -78,6 +83,7 @@ func TestHandleJSONResponse_CustomError_WithStatus(t *testing.T) {
 }
 
 func TestHandleJSONResponse_CustomError_DefaultStatus(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext(nil)
 
 	HandleJSONResponse(c, nil, constants.ERR_INVALID_EMAIL_FORMAT.Err)
@@ -86,6 +92,7 @@ func TestHandleJSONResponse_CustomError_DefaultStatus(t *testing.T) {
 }
 
 func TestHandleJSONResponse_UnknownError_ServerError(t *testing.T) {
+	t.Parallel()
 	c, recorder := newHelperTestContext(nil)
 
 	HandleJSONResponse(c, nil, errors.New("something unexpected"))

@@ -38,11 +38,13 @@ func newTestMailService(t *testing.T) *MailService {
 }
 
 func TestNewMailService_ReusesProvidedInstance(t *testing.T) {
+	t.Parallel()
 	existing := &MailService{}
 	assert.Same(t, existing, NewMailService(existing))
 }
 
 func TestNewMailService_Nil_BuildsRealDependencies(t *testing.T) {
+	t.Parallel()
 	s := NewMailService(nil)
 	assert.NotNil(t, s.SendMailFunc)
 	assert.NotEmpty(t, s.templates)
@@ -50,6 +52,7 @@ func TestNewMailService_Nil_BuildsRealDependencies(t *testing.T) {
 }
 
 func TestLoadTemplates_AllTemplatesLoaded(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	for _, tmpl := range []constants.MailTemplate{
@@ -65,6 +68,7 @@ func TestLoadTemplates_AllTemplatesLoaded(t *testing.T) {
 }
 
 func TestLoadTranslations_EnAndFrLoaded(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	assert.NotEmpty(t, s.translations["en"])
@@ -72,6 +76,7 @@ func TestLoadTranslations_EnAndFrLoaded(t *testing.T) {
 }
 
 func TestGetTranslations_FallbackToEnglish(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	translations := s.getTranslations(constants.MAIL_TEMPLATE_WELCOME, constants.AccountLanguage("de"))
@@ -79,6 +84,7 @@ func TestGetTranslations_FallbackToEnglish(t *testing.T) {
 }
 
 func TestGetTranslations_UnknownTemplate(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	translations := s.getTranslations(constants.MailTemplate("does-not-exist"), constants.ACCOUNT_LANGUAGE_EN)
@@ -86,6 +92,7 @@ func TestGetTranslations_UnknownTemplate(t *testing.T) {
 }
 
 func TestRenderTemplate_UnknownTemplate(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	_, err := s.renderTemplate(constants.MailTemplate("does-not-exist"), nil, constants.ACCOUNT_LANGUAGE_EN)
@@ -93,6 +100,7 @@ func TestRenderTemplate_UnknownTemplate(t *testing.T) {
 }
 
 func TestRenderTemplate_Success(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	html, err := s.renderTemplate(constants.MAIL_TEMPLATE_WELCOME, map[string]string{"LoginUrl": "https://slotfinder.test/login"}, constants.ACCOUNT_LANGUAGE_EN)
@@ -101,6 +109,7 @@ func TestRenderTemplate_Success(t *testing.T) {
 }
 
 func TestEventUrl(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	eventId := uuid.New()
 
@@ -108,6 +117,7 @@ func TestEventUrl(t *testing.T) {
 }
 
 func TestEventEmailCommonParams(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	event := model.Event{Name: "Team Sync"}
 	eventId := uuid.New()
@@ -121,6 +131,7 @@ func TestEventEmailCommonParams(t *testing.T) {
 }
 
 func TestEventEmailCommonParams_InvalidTimeZoneFallsBackToUTC(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	event := model.Event{Name: "Team Sync"}
 
@@ -129,6 +140,7 @@ func TestEventEmailCommonParams_InvalidTimeZoneFallsBackToUTC(t *testing.T) {
 }
 
 func TestEventEmailEnrichOptionalFields(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	username := "alice"
 	ownerUsername := "bob"
@@ -145,6 +157,7 @@ func TestEventEmailEnrichOptionalFields(t *testing.T) {
 }
 
 func TestEventEmailEnrichOptionalFields_NilFieldsSkipped(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	params := map[string]string{}
 	s.eventEmailEnrichOptionalFields(params, model.Account{}, model.Event{})
@@ -156,6 +169,7 @@ func TestEventEmailEnrichOptionalFields_NilFieldsSkipped(t *testing.T) {
 }
 
 func TestSendMail_ValidationErrors(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	assert.Error(t, s.SendMail(EmailParams{To: "a@b.com", Subject: "Hi"}))
@@ -164,6 +178,7 @@ func TestSendMail_ValidationErrors(t *testing.T) {
 }
 
 func TestSendMail_RenderError(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	err := s.SendMail(EmailParams{Template: constants.MailTemplate("unknown"), To: "a@b.com", Subject: "Hi"})
@@ -171,6 +186,7 @@ func TestSendMail_RenderError(t *testing.T) {
 }
 
 func TestSendMail_Success(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	var capturedTo []string
@@ -192,6 +208,7 @@ func TestSendMail_Success(t *testing.T) {
 }
 
 func TestSendMail_DefaultsLanguageAndParams(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
@@ -201,6 +218,7 @@ func TestSendMail_DefaultsLanguageAndParams(t *testing.T) {
 }
 
 func TestSendMail_SmtpError(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
@@ -212,17 +230,20 @@ func TestSendMail_SmtpError(t *testing.T) {
 }
 
 func TestSendEventConfirmationEmail_NoEmailOrUsername_NoOp(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	// No email/username set -> should return without attempting to send (and thus without needing the SendMailFunc stub).
 	s.SendEventConfirmationEmail(model.Account{}, model.Event{}, uuid.New(), uuid.New(), time.Now(), time.Now())
 }
 
 func TestSendEventCancellationEmail_NoEmailOrUsername_NoOp(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 	s.SendEventCancellationEmail(model.Account{}, model.Event{}, uuid.New(), uuid.New(), time.Now(), time.Now())
 }
 
 func TestSendEventConfirmationEmail_Success(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	sent := make(chan struct{}, 1)
@@ -247,6 +268,7 @@ func TestSendEventConfirmationEmail_Success(t *testing.T) {
 }
 
 func TestSendEventCancellationEmail_Success(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	sent := make(chan struct{}, 1)
@@ -271,6 +293,7 @@ func TestSendEventCancellationEmail_Success(t *testing.T) {
 }
 
 func TestSendEventCancellationEmail_FrenchSubject(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	sent := make(chan struct{}, 1)
@@ -295,6 +318,7 @@ func TestSendEventCancellationEmail_FrenchSubject(t *testing.T) {
 }
 
 func TestBuildEmailMessage(t *testing.T) {
+	t.Parallel()
 	s := newTestMailService(t)
 
 	msg := s.buildEmailMessage("to@example.com", "Subject Line", "<p>Body</p>")

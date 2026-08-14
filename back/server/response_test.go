@@ -9,6 +9,7 @@ import (
 )
 
 func TestHTTPRes(t *testing.T) {
+	t.Parallel()
 	gin.SetMode(gin.TestMode)
 	recorder := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(recorder)
@@ -20,6 +21,7 @@ func TestHTTPRes(t *testing.T) {
 }
 
 func TestHTTPRes_NilData(t *testing.T) {
+	t.Parallel()
 	gin.SetMode(gin.TestMode)
 	recorder := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(recorder)

@@ -18,6 +18,7 @@ func newCookieTestContext() (*gin.Context, *httptest.ResponseRecorder) {
 }
 
 func TestSetAccessTokenCookie_DefaultExpiration(t *testing.T) {
+	t.Parallel()
 	c, recorder := newCookieTestContext()
 	SetAccessTokenCookie(c, "token-value", 0)
 
@@ -30,6 +31,7 @@ func TestSetAccessTokenCookie_DefaultExpiration(t *testing.T) {
 }
 
 func TestSetAccessTokenCookie_ExplicitExpiration(t *testing.T) {
+	t.Parallel()
 	c, recorder := newCookieTestContext()
 	SetAccessTokenCookie(c, "token-value", -1)
 
@@ -39,6 +41,7 @@ func TestSetAccessTokenCookie_ExplicitExpiration(t *testing.T) {
 }
 
 func TestSetRefreshTokenCookie_DefaultExpiration(t *testing.T) {
+	t.Parallel()
 	c, recorder := newCookieTestContext()
 	SetRefreshTokenCookie(c, "refresh-value", 0)
 
@@ -50,6 +53,7 @@ func TestSetRefreshTokenCookie_DefaultExpiration(t *testing.T) {
 }
 
 func TestSetRefreshTokenCookie_ExplicitExpiration(t *testing.T) {
+	t.Parallel()
 	c, recorder := newCookieTestContext()
 	SetRefreshTokenCookie(c, "", -1)
 

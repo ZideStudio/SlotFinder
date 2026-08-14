@@ -9,6 +9,7 @@ import (
 )
 
 func TestFormatLocalizedDate_SameDay_English(t *testing.T) {
+	t.Parallel()
 	start := time.Date(2026, time.May, 14, 17, 0, 0, 0, time.UTC)
 	end := time.Date(2026, time.May, 14, 18, 0, 0, 0, time.UTC)
 
@@ -17,6 +18,7 @@ func TestFormatLocalizedDate_SameDay_English(t *testing.T) {
 }
 
 func TestFormatLocalizedDate_SameDay_French(t *testing.T) {
+	t.Parallel()
 	start := time.Date(2026, time.December, 7, 20, 0, 0, 0, time.UTC)
 	end := time.Date(2026, time.December, 7, 23, 0, 0, 0, time.UTC)
 
@@ -25,6 +27,7 @@ func TestFormatLocalizedDate_SameDay_French(t *testing.T) {
 }
 
 func TestFormatLocalizedDate_MultiDay_English(t *testing.T) {
+	t.Parallel()
 	start := time.Date(2026, time.December, 7, 20, 0, 0, 0, time.UTC)
 	end := time.Date(2026, time.December, 8, 23, 0, 0, 0, time.UTC)
 
@@ -33,6 +36,7 @@ func TestFormatLocalizedDate_MultiDay_English(t *testing.T) {
 }
 
 func TestFormatLocalizedDate_MultiDay_French(t *testing.T) {
+	t.Parallel()
 	start := time.Date(2026, time.December, 7, 20, 0, 0, 0, time.UTC)
 	end := time.Date(2026, time.December, 8, 23, 0, 0, 0, time.UTC)
 
@@ -41,6 +45,7 @@ func TestFormatLocalizedDate_MultiDay_French(t *testing.T) {
 }
 
 func TestFormatLocalizedDate_UnknownLanguageFallsBackToEnglish(t *testing.T) {
+	t.Parallel()
 	start := time.Date(2026, time.May, 14, 17, 0, 0, 0, time.UTC)
 	end := time.Date(2026, time.May, 14, 18, 0, 0, 0, time.UTC)
 

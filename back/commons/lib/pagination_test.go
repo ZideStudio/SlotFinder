@@ -10,12 +10,14 @@ import (
 )
 
 func TestPagination_ParseQuery_NilContext(t *testing.T) {
+	t.Parallel()
 	var p Pagination[string]
 	err := p.ParseQuery(nil)
 	assert.Error(t, err)
 }
 
 func TestPagination_ParseQuery_Defaults(t *testing.T) {
+	t.Parallel()
 	gin.SetMode(gin.TestMode)
 	recorder := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(recorder)
@@ -30,6 +32,7 @@ func TestPagination_ParseQuery_Defaults(t *testing.T) {
 }
 
 func TestPagination_ParseQuery_ComputesOffset(t *testing.T) {
+	t.Parallel()
 	gin.SetMode(gin.TestMode)
 	recorder := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(recorder)
@@ -44,6 +47,7 @@ func TestPagination_ParseQuery_ComputesOffset(t *testing.T) {
 }
 
 func TestPagination_ParseQuery_InvalidParams(t *testing.T) {
+	t.Parallel()
 	gin.SetMode(gin.TestMode)
 	recorder := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(recorder)
