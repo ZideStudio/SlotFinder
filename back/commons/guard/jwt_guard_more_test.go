@@ -2,6 +2,11 @@ package guard
 
 import (
 	"app/config"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -15,6 +20,40 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// generateTinyRSAKey builds a valid RSA key well under 1024 bits by hand,
+// since rsa.GenerateKey refuses to produce keys that small.
+func generateTinyRSAKey(t *testing.T, bits int) *rsa.PrivateKey {
+	t.Helper()
+	for {
+		p, err := rand.Prime(rand.Reader, bits/2)
+		require.NoError(t, err)
+		q, err := rand.Prime(rand.Reader, bits/2)
+		require.NoError(t, err)
+		if p.Cmp(q) == 0 {
+			continue
+		}
+
+		n := new(big.Int).Mul(p, q)
+		phi := new(big.Int).Mul(
+			new(big.Int).Sub(p, big.NewInt(1)),
+			new(big.Int).Sub(q, big.NewInt(1)),
+		)
+		e := big.NewInt(65537)
+		d := new(big.Int).ModInverse(e, phi)
+		if d == nil {
+			continue // e and phi weren't coprime — retry with fresh primes
+		}
+
+		key := &rsa.PrivateKey{
+			PublicKey: rsa.PublicKey{N: n, E: int(e.Int64())},
+			D:         d,
+			Primes:    []*big.Int{p, q},
+		}
+		key.Precompute()
+		return key
+	}
+}
 
 func newGuardTestContext() (*gin.Context, *httptest.ResponseRecorder) {
 	gin.SetMode(gin.TestMode)
@@ -208,6 +247,25 @@ func TestGenerateAccessToken_PrivateKeyFileInvalid(t *testing.T) {
 	invalidPath := filepath.Join(t.TempDir(), "invalid.pem")
 	require.NoError(t, os.WriteFile(invalidPath, []byte("not a pem file"), 0o600))
 	cfg.Auth.PrivatePemPath = invalidPath
+	defer func() { cfg.Auth.PrivatePemPath = original }()
+
+	_, err := GenerateAccessToken(validClaims())
+	assert.Error(t, err)
+}
+
+func TestGenerateAccessToken_PrivateKeyTooSmallToSign(t *testing.T) {
+	cfg := config.GetConfig()
+	original := cfg.Auth.PrivatePemPath
+
+	tinyKey := generateTinyRSAKey(t, 384)
+	tinyKeyPem := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(tinyKey),
+	})
+	tinyKeyPath := filepath.Join(t.TempDir(), "tiny.pem")
+	require.NoError(t, os.WriteFile(tinyKeyPath, tinyKeyPem, 0o600))
+
+	cfg.Auth.PrivatePemPath = tinyKeyPath
 	defer func() { cfg.Auth.PrivatePemPath = original }()
 
 	_, err := GenerateAccessToken(validClaims())
