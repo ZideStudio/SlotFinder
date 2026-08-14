@@ -43,12 +43,8 @@ func newImageTestServer(t *testing.T, body []byte, status int) *httptest.Server 
 	return server
 }
 
-// gravatarRedirectTransport reroutes any request aimed at www.gravatar.com
-// (GetGravatarURL's host) to a local httptest server. The URL path carries a
-// sha256 hash of the username so it can't be matched exactly like the OAuth
-// provider endpoints; matching by host and rewriting the whole URL lets
-// FetchAndStoreGravatar stay a direct call to lib.ProcessAvatarFromURL with
-// no injectable function field.
+// gravatarRedirectTransport reroutes any request to www.gravatar.com to a
+// local httptest server, matching by host since the path carries a hash.
 type gravatarRedirectTransport struct {
 	target string
 	next   http.RoundTripper
@@ -71,10 +67,8 @@ func (rt *gravatarRedirectTransport) RoundTrip(req *http.Request) (*http.Respons
 	return rt.next.RoundTrip(req)
 }
 
-// withGravatarRedirect installs the redirect on http.DefaultTransport for the
-// duration of the test, restoring the original transport on cleanup.
-// lib.ProcessAvatarFromURL uses http.Get, whose http.DefaultClient falls back
-// to http.DefaultTransport when unset.
+// withGravatarRedirect installs the redirect on http.DefaultTransport for
+// the test's duration, since lib.ProcessAvatarFromURL uses http.Get.
 func withGravatarRedirect(t *testing.T, target string) {
 	t.Helper()
 	orig := http.DefaultTransport

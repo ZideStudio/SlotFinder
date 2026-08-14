@@ -11,10 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// NOTE: Do not initialize real services at package init time in unit tests.
-// NewAvailabilityService(nil) wires real dependencies indirectly (via other services),
-// which can crash tests when configuration isn't set.
-// Create the service inside each test instead.
+// NOTE: Do not initialize real services at package init time in unit tests —
+// NewAvailabilityService(nil) wires real dependencies indirectly and can
+// crash when configuration isn't set. Create the service per test instead.
 
 // Helper function to create a mock event for testing
 func createMockEvent() model.Event {

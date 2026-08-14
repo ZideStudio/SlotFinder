@@ -18,23 +18,14 @@ import (
 
 // NOTE: Do not call NewAuthController(nil) with the real 24h ticker in most
 // tests — it starts a background goroutine wired to real dependencies.
-// Build the controller struct directly instead, same pattern used elsewhere
-// in this codebase for unit tests.
+// Build the controller struct directly instead.
 
-// refreshCleanupClockMu serializes every test-side touch of the package
-// global refreshCleanupClock (auth.controller.go:22) — both the direct
-// swap in TestCleanRefreshTokens_DeletesExpiredOnTick and the indirect read
-// every NewAuthController call does when it builds its ticker. None of these
-// tests are t.Parallel() today, so this is currently a no-op; it exists so
-// that if a future test in this package is marked parallel, it doesn't race
-// on the global (a full fix — scoping the clock to the AuthController
-// instance instead of a package var — needs a change to auth.controller.go,
-// which is out of scope here).
+// refreshCleanupClockMu guards every test-side touch of the package global
+// refreshCleanupClock (auth.controller.go:22), so a future t.Parallel()
+// test can't race on it (a full fix needs scoping the clock per-instance).
 var refreshCleanupClockMu sync.Mutex
 
-// newAuthControllerLocked calls NewAuthController under refreshCleanupClockMu
-// so every test goes through the same guard instead of only the one that
-// swaps the clock.
+// newAuthControllerLocked calls NewAuthController under refreshCleanupClockMu.
 func newAuthControllerLocked(t *testing.T, ctl *AuthController) *AuthController {
 	t.Helper()
 	refreshCleanupClockMu.Lock()
@@ -155,12 +146,9 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 
 	fake.Advance(refreshTokenCleanupInterval)
 
-	// Poll in this same goroutine instead of require.Eventually: Eventually
-	// spawns a new goroutine per tick, and every one of them would share this
-	// test's single dedicated Postgres connection (testutils.TestDB) with the
-	// cleanup goroutine's own DeleteExpired() call — concurrent access jackc/pgx
-	// connections don't support and that intermittently fails with "driver:
-	// bad connection".
+	// Poll in this goroutine, not via require.Eventually: a second goroutine
+	// would share this test's dedicated pgx connection with the cleanup
+	// goroutine, which isn't concurrency-safe.
 	var count int64
 	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
 		if err := db.Model(&model.RefreshToken{}).Where("id = ?", expired.Id).Count(&count).Error; err != nil {

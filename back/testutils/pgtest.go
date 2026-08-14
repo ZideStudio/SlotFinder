@@ -51,9 +51,8 @@ func LoadTestEnv() {
 }
 
 // EnsureTestAuthEnv points AUTH_PRIVATE_PEM_PATH/AUTH_PUBLIC_PEM_PATH at the
-// repo's real JWT keypair (unless already set) and generates it if missing,
-// so signinService.GenerateTokens works against real RSA keys in tests.
-// Panics on failure since it runs from TestMain, before *testing.T exists.
+// repo's real JWT keypair, generating it if missing. Panics on failure since
+// it runs from TestMain, before *testing.T exists.
 func EnsureTestAuthEnv() {
 	if dir := findModuleRoot(); dir != "" {
 		if os.Getenv("AUTH_PRIVATE_PEM_PATH") == "" {
@@ -145,18 +144,8 @@ func requireBase(t testingT) *gorm.DB {
 }
 
 // activeTestDB guards TestDB's db.SetDBForTests(tx)/(base) pair: only one
-// *test* may be "active" (have an outstanding, un-cleaned-up TestDB call) on
-// a process at a time, since they all point the same process-global
-// db.GetDB() connection at their own transaction. The same test may call
-// TestDB more than once (e.g. to build two repositories on separate
-// connections — see pkg/sse/sse.service_test.go's
-// TestHandleSSEConnection_EventNotFound) and those nested calls unwind in
-// LIFO order via t.Cleanup, same as before this guard existed; what's
-// actually unsafe is a *different* test's TestDB call overlapping this one,
-// e.g. via a future t.Parallel(). No test currently does that, so this is a
-// no-op today — it exists so a future test that does fails loudly via
-// t.Fatalf below instead of silently redirecting another test's in-flight
-// queries onto its own transaction.
+// test may be "active" at a time on the shared db.GetDB() connection. The
+// same test may call TestDB reentrantly; a different, overlapping test fails loudly.
 var (
 	activeTestDBMu    sync.Mutex
 	activeTestDBOwner testingT
@@ -288,18 +277,9 @@ func AwaitAsyncDBWork(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 }
 
-// AwaitAsyncDBWorkUntil waits the same 100ms as AwaitAsyncDBWork before
-// re-running check (on the caller's own dedicated connection), but — unlike a
-// single blind sleep — retries a few more times, 100ms apart, instead of
-// giving up after one shot when the goroutine hasn't finished yet under load.
-// check runs synchronously in the calling test goroutine — never spawn a new
-// goroutine per poll (e.g. via require.Eventually): a second goroutine
-// querying the same dedicated connection concurrently with the test's own
-// fire-and-forget goroutine is exactly the "driver: bad connection" failure
-// mode this helper exists to avoid. For the same reason, check should treat
-// its own query errors as "not ready yet" (return false) rather than fail
-// the test outright — a transient error while the async goroutine is still
-// mid-query on the shared connection isn't itself a real failure.
+// AwaitAsyncDBWorkUntil retries check every 100ms instead of giving up after
+// one sleep. Run check in this goroutine, never a new one — require.Eventually
+// would race on the shared connection.
 func AwaitAsyncDBWorkUntil(t *testing.T, timeout time.Duration, check func() bool) {
 	t.Helper()
 	const interval = 100 * time.Millisecond

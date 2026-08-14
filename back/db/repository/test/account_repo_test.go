@@ -237,10 +237,8 @@ func (suite *AccountRepoTestSuite) TestDelete_NotFound() {
 	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
 }
 
-// TestDelete_DeleteQueryFails targets Delete's second query (the actual
-// DELETE) specifically: a read-only transaction lets the preceding lookup
-// SELECT succeed while failing the write, unlike a closed connection which
-// would fail at the very first query.
+// Targets Delete's second query (the actual DELETE): a read-only transaction
+// lets the lookup SELECT succeed while failing only the write.
 func (suite *AccountRepoTestSuite) TestDelete_DeleteQueryFails() {
 	dto := suite.createDto()
 	var account model.Account

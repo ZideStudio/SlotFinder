@@ -14,11 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// ErrorPathsRepoTestSuite exercises the "unexpected DB error" branches of every
-// repository (as opposed to gorm.ErrRecordNotFound, which is expected/handled
-// separately). Each test gets a fresh connection whose underlying connection
-// is closed immediately, so every query fails with a generic driver error and
-// hits the repositories' log.Error()+return err branches.
+// Exercises the "unexpected DB error" branches of every repository (as
+// opposed to gorm.ErrRecordNotFound). Each test's connection is closed
+// immediately, so every query fails with a generic driver error.
 type ErrorPathsRepoTestSuite struct {
 	suite.Suite
 	db *gorm.DB
@@ -124,10 +122,8 @@ func TestErrorPathsRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(ErrorPathsRepoTestSuite))
 }
 
-// TestConstructors_NilDatabaseFallback covers the `if database == nil` branch
-// shared by every repository constructor. It only exercises construction (no
-// query is issued), since the process-global DB singleton isn't initialized
-// in unit tests.
+// Covers the `if database == nil` branch shared by every repository
+// constructor. Only exercises construction, no query.
 func TestConstructors_NilDatabaseFallback(t *testing.T) {
 	assert.NotNil(t, repository.NewAccountRepository(nil))
 	assert.NotNil(t, repository.NewSlotRepository(nil))

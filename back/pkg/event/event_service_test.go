@@ -270,10 +270,8 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 	})
 }
 
-// TestSetEventDatesFromDto_EndDateInPast_NoStartDateChange covers the "else
-// if" branch: no new start date provided, but the new end date is in the
-// past (and doesn't trip the start-after-end or duration-too-short checks
-// first).
+// Covers the "else if" branch: no new start date, but the new end date is
+// in the past (without tripping the earlier checks first).
 func TestSetEventDatesFromDto_EndDateInPast_NoStartDateChange(t *testing.T) {
 	t.Parallel()
 	testEvent := &model.Event{

@@ -213,11 +213,8 @@ func TestEventRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(EventRepoTestSuite))
 }
 
-// TestFindEventsByAccountId_PluckQueryFails uses its own dedicated DB (not
-// the shared suite one) since it drops the event table to force the paginated
-// id lookup (Pluck) to fail. The initial Count query only touches
-// account_event, so it still succeeds; dropping event only breaks the
-// subsequent subquery/Pluck.
+// Uses its own dedicated DB (not the shared suite one) since it drops the
+// event table to force the paginated id lookup (Pluck) to fail.
 func TestFindEventsByAccountId_PluckQueryFails(t *testing.T) {
 	database := testutils.TestDB(t)
 	repo := repository.NewEventRepository(database)

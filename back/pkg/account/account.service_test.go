@@ -25,10 +25,8 @@ import (
 )
 
 // NOTE: Do not call NewAccountService(nil) in tests — build the struct
-// directly. Nested services (signinService/avatarService) are still built
-// via their own NewXService(nil), which is safe here because newTestAccountService
-// wires up a fresh test transaction and config.Init points at real (test)
-// values; see the note on TestMain in main_test.go.
+// directly. Nested NewXService(nil) calls are safe here since this wires up
+// a fresh test transaction and real config (see TestMain in main_test.go).
 func newTestAccountService(t *testing.T) *AccountService {
 	t.Helper()
 	testutils.TestDB(t)
@@ -56,12 +54,9 @@ func stubSMTPAwait(t *testing.T, m *mail.MailService) <-chan struct{} {
 
 func awaitSMTP(t *testing.T, called <-chan struct{}) { testutils.AwaitSMTP(t, called) }
 
-// signinServiceWithBadPrivateKey builds a signin.SigninService whose
-// GenerateAccessToken always fails, by pointing AUTH_PRIVATE_PEM_PATH at a
-// nonexistent file for the duration of construction only. The env var (and
-// global config) is restored before this returns, but the constructed
-// service keeps its own captured (bad) config, since NewSigninService(nil)
-// snapshots config.GetConfig() at construction time.
+// Builds a SigninService whose GenerateAccessToken always fails, by
+// pointing AUTH_PRIVATE_PEM_PATH at a nonexistent file during construction
+// only — the returned service keeps that bad config even after restore.
 func signinServiceWithBadPrivateKey(t *testing.T) *signin.SigninService {
 	t.Helper()
 	orig := os.Getenv("AUTH_PRIVATE_PEM_PATH")
@@ -284,10 +279,8 @@ func TestUpdate_UsernameSameAsCurrent_NoOp(t *testing.T) {
 	username := "same-" + uuid.NewString()
 	account := createTestAccountWithUsername(t, s, username)
 
-	// Re-submitting the current username is filtered out by the outer
-	// `*dto.UserName != *account.UserName` guard before the "same as
-	// itself" check further down ever runs — so this is a silent no-op,
-	// not ERR_USERNAME_ALREADY_TAKEN.
+	// Re-submitting the current username is filtered by the outer guard
+	// before the "same as itself" check runs — a silent no-op.
 	dto, _, err := s.Update(&AccountUpdateDto{UserName: &username}, account.Id)
 	assert.NoError(t, err)
 	assert.Equal(t, username, *dto.UserName)
@@ -725,10 +718,8 @@ func TestDelete_NotFound(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// TestDelete_DeleteQueryError targets Delete's final db.GetDB().Delete call:
-// it reads the process-global DB directly (not through a repo field), so
-// query_only on the shared DB reaches it after the initial FindOneById
-// (a SELECT, unaffected) succeeds.
+// Targets Delete's final db.GetDB().Delete call, which reads the
+// process-global DB directly rather than through a repo field.
 func TestDelete_DeleteQueryError(t *testing.T) {
 	s := newTestAccountService(t)
 	account := createTestAccountWithUsername(t, s, "delfail-"+uuid.NewString())

@@ -27,9 +27,7 @@ import (
 )
 
 // NOTE: Do not call NewProviderService(nil) in most tests — build the struct
-// directly instead (same rationale documented in pkg/account tests). Nested
-// NewXService(nil) calls are safe here because newTestProviderService wires
-// up a fresh test transaction and config.Init points at real (test) values.
+// directly instead (same rationale as pkg/account's tests).
 func newTestProviderService(t *testing.T) *ProviderService {
 	t.Helper()
 	testutils.TestDB(t)
@@ -342,10 +340,8 @@ func TestCreateProviderAccount_LinkNewProviderToLoggedInAccount(t *testing.T) {
 	email := uniqueEmail(t)
 	account := createAccountWithProvider(t, s, email, constants.PROVIDER_GITHUB, "gh-"+uuid.NewString())
 
-	// The user is logged in (authUserId set) and links a Google account
-	// whose OAuth email isn't tied to any existing account (the email-based
-	// conflict check only looks at whether *that* email is already
-	// registered, independent of the caller's own account/email).
+	// Logged-in user links a Google account whose OAuth email isn't tied
+	// to any existing account.
 	newProviderEmail := uniqueEmail(t)
 	resp, err := s.createProviderAccount(CreateProviderAccountDto{
 		ProviderAccount: ProviderAccount{Id: "google-" + uuid.NewString(), Email: &newProviderEmail},
@@ -405,12 +401,8 @@ func TestCreateProviderAccount_ProviderLinkedToAnotherAccount(t *testing.T) {
 	assert.Contains(t, err.Error(), "ALREADY_EXISTS")
 }
 
-// TestCreateProviderAccount_ProviderLinkedToAnotherAccount_NoEmailConflict
-// uses a fresh (unregistered) OAuth email, so the email-conflict check
-// (ERR_EMAIL_ALREADY_EXISTS) never fires and the "ALREADY_EXISTS" error
-// genuinely comes from the provider-ownership check below it — unlike
-// TestCreateProviderAccount_ProviderLinkedToAnotherAccount above, whose
-// OAuth email collides with an existing account and is rejected earlier.
+// Uses a fresh OAuth email so the email-conflict check never fires, and the
+// "ALREADY_EXISTS" error genuinely comes from the provider-ownership check.
 func TestCreateProviderAccount_ProviderLinkedToAnotherAccount_NoEmailConflict(t *testing.T) {
 	s := newTestProviderService(t)
 	ownerEmail := uniqueEmail(t)

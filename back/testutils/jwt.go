@@ -11,13 +11,9 @@ import (
 	"time"
 )
 
-// EnsureTestJWTKeyPair is called independently from several packages'
-// TestMain, each its own OS process — `go test ./...` runs those in
-// parallel by default. If the pem files are missing (fresh clone, or a
-// .gitignore change), unguarded generation would race multiple processes
-// writing the same path at once. lockPath uses O_CREATE|O_EXCL as a simple
-// cross-process mutex: whichever process creates it first generates the
-// keypair; the rest poll until the files exist.
+// EnsureTestJWTKeyPair is called from several packages' TestMain, each its
+// own OS process run in parallel by `go test ./...`. lockPath (O_CREATE|O_EXCL)
+// is a cross-process mutex so only one process generates the missing keypair.
 func EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
 	if fileExists(privateKeyPath) && fileExists(publicKeyPath) {
 		return nil

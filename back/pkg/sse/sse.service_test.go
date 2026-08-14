@@ -154,10 +154,8 @@ func TestBroadcastSlotsUpdate_SkipsClientMissingFromRegistry(t *testing.T) {
 	eventId := uuid.New()
 	s.clientsByEvent[eventId] = map[string]bool{"ghost-client": true}
 
-	// Exercises the `else` branch (client id present in the event index but
-	// missing from s.clients). Must not panic. Note RemoveClient is itself a
-	// no-op for ids absent from s.clients, so the stale index entry survives
-	// this call — that's existing behavior, not something this test changes.
+	// Exercises the `else` branch (client id in the event index but missing
+	// from s.clients). Must not panic; the stale index entry is expected to survive.
 	s.BroadcastSlotsUpdate(eventId, nil)
 
 	assert.Equal(t, 1, s.GetConnectedClientsCount(eventId))
@@ -278,10 +276,8 @@ func TestHandleSSEConnection_BroadcastsMessageToConnectedClient(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "data: ")
 }
 
-// closedRepoDB returns a gorm.DB whose underlying connection is already
-// closed, so any query through it fails immediately — used to force a
-// single repository's calls to fail while the rest of the service keeps
-// using a working DB.
+// closedRepoDB returns a gorm.DB whose connection is already closed, used
+// to force a single repository's calls to fail.
 func closedRepoDB(t *testing.T) *gorm.DB {
 	t.Helper()
 	return testutils.ClosedDB(t)

@@ -17,10 +17,8 @@ func UniqueEmail(t *testing.T) string {
 	return fmt.Sprintf("%s@example.com", uuid.NewString())
 }
 
-// SendMailFunc mirrors mail.MailService's SendMailFunc field type. Declared
-// here (instead of importing app/pkg/mail) because pkg/mail's own tests
-// import testutils, and testutils importing pkg/mail back would be a cycle;
-// a type alias keeps *SendMailFunc directly assignable to &m.SendMailFunc.
+// SendMailFunc mirrors mail.MailService's field type, declared here to
+// avoid an import cycle (pkg/mail's tests import testutils).
 type SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error
 
 // StubSMTP points *target (typically &m.SendMailFunc) at a no-op stub for

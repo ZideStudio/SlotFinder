@@ -8,10 +8,8 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// Real OAuth endpoints called by discord.provider.go / github.provider.go /
-// google.provider.go. Tests redirect these exact URLs to local httptest
-// servers instead of ProviderService exposing per-URL fields, so the
-// production code only gains a single injectable *resty.Client.
+// Real OAuth endpoints called by discord/github/google provider.go. Tests
+// redirect these exact URLs to local httptest servers (see oauthRedirectClient).
 const (
 	realDiscordTokenURL    = "https://discord.com/api/oauth2/token"
 	realDiscordUserInfoURL = "https://discord.com/api/users/@me"
@@ -49,14 +47,9 @@ func (rt *redirectTransport) RoundTrip(req *http.Request) (*http.Response, error
 	return rt.next.RoundTrip(req)
 }
 
-// oauthRedirectClient returns a *resty.Client whose requests matching routes
-// (real provider URL -> local httptest server URL) are rerouted there;
-// anything else is delegated to http.DefaultTransport. resty.New() builds
-// its own concrete *http.Transport rather than falling back to
-// http.DefaultTransport (see createClient in go-resty/resty/v2@v2.17.2's
-// client.go), so overriding the global http.DefaultTransport has no effect
-// here — the redirect must be wired into the client actually assigned to
-// ProviderService.httpClient.
+// oauthRedirectClient reroutes requests matching routes (real provider URL
+// -> local httptest server) into the client, since resty.New() ignores
+// http.DefaultTransport.
 func oauthRedirectClient(t *testing.T, routes map[string]string) *resty.Client {
 	t.Helper()
 	return resty.NewWithClient(&http.Client{

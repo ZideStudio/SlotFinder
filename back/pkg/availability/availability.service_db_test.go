@@ -336,10 +336,8 @@ func TestAvailabilityService_Update_NoMergeCase_RepositoryUpdateError(t *testing
 	assert.Error(t, err)
 }
 
-// TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd covers the
-// merge branch where the *existing* (found-overlapping) availability's
-// EndsAt is later than the one being updated, so it's the existing end that
-// wins.
+// Covers the merge branch where the existing overlapping availability's
+// EndsAt is later than the one being updated, so the existing end wins.
 func TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)
@@ -363,10 +361,9 @@ func TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd(t *testing.T) {
 	assert.True(t, updated.EndsAt.Equal(event.StartsAt.Add(2*time.Hour)))
 }
 
-// After a merge, the union of the two ranges must still fit inside the
-// event's window. Here the event's own range is shrunk (by the owner)
-// *after* both availabilities were created, so the merged EndsAt (coming
-// from the untouched "wide" one) now falls outside it.
+// The merged range must still fit the event's window. Here the event is
+// shrunk after both availabilities were created, so the merged EndsAt
+// (from the untouched "wide" one) now falls outside it.
 func TestAvailabilityService_Update_MergePath_RevalidationFails(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)

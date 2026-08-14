@@ -84,14 +84,8 @@ func TestAvailabilityController_Create_InvalidBody(t *testing.T) {
 }
 
 // NOTE: no "unauthenticated" controller test here — Create/Update/Delete
-// don't nil-check `user` after guard.GetUserClaims before passing it into
-// the service, so an unauthenticated call panics on a nil pointer deref.
-// This is unreachable in production because every route wires
-// guard.AuthCheck(nil) (RequireAuthentication: true) in front of these
-// handlers (see server/router.go), which rejects the request with 401
-// before the controller ever runs. Simulating "no claims set" directly
-// against the controller (bypassing that middleware) would just crash the
-// test process, so it's intentionally not covered here.
+// panic on nil claims, which is unreachable since guard.AuthCheck rejects
+// unauthenticated requests with 401 before the controller ever runs.
 
 func TestAvailabilityController_Create_InvalidClaimsType(t *testing.T) {
 	ctl := &AvailabilityController{availabilityService: newTestAvailabilityService(t)}

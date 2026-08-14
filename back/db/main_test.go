@@ -12,10 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// loadTestDotEnv loads ../.env.test if present, so `go test` can point at a
-// Postgres database dedicated to tests instead of ../.env's dev database.
-// Falls back to ../.env when .env.test hasn't been set up yet (ignored if
-// missing too — CI sets these env vars directly instead).
+// loadTestDotEnv loads ../.env.test if present, falling back to ../.env
+// (both optional — CI sets the DB_* env vars directly).
 func loadTestDotEnv() {
 	if _, err := os.Stat("../.env.test"); err == nil {
 		_ = godotenv.Load("../.env.test")
@@ -24,11 +22,8 @@ func loadTestDotEnv() {
 	_ = godotenv.Load("../.env")
 }
 
-// TestMain loads test env vars (see loadTestDotEnv) and then requires a
-// reachable Postgres instance for the whole package. db.go and migration.go
-// run real Postgres-only SQL (CREATE TYPE ... AS ENUM) that sqlite can't
-// execute, so every test here needs a real connection; a missing/unreachable
-// Postgres fails the whole package immediately instead of silently skipping.
+// TestMain requires a reachable Postgres instance: migration.go runs
+// Postgres-only SQL, so a missing connection fails the package immediately.
 func TestMain(m *testing.M) {
 	loadTestDotEnv()
 

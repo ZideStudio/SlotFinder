@@ -8,10 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// These tests exercise TestConnection/GetDB directly against the
-// package-private `conn` variable using a real Postgres connection (see
-// TestMain) — Ping()/Close() are driver behavior, but Init() itself requires
-// the real thing, so everything in this package runs against Postgres now.
+// Exercises TestConnection/GetDB against the package-private `conn` var
+// using a real Postgres connection (see TestMain).
 
 func TestGetDB(t *testing.T) {
 	original := conn

@@ -7,11 +7,8 @@ import (
 	"testing"
 )
 
-// TestMain wires the process-global config singleton this package's
-// NewXService(nil) fallbacks depend on (ProviderService composes
-// signinService, accountService, avatarService, mailService — all built the
-// same way). See the equivalent, more detailed comment in
-// pkg/account/main_test.go for why this is necessary and safe for tests.
+// TestMain wires the config this package's NewXService(nil) fallbacks
+// depend on (see pkg/account/main_test.go for the detailed rationale).
 func TestMain(m *testing.M) {
 	testutils.LoadTestEnv()
 	testutils.EnsureTestAuthEnv()
