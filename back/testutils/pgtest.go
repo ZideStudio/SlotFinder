@@ -144,6 +144,25 @@ func requireBase(t testingT) *gorm.DB {
 	return base
 }
 
+// activeTestDB guards TestDB's db.SetDBForTests(tx)/(base) pair: only one
+// *test* may be "active" (have an outstanding, un-cleaned-up TestDB call) on
+// a process at a time, since they all point the same process-global
+// db.GetDB() connection at their own transaction. The same test may call
+// TestDB more than once (e.g. to build two repositories on separate
+// connections — see pkg/sse/sse.service_test.go's
+// TestHandleSSEConnection_EventNotFound) and those nested calls unwind in
+// LIFO order via t.Cleanup, same as before this guard existed; what's
+// actually unsafe is a *different* test's TestDB call overlapping this one,
+// e.g. via a future t.Parallel(). No test currently does that, so this is a
+// no-op today — it exists so a future test that does fails loudly via
+// t.Fatalf below instead of silently redirecting another test's in-flight
+// queries onto its own transaction.
+var (
+	activeTestDBMu    sync.Mutex
+	activeTestDBOwner testingT
+	activeTestDBDepth int
+)
+
 // TestDB begins a transaction on its own dedicated connection (never
 // reused by another test — see openDedicatedConn), rolled back and closed
 // via t.Cleanup, and points db.GetDB() at it for the test's duration.
@@ -151,9 +170,24 @@ func TestDB(t testingT) *gorm.DB {
 	t.Helper()
 	base := requireBase(t)
 
+	activeTestDBMu.Lock()
+	if activeTestDBOwner != nil && activeTestDBOwner != t {
+		activeTestDBMu.Unlock()
+		t.Fatalf("testutils.TestDB called while another test's TestDB is still active on this process — TestDB points the shared db.GetDB() connection at its own transaction, so two different tests can't run concurrently (e.g. via t.Parallel())")
+	}
+	activeTestDBOwner = t
+	activeTestDBDepth++
+	activeTestDBMu.Unlock()
+
 	conn := openDedicatedConn(t)
 	tx := conn.Begin()
 	if tx.Error != nil {
+		activeTestDBMu.Lock()
+		activeTestDBDepth--
+		if activeTestDBDepth == 0 {
+			activeTestDBOwner = nil
+		}
+		activeTestDBMu.Unlock()
 		t.Fatalf("failed to begin test transaction: %v", tx.Error)
 	}
 	db.SetDBForTests(tx)
@@ -163,6 +197,13 @@ func TestDB(t testingT) *gorm.DB {
 			_ = sqlDB.Close()
 		}
 		db.SetDBForTests(base)
+
+		activeTestDBMu.Lock()
+		activeTestDBDepth--
+		if activeTestDBDepth == 0 {
+			activeTestDBOwner = nil
+		}
+		activeTestDBMu.Unlock()
 	})
 	return tx
 }
