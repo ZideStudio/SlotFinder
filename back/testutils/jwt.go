@@ -8,15 +8,72 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"time"
 )
 
+// EnsureTestJWTKeyPair is called independently from several packages'
+// TestMain, each its own OS process — `go test ./...` runs those in
+// parallel by default. If the pem files are missing (fresh clone, or a
+// .gitignore change), unguarded generation would race multiple processes
+// writing the same path at once. lockPath uses O_CREATE|O_EXCL as a simple
+// cross-process mutex: whichever process creates it first generates the
+// keypair; the rest poll until the files exist.
 func EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
-	privateKeyExists := fileExists(privateKeyPath)
-	publicKeyExists := fileExists(publicKeyPath)
-	if privateKeyExists && publicKeyExists {
+	if fileExists(privateKeyPath) && fileExists(publicKeyPath) {
 		return nil
 	}
 
+	if err := os.MkdirAll(filepath.Dir(privateKeyPath), 0o755); err != nil {
+		return err
+	}
+
+	lockPath := privateKeyPath + ".generating.lock"
+	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath)
+	if err != nil {
+		return err
+	}
+	if lockFile == nil {
+		// Another process finished generating while we were waiting.
+		return nil
+	}
+	defer func() {
+		_ = lockFile.Close()
+		_ = os.Remove(lockPath)
+	}()
+
+	// Re-check: another process could have generated the pair between our
+	// first check above and acquiring the lock.
+	if fileExists(privateKeyPath) && fileExists(publicKeyPath) {
+		return nil
+	}
+
+	return generateTestJWTKeyPair(privateKeyPath, publicKeyPath)
+}
+
+// acquireGenerationLock returns a held lock file if the caller should
+// generate the keypair, or (nil, nil) if another process already finished
+// generating it while this one was waiting.
+func acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath string) (*os.File, error) {
+	deadline := time.Now().Add(30 * time.Second)
+	for {
+		lockFile, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
+		if err == nil {
+			return lockFile, nil
+		}
+		if !os.IsExist(err) {
+			return nil, err
+		}
+		if fileExists(privateKeyPath) && fileExists(publicKeyPath) {
+			return nil, nil
+		}
+		if time.Now().After(deadline) {
+			return nil, errors.New("timed out waiting for another process to generate the test JWT keypair")
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
+func generateTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
 	if err := os.MkdirAll(filepath.Dir(privateKeyPath), 0o755); err != nil {
 		return err
 	}
