@@ -25,6 +25,14 @@ var (
 	baseErr  error
 )
 
+// testingT is the *testing.T subset this package calls; *testing.T satisfies
+// it implicitly, letting our own tests fake t.Fatalf without failing for real.
+type testingT interface {
+	Helper()
+	Fatalf(format string, args ...any)
+	Cleanup(func())
+}
+
 // LoadTestEnv loads .env.test (or .env) from the module root regardless of
 // which package's directory `go test` runs from, and defaults DB_PORT so
 // config.Init doesn't panic when neither file exists (CI sets DB_* directly).
@@ -92,7 +100,7 @@ func ensureBase() (*gorm.DB, error) {
 	return baseDB, baseErr
 }
 
-func requireBase(t *testing.T) *gorm.DB {
+func requireBase(t testingT) *gorm.DB {
 	t.Helper()
 	base, err := ensureBase()
 	if base == nil {
@@ -104,7 +112,7 @@ func requireBase(t *testing.T) *gorm.DB {
 // TestDB begins a transaction on its own dedicated connection (never
 // reused by another test — see openDedicatedConn), rolled back and closed
 // via t.Cleanup, and points db.GetDB() at it for the test's duration.
-func TestDB(t *testing.T) *gorm.DB {
+func TestDB(t testingT) *gorm.DB {
 	t.Helper()
 	base := requireBase(t)
 
@@ -127,7 +135,7 @@ func TestDB(t *testing.T) *gorm.DB {
 // FreshDB opens a connection independent of any transaction — for tests
 // that close it themselves (e.g. exercising db.TestConnection(), which
 // closes whatever pool it's given).
-func FreshDB(t *testing.T) *gorm.DB {
+func FreshDB(t testingT) *gorm.DB {
 	t.Helper()
 	requireBase(t)
 	return openDedicatedConn(t)
@@ -136,7 +144,7 @@ func FreshDB(t *testing.T) *gorm.DB {
 // openDedicatedConn pins a single physical connection so it's never handed
 // to another test: a straggling goroutine from an async call (see
 // AwaitAsyncDBWork) could otherwise corrupt a connection reused later.
-func openDedicatedConn(t *testing.T) *gorm.DB {
+func openDedicatedConn(t testingT) *gorm.DB {
 	t.Helper()
 	c := config.GetConfig()
 	database, err := gorm.Open(postgres.New(postgres.Config{
@@ -155,7 +163,7 @@ func openDedicatedConn(t *testing.T) *gorm.DB {
 // ClosedDB returns a *gorm.DB whose connection is already closed, so any
 // query fails immediately — forces one repository's calls to fail while
 // the rest of a service keeps working.
-func ClosedDB(t *testing.T) *gorm.DB {
+func ClosedDB(t testingT) *gorm.DB {
 	t.Helper()
 	database := FreshDB(t)
 	sqlDB, err := database.DB()
@@ -171,7 +179,7 @@ func ClosedDB(t *testing.T) *gorm.DB {
 // BaseDB returns the shared, non-transactional base connection to the test
 // Postgres database — for restoring db.GetDB() after a test points it at its
 // own connection (see FreshDB).
-func BaseDB(t *testing.T) *gorm.DB {
+func BaseDB(t testingT) *gorm.DB {
 	t.Helper()
 	return requireBase(t)
 }
@@ -189,7 +197,7 @@ func MustSetupTestDB() *gorm.DB {
 
 // MakeReadOnly flips db.GetDB() read-only so a subsequent write fails while
 // prior reads keep working; undone automatically on transaction rollback.
-func MakeReadOnly(t *testing.T) {
+func MakeReadOnly(t testingT) {
 	t.Helper()
 	if err := db.GetDB().Exec("SET transaction_read_only = on").Error; err != nil {
 		t.Fatalf("failed to set transaction_read_only: %v", err)
