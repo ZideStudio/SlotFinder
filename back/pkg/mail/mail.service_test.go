@@ -270,6 +270,30 @@ func TestSendEventCancellationEmail_Success(t *testing.T) {
 	}
 }
 
+func TestSendEventCancellationEmail_FrenchSubject(t *testing.T) {
+	s := newTestMailService(t)
+
+	sent := make(chan struct{}, 1)
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+		sent <- struct{}{}
+		return nil
+	}
+
+	email := "account-fr@example.com"
+	username := "account"
+	ownerId := uuid.New()
+	account := model.Account{Id: uuid.New(), Email: &email, UserName: &username, Language: constants.ACCOUNT_LANGUAGE_FR}
+	event := model.Event{Name: "Sync"}
+
+	s.SendEventCancellationEmail(account, event, uuid.New(), ownerId, time.Now(), time.Now().Add(time.Hour))
+
+	select {
+	case <-sent:
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected SendMail to be called asynchronously")
+	}
+}
+
 func TestBuildEmailMessage(t *testing.T) {
 	s := newTestMailService(t)
 
