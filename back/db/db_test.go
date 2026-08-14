@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 )
 
 // These tests exercise TestConnection/GetDB directly against the
@@ -40,6 +41,15 @@ func TestTestConnection_Success(t *testing.T) {
 	conn = database
 
 	assert.True(t, TestConnection())
+}
+
+func TestTestConnection_DBFails(t *testing.T) {
+	original := conn
+	defer func() { conn = original }()
+
+	// A gorm.DB with no ConnPool set can't be converted to a *sql.DB.
+	conn = &gorm.DB{Config: &gorm.Config{}}
+	assert.False(t, TestConnection())
 }
 
 func TestTestConnection_PingFails(t *testing.T) {
