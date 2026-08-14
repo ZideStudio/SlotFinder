@@ -452,6 +452,7 @@ func TestAvailabilityService_Delete_Success(t *testing.T) {
 
 	err = s.Delete(created.Id, claims)
 	assert.NoError(t, err)
+	testutils.AwaitAsyncDBWork(t)
 
 	var availabilities []model.Availability
 	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))

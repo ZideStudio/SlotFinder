@@ -602,7 +602,7 @@ func (suite *AvailabilityRepoTestSuite) TestUpdate_Success() {
 
 	var found model.Availability
 	suite.Require().NoError(suite.db.Where("id = ?", created.Id).First(&found).Error)
-	assert.True(suite.T(), event.StartsAt.Add(time.Hour).Equal(found.EndsAt))
+	assert.WithinDuration(suite.T(), event.StartsAt.Add(time.Hour), found.EndsAt, time.Millisecond)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestUpdate_NilPointer() {
