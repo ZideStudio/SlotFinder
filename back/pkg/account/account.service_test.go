@@ -12,7 +12,6 @@ import (
 	"app/pkg/signin"
 	"app/testutils"
 	"errors"
-	"fmt"
 	"net/smtp"
 	"os"
 	"testing"
@@ -44,38 +43,18 @@ func newTestAccountService(t *testing.T) *AccountService {
 	}
 }
 
-func uniqueEmail(t *testing.T) string {
-	t.Helper()
-	return fmt.Sprintf("%s@example.com", uuid.NewString())
-}
+// uniqueEmail, stubSMTP, stubSMTPAwait, and awaitSMTP delegate to testutils
+// (shared with pkg/provider, which needs the identical helpers) instead of
+// each package keeping its own copy.
+func uniqueEmail(t *testing.T) string { return testutils.UniqueEmail(t) }
 
-// stubSMTP stubs m.SendMailFunc for the duration of the test.
-func stubSMTP(t *testing.T, m *mail.MailService) {
-	t.Helper()
-	m.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
-}
+func stubSMTP(t *testing.T, m *mail.MailService) { testutils.StubSMTP(t, &m.SendMailFunc) }
 
-// stubSMTPAwait stubs m.SendMailFunc and returns a channel that receives
-// once the stub has actually been invoked, so callers can wait for an
-// asynchronously-spawned SendMail goroutine to run.
 func stubSMTPAwait(t *testing.T, m *mail.MailService) <-chan struct{} {
-	t.Helper()
-	called := make(chan struct{}, 1)
-	m.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
-		called <- struct{}{}
-		return nil
-	}
-	return called
+	return testutils.StubSMTPAwait(t, &m.SendMailFunc)
 }
 
-func awaitSMTP(t *testing.T, called <-chan struct{}) {
-	t.Helper()
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected the async SendMail goroutine to run")
-	}
-}
+func awaitSMTP(t *testing.T, called <-chan struct{}) { testutils.AwaitSMTP(t, called) }
 
 // signinServiceWithBadPrivateKey builds a signin.SigninService whose
 // GenerateAccessToken always fails, by pointing AUTH_PRIVATE_PEM_PATH at a

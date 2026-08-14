@@ -12,15 +12,12 @@ import (
 	"app/pkg/signin"
 	"app/testutils"
 	"bytes"
-	"fmt"
 	"image"
 	"image/png"
 	"net/http"
 	"net/http/httptest"
-	"net/smtp"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
@@ -48,29 +45,16 @@ func newTestProviderService(t *testing.T) *ProviderService {
 	}
 }
 
-func uniqueEmail(t *testing.T) string {
-	t.Helper()
-	return fmt.Sprintf("%s@example.com", uuid.NewString())
-}
+// uniqueEmail, stubSMTPAwait, and awaitSMTP delegate to testutils (shared
+// with pkg/account, which needs the identical helpers) instead of each
+// package keeping its own copy.
+func uniqueEmail(t *testing.T) string { return testutils.UniqueEmail(t) }
 
 func stubSMTPAwait(t *testing.T, m *mail.MailService) <-chan struct{} {
-	t.Helper()
-	called := make(chan struct{}, 1)
-	m.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
-		called <- struct{}{}
-		return nil
-	}
-	return called
+	return testutils.StubSMTPAwait(t, &m.SendMailFunc)
 }
 
-func awaitSMTP(t *testing.T, called <-chan struct{}) {
-	t.Helper()
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected the async SendMail goroutine to run")
-	}
-}
+func awaitSMTP(t *testing.T, called <-chan struct{}) { testutils.AwaitSMTP(t, called) }
 
 // signinServiceWithBadPrivateKey builds a signin.SigninService whose
 // GenerateAccessToken always fails, by pointing AUTH_PRIVATE_PEM_PATH at a
