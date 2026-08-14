@@ -3,8 +3,6 @@ package provider
 import (
 	"app/config"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type DiscordUserInfo struct {
@@ -25,7 +23,7 @@ type DiscordTokenResponse struct {
 func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
-	client := resty.New()
+	client := s.httpClient
 
 	var token DiscordTokenResponse
 	res, err := client.R().
@@ -37,7 +35,7 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 			"redirect_uri":  providerConfig.DiscordRedirectUrl,
 		}).
 		SetResult(&token).
-		Post(s.discordTokenURL)
+		Post("https://discord.com/api/oauth2/token")
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Discord token: %w", err)
 	}
@@ -49,7 +47,7 @@ func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, erro
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&userInfo).
-		Get(s.discordUserInfoURL)
+		Get("https://discord.com/api/users/@me")
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Discord user info: %w", err)
 	}

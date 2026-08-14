@@ -3,8 +3,6 @@ package provider
 import (
 	"app/config"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type GoogleUserInfo struct {
@@ -21,7 +19,7 @@ type GoogleTokenResponse struct {
 func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
-	client := resty.New()
+	client := s.httpClient
 
 	var token GoogleTokenResponse
 	res, err := client.R().
@@ -33,7 +31,7 @@ func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error
 			"redirect_uri":  providerConfig.GoogleRedirectUrl,
 		}).
 		SetResult(&token).
-		Post(s.googleTokenURL)
+		Post("https://oauth2.googleapis.com/token")
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Google token: %w", err)
 	}
@@ -45,7 +43,7 @@ func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&userInfo).
-		Get(s.googleUserInfoURL)
+		Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Google user info: %w", err)
 	}

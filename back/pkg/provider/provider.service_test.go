@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,16 +44,7 @@ func newTestProviderService(t *testing.T) *ProviderService {
 		avatarService:              account.NewAvatarService(nil),
 		mailService:                mail.NewMailService(nil),
 		config:                     config.GetConfig(),
-
-		discordTokenURL:    constants.PROVIDER_DISCORD_TOKEN_URL,
-		discordUserInfoURL: constants.PROVIDER_DISCORD_USERINFO_URL,
-
-		googleTokenURL:    constants.PROVIDER_GOOGLE_TOKEN_URL,
-		googleUserInfoURL: constants.PROVIDER_GOOGLE_USERINFO_URL,
-
-		githubTokenURL:     constants.PROVIDER_GITHUB_TOKEN_URL,
-		githubUserInfoURL:  constants.PROVIDER_GITHUB_USERINFO_URL,
-		githubUserEmailURL: constants.PROVIDER_GITHUB_USEREMAIL_URL,
+		httpClient:                 resty.New(),
 	}
 }
 
@@ -107,9 +99,7 @@ func TestNewProviderService_Nil_BuildsRealDependencies(t *testing.T) {
 	assert.NotNil(t, s.accountService)
 	assert.NotNil(t, s.avatarService)
 	assert.NotNil(t, s.mailService)
-	assert.NotEmpty(t, s.discordTokenURL)
-	assert.NotEmpty(t, s.googleTokenURL)
-	assert.NotEmpty(t, s.githubTokenURL)
+	assert.NotNil(t, s.httpClient)
 }
 
 // tokenOnlyServer serves a valid "/token" response so the second-hop URL can be tested in isolation.
@@ -125,8 +115,10 @@ func tokenOnlyServer(t *testing.T) *httptest.Server {
 func TestGetGoogleUserInfo_UserInfoNetworkError(t *testing.T) {
 	tokenServer := tokenOnlyServer(t)
 	s := newTestProviderService(t)
-	s.googleTokenURL = tokenServer.URL
-	s.googleUserInfoURL = closedServerURL(t)
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    tokenServer.URL,
+		realGoogleUserInfoURL: closedServerURL(t),
+	})
 
 	_, err := s.getGoogleUserInfo("code")
 	assert.Error(t, err)
@@ -135,8 +127,10 @@ func TestGetGoogleUserInfo_UserInfoNetworkError(t *testing.T) {
 func TestGetDiscordUserInfo_UserInfoNetworkError(t *testing.T) {
 	tokenServer := tokenOnlyServer(t)
 	s := newTestProviderService(t)
-	s.discordTokenURL = tokenServer.URL
-	s.discordUserInfoURL = closedServerURL(t)
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    tokenServer.URL,
+		realDiscordUserInfoURL: closedServerURL(t),
+	})
 
 	_, err := s.getDiscordUserInfo("code")
 	assert.Error(t, err)
@@ -145,8 +139,10 @@ func TestGetDiscordUserInfo_UserInfoNetworkError(t *testing.T) {
 func TestGetGithubUserInfo_UserInfoNetworkError(t *testing.T) {
 	tokenServer := tokenOnlyServer(t)
 	s := newTestProviderService(t)
-	s.githubTokenURL = tokenServer.URL
-	s.githubUserInfoURL = closedServerURL(t)
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:    tokenServer.URL,
+		realGithubUserInfoURL: closedServerURL(t),
+	})
 
 	_, err := s.getGithubUserInfo("code")
 	assert.Error(t, err)
@@ -156,8 +152,10 @@ func TestGetGithubUserInfo_UserInfoNonSuccessStatus(t *testing.T) {
 	tokenServer := tokenOnlyServer(t)
 	failureServer := newOAuthFailureServer(t)
 	s := newTestProviderService(t)
-	s.githubTokenURL = tokenServer.URL
-	s.githubUserInfoURL = failureServer.URL
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:    tokenServer.URL,
+		realGithubUserInfoURL: failureServer.URL,
+	})
 
 	_, err := s.getGithubUserInfo("code")
 	assert.Error(t, err)
@@ -175,8 +173,11 @@ func TestGetGithubUserInfo_EmailsNetworkError(t *testing.T) {
 	defer server.Close()
 
 	s := newTestProviderService(t)
-	s.githubTokenURL, s.githubUserInfoURL = server.URL+"/token", server.URL+"/user"
-	s.githubUserEmailURL = closedServerURL(t)
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     server.URL + "/token",
+		realGithubUserInfoURL:  server.URL + "/user",
+		realGithubUserEmailURL: closedServerURL(t),
+	})
 
 	_, err := s.getGithubUserInfo("code")
 	assert.Error(t, err)
@@ -195,8 +196,11 @@ func TestGetGithubUserInfo_EmailsNonSuccessStatus(t *testing.T) {
 	failureServer := newOAuthFailureServer(t)
 
 	s := newTestProviderService(t)
-	s.githubTokenURL, s.githubUserInfoURL = server.URL+"/token", server.URL+"/user"
-	s.githubUserEmailURL = failureServer.URL
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     server.URL + "/token",
+		realGithubUserInfoURL:  server.URL + "/user",
+		realGithubUserEmailURL: failureServer.URL,
+	})
 
 	_, err := s.getGithubUserInfo("code")
 	assert.Error(t, err)
@@ -445,7 +449,10 @@ func TestProviderCallback_InvalidProvider(t *testing.T) {
 func TestProviderCallback_GoogleOAuthFailure(t *testing.T) {
 	googleServer := newOAuthFailureServer(t)
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = googleServer.URL+"/token", googleServer.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    googleServer.URL + "/token",
+		realGoogleUserInfoURL: googleServer.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("google", "bad-code", "")
 	assert.Error(t, err)
@@ -454,7 +461,10 @@ func TestProviderCallback_GoogleOAuthFailure(t *testing.T) {
 func TestProviderCallback_Google_TokenNetworkError(t *testing.T) {
 	url := closedServerURL(t)
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = url+"/token", url+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    url + "/token",
+		realGoogleUserInfoURL: url + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("google", "bad-code", "")
 	assert.Error(t, err)
@@ -471,7 +481,10 @@ func TestProviderCallback_Google_UserInfoNonSuccessStatus(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("google", "good-code", "")
 	assert.Error(t, err)
@@ -485,7 +498,10 @@ func TestProviderCallback_Google_NewAccount(t *testing.T) {
 	// avatarService.UploadAvatar(&"", nil, ...) fails fast (invalid URL) and
 	// ProviderCallback falls back to GetGravatarURL — no imgbb stub needed.
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
 	called := stubSMTPAwait(t, s.mailService)
 
 	tokens, err := s.ProviderCallback("google", "good-code", "")
@@ -505,7 +521,10 @@ func TestProviderCallback_CreateProviderAccountError(t *testing.T) {
 	createAccountWithProvider(t, s, email, constants.PROVIDER_GITHUB, "gh-"+uuid.NewString())
 
 	server := newOAuthSuccessServer(t, "google-sub-"+uuid.NewString(), "someuser", email)
-	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("google", "good-code", "")
 	assert.ErrorIs(t, err, constants.ERR_EMAIL_ALREADY_EXISTS.Err)
@@ -515,7 +534,10 @@ func TestProviderCallback_NewAccount_RepositoryCreateError(t *testing.T) {
 	email := uniqueEmail(t)
 	server := newOAuthSuccessServer(t, "google-sub-"+uuid.NewString(), "newgoogleuser", email)
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
 	testutils.MakeReadOnly(t)
 
 	_, err := s.ProviderCallback("google", "good-code", "")
@@ -526,7 +548,10 @@ func TestProviderCallback_NewAccount_GenerateTokensError(t *testing.T) {
 	email := uniqueEmail(t)
 	server := newOAuthSuccessServer(t, "google-sub-"+uuid.NewString(), "newgoogleuser", email)
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
 	s.signinService = signinServiceWithBadPrivateKey(t)
 
 	_, err := s.ProviderCallback("google", "good-code", "")
@@ -539,7 +564,10 @@ func TestProviderCallback_NewAccount_GenerateTokensError(t *testing.T) {
 func TestProviderCallback_Discord_TokenNetworkError(t *testing.T) {
 	url := closedServerURL(t)
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = url+"/token", url+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    url + "/token",
+		realDiscordUserInfoURL: url + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("discord", "bad-code", "")
 	assert.Error(t, err)
@@ -548,7 +576,10 @@ func TestProviderCallback_Discord_TokenNetworkError(t *testing.T) {
 func TestProviderCallback_Discord_TokenNonSuccessStatus(t *testing.T) {
 	server := newOAuthFailureServer(t)
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("discord", "bad-code", "")
 	assert.Error(t, err)
@@ -565,7 +596,10 @@ func TestProviderCallback_Discord_UserInfoNonSuccessStatus(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("discord", "good-code", "")
 	assert.Error(t, err)
@@ -574,7 +608,10 @@ func TestProviderCallback_Discord_UserInfoNonSuccessStatus(t *testing.T) {
 func TestProviderCallback_Discord_NewAccount_MissingUsername(t *testing.T) {
 	server := newDiscordOAuthServer(t, "discord-id-"+uuid.NewString(), "", uniqueEmail(t))
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("discord", "good-code", "")
 	assert.Error(t, err)
@@ -583,7 +620,11 @@ func TestProviderCallback_Discord_NewAccount_MissingUsername(t *testing.T) {
 func TestProviderCallback_Github_TokenNetworkError(t *testing.T) {
 	url := closedServerURL(t)
 	s := newTestProviderService(t)
-	s.githubTokenURL, s.githubUserInfoURL, s.githubUserEmailURL = url+"/token", url+"/user", url+"/emails"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     url + "/token",
+		realGithubUserInfoURL:  url + "/user",
+		realGithubUserEmailURL: url + "/emails",
+	})
 
 	_, err := s.ProviderCallback("github", "bad-code", "")
 	assert.Error(t, err)
@@ -592,7 +633,11 @@ func TestProviderCallback_Github_TokenNetworkError(t *testing.T) {
 func TestProviderCallback_Github_TokenNonSuccessStatus(t *testing.T) {
 	server := newOAuthFailureServer(t)
 	s := newTestProviderService(t)
-	s.githubTokenURL, s.githubUserInfoURL, s.githubUserEmailURL = server.URL+"/token", server.URL+"/user", server.URL+"/emails"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     server.URL + "/token",
+		realGithubUserInfoURL:  server.URL + "/user",
+		realGithubUserEmailURL: server.URL + "/emails",
+	})
 
 	_, err := s.ProviderCallback("github", "bad-code", "")
 	assert.Error(t, err)
@@ -616,7 +661,11 @@ func TestProviderCallback_Github_NoPrimaryEmail_FallsBackToFirst(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 	s := newTestProviderService(t)
-	s.githubTokenURL, s.githubUserInfoURL, s.githubUserEmailURL = server.URL+"/token", server.URL+"/user", server.URL+"/emails"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     server.URL + "/token",
+		realGithubUserInfoURL:  server.URL + "/user",
+		realGithubUserEmailURL: server.URL + "/emails",
+	})
 
 	resp, err := s.createProviderAccount(CreateProviderAccountDto{
 		ProviderAccount: func() ProviderAccount {
@@ -645,7 +694,11 @@ func TestProviderCallback_Github_NoEmails_Error(t *testing.T) {
 	server := httptest.NewServer(mux)
 	defer server.Close()
 	s := newTestProviderService(t)
-	s.githubTokenURL, s.githubUserInfoURL, s.githubUserEmailURL = server.URL+"/token", server.URL+"/user", server.URL+"/emails"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     server.URL + "/token",
+		realGithubUserInfoURL:  server.URL + "/user",
+		realGithubUserEmailURL: server.URL + "/emails",
+	})
 
 	_, err := s.ProviderCallback("github", "good-code", "")
 	assert.Error(t, err)
@@ -654,7 +707,10 @@ func TestProviderCallback_Github_NoEmails_Error(t *testing.T) {
 func TestProviderCallback_LinkProvider_MalformedUserId(t *testing.T) {
 	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("discord", "good-code", "not-a-uuid")
 	assert.Error(t, err)
@@ -663,7 +719,10 @@ func TestProviderCallback_LinkProvider_MalformedUserId(t *testing.T) {
 func TestProviderCallback_LinkProvider_UnknownUserId(t *testing.T) {
 	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 
 	_, err := s.ProviderCallback("discord", "good-code", uuid.New().String())
 	assert.Error(t, err)
@@ -681,7 +740,10 @@ func TestProviderCallback_LinkProvider_AccountLookupError(t *testing.T) {
 	clearNilAccountIdProviders(t)
 	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 	s.accountRepository = repository.NewAccountRepository(testutils.ClosedDB(t))
 
 	_, err := s.ProviderCallback("discord", "good-code", uuid.New().String())
@@ -692,7 +754,10 @@ func TestProviderCallback_LinkProvider_GenerateTokensError(t *testing.T) {
 	clearNilAccountIdProviders(t)
 	server := newDiscordOAuthServer(t, "discord-link-"+uuid.NewString(), "linkuser", uniqueEmail(t))
 	s := newTestProviderService(t)
-	s.discordTokenURL, s.discordUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realDiscordTokenURL:    server.URL + "/token",
+		realDiscordUserInfoURL: server.URL + "/userinfo",
+	})
 	loggedInUser := createTestAccountForLink(t, s)
 	s.signinService = signinServiceWithBadPrivateKey(t)
 
@@ -735,7 +800,10 @@ func TestProviderCallback_Google_NewAccount_FetchesAvatarFromProviderURL(t *test
 	defer server.Close()
 
 	s := newTestProviderService(t)
-	s.googleTokenURL, s.googleUserInfoURL = server.URL+"/token", server.URL+"/userinfo"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
 	called := stubSMTPAwait(t, s.mailService)
 
 	tokens, err := s.ProviderCallback("google", "good-code", "")
@@ -757,7 +825,11 @@ func TestProviderCallback_Github_ExistingAccountLogin(t *testing.T) {
 	createAccountWithProvider(t, s, email, constants.PROVIDER_GITHUB, githubId)
 
 	server := newGithubOAuthServer(t, 12345, "githubuser", email)
-	s.githubTokenURL, s.githubUserInfoURL, s.githubUserEmailURL = server.URL+"/token", server.URL+"/user", server.URL+"/emails"
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGithubTokenURL:     server.URL + "/token",
+		realGithubUserInfoURL:  server.URL + "/user",
+		realGithubUserEmailURL: server.URL + "/emails",
+	})
 
 	tokens, err := s.ProviderCallback("github", "good-code", "")
 	assert.NoError(t, err)

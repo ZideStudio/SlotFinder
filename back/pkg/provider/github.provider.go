@@ -4,8 +4,6 @@ import (
 	"app/config"
 	"errors"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type GithubUserNameInfo struct {
@@ -28,7 +26,7 @@ type GithubTokenResponse struct {
 func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
-	client := resty.New()
+	client := s.httpClient
 
 	var token GithubTokenResponse
 	res, err := client.R().
@@ -41,7 +39,7 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 		}).
 		SetHeader("Accept", "application/json").
 		SetResult(&token).
-		Post(s.githubTokenURL)
+		Post("https://github.com/login/oauth/access_token")
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github token: %w", err)
 	}
@@ -53,7 +51,7 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&userNameInfo).
-		Get(s.githubUserInfoURL)
+		Get("https://api.github.com/user")
 
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github user info: %w", err)
@@ -66,7 +64,7 @@ func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error
 	res, err = client.R().
 		SetHeader("Authorization", "Bearer "+token.AccessToken).
 		SetResult(&emailInfo).
-		Get(s.githubUserEmailURL)
+		Get("https://api.github.com/user/emails")
 
 	if err != nil {
 		return ProviderAccount{}, fmt.Errorf("OAUTH: failed to get Github emails info: %w", err)
