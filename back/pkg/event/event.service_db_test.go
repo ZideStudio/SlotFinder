@@ -169,6 +169,15 @@ func createTestEventForOwner(t *testing.T, s *EventService, ownerId uuid.UUID) m
 	return event
 }
 
+func TestEventService_Update_EventRepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
+
+	err := s.Update(uuid.New(), &EventUpdateDto{}, &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+	assert.NotErrorIs(t, err, constants.ERR_EVENT_NOT_FOUND.Err)
+}
+
 func TestEventService_Update_AccessDenied(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
