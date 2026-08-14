@@ -50,6 +50,41 @@ func LoadTestEnv() {
 	}
 }
 
+// EnsureTestAuthEnv points AUTH_PRIVATE_PEM_PATH/AUTH_PUBLIC_PEM_PATH at the
+// repo's real JWT keypair (unless already set) and generates it if missing,
+// so signinService.GenerateTokens works against real RSA keys in tests.
+// Panics on failure since it runs from TestMain, before *testing.T exists.
+func EnsureTestAuthEnv() {
+	if dir := findModuleRoot(); dir != "" {
+		if os.Getenv("AUTH_PRIVATE_PEM_PATH") == "" {
+			_ = os.Setenv("AUTH_PRIVATE_PEM_PATH", filepath.Join(dir, "config", "jwt", "private.pem"))
+		}
+		if os.Getenv("AUTH_PUBLIC_PEM_PATH") == "" {
+			_ = os.Setenv("AUTH_PUBLIC_PEM_PATH", filepath.Join(dir, "config", "jwt", "public.pem"))
+		}
+	}
+	if err := EnsureTestJWTKeyPair(os.Getenv("AUTH_PRIVATE_PEM_PATH"), os.Getenv("AUTH_PUBLIC_PEM_PATH")); err != nil {
+		panic(err)
+	}
+}
+
+// EnsureTestEmailEnv defaults EMAIL_ADDRESS so mail.buildEmailMessage (which
+// splits the address on "@" to build a Message-ID) doesn't panic when a
+// background welcome/reset email is sent during tests.
+func EnsureTestEmailEnv() {
+	if os.Getenv("EMAIL_ADDRESS") == "" {
+		_ = os.Setenv("EMAIL_ADDRESS", "noreply@slotfinder.test")
+	}
+}
+
+// EnsureTestEncryptionEnv defaults ENCRYPTION_KEY so ForgotPassword/ResetPassword's
+// reset-token encryption doesn't fail in tests.
+func EnsureTestEncryptionEnv() {
+	if os.Getenv("ENCRYPTION_KEY") == "" {
+		_ = os.Setenv("ENCRYPTION_KEY", "0123456789abcdef0123456789abcdef")
+	}
+}
+
 func findModuleRoot() string {
 	dir, err := os.Getwd()
 	if err != nil {
