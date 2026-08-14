@@ -113,6 +113,20 @@ func TestSlotService_ConfirmSlot_ParticipantsLookupFails_StillSucceeds(t *testin
 	assert.True(t, resp.IsValidated)
 }
 
+func TestSlotService_ConfirmSlot_CreateFails(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	testutils.MakeReadOnly(t)
+
+	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
+	assert.Error(t, err)
+}
+
 func TestSlotService_ConfirmSlot_NotFound(t *testing.T) {
 	s := newTestSlotService(t)
 	_, err := s.ConfirmSlot(ConfirmSlotDto{}, uuid.New(), uuid.New())
@@ -211,6 +225,20 @@ func TestSlotService_RemoveValidatedSlot_ParticipantsLookupFails_StillSucceeds(t
 
 	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
 	assert.NoError(t, err)
+}
+
+func TestSlotService_RemoveValidatedSlot_DeleteFails(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute), IsValidated: true}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	testutils.MakeReadOnly(t)
+
+	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
+	assert.Error(t, err)
 }
 
 func TestSlotService_RemoveValidatedSlot_NotFound(t *testing.T) {
