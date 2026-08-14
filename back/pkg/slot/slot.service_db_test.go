@@ -84,6 +84,24 @@ func TestSlotService_ConfirmSlot_EventEnded(t *testing.T) {
 	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
 }
 
+func TestSlotService_ConfirmSlot_AutoFinishUpdateFails(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	event.EndsAt = time.Now().Add(-time.Hour)
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
+
+	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
+	assert.Error(t, err)
+	assert.NotErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
 func TestSlotService_ConfirmSlot_EventUpdateFails(t *testing.T) {
 	s := newTestSlotService(t)
 	owner := createTestAccount(t)
