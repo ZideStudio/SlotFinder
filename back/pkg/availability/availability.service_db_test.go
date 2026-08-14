@@ -363,6 +363,37 @@ func TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd(t *testing.T) {
 	assert.True(t, updated.EndsAt.Equal(event.StartsAt.Add(2*time.Hour)))
 }
 
+// After a merge, the union of the two ranges must still fit inside the
+// event's window. Here the event's own range is shrunk (by the owner)
+// *after* both availabilities were created, so the merged EndsAt (coming
+// from the untouched "wide" one) now falls outside it.
+func TestAvailabilityService_Update_MergePath_RevalidationFails(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	claims := &guard.Claims{Id: owner}
+
+	// Wide, stays untouched and will lend its EndsAt to the merged result.
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(3 * time.Hour), EndsAt: event.StartsAt.Add(3*time.Hour + 50*time.Minute)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// Initially non-overlapping.
+	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}, event.Id, claims)
+	require.NoError(t, err)
+
+	// Shrink the event so the wide availability's EndsAt (3h50) no longer fits,
+	// while still leaving room for the moved availability's own range to validate.
+	event.EndsAt = event.StartsAt.Add(3*time.Hour + 30*time.Minute)
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	// Move it to overlap the wide one; its own new range (2h55-3h05) still fits
+	// the shrunk event, so only the post-merge revalidation can catch it.
+	newStart := event.StartsAt.Add(2*time.Hour + 55*time.Minute)
+	newEnd := event.StartsAt.Add(3*time.Hour + 5*time.Minute)
+	_, err = s.Update(&AvailabilityUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, second.Id, claims)
+	assert.ErrorIs(t, err, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err)
+}
+
 func TestAvailabilityService_Update_MergePath_DeleteByIdsError(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	owner := createTestUser(t)
