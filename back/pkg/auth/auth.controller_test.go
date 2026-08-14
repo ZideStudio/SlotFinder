@@ -158,3 +158,17 @@ func TestCleanRefreshTokens_StopsOnCancel(t *testing.T) {
 	// nothing further to assert beyond "this doesn't hang/panic".
 	time.Sleep(50 * time.Millisecond)
 }
+
+func TestFakeTicker_StoppedTicker_DoesNotFire(t *testing.T) {
+	fake := newFakeClock()
+	tk := fake.NewTicker(time.Minute)
+	tk.Stop()
+
+	fake.Advance(time.Minute)
+
+	select {
+	case <-tk.C():
+		t.Fatal("expected no tick after Stop")
+	default:
+	}
+}
