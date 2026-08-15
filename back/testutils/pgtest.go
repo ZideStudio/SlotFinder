@@ -167,7 +167,7 @@ func TestDB(t testingT) *gorm.DB {
 	activeTestDBDepth++
 	activeTestDBMu.Unlock()
 
-	conn := openDedicatedConn(t)
+	conn := sharedTestConn(t)
 	tx := conn.Begin()
 	if tx.Error != nil {
 		activeTestDBMu.Lock()
@@ -182,9 +182,6 @@ func TestDB(t testingT) *gorm.DB {
 	db.SetDBForTests(tx)
 	t.Cleanup(func() {
 		tx.Rollback()
-		if sqlDB, err := conn.DB(); err == nil {
-			_ = sqlDB.Close()
-		}
 		db.SetDBForTests(previous)
 
 		activeTestDBMu.Lock()
@@ -206,9 +203,47 @@ func FreshDB(t testingT) *gorm.DB {
 	return openDedicatedConn(t)
 }
 
-// openDedicatedConn pins a single physical connection so it's never handed
-// to another test: a straggling goroutine from an async call (see
-// AwaitAsyncDBWork) could otherwise corrupt a connection reused later.
+var (
+	sharedTestConnOnce sync.Once
+	sharedTestConnDB   *gorm.DB
+	sharedTestConnErr  error
+)
+
+// sharedTestConn lazily opens a small pool TestDB reuses across every call in
+// this test binary, avoiding a fresh TCP+auth handshake per test. Reuse
+// across different tests is safe because TestDB serializes them (see
+// activeTestDBMu): a test's Cleanup rolls its transaction back before the
+// next test's TestDB call can begin. The pool still needs room for more than
+// one open transaction at a time, though: a single test may call TestDB
+// reentrantly (see the doc comment above activeTestDBMu) to hold two
+// transactions concurrently, and Begin() on a pool capped at one connection
+// would deadlock waiting for the first to be released. FreshDB keeps using
+// openDedicatedConn below since it hands the connection to the test to close
+// itself.
+func sharedTestConn(t testingT) *gorm.DB {
+	t.Helper()
+	sharedTestConnOnce.Do(func() {
+		c := config.GetConfig()
+		sharedTestConnDB, sharedTestConnErr = gorm.Open(postgres.New(postgres.Config{
+			DSN:                  c.Db.GetPostgresConnectionInfo(),
+			PreferSimpleProtocol: true,
+		}), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+		if sharedTestConnErr == nil {
+			if sqlDB, err := sharedTestConnDB.DB(); err == nil {
+				sqlDB.SetMaxOpenConns(10)
+			}
+		}
+	})
+	if sharedTestConnErr != nil {
+		t.Fatalf("failed to open postgres connection: %v", sharedTestConnErr)
+	}
+	return sharedTestConnDB
+}
+
+// openDedicatedConn opens a connection nobody else will reuse — for FreshDB,
+// where the caller may close the returned pool itself (e.g. exercising
+// db.TestConnection()'s close behavior), which would be unsafe on the shared
+// connection above.
 func openDedicatedConn(t testingT) *gorm.DB {
 	t.Helper()
 	c := config.GetConfig()
