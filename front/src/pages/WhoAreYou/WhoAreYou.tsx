@@ -31,6 +31,7 @@ export const WhoAreYou = () => {
             label={t("avatarLabel")}
             name="avatar"
             accept={AVATAR_FILE_TYPES.join(",")}
+            previewVariant="rounded"
             required
           />
           <TextField

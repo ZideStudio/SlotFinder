@@ -4,10 +4,10 @@ import { type LabelInput } from "@Front/ui/atoms/Inputs/LabelInput/LabelInput";
 import { Input } from "@Front/ui/utils/components/Input/Input";
 import { getClassName } from "@Front/utils/helpers/getClassName";
 import {
-    type ChangeEvent,
-    type ComponentProps,
-    useCallback,
-    useRef,
+  type ChangeEvent,
+  type ComponentProps,
+  useCallback,
+  useRef,
 } from "react";
 import "./PictureUploadInput.scss";
 
@@ -16,13 +16,17 @@ type PictureUploadInputProps = ComponentProps<typeof FileUploadInputAtom> & {
   error?: ComponentProps<typeof InputErrorMessage>["children"];
   previewText?: string;
   defaultPreviewUrl?: string;
+  previewVariant?: "default" | "rounded";
 };
+
+const BASE_CLASS_NAME = "ds-picture-upload-input";
 
 export const PictureUploadInput = ({
   onChange,
   className,
   previewText,
   defaultPreviewUrl,
+  previewVariant = "default",
   ...props
 }: PictureUploadInputProps) => {
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -88,8 +92,12 @@ export const PictureUploadInput = ({
   );
 
   const parentClassName = getClassName({
-    defaultClassName: "ds-picture-upload-input",
+    defaultClassName: BASE_CLASS_NAME,
     className,
+  });
+  const previewClassName = getClassName({
+    defaultClassName: `${BASE_CLASS_NAME}__preview`,
+    modifiers: [previewVariant !== "default" && previewVariant],
   });
 
   return (
@@ -103,7 +111,7 @@ export const PictureUploadInput = ({
       />
       <img
         ref={imgCallbackRef}
-        className="ds-picture-upload-input__preview"
+        className={previewClassName}
         alt={previewText || "Preview"}
         hidden
       />
