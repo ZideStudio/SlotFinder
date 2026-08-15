@@ -14,7 +14,6 @@
 app
 
 # Test binary, built with `go test -c`
-coverage.txt
 *.test
 coverage.txt
 *.out
