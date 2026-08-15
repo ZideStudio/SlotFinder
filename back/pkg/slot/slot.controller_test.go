@@ -3,11 +3,11 @@ package slot
 import (
 	"app/commons/guard"
 	model "app/db/models"
+	"app/testutils"
 	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/smtp"
 	"testing"
 	"time"
 
@@ -83,11 +83,7 @@ func TestSlotController_ConfirmSlot_InvalidBody(t *testing.T) {
 
 func TestSlotController_ConfirmSlot_Success(t *testing.T) {
 	s := newTestSlotService(t)
-	called := make(chan struct{}, 1)
-	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
-		called <- struct{}{}
-		return nil
-	}
+	called := testutils.StubSMTPAwait(t, &s.mailService.SendMailFunc)
 
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
@@ -102,11 +98,7 @@ func TestSlotController_ConfirmSlot_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
 
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected the confirmation email goroutine to run")
-	}
+	testutils.AwaitSMTP(t, called)
 }
 
 func TestSlotController_RemoveValidatedSlot_InvalidSlotId(t *testing.T) {
@@ -120,11 +112,7 @@ func TestSlotController_RemoveValidatedSlot_InvalidSlotId(t *testing.T) {
 
 func TestSlotController_RemoveValidatedSlot_Success(t *testing.T) {
 	s := newTestSlotService(t)
-	called := make(chan struct{}, 1)
-	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
-		called <- struct{}{}
-		return nil
-	}
+	called := testutils.StubSMTPAwait(t, &s.mailService.SendMailFunc)
 
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
@@ -138,9 +126,5 @@ func TestSlotController_RemoveValidatedSlot_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, recorder.Code)
 
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected the cancellation email goroutine to run")
-	}
+	testutils.AwaitSMTP(t, called)
 }

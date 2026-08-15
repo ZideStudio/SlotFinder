@@ -7,7 +7,6 @@ import (
 	"app/pkg/mail"
 	"app/pkg/sse"
 	"app/testutils"
-	"net/smtp"
 	"testing"
 	"time"
 
@@ -189,11 +188,7 @@ func TestSlotService_ConfirmSlot_InvalidEndsAt(t *testing.T) {
 
 func TestSlotService_ConfirmSlot_Success(t *testing.T) {
 	s := newTestSlotService(t)
-	called := make(chan struct{}, 1)
-	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
-		called <- struct{}{}
-		return nil
-	}
+	called := testutils.StubSMTPAwait(t, &s.mailService.SendMailFunc)
 
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
@@ -210,11 +205,7 @@ func TestSlotService_ConfirmSlot_Success(t *testing.T) {
 	assert.Equal(t, constants.EVENT_STATUS_UPCOMING, updatedEvent.Status)
 
 	// Wait for the async confirmation email goroutine (owner is the sole participant).
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected the confirmation email goroutine to run")
-	}
+	testutils.AwaitSMTP(t, called)
 }
 
 func TestSlotService_RemoveValidatedSlot_EventUpdateFails(t *testing.T) {
@@ -291,11 +282,7 @@ func TestSlotService_RemoveValidatedSlot_NotValidated(t *testing.T) {
 
 func TestSlotService_RemoveValidatedSlot_Success(t *testing.T) {
 	s := newTestSlotService(t)
-	called := make(chan struct{}, 1)
-	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
-		called <- struct{}{}
-		return nil
-	}
+	called := testutils.StubSMTPAwait(t, &s.mailService.SendMailFunc)
 
 	owner := createTestAccount(t)
 	event := createTestEvent(t, s, owner.Id)
@@ -318,11 +305,7 @@ func TestSlotService_RemoveValidatedSlot_Success(t *testing.T) {
 	assert.Equal(t, constants.EVENT_STATUS_IN_DECISION, updatedEvent.Status)
 
 	// Wait for the async cancellation email goroutine (owner is the sole participant).
-	select {
-	case <-called:
-	case <-time.After(2 * time.Second):
-		t.Fatal("expected the cancellation email goroutine to run")
-	}
+	testutils.AwaitSMTP(t, called)
 }
 
 func TestSlotService_LoadSlots_NotEnoughParticipants(t *testing.T) {
