@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	"app/config"
 	model "app/db/models"
+	"app/testutils"
 	"errors"
 	"html/template"
 	"net/smtp"
@@ -211,7 +212,7 @@ func TestSendMail_DefaultsLanguageAndParams(t *testing.T) {
 	t.Parallel()
 	s := newTestMailService(t)
 
-	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error { return nil }
+	testutils.StubSMTP(t, &s.SendMailFunc)
 
 	err := s.SendMail(EmailParams{Template: constants.MAIL_TEMPLATE_WELCOME, To: "a@b.com", Subject: "Welcome"})
 	assert.NoError(t, err)
