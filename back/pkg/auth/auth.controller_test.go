@@ -6,7 +6,6 @@ import (
 	"app/testutils"
 	"net/http"
 	"net/http/httptest"
-	"sync"
 	"testing"
 	"time"
 
@@ -18,20 +17,8 @@ import (
 
 // NOTE: Do not call NewAuthController(nil) with the real 24h ticker in most
 // tests — it starts a background goroutine wired to real dependencies.
-// Build the controller struct directly instead.
-
-// refreshCleanupClockMu guards every test-side touch of the package global
-// refreshCleanupClock (auth.controller.go:22), so a future t.Parallel()
-// test can't race on it (a full fix needs scoping the clock per-instance).
-var refreshCleanupClockMu sync.Mutex
-
-// newAuthControllerLocked calls NewAuthController under refreshCleanupClockMu.
-func newAuthControllerLocked(t *testing.T, ctl *AuthController) *AuthController {
-	t.Helper()
-	refreshCleanupClockMu.Lock()
-	defer refreshCleanupClockMu.Unlock()
-	return NewAuthController(ctl)
-}
+// Build the controller struct directly instead, setting clock to a fakeClock
+// when the cleanup tick itself needs to be observed.
 
 func newTestContext() (*gin.Context, *httptest.ResponseRecorder) {
 	gin.SetMode(gin.TestMode)
@@ -95,7 +82,7 @@ func TestLogout_ValidCookie_RevokesToken(t *testing.T) {
 }
 
 func TestNewAuthController_Nil_BuildsDefaultAndStartsCleanup(t *testing.T) {
-	ctl := newAuthControllerLocked(t, nil)
+	ctl := NewAuthController(nil)
 	defer ctl.cleanupCancel()
 
 	assert.NotNil(t, ctl.refreshTokenRepository)
@@ -107,7 +94,7 @@ func TestNewAuthController_ReusesProvidedInstance(t *testing.T) {
 	db := testutils.TestDB(t)
 	provided := &AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)}
 
-	ctl := newAuthControllerLocked(t, provided)
+	ctl := NewAuthController(provided)
 	defer ctl.cleanupCancel()
 
 	assert.Same(t, provided, ctl)
@@ -116,16 +103,7 @@ func TestNewAuthController_ReusesProvidedInstance(t *testing.T) {
 func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 	// Use the real 24h production interval, but drive it with a fake clock
 	// advanced past that interval so the test doesn't wait on wall-clock time.
-	refreshCleanupClockMu.Lock()
-	original := refreshCleanupClock
 	fake := newFakeClock()
-	refreshCleanupClock = fake
-	refreshCleanupClockMu.Unlock()
-	defer func() {
-		refreshCleanupClockMu.Lock()
-		refreshCleanupClock = original
-		refreshCleanupClockMu.Unlock()
-	}()
 
 	db := testutils.TestDB(t)
 	repo := repository.NewRefreshTokenRepository(db)
@@ -141,7 +119,7 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 	}
 	require.NoError(t, db.Create(&expired).Error)
 
-	ctl := newAuthControllerLocked(t, &AuthController{refreshTokenRepository: repo})
+	ctl := NewAuthController(&AuthController{refreshTokenRepository: repo, clock: fake})
 	defer ctl.cleanupCancel()
 
 	fake.Advance(refreshTokenCleanupInterval)
@@ -163,7 +141,7 @@ func TestCleanRefreshTokens_StopsOnCancel(t *testing.T) {
 	// The real 24h interval never fires within this test's lifetime, so the
 	// only thing to verify is that cancellation stops the goroutine cleanly.
 	db := testutils.TestDB(t)
-	ctl := newAuthControllerLocked(t, &AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)})
+	ctl := NewAuthController(&AuthController{refreshTokenRepository: repository.NewRefreshTokenRepository(db)})
 
 	ctl.cleanupCancel()
 

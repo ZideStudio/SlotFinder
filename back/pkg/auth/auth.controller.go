@@ -15,11 +15,10 @@ type AuthController struct {
 	refreshTokenRepository *repository.RefreshTokenRepository
 	cleanupCtx             context.Context
 	cleanupCancel          context.CancelFunc
+	clock                  clock
 }
 
 const refreshTokenCleanupInterval = 24 * time.Hour
-
-var refreshCleanupClock clock = realClock{}
 
 func NewAuthController(ctl *AuthController) *AuthController {
 	if ctl == nil {
@@ -27,9 +26,12 @@ func NewAuthController(ctl *AuthController) *AuthController {
 			refreshTokenRepository: repository.NewRefreshTokenRepository(nil),
 		}
 	}
+	if ctl.clock == nil {
+		ctl.clock = realClock{}
+	}
 
 	ctl.cleanupCtx, ctl.cleanupCancel = context.WithCancel(context.Background())
-	t := refreshCleanupClock.NewTicker(refreshTokenCleanupInterval)
+	t := ctl.clock.NewTicker(refreshTokenCleanupInterval)
 	go ctl.cleanRefreshTokens(t)
 
 	return ctl
