@@ -1,16 +1,30 @@
 @use "../../../../utils/sass/mixins/helpers";
+@use "../../../../utils/sass/mixins/responsive";
 
 .ds-mono-checkbox-input {
+  --column-gap: #{helpers.pxToRem(8)};
+
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: helpers.pxToRem(4) helpers.pxToRem(12);
+  column-gap: var(--column-gap);
   align-items: center;
 
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    --column-gap: #{helpers.pxToRem(12)};
+  }
+
   label {
+    --font-size: #{helpers.pxToRem(14)};
+
     grid-row: 1;
     grid-column: 2;
     margin-bottom: 0;
+    font-weight: 400;
     cursor: pointer;
+
+    @include responsive.mediaExceedsWidth("desktop-small") {
+      --font-size: #{helpers.pxToRem(16)};
+    }
   }
 
   .ds-checkbox-input-atom {
