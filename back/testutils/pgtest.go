@@ -156,7 +156,7 @@ var (
 // via t.Cleanup, and points db.GetDB() at it for the test's duration.
 func TestDB(t testingT) *gorm.DB {
 	t.Helper()
-	base := requireBase(t)
+	requireBase(t)
 
 	activeTestDBMu.Lock()
 	if activeTestDBOwner != nil && activeTestDBOwner != t {
@@ -178,13 +178,14 @@ func TestDB(t testingT) *gorm.DB {
 		activeTestDBMu.Unlock()
 		t.Fatalf("failed to begin test transaction: %v", tx.Error)
 	}
+	previous := db.GetDB()
 	db.SetDBForTests(tx)
 	t.Cleanup(func() {
 		tx.Rollback()
 		if sqlDB, err := conn.DB(); err == nil {
 			_ = sqlDB.Close()
 		}
-		db.SetDBForTests(base)
+		db.SetDBForTests(previous)
 
 		activeTestDBMu.Lock()
 		activeTestDBDepth--
