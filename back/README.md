@@ -18,6 +18,14 @@ go tool air
 
 ## Test
 
+Clone `.env.test.model` to `.env.test` to point tests at `slotfinder_test` instead of your dev database (falls back to `.env` if absent):
+
+```bash
+cp .env.test.model .env.test
+```
+
+`slotfinder_test` is auto-created on a fresh `docker-compose.dev.yml` volume via `POSTGRES_MULTIPLE_DATABASES`. Otherwise, create it once: `docker exec -it <postgres_container> createdb -U slotfinder slotfinder_test`.
+
 ### All tests
 
 ```bash
@@ -33,7 +41,7 @@ go test ./[package]
 ### All tests with coverage
 
 ```bash
-go test ./... --cover
+go test ./... -coverpkg=./... --cover
 ```
 
 ## Docker Build

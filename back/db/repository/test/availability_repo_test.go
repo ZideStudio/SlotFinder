@@ -3,13 +3,13 @@ package test
 import (
 	model "app/db/models"
 	"app/db/repository"
+	"app/testutils"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -19,32 +19,9 @@ type AvailabilityRepoTestSuite struct {
 	repo *repository.AvailabilityRepository
 }
 
-func (suite *AvailabilityRepoTestSuite) SetupSuite() {
-	// Create in-memory SQLite database for testing
-	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	suite.Require().NoError(err)
-
-	suite.db = database
-
-	// Auto-migrate the schema
-	err = database.AutoMigrate(&model.Event{}, &model.Account{}, &model.Availability{})
-	suite.Require().NoError(err)
-
-	// Create repository with test DB
-	suite.repo = repository.NewAvailabilityRepository(database)
-}
-
 func (suite *AvailabilityRepoTestSuite) SetupTest() {
-	// Clean up tables before each test
-	suite.db.Where("1 = 1").Delete(&model.Availability{})
-	suite.db.Where("1 = 1").Delete(&model.Event{})
-	suite.db.Where("1 = 1").Delete(&model.Account{})
-}
-
-func (suite *AvailabilityRepoTestSuite) TearDownSuite() {
-	// Close database connection
-	sqlDB, _ := suite.db.DB()
-	sqlDB.Close()
+	suite.db = testutils.TestDB(suite.T())
+	suite.repo = repository.NewAvailabilityRepository(suite.db)
 }
 
 // Helper function to create test account
@@ -111,8 +88,8 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availability.StartsAt, result.StartsAt)
-	assert.Equal(suite.T(), availability.EndsAt, result.EndsAt)
+	assert.WithinDuration(suite.T(), availability.StartsAt, result.StartsAt, 0)
+	assert.WithinDuration(suite.T(), availability.EndsAt, result.EndsAt, 0)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_LeftOverlap() {
@@ -137,8 +114,8 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result.StartsAt)
-	assert.Equal(suite.T(), availability.EndsAt, result.EndsAt)
+	assert.WithinDuration(suite.T(), event.StartsAt, result.StartsAt, 0)
+	assert.WithinDuration(suite.T(), availability.EndsAt, result.EndsAt, 0)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_RightOverlap() {
@@ -163,8 +140,8 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availability.StartsAt, result.StartsAt)
-	assert.Equal(suite.T(), event.EndsAt, result.EndsAt)
+	assert.WithinDuration(suite.T(), availability.StartsAt, result.StartsAt, 0)
+	assert.WithinDuration(suite.T(), event.EndsAt, result.EndsAt, 0)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_BothSidesOverlap() {
@@ -189,8 +166,8 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result model.Availability
 	err = suite.db.Where("id = ?", availability.Id).First(&result).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result.StartsAt)
-	assert.Equal(suite.T(), event.EndsAt, result.EndsAt)
+	assert.WithinDuration(suite.T(), event.StartsAt, result.StartsAt, 0)
+	assert.WithinDuration(suite.T(), event.EndsAt, result.EndsAt, 0)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_CompletelyOutsideDeleted() {
@@ -263,29 +240,29 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result1 model.Availability
 	err = suite.db.Where("id = ?", avail1.Id).First(&result1).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), avail1.StartsAt, result1.StartsAt)
-	assert.Equal(suite.T(), avail1.EndsAt, result1.EndsAt)
+	assert.WithinDuration(suite.T(), avail1.StartsAt, result1.StartsAt, 0)
+	assert.WithinDuration(suite.T(), avail1.EndsAt, result1.EndsAt, 0)
 
 	// Verify avail2 (left overlap) - start adjusted
 	var result2 model.Availability
 	err = suite.db.Where("id = ?", avail2.Id).First(&result2).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result2.StartsAt)
-	assert.Equal(suite.T(), avail2.EndsAt, result2.EndsAt)
+	assert.WithinDuration(suite.T(), event.StartsAt, result2.StartsAt, 0)
+	assert.WithinDuration(suite.T(), avail2.EndsAt, result2.EndsAt, 0)
 
 	// Verify avail3 (right overlap) - end adjusted
 	var result3 model.Availability
 	err = suite.db.Where("id = ?", avail3.Id).First(&result3).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), avail3.StartsAt, result3.StartsAt)
-	assert.Equal(suite.T(), event.EndsAt, result3.EndsAt)
+	assert.WithinDuration(suite.T(), avail3.StartsAt, result3.StartsAt, 0)
+	assert.WithinDuration(suite.T(), event.EndsAt, result3.EndsAt, 0)
 
 	// Verify avail4 (both sides overlap) - both adjusted
 	var result4 model.Availability
 	err = suite.db.Where("id = ?", avail4.Id).First(&result4).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result4.StartsAt)
-	assert.Equal(suite.T(), event.EndsAt, result4.EndsAt)
+	assert.WithinDuration(suite.T(), event.StartsAt, result4.StartsAt, 0)
+	assert.WithinDuration(suite.T(), event.EndsAt, result4.EndsAt, 0)
 
 	// Verify avail5 (completely after) - deleted
 	var count int64
@@ -325,15 +302,15 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result1 model.Availability
 	err = suite.db.Where("id = ?", avail1.Id).First(&result1).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event1.StartsAt, result1.StartsAt)
-	assert.Equal(suite.T(), event1.EndsAt, result1.EndsAt)
+	assert.WithinDuration(suite.T(), event1.StartsAt, result1.StartsAt, 0)
+	assert.WithinDuration(suite.T(), event1.EndsAt, result1.EndsAt, 0)
 
 	// Verify avail2 was NOT touched
 	var result2 model.Availability
 	err = suite.db.Where("id = ?", avail2.Id).First(&result2).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), avail2.StartsAt, result2.StartsAt)
-	assert.Equal(suite.T(), avail2.EndsAt, result2.EndsAt)
+	assert.WithinDuration(suite.T(), avail2.StartsAt, result2.StartsAt, 0)
+	assert.WithinDuration(suite.T(), avail2.EndsAt, result2.EndsAt, 0)
 }
 
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_EmptyEvent() {
@@ -395,29 +372,29 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var result1 model.Availability
 	err = suite.db.Where("id = ?", availLeftOverlap.Id).First(&result1).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result1.StartsAt, "Availability that overlaps start should have its start adjusted")
-	assert.Equal(suite.T(), availLeftOverlap.EndsAt, result1.EndsAt, "End should not change")
+	assert.WithinDuration(suite.T(), event.StartsAt, result1.StartsAt, 0, "Availability that overlaps start should have its start adjusted")
+	assert.WithinDuration(suite.T(), availLeftOverlap.EndsAt, result1.EndsAt, 0, "End should not change")
 
 	// Verify case 2: overlaps end - end adjusted to event end
 	var result2 model.Availability
 	err = suite.db.Where("id = ?", availRightOverlap.Id).First(&result2).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availRightOverlap.StartsAt, result2.StartsAt, "Start should not change")
-	assert.Equal(suite.T(), event.EndsAt, result2.EndsAt, "Availability that overlaps end should have its end adjusted")
+	assert.WithinDuration(suite.T(), availRightOverlap.StartsAt, result2.StartsAt, 0, "Start should not change")
+	assert.WithinDuration(suite.T(), event.EndsAt, result2.EndsAt, 0, "Availability that overlaps end should have its end adjusted")
 
 	// Verify case 3: overlaps start AND end - both adjusted
 	var result3 model.Availability
 	err = suite.db.Where("id = ?", availBothOverlap.Id).First(&result3).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, result3.StartsAt, "Start should be adjusted to event start")
-	assert.Equal(suite.T(), event.EndsAt, result3.EndsAt, "End should be adjusted to event end")
+	assert.WithinDuration(suite.T(), event.StartsAt, result3.StartsAt, 0, "Start should be adjusted to event start")
+	assert.WithinDuration(suite.T(), event.EndsAt, result3.EndsAt, 0, "End should be adjusted to event end")
 
 	// Verify case 4: completely inside - no change
 	var result4 model.Availability
 	err = suite.db.Where("id = ?", availWithin.Id).First(&result4).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), availWithin.StartsAt, result4.StartsAt, "Availability within range should not change")
-	assert.Equal(suite.T(), availWithin.EndsAt, result4.EndsAt, "Availability within range should not change")
+	assert.WithinDuration(suite.T(), availWithin.StartsAt, result4.StartsAt, 0, "Availability within range should not change")
+	assert.WithinDuration(suite.T(), availWithin.EndsAt, result4.EndsAt, 0, "Availability within range should not change")
 
 	// Verify case 5: completely outside - deleted
 	var count int64
@@ -468,8 +445,8 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 	var resultExact model.Availability
 	err = suite.db.Where("id = ?", availExactMatch.Id).First(&resultExact).Error
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), event.StartsAt, resultExact.StartsAt)
-	assert.Equal(suite.T(), event.EndsAt, resultExact.EndsAt)
+	assert.WithinDuration(suite.T(), event.StartsAt, resultExact.StartsAt, 0)
+	assert.WithinDuration(suite.T(), event.EndsAt, resultExact.EndsAt, 0)
 }
 
 // Test case for availabilities that should be deleted because they don't overlap
@@ -504,6 +481,189 @@ func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverla
 
 	suite.db.Model(&model.Availability{}).Where("id = ?", availAfterEvent.Id).Count(&count)
 	assert.Equal(suite.T(), int64(0), count, "Availability after event should be deleted")
+}
+
+func (suite *AvailabilityRepoTestSuite) TestCreate_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+
+	availability := &model.Availability{
+		Id:        uuid.New(),
+		AccountId: account.Id,
+		EventId:   event.Id,
+		StartsAt:  event.StartsAt,
+		EndsAt:    event.StartsAt.Add(30 * time.Minute),
+	}
+
+	err := suite.repo.Create(availability)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), *account.UserName, availability.UserName, "Sanitized() should populate UserName from the preloaded Account")
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	created := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+
+	var found model.Availability
+	err := suite.repo.FindOneById(created.Id, &found)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), created.Id, found.Id)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_NotFound() {
+	var found model.Availability
+	err := suite.repo.FindOneById(uuid.New(), &found)
+	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_NilId() {
+	var found model.Availability
+	err := suite.repo.FindOneById(uuid.Nil, &found)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOneById_NilPointer() {
+	err := suite.repo.FindOneById(uuid.New(), nil)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindByEventId() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+	suite.createTestAvailability(account.Id, event.Id, event.StartsAt.Add(30*time.Minute), event.StartsAt.Add(time.Hour))
+
+	var availabilities []model.Availability
+	err := suite.repo.FindByEventId(event.Id, &availabilities)
+	assert.NoError(suite.T(), err)
+	assert.Len(suite.T(), availabilities, 2)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestFindOverlappingAvailabilities() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(4*time.Hour))
+	existing := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(time.Hour))
+
+	candidate := &model.Availability{
+		AccountId: account.Id,
+		EventId:   event.Id,
+		StartsAt:  event.StartsAt.Add(30 * time.Minute),
+		EndsAt:    event.StartsAt.Add(90 * time.Minute),
+	}
+
+	var overlapping []model.Availability
+	err := suite.repo.FindOverlappingAvailabilities(candidate, &overlapping)
+	assert.NoError(suite.T(), err)
+	assert.Len(suite.T(), overlapping, 1)
+	assert.Equal(suite.T(), existing.Id, overlapping[0].Id)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestDeleteById_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	created := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+
+	err := suite.repo.DeleteById(&created.Id)
+	assert.NoError(suite.T(), err)
+
+	var count int64
+	suite.db.Model(&model.Availability{}).Where("id = ?", created.Id).Count(&count)
+	assert.Equal(suite.T(), int64(0), count)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestDeleteById_NilPointer() {
+	err := suite.repo.DeleteById(nil)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestDeleteByIds() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(time.Hour))
+	a1 := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+	a2 := suite.createTestAvailability(account.Id, event.Id, event.StartsAt.Add(30*time.Minute), event.StartsAt.Add(time.Hour))
+
+	err := suite.repo.DeleteByIds(&[]uuid.UUID{a1.Id, a2.Id})
+	assert.NoError(suite.T(), err)
+
+	var count int64
+	suite.db.Model(&model.Availability{}).Where("event_id = ?", event.Id).Count(&count)
+	assert.Equal(suite.T(), int64(0), count)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestUpdate_Success() {
+	account := suite.createTestAccount()
+	event := suite.createTestEvent(account.Id, time.Now(), time.Now().Add(2*time.Hour))
+	created := suite.createTestAvailability(account.Id, event.Id, event.StartsAt, event.StartsAt.Add(30*time.Minute))
+
+	created.EndsAt = event.StartsAt.Add(time.Hour)
+	err := suite.repo.Update(&created)
+	assert.NoError(suite.T(), err)
+
+	var found model.Availability
+	suite.Require().NoError(suite.db.Where("id = ?", created.Id).First(&found).Error)
+	assert.WithinDuration(suite.T(), event.StartsAt.Add(time.Hour), found.EndsAt, time.Millisecond)
+}
+
+func (suite *AvailabilityRepoTestSuite) TestUpdate_NilPointer() {
+	err := suite.repo.Update(nil)
+	assert.Error(suite.T(), err)
+}
+
+// TestUpdate_NotFound targets the reload-after-update step: updating a
+// non-existent row succeeds (0 rows affected, no error), so it's the
+// following reload that surfaces gorm.ErrRecordNotFound.
+func (suite *AvailabilityRepoTestSuite) TestUpdate_NotFound() {
+	err := suite.repo.Update(&model.Availability{Id: uuid.New()})
+	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
+}
+
+// Drops the table inside the per-test transaction (rolled back after, no
+// impact on other tests) via suite.db.Exec, not suite.db.DB(): the latter
+// reaches into the *sql.Tx for its underlying pool, escaping the transaction.
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_FindQueryFails() {
+	suite.Require().NoError(suite.db.Exec("DROP TABLE availability").Error)
+
+	err := suite.repo.DeleteOutOfEventRangeAndAdjustOverlaps(uuid.New(), time.Now(), time.Now().Add(time.Hour))
+	assert.Error(suite.T(), err)
+}
+
+// TestDeleteOutOfEventRangeAndAdjustOverlaps_AdjustUpdateFails makes the
+// transaction read-only so the Find query succeeds but the adjust Update fails.
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_AdjustUpdateFails() {
+	accountId := uuid.New()
+	suite.db.Create(&model.Account{Id: accountId})
+	eventId := uuid.New()
+	startsAt := time.Date(2024, 1, 5, 0, 0, 0, 0, time.UTC)
+	endsAt := time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC)
+	suite.db.Create(&model.Event{Id: eventId, Name: "Event", Duration: 60, StartsAt: startsAt, EndsAt: endsAt, OwnerId: accountId, Status: "IN_DECISION"})
+	// Overlaps the event range on the left -> needs adjusting, not deleting.
+	suite.db.Create(&model.Availability{Id: uuid.New(), AccountId: accountId, EventId: eventId,
+		StartsAt: startsAt.Add(-48 * time.Hour), EndsAt: startsAt.Add(24 * time.Hour)})
+
+	testutils.MakeReadOnly(suite.T())
+
+	err := suite.repo.DeleteOutOfEventRangeAndAdjustOverlaps(eventId, startsAt, endsAt)
+	assert.Error(suite.T(), err)
+}
+
+// TestDeleteOutOfEventRangeAndAdjustOverlaps_DeleteQueryFails makes the
+// transaction read-only so the Find query succeeds but the final Delete fails.
+func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_DeleteQueryFails() {
+	accountId := uuid.New()
+	suite.db.Create(&model.Account{Id: accountId})
+	eventId := uuid.New()
+	startsAt := time.Date(2024, 1, 10, 0, 0, 0, 0, time.UTC)
+	endsAt := time.Date(2024, 1, 20, 0, 0, 0, 0, time.UTC)
+	suite.db.Create(&model.Event{Id: eventId, Name: "Event", Duration: 60, StartsAt: startsAt, EndsAt: endsAt, OwnerId: accountId, Status: "IN_DECISION"})
+	// Entirely outside the event range -> needs deleting, not adjusting.
+	suite.db.Create(&model.Availability{Id: uuid.New(), AccountId: accountId, EventId: eventId,
+		StartsAt: startsAt.Add(-72 * time.Hour), EndsAt: startsAt.Add(-48 * time.Hour)})
+
+	testutils.MakeReadOnly(suite.T())
+
+	err := suite.repo.DeleteOutOfEventRangeAndAdjustOverlaps(eventId, startsAt, endsAt)
+	assert.Error(suite.T(), err)
 }
 
 // Run the test suite

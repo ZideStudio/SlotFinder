@@ -26,6 +26,7 @@ var user = &guard.Claims{
 }
 
 func TestCreate_EventDurationTooShort(t *testing.T) {
+	t.Parallel()
 	now := time.Now().UTC()
 	tomorrow := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC)
 	almostTwoDaysLater := tomorrow.Add(23*time.Hour + 59*time.Minute)
@@ -45,6 +46,7 @@ func TestCreate_EventDurationTooShort(t *testing.T) {
 }
 
 func TestCreate_EventStartAfterEnd(t *testing.T) {
+	t.Parallel()
 	now := time.Now().UTC()
 	tomorrow := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.UTC)
 	yesterday := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.UTC)
@@ -64,6 +66,7 @@ func TestCreate_EventStartAfterEnd(t *testing.T) {
 }
 
 func TestCreate_EventStartInPast(t *testing.T) {
+	t.Parallel()
 	now := time.Now().UTC()
 	yesterday := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.UTC)
 	twoDaysLater := yesterday.Add(48 * time.Hour)
@@ -83,6 +86,7 @@ func TestCreate_EventStartInPast(t *testing.T) {
 }
 
 func TestParseDtoEventDates_Success(t *testing.T) {
+	t.Parallel()
 	t.Run("should parse dates successfully", func(t *testing.T) {
 		baseDate := time.Now().AddDate(1, 0, 0)
 		testEvent := &model.Event{
@@ -153,6 +157,7 @@ func TestParseDtoEventDates_Success(t *testing.T) {
 }
 
 func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
+	t.Parallel()
 	t.Run("should return error when start is after end", func(t *testing.T) {
 		baseDate := time.Now().AddDate(1, 0, 0)
 		testEvent := &model.Event{
@@ -201,6 +206,7 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 }
 
 func TestParseDtoEventDates_DurationTooShort(t *testing.T) {
+	t.Parallel()
 	t.Run("should return error when duration is less than 1 day", func(t *testing.T) {
 		baseDate := time.Now().AddDate(1, 0, 0)
 		testEvent := &model.Event{
@@ -233,6 +239,7 @@ func TestParseDtoEventDates_DurationTooShort(t *testing.T) {
 }
 
 func TestParseDtoEventDates_PastDates(t *testing.T) {
+	t.Parallel()
 	t.Run("should return error when start date is in the past", func(t *testing.T) {
 		testEvent := &model.Event{
 			Id:       uuid.New(),
@@ -263,7 +270,24 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 	})
 }
 
+// Covers the "else if" branch: no new start date, but the new end date is
+// in the past (without tripping the earlier checks first).
+func TestSetEventDatesFromDto_EndDateInPast_NoStartDateChange(t *testing.T) {
+	t.Parallel()
+	testEvent := &model.Event{
+		Id:       uuid.New(),
+		StartsAt: time.Now().AddDate(0, 0, -10),
+		EndsAt:   time.Now().AddDate(0, 0, -5),
+	}
+	newEnd := time.Now().AddDate(0, 0, -3)
+
+	err := SetEventDatesFromDto(testEvent, nil, &newEnd)
+
+	assert.ErrorIs(t, err, constants.ERR_EVENT_START_BEFORE_TODAY.Err)
+}
+
 func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
+	t.Parallel()
 	t.Run("should return error when end date conflicts with validated slot", func(t *testing.T) {
 		baseDate := time.Now().AddDate(1, 0, 0)
 		validatedSlot := &model.Slot{
@@ -310,6 +334,7 @@ func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {
 }
 
 func TestParseDtoEventDates_NilEvent(t *testing.T) {
+	t.Parallel()
 	t.Run("should return error for nil event", func(t *testing.T) {
 		err := SetEventDatesFromDto(nil, nil, nil)
 

@@ -16,6 +16,7 @@ import (
 	mathrand "math/rand"
 	"net/url"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -28,6 +29,7 @@ type ProviderService struct {
 	avatarService              *account.AvatarService
 	mailService                *mail.MailService
 	config                     *config.Config
+	httpClient                 *resty.Client
 }
 
 func NewProviderService(service *ProviderService) *ProviderService {
@@ -43,6 +45,7 @@ func NewProviderService(service *ProviderService) *ProviderService {
 		avatarService:              account.NewAvatarService(nil),
 		mailService:                mail.NewMailService(nil),
 		config:                     config.GetConfig(),
+		httpClient:                 resty.New(),
 	}
 }
 
@@ -140,18 +143,18 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 
 	if authUserId != "" && authUserId != existingAccountProvider.AccountId.String() {
 		if existingAccountProvider.AccountId != uuid.Nil {
-			if existingAccountProvider.AccountId.String() != authUserId {
-				return providerAccountResponse, fmt.Errorf("ALREADY_EXISTS: provider already exists connected to another account")
-			}
+			return providerAccountResponse, fmt.Errorf("ALREADY_EXISTS: provider already exists connected to another account")
+		}
 
-			if err := s.accountProvidersRepository.Delete(providerUser.ProviderAccount.Id); err != nil {
-				return providerAccountResponse, fmt.Errorf("error deleting provider: %w", err)
-			}
+		accountId, err := uuid.Parse(authUserId)
+		if err != nil {
+			return providerAccountResponse, fmt.Errorf("invalid userId: %w", err)
 		}
 
 		providerAccountResponse.AccountProvider = &model.AccountProvider{
-			Provider: providerUser.Provider,
-			Id:       providerUser.ProviderAccount.Id,
+			AccountId: accountId,
+			Provider:  providerUser.Provider,
+			Id:        providerUser.ProviderAccount.Id,
 		}
 
 		return providerAccountResponse, nil

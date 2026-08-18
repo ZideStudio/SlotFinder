@@ -11,10 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// NOTE: Do not initialize real services at package init time in unit tests.
-// NewAvailabilityService(nil) wires real dependencies indirectly (via other services),
-// which can crash tests when configuration isn't set.
-// Create the service inside each test instead.
+// NOTE: Do not initialize real services at package init time in unit tests —
+// NewAvailabilityService(nil) wires real dependencies indirectly and can
+// crash when configuration isn't set. Create the service per test instead.
 
 // Helper function to create a mock event for testing
 func createMockEvent() model.Event {
@@ -109,14 +108,6 @@ func TestSyncMapConcurrentAccess(t *testing.T) {
 	value, ok := service.locks.Load(lockKey)
 	assert.True(t, ok, "Lock key should exist")
 	assert.NotNil(t, value, "Value should not be nil")
-}
-
-// TestUpdateDto verifies that the AvailabilityUpdateDto is properly structured
-func TestUpdateDto(t *testing.T) {
-	// Test with nil values
-	dto1 := AvailabilityUpdateDto{}
-	assert.Nil(t, dto1.StartsAt, "StartsAt should be nil by default")
-	assert.Nil(t, dto1.EndsAt, "EndsAt should be nil by default")
 }
 
 // TestValidateAvailabilityTimes_StartAfterEnd tests validation for end date before start date

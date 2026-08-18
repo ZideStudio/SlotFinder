@@ -3,8 +3,6 @@ package provider
 import (
 	"app/config"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type GoogleUserInfo struct {
@@ -21,7 +19,7 @@ type GoogleTokenResponse struct {
 func (s *ProviderService) getGoogleUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
-	client := resty.New()
+	client := s.httpClient
 
 	var token GoogleTokenResponse
 	res, err := client.R().

@@ -4,8 +4,6 @@ import (
 	"app/config"
 	"errors"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type GithubUserNameInfo struct {
@@ -28,7 +26,7 @@ type GithubTokenResponse struct {
 func (s *ProviderService) getGithubUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
-	client := resty.New()
+	client := s.httpClient
 
 	var token GithubTokenResponse
 	res, err := client.R().

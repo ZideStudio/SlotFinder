@@ -15,7 +15,10 @@ type AuthController struct {
 	refreshTokenRepository *repository.RefreshTokenRepository
 	cleanupCtx             context.Context
 	cleanupCancel          context.CancelFunc
+	clock                  clock
 }
+
+const refreshTokenCleanupInterval = 24 * time.Hour
 
 func NewAuthController(ctl *AuthController) *AuthController {
 	if ctl == nil {
@@ -23,9 +26,13 @@ func NewAuthController(ctl *AuthController) *AuthController {
 			refreshTokenRepository: repository.NewRefreshTokenRepository(nil),
 		}
 	}
+	if ctl.clock == nil {
+		ctl.clock = realClock{}
+	}
 
 	ctl.cleanupCtx, ctl.cleanupCancel = context.WithCancel(context.Background())
-	go ctl.cleanRefreshTokens()
+	t := ctl.clock.NewTicker(refreshTokenCleanupInterval)
+	go ctl.cleanRefreshTokens(t)
 
 	return ctl
 }
@@ -69,14 +76,12 @@ func (ctl *AuthController) Logout(c *gin.Context) {
 	helpers.HandleJSONResponse(c, nil, nil)
 }
 
-// cleanRefreshTokens avec gestion propre du cycle de vie
-func (ctl *AuthController) cleanRefreshTokens() {
-	ticker := time.NewTicker(24 * time.Hour)
-	defer ticker.Stop()
+func (ctl *AuthController) cleanRefreshTokens(t ticker) {
+	defer t.Stop()
 
 	for {
 		select {
-		case <-ticker.C:
+		case <-t.C():
 			_ = ctl.refreshTokenRepository.DeleteExpired()
 		case <-ctl.cleanupCtx.Done():
 			return

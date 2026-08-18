@@ -3,8 +3,6 @@ package provider
 import (
 	"app/config"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type DiscordUserInfo struct {
@@ -25,7 +23,7 @@ type DiscordTokenResponse struct {
 func (s *ProviderService) getDiscordUserInfo(code string) (ProviderAccount, error) {
 	providerConfig := config.GetProviderConfig()
 
-	client := resty.New()
+	client := s.httpClient
 
 	var token DiscordTokenResponse
 	res, err := client.R().

@@ -29,6 +29,7 @@ type MailService struct {
 	Config       config.Config
 	templates    map[constants.MailTemplate]*template.Template
 	translations map[string]map[constants.MailTemplate]map[string]any
+	SendMailFunc func(addr string, a smtp.Auth, from string, to []string, msg []byte) error
 }
 
 func NewMailService(service *MailService) *MailService {
@@ -40,6 +41,7 @@ func NewMailService(service *MailService) *MailService {
 		Config:       *config.GetConfig(),
 		templates:    make(map[constants.MailTemplate]*template.Template),
 		translations: make(map[string]map[constants.MailTemplate]map[string]interface{}),
+		SendMailFunc: smtp.SendMail,
 	}
 
 	// Load all email templates
@@ -403,7 +405,7 @@ func (s *MailService) SendMail(params EmailParams) error {
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 
 	// Send the email
-	err = smtp.SendMail(
+	err = s.SendMailFunc(
 		smtpHost+":"+smtpPort,
 		auth,
 		from,

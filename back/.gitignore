@@ -1,6 +1,7 @@
 # Environment
 .env*
 !.env.model
+!.env.test.model
 *.pem
 .DS_Store
 

@@ -7,6 +7,7 @@ import (
 )
 
 func TestIsValidPassword(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name     string
 		password string
@@ -160,5 +161,6 @@ func TestIsValidPassword(t *testing.T) {
 }
 
 func TestPasswordMinLength(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, 8, PasswordMinLength, "PasswordMinLength should be 8")
 }

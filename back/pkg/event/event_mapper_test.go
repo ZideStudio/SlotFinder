@@ -13,6 +13,7 @@ import (
 // --- durationToFields ---
 
 func TestDurationToFields(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		duration int
@@ -36,6 +37,7 @@ func TestDurationToFields(t *testing.T) {
 // --- FieldsToDuration ---
 
 func TestFieldsToDuration(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		days    int
@@ -61,6 +63,7 @@ func TestFieldsToDuration(t *testing.T) {
 // --- mapToParticipantDto ---
 
 func TestMapToParticipantDto_UsesAccountColorByDefault(t *testing.T) {
+	t.Parallel()
 	ae := model.AccountEvent{
 		Color: nil,
 		Account: model.Account{
@@ -72,6 +75,7 @@ func TestMapToParticipantDto_UsesAccountColorByDefault(t *testing.T) {
 }
 
 func TestMapToParticipantDto_UsesAccountColorWhenEventColorIsEmpty(t *testing.T) {
+	t.Parallel()
 	empty := ""
 	ae := model.AccountEvent{
 		Color: &empty,
@@ -84,6 +88,7 @@ func TestMapToParticipantDto_UsesAccountColorWhenEventColorIsEmpty(t *testing.T)
 }
 
 func TestMapToParticipantDto_UsesAccountEventColorOverride(t *testing.T) {
+	t.Parallel()
 	override := "#112233"
 	ae := model.AccountEvent{
 		Color: &override,
@@ -95,9 +100,41 @@ func TestMapToParticipantDto_UsesAccountEventColorOverride(t *testing.T) {
 	assert.Equal(t, "#112233", dto.Color)
 }
 
+// --- mapToOwnerDto ---
+
+func TestMapToOwnerDto_UsesAccountColorByDefault(t *testing.T) {
+	t.Parallel()
+	dto := mapToOwnerDto(model.Account{Color: "#AABBCC"}, nil)
+	assert.Equal(t, "#AABBCC", dto.Color)
+}
+
+func TestMapToOwnerDto_UsesOverrideWhenProvided(t *testing.T) {
+	t.Parallel()
+	override := "#112233"
+	dto := mapToOwnerDto(model.Account{Color: "#AABBCC"}, &override)
+	assert.Equal(t, "#112233", dto.Color)
+}
+
+func TestMapToOwnerDto_EmptyOverrideFallsBackToAccountColor(t *testing.T) {
+	t.Parallel()
+	empty := ""
+	dto := mapToOwnerDto(model.Account{Color: "#AABBCC"}, &empty)
+	assert.Equal(t, "#AABBCC", dto.Color)
+}
+
+// --- SetEventDatesFromDto ---
+
+func TestSetEventDatesFromDto_NilEvent(t *testing.T) {
+	t.Parallel()
+	start := time.Now()
+	err := SetEventDatesFromDto(nil, &start, nil)
+	assert.Error(t, err)
+}
+
 // --- MapToEventListItemDto ---
 
 func TestMapToEventListItemDto(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	e := model.Event{
 		Id:       uuid.New(),
@@ -120,12 +157,13 @@ func TestMapToEventListItemDto(t *testing.T) {
 // --- MapToEventFullResponseDto ---
 
 func TestMapToEventFullResponseDto_EmptyParticipantsWhenNoAccountEvents(t *testing.T) {
+	t.Parallel()
 	e := model.Event{
-		Id:            uuid.New(),
-		Duration:      60,
-		AccountEvents: nil,
+		Id:             uuid.New(),
+		Duration:       60,
+		AccountEvents:  nil,
 		Availabilities: nil,
-		Slots:         nil,
+		Slots:          nil,
 	}
 	dto := MapToEventFullResponseDto(e)
 
@@ -136,6 +174,7 @@ func TestMapToEventFullResponseDto_EmptyParticipantsWhenNoAccountEvents(t *testi
 }
 
 func TestMapToEventFullResponseDto_ParticipantsWithColors(t *testing.T) {
+	t.Parallel()
 	eventColor := "#FF0000"
 	userName := "alice"
 	e := model.Event{
@@ -165,6 +204,7 @@ func TestMapToEventFullResponseDto_ParticipantsWithColors(t *testing.T) {
 }
 
 func TestMapToEventFullResponseDto_AvailabilityUserName(t *testing.T) {
+	t.Parallel()
 	userName := "alice"
 	e := model.Event{
 		Id:       uuid.New(),
