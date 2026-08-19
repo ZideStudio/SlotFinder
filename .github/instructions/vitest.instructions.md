@@ -21,6 +21,7 @@ Ensure the quality, readability, maintainability, and accessibility of unit and 
 
 - Always explicitly import Vitest functions (`describe`, `it`, `expect`, etc.).
 - Always use `userEvent` from `@vitest/browser/context` to simulate user interactions in browser tests (`*.browser.test.tsx`). Do not use `@testing-library/user-event`.
+- Unit tests (`*.test.tsx`) should not require user interaction simulation. If a test needs to simulate user interactions, convert it to a browser test (`*.browser.test.tsx`) using `userEvent` from `@vitest/browser/context`.
 - Always prefer `getByRole` queries with the associated label name to target elements.
 - Always use available accessibility assertions (`toHaveAccessibleName`, `toBeInTheDocument`, `toBeVisible`, `toHaveAccessibleDescription`, `toHaveAccessibleErrorMessage`, etc.) to check element accessibility.
 - Always use `toHaveAccessibleName` to check accessibility links if available.

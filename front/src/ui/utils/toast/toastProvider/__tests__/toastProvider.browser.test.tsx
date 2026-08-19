@@ -1,5 +1,5 @@
 import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
-import { act, fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 import { ToastProvider } from "../ToastProvider";
@@ -41,13 +41,11 @@ describe("ToastProvider", () => {
       </ToastProvider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Show Toast" }));
+    screen.getByRole("button", { name: "Show Toast" }).click();
 
     expect(screen.getByText("Test Toast")).toBeInTheDocument();
 
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    await vi.runAllTimersAsync();
 
     expect(screen.queryByText("Test Toast")).not.toBeInTheDocument();
   });

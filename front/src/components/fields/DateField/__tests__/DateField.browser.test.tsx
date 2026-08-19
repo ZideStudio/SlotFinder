@@ -60,9 +60,9 @@ describe("DateField", () => {
 
     await render(<WrapperWithError />);
 
-    await screen
-      .findByRole("button", { name: "Trigger error" })
-      .then((button) => button.click());
+    await userEvent.click(
+      screen.getByRole("button", { name: "Trigger error" }),
+    );
 
     await expect(
       screen.findByText("This field is required"),

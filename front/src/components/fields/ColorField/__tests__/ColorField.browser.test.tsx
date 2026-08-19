@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -68,7 +68,7 @@ describe("ColorField", () => {
     );
 
     const input = screen.getByLabelText("Color");
-    fireEvent.change(input, { target: { value: "#ff0000" } });
+    await userEvent.fill(input, "#ff0000");
 
     expect(input).toHaveValue("#ff0000");
   });
