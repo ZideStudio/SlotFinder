@@ -1,6 +1,6 @@
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
-import { screen, within } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 import { OverlayContent } from "../OverlayContent";
 
@@ -17,16 +17,16 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      expect(
-        screen.getByRole("heading", { name: "Content title", level: 1 }),
-      ).toBeInTheDocument();
-      expect(screen.getByText("Body content")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Confirm" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Cancel" }),
-      ).toBeInTheDocument();
+      await expect
+        .element(page.getByRole("heading", { name: "Content title", level: 1 }))
+        .toBeInTheDocument();
+      await expect.element(page.getByText("Body content")).toBeInTheDocument();
+      await expect
+        .element(page.getByRole("button", { name: "Confirm" }))
+        .toBeInTheDocument();
+      await expect
+        .element(page.getByRole("button", { name: "Cancel" }))
+        .toBeInTheDocument();
     });
 
     it("should not render secondary button when secondaryButtonProps is not provided", async () => {
@@ -39,12 +39,12 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      expect(
-        screen.getByRole("button", { name: "Confirm" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole("button", { name: "Cancel" }),
-      ).not.toBeInTheDocument();
+      await expect
+        .element(page.getByRole("button", { name: "Confirm" }))
+        .toBeInTheDocument();
+      await expect
+        .element(page.getByRole("button", { name: "Cancel" }))
+        .not.toBeInTheDocument();
     });
 
     it("should render a close button with accessible name and structural sections", async () => {
@@ -57,20 +57,22 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      const closeButton = screen.getByRole("button", {
+      const closeButton = page.getByRole("button", {
         name: "Fermer la fenêtre",
       });
-      expect(closeButton).toBeInTheDocument();
-      expect(closeButton).toHaveAccessibleName("Fermer la fenêtre");
+      await expect.element(closeButton).toBeInTheDocument();
+      await expect
+        .element(closeButton)
+        .toHaveAccessibleName("Fermer la fenêtre");
 
-      expect(screen.getByRole("banner")).toBeInTheDocument();
-      expect(screen.getByText("Body content")).toBeInTheDocument();
+      await expect.element(page.getByRole("banner")).toBeInTheDocument();
+      await expect.element(page.getByText("Body content")).toBeInTheDocument();
 
-      const footer = screen.getByRole("contentinfo");
-      expect(footer).toBeInTheDocument();
-      expect(
-        within(footer).getByRole("button", { name: "Confirm" }),
-      ).toBeInTheDocument();
+      const footer = page.getByRole("contentinfo");
+      await expect.element(footer).toBeInTheDocument();
+      await expect
+        .element(footer.getByRole("button", { name: "Confirm" }))
+        .toBeInTheDocument();
     });
   });
 
@@ -86,9 +88,9 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      expect(
-        screen.getByRole("heading", { name: "Content title" }),
-      ).toHaveAttribute("id", "custom-title-id");
+      await expect
+        .element(page.getByRole("heading", { name: "Content title" }))
+        .toHaveAttribute("id", "custom-title-id");
     });
 
     it("should not set the id attribute on the heading when titleId is not provided", async () => {
@@ -101,9 +103,9 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      expect(
-        screen.getByRole("heading", { name: "Content title" }),
-      ).not.toHaveAttribute("id");
+      await expect
+        .element(page.getByRole("heading", { name: "Content title" }))
+        .not.toHaveAttribute("id");
     });
   });
 
@@ -122,7 +124,7 @@ describe("OverlayContent", () => {
       );
 
       await userEvent.click(
-        screen.getByRole("button", { name: "Fermer la fenêtre" }),
+        page.getByRole("button", { name: "Fermer la fenêtre" }),
       );
       expect(onClick).toHaveBeenCalledTimes(1);
     });
@@ -139,7 +141,7 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      await userEvent.click(screen.getByRole("button", { name: "Confirm" }));
+      await userEvent.click(page.getByRole("button", { name: "Confirm" }));
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
@@ -156,7 +158,7 @@ describe("OverlayContent", () => {
         </OverlayContent>,
       );
 
-      await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+      await userEvent.click(page.getByRole("button", { name: "Cancel" }));
       expect(onClick).toHaveBeenCalledTimes(1);
     });
   });

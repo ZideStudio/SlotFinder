@@ -1,6 +1,6 @@
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 import { PictureUploadInput } from "../PictureUploadInput";
 
 describe("PictureUploadInput", () => {
@@ -20,7 +20,7 @@ describe("PictureUploadInput", () => {
   it("should render the component with label", async () => {
     await render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-    expect(screen.getByText("Test Label")).toBeInTheDocument();
+    await expect.element(page.getByText("Test Label")).toBeInTheDocument();
   });
 
   it("should apply custom className", async () => {
@@ -32,9 +32,11 @@ describe("PictureUploadInput", () => {
       />,
     );
 
-    const container = screen
-      .getByText("Test Label")
-      .closest(".ds-picture-upload-input");
+    const label = page.getByText("Test Label");
+    await expect.element(label).toBeInTheDocument();
+    const container = (await label.element()).closest(
+      ".ds-picture-upload-input",
+    );
     expect(container).toHaveClass("custom-class");
   });
 
@@ -47,32 +49,37 @@ describe("PictureUploadInput", () => {
       />,
     );
 
-    expect(screen.getByText("This is an error message")).toBeInTheDocument();
+    await expect
+      .element(page.getByText("This is an error message"))
+      .toBeInTheDocument();
   });
 
   it("should render image preview when a valid image file is selected", async () => {
     await render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-    const input = screen.getByLabelText("Test Label");
+    const input = page.getByLabelText("Test Label");
     const file = new File(["test"], "test-image.png", { type: "image/png" });
 
     await userEvent.upload(input, file);
 
-    const img = screen.getByAltText("Preview");
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "blob:http://localhost/fake-url");
+    await expect.element(page.getByAltText("Preview")).toBeInTheDocument();
+    await expect
+      .element(page.getByAltText("Preview"))
+      .toHaveAttribute("src", "blob:http://localhost/fake-url");
   });
 
   it("should not render image preview when a non-image file is selected", async () => {
     await render(<PictureUploadInput label="Test Label" name="test-input" />);
 
-    const input = screen.getByLabelText("Test Label");
+    const input = page.getByLabelText("Test Label");
     const file = new File(["dummy content"], "document.pdf", {
       type: "application/pdf",
     });
 
     await userEvent.upload(input, file);
 
-    expect(screen.queryByAltText("Preview")).toHaveAttribute("hidden");
+    await expect
+      .element(page.getByAltText("Preview"))
+      .toHaveAttribute("hidden");
   });
 });

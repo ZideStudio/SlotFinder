@@ -3,7 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { userEvent } from "@vitest/browser/context";
 import { DurationField } from "../DurationField";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 const FormWrapper = ({
   children,
@@ -24,10 +24,14 @@ describe("DurationField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByText("Select Date Range")).toBeInTheDocument();
-    expect(screen.getByText("duration.days")).toBeInTheDocument();
-    expect(screen.getByText("duration.hours")).toBeInTheDocument();
-    expect(screen.getByText("duration.minutes")).toBeInTheDocument();
+    await expect
+      .element(page.getByText("Select Date Range"))
+      .toBeInTheDocument();
+    await expect.element(page.getByText("duration.days")).toBeInTheDocument();
+    await expect.element(page.getByText("duration.hours")).toBeInTheDocument();
+    await expect
+      .element(page.getByText("duration.minutes"))
+      .toBeInTheDocument();
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -62,13 +66,11 @@ describe("DurationField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    await expect(
-      screen.findByText("This field is required"),
-    ).resolves.toBeInTheDocument();
+    await expect
+      .element(page.getByText("This field is required"))
+      .toBeInTheDocument();
   });
 
   it("updates the input value on user typing", async () => {
@@ -78,10 +80,10 @@ describe("DurationField", () => {
       </FormWrapper>,
     );
 
-    const daysInput = screen.getByRole("spinbutton", { name: "duration.days" });
+    const daysInput = page.getByRole("spinbutton", { name: "duration.days" });
 
     await userEvent.type(daysInput, "5");
 
-    expect(daysInput).toHaveValue(5);
+    await expect.element(daysInput).toHaveValue(5);
   });
 });

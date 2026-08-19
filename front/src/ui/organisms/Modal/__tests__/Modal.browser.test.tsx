@@ -1,6 +1,6 @@
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
-import { screen, within } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 import { Modal } from "../Modal";
 
@@ -17,16 +17,18 @@ describe("Modal", () => {
       </Modal>,
     );
 
-    const dialog = screen.getByRole("dialog", { hidden: true });
-    expect(dialog).toBeInTheDocument();
-    within(dialog).getByRole("heading", { name: "Modal title" });
-    expect(within(dialog).getByText("Modal content")).toBeInTheDocument();
-    expect(
-      within(dialog).getByRole("button", { name: "Action" }),
-    ).toBeInTheDocument();
-    expect(
-      within(dialog).getByRole("button", { name: "Close" }),
-    ).toBeInTheDocument();
+    const dialog = page.getByRole("dialog");
+    await expect.element(dialog).toBeInTheDocument();
+    await expect
+      .element(dialog.getByRole("heading", { name: "Modal title" }))
+      .toBeInTheDocument();
+    await expect.element(dialog.getByText("Modal content")).toBeInTheDocument();
+    await expect
+      .element(dialog.getByRole("button", { name: "Action" }))
+      .toBeInTheDocument();
+    await expect
+      .element(dialog.getByRole("button", { name: "Close" }))
+      .toBeInTheDocument();
   });
 
   it("should link dialog label to the title heading and set closedby attribute", async () => {
@@ -40,12 +42,14 @@ describe("Modal", () => {
       </Modal>,
     );
 
-    const dialog = screen.getByRole("dialog", { hidden: true });
-    const heading = screen.getByRole("heading", { name: "Modal title" });
+    const dialog = page.getByRole("dialog");
+    const heading = page.getByRole("heading", { name: "Modal title" });
 
-    expect(dialog).toBeInTheDocument();
-    expect(dialog).toHaveAttribute("aria-labelledby", heading.id);
-    expect(dialog).toHaveAttribute("closedby", "any");
+    await expect.element(dialog).toBeInTheDocument();
+    await expect
+      .element(dialog)
+      .toHaveAttribute("aria-labelledby", (await heading.element()).id);
+    await expect.element(dialog).toHaveAttribute("closedby", "any");
   });
 
   it("should apply the variant passed via secondaryButtonProps", async () => {
@@ -60,9 +64,9 @@ describe("Modal", () => {
       </Modal>,
     );
 
-    expect(screen.getByRole("button", { name: "Close" })).toHaveClass(
-      "ds-button--secondary",
-    );
+    await expect
+      .element(page.getByRole("button", { name: "Close" }))
+      .toHaveClass("ds-button--secondary");
   });
 
   it("should forward native dialog attributes", async () => {
@@ -78,9 +82,7 @@ describe("Modal", () => {
       </Modal>,
     );
 
-    expect(screen.getByRole("dialog", { hidden: true })).toHaveAttribute(
-      "open",
-    );
+    await expect.element(page.getByRole("dialog")).toHaveAttribute("open");
   });
 
   it("should apply a custom className alongside the default class", async () => {
@@ -95,9 +97,9 @@ describe("Modal", () => {
       </Modal>,
     );
 
-    const dialog = screen.getByRole("dialog", { hidden: true });
-    expect(dialog).toHaveClass("ds-modal");
-    expect(dialog).toHaveClass("custom-modal");
+    const dialog = page.getByRole("dialog");
+    await expect.element(dialog).toHaveClass("ds-modal");
+    await expect.element(dialog).toHaveClass("custom-modal");
   });
 
   it("should call closeModal when the close button is clicked", async () => {
@@ -119,7 +121,7 @@ describe("Modal", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: "Fermer la fenêtre" }),
+      page.getByRole("button", { name: "Fermer la fenêtre" }),
     );
     expect(close).toHaveBeenCalledTimes(1);
   });

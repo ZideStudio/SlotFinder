@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { type ReactNode } from "react";
 import { NumberField } from "../NumberField";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 const FormWrapper = ({
   children,
@@ -24,8 +24,10 @@ describe("NumberField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Number")).toBeInTheDocument();
-    expect(screen.getByLabelText("Number")).toHaveAttribute("name", "number");
+    await expect.element(page.getByLabelText("Number")).toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Number"))
+      .toHaveAttribute("name", "number");
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -50,16 +52,16 @@ describe("NumberField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    const errorMessage = await screen.findByText("This field is required");
-    const input = screen.getByRole("spinbutton", { name: "Number" });
+    const errorMessage = page.getByText("This field is required");
+    const input = page.getByRole("spinbutton", { name: "Number" });
 
-    expect(errorMessage).toBeInTheDocument();
-    expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAttribute("aria-describedby", errorMessage.id);
+    await expect.element(errorMessage).toBeInTheDocument();
+    await expect.element(input).toHaveAttribute("aria-invalid", "true");
+    await expect
+      .element(input)
+      .toHaveAttribute("aria-describedby", (await errorMessage.element()).id);
   });
 
   it("updates the input value on user typing", async () => {
@@ -69,9 +71,9 @@ describe("NumberField", () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText("Number");
+    const input = page.getByLabelText("Number");
     await userEvent.type(input, "1");
 
-    expect(input).toHaveValue(1);
+    await expect.element(input).toHaveValue(1);
   });
 });

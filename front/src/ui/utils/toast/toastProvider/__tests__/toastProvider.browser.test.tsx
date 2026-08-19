@@ -1,7 +1,7 @@
 import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 import { ToastProvider } from "../ToastProvider";
 
 describe("ToastProvider", () => {
@@ -23,13 +23,12 @@ describe("ToastProvider", () => {
       </ToastProvider>,
     );
 
-    const button = screen.getByRole("button", { name: "Show Toast" });
-    expect(button).toBeInTheDocument();
+    const button = page.getByRole("button", { name: "Show Toast" });
+    await expect.element(button).toBeInTheDocument();
 
     await userEvent.click(button);
-    const toastMessage = await screen.findByText("Test Toast");
 
-    expect(toastMessage).toBeInTheDocument();
+    await expect.element(page.getByText("Test Toast")).toBeInTheDocument();
   });
 
   it("should remove toast after duration", async () => {
@@ -41,13 +40,13 @@ describe("ToastProvider", () => {
       </ToastProvider>,
     );
 
-    screen.getByRole("button", { name: "Show Toast" }).click();
+    await userEvent.click(page.getByRole("button", { name: "Show Toast" }));
 
-    expect(screen.getByText("Test Toast")).toBeInTheDocument();
+    await expect.element(page.getByText("Test Toast")).toBeInTheDocument();
 
     await vi.runAllTimersAsync();
 
-    expect(screen.queryByText("Test Toast")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Test Toast")).not.toBeInTheDocument();
   });
 
   it("should remove toast when close button is clicked", async () => {
@@ -57,15 +56,13 @@ describe("ToastProvider", () => {
       </ToastProvider>,
     );
 
-    const button = screen.getByText("Show Toast");
-    await userEvent.click(button);
-    const toastMessage = await screen.findByText("Test Toast");
-    expect(toastMessage).toBeInTheDocument();
+    await userEvent.click(page.getByText("Show Toast"));
 
-    const closeButton = screen.getByRole("button", {
-      name: "Fermer la notification",
-    });
-    await userEvent.click(closeButton);
-    expect(screen.queryByText("Test Toast")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Test Toast")).toBeInTheDocument();
+
+    await userEvent.click(
+      page.getByRole("button", { name: "Fermer la notification" }),
+    );
+    await expect.element(page.getByText("Test Toast")).not.toBeInTheDocument();
   });
 });

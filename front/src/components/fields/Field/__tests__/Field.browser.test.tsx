@@ -2,7 +2,7 @@ import { userEvent } from "@vitest/browser/context";
 import { type ComponentProps, type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 import { Field } from "../Field";
 
 type MockInputProps = ComponentProps<"input"> & {
@@ -38,10 +38,9 @@ describe("Field", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByRole("textbox", { name: "Email" })).toHaveAttribute(
-      "name",
-      "user.email",
-    );
+    await expect
+      .element(page.getByRole("textbox", { name: "Email" }))
+      .toHaveAttribute("name", "user.email");
   });
 
   it("displays nested error message from react-hook-form", async () => {
@@ -63,12 +62,8 @@ describe("Field", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    await expect(
-      screen.findByText("Invalid email"),
-    ).resolves.toBeInTheDocument();
+    await expect.element(page.getByText("Invalid email")).toBeInTheDocument();
   });
 });

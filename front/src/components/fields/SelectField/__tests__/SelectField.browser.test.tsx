@@ -2,7 +2,7 @@ import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 import { SelectField } from "../SelectField";
 
 const FormWrapper = ({
@@ -29,8 +29,10 @@ describe("SelectField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Gender")).toBeInTheDocument();
-    expect(screen.getByLabelText("Gender")).toHaveAttribute("name", "gender");
+    await expect.element(page.getByLabelText("Gender")).toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Gender"))
+      .toHaveAttribute("name", "gender");
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -55,13 +57,11 @@ describe("SelectField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    await expect(
-      screen.findByText("This field is required"),
-    ).resolves.toBeInTheDocument();
+    await expect
+      .element(page.getByText("This field is required"))
+      .toBeInTheDocument();
   });
 
   it("updates the input value on user typing", async () => {
@@ -71,9 +71,9 @@ describe("SelectField", () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText("Gender");
+    const input = page.getByLabelText("Gender");
     await userEvent.selectOptions(input, "female");
 
-    expect(input).toHaveValue("female");
+    await expect.element(input).toHaveValue("female");
   });
 });

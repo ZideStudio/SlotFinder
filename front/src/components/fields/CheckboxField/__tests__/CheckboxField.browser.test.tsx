@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { CheckboxField } from "../CheckboxField";
 import { type ReactNode } from "react";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 const FormWrapper = ({
   children,
@@ -24,11 +24,12 @@ describe("CheckboxField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Accept Terms")).toBeInTheDocument();
-    expect(screen.getByLabelText("Accept Terms")).toHaveAttribute(
-      "name",
-      "acceptTerms",
-    );
+    await expect
+      .element(page.getByLabelText("Accept Terms"))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Accept Terms"))
+      .toHaveAttribute("name", "acceptTerms");
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -53,16 +54,16 @@ describe("CheckboxField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    const errorMessage = await screen.findByText("This field is required");
-    const input = screen.getByRole("checkbox", { name: "Accept Terms" });
+    const errorMessage = page.getByText("This field is required");
+    const input = page.getByRole("checkbox", { name: "Accept Terms" });
 
-    expect(errorMessage).toBeInTheDocument();
-    expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAttribute("aria-describedby", errorMessage.id);
+    await expect.element(errorMessage).toBeInTheDocument();
+    await expect.element(input).toHaveAttribute("aria-invalid", "true");
+    await expect
+      .element(input)
+      .toHaveAttribute("aria-describedby", (await errorMessage.element()).id);
   });
 
   it("updates the input checked state on user click", async () => {
@@ -72,9 +73,9 @@ describe("CheckboxField", () => {
       </FormWrapper>,
     );
 
-    const checkbox = screen.getByLabelText("Accept Terms");
+    const checkbox = page.getByLabelText("Accept Terms");
     await userEvent.click(checkbox);
 
-    expect(checkbox).toBeChecked();
+    await expect.element(checkbox).toBeChecked();
   });
 });

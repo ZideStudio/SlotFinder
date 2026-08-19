@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { TextField } from "../TextField";
 import { type ReactNode } from "react";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 const FormWrapper = ({
   children,
@@ -24,9 +24,13 @@ describe("TextField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toHaveAttribute("name", "email");
-    expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
+    await expect.element(page.getByLabelText("Email")).toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Email"))
+      .toHaveAttribute("name", "email");
+    await expect
+      .element(page.getByPlaceholder("Enter your email"))
+      .toBeInTheDocument();
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -51,13 +55,11 @@ describe("TextField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    await expect(
-      screen.findByText("This field is required"),
-    ).resolves.toBeInTheDocument();
+    await expect
+      .element(page.getByText("This field is required"))
+      .toBeInTheDocument();
   });
 
   it("updates the input value on user typing", async () => {
@@ -67,9 +69,9 @@ describe("TextField", () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText("First Name");
+    const input = page.getByLabelText("First Name");
     await userEvent.type(input, "Test");
 
-    expect(input).toHaveValue("Test");
+    await expect.element(input).toHaveValue("Test");
   });
 });

@@ -2,7 +2,7 @@ import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 import { ColorField } from "../ColorField";
 
 const FormWrapper = ({
@@ -24,8 +24,10 @@ describe("ColorField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Color")).toBeInTheDocument();
-    expect(screen.getByLabelText("Color")).toHaveAttribute("name", "color");
+    await expect.element(page.getByLabelText("Color")).toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Color"))
+      .toHaveAttribute("name", "color");
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -50,16 +52,16 @@ describe("ColorField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    const errorMessage = await screen.findByText("This field is required");
-    const input = screen.getByLabelText("Color");
+    const errorMessage = page.getByText("This field is required");
+    const input = page.getByLabelText("Color");
 
-    expect(errorMessage).toBeInTheDocument();
-    expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(input).toHaveAttribute("aria-describedby", errorMessage.id);
+    await expect.element(errorMessage).toBeInTheDocument();
+    await expect.element(input).toHaveAttribute("aria-invalid", "true");
+    await expect
+      .element(input)
+      .toHaveAttribute("aria-describedby", (await errorMessage.element()).id);
   });
 
   it("updates the color value on selection", async () => {
@@ -69,10 +71,10 @@ describe("ColorField", () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText("Color");
+    const input = page.getByLabelText("Color");
     await userEvent.fill(input, "#ff0000");
 
-    expect(input).toHaveValue("#ff0000");
+    await expect.element(input).toHaveValue("#ff0000");
   });
 
   it("should reflect defaultValues in the color input", async () => {
@@ -82,7 +84,7 @@ describe("ColorField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Color")).toHaveValue("#ff0000");
+    await expect.element(page.getByLabelText("Color")).toHaveValue("#ff0000");
   });
 
   it("should update the color input after reset", async () => {
@@ -100,8 +102,8 @@ describe("ColorField", () => {
 
     await render(<WrapperWithReset />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+    await userEvent.click(page.getByRole("button", { name: "Reset" }));
 
-    expect(screen.getByLabelText("Color")).toHaveValue("#00ff00");
+    await expect.element(page.getByLabelText("Color")).toHaveValue("#00ff00");
   });
 });

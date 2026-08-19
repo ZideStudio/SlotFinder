@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { TextareaField } from "../TextareaField";
 import { type ReactNode } from "react";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 const FormWrapper = ({
   children,
@@ -28,14 +28,15 @@ describe("TextareaField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Description")).toBeInTheDocument();
-    expect(screen.getByLabelText("Description")).toHaveAttribute(
-      "name",
-      "description",
-    );
-    expect(
-      screen.getByPlaceholderText("Enter your description"),
-    ).toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Description"))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Description"))
+      .toHaveAttribute("name", "description");
+    await expect
+      .element(page.getByPlaceholder("Enter your description"))
+      .toBeInTheDocument();
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -60,13 +61,11 @@ describe("TextareaField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    await expect(
-      screen.findByText("This field is required"),
-    ).resolves.toBeInTheDocument();
+    await expect
+      .element(page.getByText("This field is required"))
+      .toBeInTheDocument();
   });
 
   it("updates the input value on user typing", async () => {
@@ -76,9 +75,9 @@ describe("TextareaField", () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText("Description");
+    const input = page.getByLabelText("Description");
     await userEvent.type(input, "Test");
 
-    expect(input).toHaveValue("Test");
+    await expect.element(input).toHaveValue("Test");
   });
 });

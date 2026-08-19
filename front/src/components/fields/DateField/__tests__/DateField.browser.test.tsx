@@ -3,7 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { DateField } from "../DateField";
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
-import { screen } from "@testing-library/dom";
+import { page } from "vitest/browser";
 
 const FormWrapper = ({
   children,
@@ -28,14 +28,13 @@ describe("DateField", () => {
       </FormWrapper>,
     );
 
-    expect(screen.getByLabelText("Birth Date")).toBeInTheDocument();
-    expect(screen.getByLabelText("Birth Date")).toHaveAttribute(
-      "name",
-      "birthDate",
-    );
-    expect(
-      screen.getByPlaceholderText("Select your birth date"),
-    ).toBeInTheDocument();
+    await expect.element(page.getByLabelText("Birth Date")).toBeInTheDocument();
+    await expect
+      .element(page.getByLabelText("Birth Date"))
+      .toHaveAttribute("name", "birthDate");
+    await expect
+      .element(page.getByPlaceholder("Select your birth date"))
+      .toBeInTheDocument();
   });
 
   it("displays the error message from form state when validation fails", async () => {
@@ -60,13 +59,11 @@ describe("DateField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Trigger error" }),
-    );
+    await userEvent.click(page.getByRole("button", { name: "Trigger error" }));
 
-    await expect(
-      screen.findByText("This field is required"),
-    ).resolves.toBeInTheDocument();
+    await expect
+      .element(page.getByText("This field is required"))
+      .toBeInTheDocument();
   });
 
   it("updates the input value on user typing", async () => {
@@ -76,8 +73,8 @@ describe("DateField", () => {
       </FormWrapper>,
     );
 
-    const input = screen.getByLabelText("Event Date");
+    const input = page.getByLabelText("Event Date");
     await userEvent.type(input, "2024-01-01");
-    expect(input).toHaveValue("2024-01-01");
+    await expect.element(input).toHaveValue("2024-01-01");
   });
 });
