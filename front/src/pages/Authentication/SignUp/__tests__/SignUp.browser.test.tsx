@@ -1,3 +1,4 @@
+import { screen, waitFor } from "@testing-library/dom";
 // oxlint-disable-next-line import/no-namespace
 import * as authenticationContextHook from "@Front/hooks/useAuthenticationContext";
 import { appRoutes } from "@Front/routing/appRoutes";
@@ -11,7 +12,6 @@ import {
   postAccount400,
 } from "@Mocks/handlers/accountHandlers";
 import { worker } from "@Mocks/browser";
-import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { authenticationRoutes } from "../../routes";
 

@@ -1,9 +1,9 @@
-import { screen } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { useForm, FormProvider } from "react-hook-form";
 import { CheckboxField } from "../CheckboxField";
 import { type ReactNode } from "react";
 import { render } from "vitest-browser-react";
+import { screen } from "@testing-library/dom";
 
 const FormWrapper = ({
   children,
@@ -53,7 +53,9 @@ describe("CheckboxField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Trigger error" }),
+    );
 
     const errorMessage = await screen.findByText("This field is required");
     const input = screen.getByRole("checkbox", { name: "Accept Terms" });

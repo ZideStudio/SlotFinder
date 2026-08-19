@@ -1,9 +1,9 @@
-import { screen } from "@testing-library/react";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { userEvent } from "@vitest/browser/context";
 import { DurationField } from "../DurationField";
 import { render } from "vitest-browser-react";
+import { screen } from "@testing-library/dom";
 
 const FormWrapper = ({
   children,
@@ -62,7 +62,9 @@ describe("DurationField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Trigger error" }),
+    );
 
     await expect(
       screen.findByText("This field is required"),

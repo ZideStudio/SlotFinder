@@ -1,6 +1,6 @@
-import { screen, within } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
+import { screen, within } from "@testing-library/dom";
 
 import { OverlayContent } from "../OverlayContent";
 

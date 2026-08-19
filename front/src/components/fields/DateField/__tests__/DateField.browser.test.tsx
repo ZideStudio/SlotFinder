@@ -1,9 +1,9 @@
-import { screen } from "@testing-library/react";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { DateField } from "../DateField";
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
+import { screen } from "@testing-library/dom";
 
 const FormWrapper = ({
   children,

@@ -1,9 +1,9 @@
-import { screen } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { useForm, FormProvider } from "react-hook-form";
 import { type ReactNode } from "react";
 import { NumberField } from "../NumberField";
 import { render } from "vitest-browser-react";
+import { screen } from "@testing-library/dom";
 
 const FormWrapper = ({
   children,
@@ -50,7 +50,9 @@ describe("NumberField", () => {
 
     await render(<WrapperWithError />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Trigger error" }),
+    );
 
     const errorMessage = await screen.findByText("This field is required");
     const input = screen.getByRole("spinbutton", { name: "Number" });

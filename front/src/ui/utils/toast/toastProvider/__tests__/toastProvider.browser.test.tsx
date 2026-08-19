@@ -1,7 +1,7 @@
 import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
-import { screen } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
+import { screen } from "@testing-library/dom";
 import { ToastProvider } from "../ToastProvider";
 
 describe("ToastProvider", () => {
@@ -51,13 +51,13 @@ describe("ToastProvider", () => {
   });
 
   it("should remove toast when close button is clicked", async () => {
-    const { getByText, queryByText } = await render(
+    await render(
       <ToastProvider>
         <TestComponent />
       </ToastProvider>,
     );
 
-    const button = getByText("Show Toast");
+    const button = screen.getByText("Show Toast");
     await userEvent.click(button);
     const toastMessage = await screen.findByText("Test Toast");
     expect(toastMessage).toBeInTheDocument();
@@ -66,6 +66,6 @@ describe("ToastProvider", () => {
       name: "Fermer la notification",
     });
     await userEvent.click(closeButton);
-    expect(queryByText("Test Toast")).not.toBeInTheDocument();
+    expect(screen.queryByText("Test Toast")).not.toBeInTheDocument();
   });
 });

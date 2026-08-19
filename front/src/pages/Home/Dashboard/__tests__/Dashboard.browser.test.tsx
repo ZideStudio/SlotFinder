@@ -1,5 +1,5 @@
+import { screen } from "@testing-library/dom";
 import { appRoutes } from "@Front/routing/appRoutes";
-import { screen } from "@testing-library/react";
 import { renderBrowserRoute } from "@Front/utils/testsUtils/customRender/customRender.browser";
 import { worker } from "@Mocks/browser";
 import { getAuthStatus200 } from "@Mocks/handlers/authStatusHandlers";

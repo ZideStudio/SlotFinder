@@ -1,8 +1,8 @@
-import { screen } from "@testing-library/react";
 import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { render } from "vitest-browser-react";
+import { screen } from "@testing-library/dom";
 import { PictureUploadField } from "../PictureUploadField";
 
 const FormWrapper = ({
