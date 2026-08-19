@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { DateField } from "../DateField";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@vitest/browser/context";
+import { render } from "vitest-browser-react";
 
 const FormWrapper = ({
   children,
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("DateField", () => {
-  it("renders without crashing", () => {
-    render(
+  it("renders without crashing", async () => {
+    await render(
       <FormWrapper>
         <DateField
           name="birthDate"
@@ -57,7 +58,7 @@ describe("DateField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
     await screen
       .findByRole("button", { name: "Trigger error" })
@@ -69,7 +70,7 @@ describe("DateField", () => {
   });
 
   it("updates the input value on user typing", async () => {
-    render(
+    await render(
       <FormWrapper>
         <DateField name="eventDate" label="Event Date" />
       </FormWrapper>,

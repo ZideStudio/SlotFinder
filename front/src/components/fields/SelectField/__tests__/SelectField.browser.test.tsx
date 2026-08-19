@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { render } from "vitest-browser-react";
 import { SelectField } from "../SelectField";
 
 const FormWrapper = ({
@@ -21,8 +22,8 @@ describe("SelectField", () => {
     { value: "female", label: "Female" },
   ];
 
-  it("renders without crashing", () => {
-    render(
+  it("renders without crashing", async () => {
+    await render(
       <FormWrapper>
         <SelectField name="gender" label="Gender" options={options} />
       </FormWrapper>,
@@ -52,7 +53,7 @@ describe("SelectField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Trigger error" }),
@@ -64,7 +65,7 @@ describe("SelectField", () => {
   });
 
   it("updates the input value on user typing", async () => {
-    render(
+    await render(
       <FormWrapper>
         <SelectField name="gender" label="Gender" options={options} />
       </FormWrapper>,

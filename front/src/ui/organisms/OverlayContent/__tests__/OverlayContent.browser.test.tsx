@@ -1,12 +1,13 @@
-import { render, screen, within } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { screen, within } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
+import { render } from "vitest-browser-react";
 
 import { OverlayContent } from "../OverlayContent";
 
 describe("OverlayContent", () => {
   describe("rendering", () => {
-    it("should render title as a level 1 heading, content, and footer actions", () => {
-      render(
+    it("should render title as a level 1 heading, content, and footer actions", async () => {
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm" }}
@@ -28,8 +29,8 @@ describe("OverlayContent", () => {
       ).toBeInTheDocument();
     });
 
-    it("should not render secondary button when secondaryButtonProps is not provided", () => {
-      render(
+    it("should not render secondary button when secondaryButtonProps is not provided", async () => {
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm" }}
@@ -46,8 +47,8 @@ describe("OverlayContent", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("should render a close button with accessible name and structural sections", () => {
-      render(
+    it("should render a close button with accessible name and structural sections", async () => {
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm" }}
@@ -74,8 +75,8 @@ describe("OverlayContent", () => {
   });
 
   describe("titleId", () => {
-    it("should set the id attribute on the heading when titleId is provided", () => {
-      render(
+    it("should set the id attribute on the heading when titleId is provided", async () => {
+      await render(
         <OverlayContent
           title="Content title"
           titleId="custom-title-id"
@@ -90,8 +91,8 @@ describe("OverlayContent", () => {
       ).toHaveAttribute("id", "custom-title-id");
     });
 
-    it("should not set the id attribute on the heading when titleId is not provided", () => {
-      render(
+    it("should not set the id attribute on the heading when titleId is not provided", async () => {
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm" }}
@@ -110,7 +111,7 @@ describe("OverlayContent", () => {
     it("should call closeButtonProps.onClick when the close button is clicked", async () => {
       const onClick = vi.fn();
 
-      render(
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm" }}
@@ -129,7 +130,7 @@ describe("OverlayContent", () => {
     it("should call primaryButtonProps onClick when primary button is clicked", async () => {
       const onClick = vi.fn();
 
-      render(
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm", onClick }}
@@ -145,7 +146,7 @@ describe("OverlayContent", () => {
     it("should call secondaryButtonProps onClick when secondary button is clicked", async () => {
       const onClick = vi.fn();
 
-      render(
+      await render(
         <OverlayContent
           title="Content title"
           primaryButtonProps={{ children: "Confirm" }}

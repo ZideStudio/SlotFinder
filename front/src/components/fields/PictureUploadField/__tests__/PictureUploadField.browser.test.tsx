@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { render } from "vitest-browser-react";
 import { PictureUploadField } from "../PictureUploadField";
 
 const FormWrapper = ({
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("PictureUploadField", () => {
-  it("renders without crashing", () => {
-    render(
+  it("renders without crashing", async () => {
+    await render(
       <FormWrapper>
         <PictureUploadField name="profilePicture" label="Profile Picture" />
       </FormWrapper>,
@@ -50,7 +51,7 @@ describe("PictureUploadField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Trigger error" }),
@@ -62,8 +63,7 @@ describe("PictureUploadField", () => {
   });
 
   it("updates the input value on user uploading a file", async () => {
-    const user = userEvent.setup();
-    render(
+    await render(
       <FormWrapper>
         <PictureUploadField name="profilePicture" label="Profile Picture" />
       </FormWrapper>,
@@ -74,7 +74,7 @@ describe("PictureUploadField", () => {
       type: "image/png",
     });
 
-    await user.upload(input, file);
+    await userEvent.upload(input, file);
 
     expect(input.files).not.toBeNull();
     expect(input.files).toHaveLength(1);

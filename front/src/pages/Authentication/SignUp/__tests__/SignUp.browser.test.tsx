@@ -2,35 +2,35 @@
 import * as authenticationContextHook from "@Front/hooks/useAuthenticationContext";
 import { appRoutes } from "@Front/routing/appRoutes";
 import {
-  renderRoute,
-  type RenderRouteOptions,
-} from "@Front/utils/testsUtils/customRender/customRender";
+  renderBrowserRoute,
+  type RenderBrowserRouteOptions,
+} from "@Front/utils/testsUtils/customRender/customRender.browser";
 import { postAccount400Fixture } from "@Mocks/fixtures/accountFixtures";
 import {
   postAccount201,
   postAccount400,
 } from "@Mocks/handlers/accountHandlers";
-import { server } from "@Mocks/server";
+import { worker } from "@Mocks/browser";
 import { screen, waitFor } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { userEvent } from "@vitest/browser/context";
 import { authenticationRoutes } from "../../routes";
 
-const renderRouteOptions: RenderRouteOptions = {
+const renderRouteOptions: RenderBrowserRouteOptions = {
   routes: [authenticationRoutes],
   routesOptions: { initialEntries: [appRoutes.signUp()] },
 };
 
 describe("SignUp", () => {
   beforeEach(() => {
-    server.use(postAccount201);
+    worker.use(postAccount201);
   });
 
   afterEach(() => {
-    server.resetHandlers();
+    worker.resetHandlers();
   });
 
-  it("renders all form fields, submit button and oauth", () => {
-    renderRoute(renderRouteOptions);
+  it("renders all form fields, submit button and oauth", async () => {
+    await renderBrowserRoute(renderRouteOptions);
 
     expect(screen.getByLabelText("signUp.username")).toBeInTheDocument();
     expect(screen.getByLabelText("signUp.email")).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe("SignUp", () => {
   });
 
   it("shows validation errors for empty fields", async () => {
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute(renderRouteOptions);
 
     await userEvent.click(
       screen.getByRole("button", { name: "signUp.submit" }),
@@ -90,7 +90,7 @@ describe("SignUp", () => {
       description: "must contain symbols error",
     },
   ])("shows password $description", async ({ password, expectedError }) => {
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute(renderRouteOptions);
 
     await userEvent.type(screen.getByLabelText("signUp.username"), "testuser");
     await userEvent.type(
@@ -110,7 +110,7 @@ describe("SignUp", () => {
   });
 
   it("shows accessible error when confirm password field does not match with password field", async () => {
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute(renderRouteOptions);
 
     await userEvent.type(screen.getByLabelText("signUp.username"), "testuser");
     await userEvent.type(
@@ -157,7 +157,7 @@ describe("SignUp", () => {
       resetPostAuthRedirectPath: vi.fn(),
     });
 
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute(renderRouteOptions);
 
     await userEvent.type(screen.getByLabelText("signUp.username"), "testuser");
     await userEvent.type(
@@ -184,11 +184,11 @@ describe("SignUp", () => {
 
 describe("SignUp error handling", () => {
   beforeEach(() => {
-    server.use(postAccount400);
+    worker.use(postAccount400);
   });
 
   it("shows error message on failed submission", async () => {
-    renderRoute(renderRouteOptions);
+    await renderBrowserRoute(renderRouteOptions);
 
     await userEvent.type(screen.getByLabelText("signUp.username"), "failuser");
     await userEvent.type(

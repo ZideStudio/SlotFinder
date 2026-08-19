@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { useForm, FormProvider } from "react-hook-form";
 import { TextareaField } from "../TextareaField";
 import { type ReactNode } from "react";
+import { render } from "vitest-browser-react";
 
 const FormWrapper = ({
   children,
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("TextareaField", () => {
-  it("renders without crashing", () => {
-    render(
+  it("renders without crashing", async () => {
+    await render(
       <FormWrapper>
         <TextareaField
           name="description"
@@ -57,7 +58,7 @@ describe("TextareaField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "Trigger error" }),
@@ -69,7 +70,7 @@ describe("TextareaField", () => {
   });
 
   it("updates the input value on user typing", async () => {
-    render(
+    await render(
       <FormWrapper>
         <TextareaField name="description" label="Description" />
       </FormWrapper>,

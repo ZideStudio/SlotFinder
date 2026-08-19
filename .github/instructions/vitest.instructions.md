@@ -20,7 +20,7 @@ Ensure the quality, readability, maintainability, and accessibility of unit and 
 ## Imports and Tools
 
 - Always explicitly import Vitest functions (`describe`, `it`, `expect`, etc.).
-- Always use `userEvent` from Testing Library to simulate user interactions.
+- Always use `userEvent` from `@vitest/browser/context` to simulate user interactions in browser tests (`*.browser.test.tsx`). Do not use `@testing-library/user-event`.
 - Always prefer `getByRole` queries with the associated label name to target elements.
 - Always use available accessibility assertions (`toHaveAccessibleName`, `toBeInTheDocument`, `toBeVisible`, `toHaveAccessibleDescription`, `toHaveAccessibleErrorMessage`, etc.) to check element accessibility.
 - Always use `toHaveAccessibleName` to check accessibility links if available.
@@ -54,23 +54,23 @@ Ensure the quality, readability, maintainability, and accessibility of unit and 
 ### Good Example
 
 ```tsx
-import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
+import { userEvent } from '@vitest/browser/context';
 import { describe, it, expect } from 'vitest';
+import { render } from 'vitest-browser-react';
 import { MyButton } from '../MyButton';
 
 describe('MyButton', () => {
-  it('should render the button with accessible name', () => {
-    render(<MyButton label="Submit" />);
+  it('should render the button with accessible name', async () => {
+    await render(<MyButton label="Submit" />);
     expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Submit' })).toHaveAccessibleName('Submit');
   });
 
   it('should call onClick when clicked', async () => {
     const onClick = vi.fn();
-    render(<MyButton label="Submit" onClick={onClick} />);
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Submit' }));
+    await render(<MyButton label="Submit" onClick={onClick} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

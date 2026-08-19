@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@vitest/browser/context";
 import { DurationField } from "../DurationField";
+import { render } from "vitest-browser-react";
 
 const FormWrapper = ({
   children,
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("DurationField", () => {
-  it("renders without crashing", () => {
-    render(
+  it("renders without crashing", async () => {
+    await render(
       <FormWrapper>
         <DurationField name="duration" legend="Select Date Range" required />
       </FormWrapper>,
@@ -30,8 +31,6 @@ describe("DurationField", () => {
   });
 
   it("displays the error message from form state when validation fails", async () => {
-    const user = userEvent.setup();
-
     type DurationFormValues = {
       duration: {
         days?: number;
@@ -61,9 +60,9 @@ describe("DurationField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
-    await user.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
 
     await expect(
       screen.findByText("This field is required"),
@@ -71,9 +70,7 @@ describe("DurationField", () => {
   });
 
   it("updates the input value on user typing", async () => {
-    const user = userEvent.setup();
-
-    render(
+    await render(
       <FormWrapper>
         <DurationField name="duration" legend="Duration" />
       </FormWrapper>,
@@ -81,7 +78,7 @@ describe("DurationField", () => {
 
     const daysInput = screen.getByRole("spinbutton", { name: "duration.days" });
 
-    await user.type(daysInput, "5");
+    await userEvent.type(daysInput, "5");
 
     expect(daysInput).toHaveValue(5);
   });

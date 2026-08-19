@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { fireEvent, screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { render } from "vitest-browser-react";
 import { ColorField } from "../ColorField";
 
 const FormWrapper = ({
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("ColorField", () => {
-  it("should render color input with correct label and name attribute", () => {
-    render(
+  it("should render color input with correct label and name attribute", async () => {
+    await render(
       <FormWrapper>
         <ColorField name="color" label="Color" description="Choose a color" />
       </FormWrapper>,
@@ -28,8 +29,6 @@ describe("ColorField", () => {
   });
 
   it("displays the error message from form state when validation fails", async () => {
-    const user = userEvent.setup();
-
     const WrapperWithError = () => {
       const methods = useForm({ defaultValues: { color: "" } });
 
@@ -49,9 +48,9 @@ describe("ColorField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
-    await user.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
 
     const errorMessage = await screen.findByText("This field is required");
     const input = screen.getByLabelText("Color");
@@ -61,8 +60,8 @@ describe("ColorField", () => {
     expect(input).toHaveAttribute("aria-describedby", errorMessage.id);
   });
 
-  it("updates the color value on selection", () => {
-    render(
+  it("updates the color value on selection", async () => {
+    await render(
       <FormWrapper>
         <ColorField name="color" label="Color" description="Choose a color" />
       </FormWrapper>,
@@ -74,8 +73,8 @@ describe("ColorField", () => {
     expect(input).toHaveValue("#ff0000");
   });
 
-  it("should reflect defaultValues in the color input", () => {
-    render(
+  it("should reflect defaultValues in the color input", async () => {
+    await render(
       <FormWrapper defaultValues={{ color: "#ff0000" }}>
         <ColorField name="color" label="Color" description="Choose a color" />
       </FormWrapper>,
@@ -85,8 +84,6 @@ describe("ColorField", () => {
   });
 
   it("should update the color input after reset", async () => {
-    const user = userEvent.setup();
-
     const WrapperWithReset = () => {
       const methods = useForm({ defaultValues: { color: "#ff0000" } });
       return (
@@ -99,9 +96,9 @@ describe("ColorField", () => {
       );
     };
 
-    render(<WrapperWithReset />);
+    await render(<WrapperWithReset />);
 
-    await user.click(screen.getByRole("button", { name: "Reset" }));
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
 
     expect(screen.getByLabelText("Color")).toHaveValue("#00ff00");
   });

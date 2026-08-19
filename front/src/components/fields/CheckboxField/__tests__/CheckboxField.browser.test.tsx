@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { useForm, FormProvider } from "react-hook-form";
 import { CheckboxField } from "../CheckboxField";
 import { type ReactNode } from "react";
+import { render } from "vitest-browser-react";
 
 const FormWrapper = ({
   children,
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("CheckboxField", () => {
-  it("should render checkbox input with correct label and name attribute", () => {
-    render(
+  it("should render checkbox input with correct label and name attribute", async () => {
+    await render(
       <FormWrapper>
         <CheckboxField name="acceptTerms" label="Accept Terms" />
       </FormWrapper>,
@@ -31,8 +32,6 @@ describe("CheckboxField", () => {
   });
 
   it("displays the error message from form state when validation fails", async () => {
-    const user = userEvent.setup();
-
     const WrapperWithError = () => {
       const methods = useForm({ defaultValues: { acceptTerms: false } });
 
@@ -52,9 +51,9 @@ describe("CheckboxField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
-    await user.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
 
     const errorMessage = await screen.findByText("This field is required");
     const input = screen.getByRole("checkbox", { name: "Accept Terms" });
@@ -65,16 +64,14 @@ describe("CheckboxField", () => {
   });
 
   it("updates the input checked state on user click", async () => {
-    const user = userEvent.setup();
-
-    render(
+    await render(
       <FormWrapper>
         <CheckboxField name="acceptTerms" label="Accept Terms" />
       </FormWrapper>,
     );
 
     const checkbox = screen.getByLabelText("Accept Terms");
-    await user.click(checkbox);
+    await userEvent.click(checkbox);
 
     expect(checkbox).toBeChecked();
   });

@@ -1,11 +1,12 @@
-import { render, screen, within } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { screen, within } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
+import { render } from "vitest-browser-react";
 
 import { Modal } from "../Modal";
 
 describe("Modal", () => {
-  it("should render title, content, and footer actions", () => {
-    render(
+  it("should render title, content, and footer actions", async () => {
+    await render(
       <Modal
         open
         title="Modal title"
@@ -28,8 +29,8 @@ describe("Modal", () => {
     ).toBeInTheDocument();
   });
 
-  it("should link dialog label to the title heading and set closedby attribute", () => {
-    render(
+  it("should link dialog label to the title heading and set closedby attribute", async () => {
+    await render(
       <Modal
         open
         title="Modal title"
@@ -47,8 +48,8 @@ describe("Modal", () => {
     expect(dialog).toHaveAttribute("closedby", "any");
   });
 
-  it("should apply the variant passed via secondaryButtonProps", () => {
-    render(
+  it("should apply the variant passed via secondaryButtonProps", async () => {
+    await render(
       <Modal
         open
         title="Modal title"
@@ -64,9 +65,9 @@ describe("Modal", () => {
     );
   });
 
-  it("should forward native dialog attributes", () => {
+  it("should forward native dialog attributes", async () => {
     const onClose = vi.fn();
-    render(
+    await render(
       <Modal
         title="Modal title"
         primaryButtonProps={{ children: "Action" }}
@@ -82,8 +83,8 @@ describe("Modal", () => {
     );
   });
 
-  it("should apply a custom className alongside the default class", () => {
-    render(
+  it("should apply a custom className alongside the default class", async () => {
+    await render(
       <Modal
         open
         title="Modal title"
@@ -107,7 +108,7 @@ describe("Modal", () => {
       writable: true,
     });
 
-    render(
+    await render(
       <Modal
         open
         title="Modal title"

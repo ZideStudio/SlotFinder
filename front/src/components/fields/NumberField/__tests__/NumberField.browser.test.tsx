@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { userEvent } from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { useForm, FormProvider } from "react-hook-form";
 import { type ReactNode } from "react";
 import { NumberField } from "../NumberField";
+import { render } from "vitest-browser-react";
 
 const FormWrapper = ({
   children,
@@ -16,8 +17,8 @@ const FormWrapper = ({
 };
 
 describe("NumberField", () => {
-  it("should render number input with correct label and name attribute", () => {
-    render(
+  it("should render number input with correct label and name attribute", async () => {
+    await render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
       </FormWrapper>,
@@ -28,8 +29,6 @@ describe("NumberField", () => {
   });
 
   it("displays the error message from form state when validation fails", async () => {
-    const user = userEvent.setup();
-
     const WrapperWithError = () => {
       const methods = useForm({ defaultValues: { number: 0 } });
 
@@ -49,9 +48,9 @@ describe("NumberField", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
-    await user.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
 
     const errorMessage = await screen.findByText("This field is required");
     const input = screen.getByRole("spinbutton", { name: "Number" });
@@ -62,16 +61,14 @@ describe("NumberField", () => {
   });
 
   it("updates the input value on user typing", async () => {
-    const user = userEvent.setup();
-
-    render(
+    await render(
       <FormWrapper>
         <NumberField name="number" label="Number" />
       </FormWrapper>,
     );
 
     const input = screen.getByLabelText("Number");
-    await user.type(input, "1");
+    await userEvent.type(input, "1");
 
     expect(input).toHaveValue(1);
   });

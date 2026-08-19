@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
 import { type ComponentProps, type ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { render } from "vitest-browser-react";
 import { Field } from "../Field";
 
 type MockInputProps = ComponentProps<"input"> & {
@@ -30,8 +31,8 @@ const FormWrapper = ({ children }: { children: ReactNode }) => {
 };
 
 describe("Field", () => {
-  it("registers the input with react-hook-form", () => {
-    render(
+  it("registers the input with react-hook-form", async () => {
+    await render(
       <FormWrapper>
         <Field input={MockInput} name="user.email" label="Email" />
       </FormWrapper>,
@@ -60,10 +61,9 @@ describe("Field", () => {
       );
     };
 
-    render(<WrapperWithError />);
+    await render(<WrapperWithError />);
 
-    const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: "Trigger error" }));
+    await userEvent.click(screen.getByRole("button", { name: "Trigger error" }));
 
     await expect(
       screen.findByText("Invalid email"),

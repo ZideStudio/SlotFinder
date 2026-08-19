@@ -1,6 +1,7 @@
 import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, fireEvent, screen } from "@testing-library/react";
+import { userEvent } from "@vitest/browser/context";
+import { render } from "vitest-browser-react";
 import { ToastProvider } from "../ToastProvider";
 
 describe("ToastProvider", () => {
@@ -16,7 +17,7 @@ describe("ToastProvider", () => {
   };
 
   it("should render children and provide toast context", async () => {
-    render(
+    await render(
       <ToastProvider>
         <TestComponent />
       </ToastProvider>,
@@ -34,7 +35,7 @@ describe("ToastProvider", () => {
   it("should remove toast after duration", async () => {
     vi.useFakeTimers();
 
-    render(
+    await render(
       <ToastProvider>
         <TestComponent />
       </ToastProvider>,
@@ -52,7 +53,7 @@ describe("ToastProvider", () => {
   });
 
   it("should remove toast when close button is clicked", async () => {
-    const { getByText, queryByText } = render(
+    const { getByText, queryByText } = await render(
       <ToastProvider>
         <TestComponent />
       </ToastProvider>,
