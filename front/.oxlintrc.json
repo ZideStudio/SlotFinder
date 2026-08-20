@@ -62,6 +62,7 @@
     "eslint/id-length": "off",
     "no-console": "warn",
     "no-debugger": "error",
+    "one-var": "off",
     "vitest/max-expects": [
       "warn",
       {
