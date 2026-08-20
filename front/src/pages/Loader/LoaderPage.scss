@@ -1,4 +1,4 @@
-@use "../../utils/sass/mixins/helpers";
+@use '../../utils/sass/mixins/helpers';
 
 $color-pink: #b1297e;
 $color-magenta: #e52656;
@@ -15,8 +15,8 @@ $color-magenta: #e52656;
   &__liquid-container {
     position: relative;
     display: flex;
-    width: helpers.px-to-rem(180);
-    height: helpers.px-to-rem(180);
+    width: helpers.pxToRem(180);
+    height: helpers.pxToRem(180);
     align-items: center;
     justify-content: center;
     mask-image: var(--logo-url);
@@ -29,7 +29,7 @@ $color-magenta: #e52656;
     position: absolute;
     inset: 0;
     background: linear-gradient(0deg, var(--color-primary) 0%, $color-pink 50%, $color-magenta 100%);
-    
+
     .wave {
       position: absolute;
       left: -50%;
@@ -37,14 +37,14 @@ $color-magenta: #e52656;
       height: 200%;
       border-radius: 40%;
       background-color: var(--color-black);
-      animation: 
+      animation:
         fill-rise 4s ease-in-out infinite,
         wave-rotate 6s linear infinite;
 
       &.wave-2 {
         border-radius: 36%;
         opacity: 0.6;
-        animation: 
+        animation:
           fill-rise 4s ease-in-out infinite,
           wave-rotate 9s linear infinite reverse;
       }
@@ -53,12 +53,25 @@ $color-magenta: #e52656;
 }
 
 @keyframes fill-rise {
-  0% { top: 92%; }
-  50% { top: -20%; }
-  100% { top: 92%; }
+  0% {
+    top: 92%;
+  }
+
+  50% {
+    top: -20%;
+  }
+
+  100% {
+    top: 92%;
+  }
 }
 
 @keyframes wave-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
