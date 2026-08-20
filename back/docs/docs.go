@@ -1101,7 +1101,7 @@ const docTemplate = `{
                 "timeZone": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -1454,7 +1454,7 @@ const docTemplate = `{
                 "color": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -1468,7 +1468,7 @@ const docTemplate = `{
                 "color": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -1559,7 +1559,7 @@ const docTemplate = `{
                 "startsAt": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }

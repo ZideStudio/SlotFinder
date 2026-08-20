@@ -60,7 +60,7 @@ func createTestUser(t *testing.T) uuid.UUID {
 	t.Helper()
 	id := uuid.New()
 	username := "avail-" + uuid.NewString()
-	require.NoError(t, appdb.GetDB().Create(&model.Account{Id: id, UserName: &username}).Error)
+	require.NoError(t, appdb.GetDB().Create(&model.Account{Id: id, Username: &username}).Error)
 	return id
 }
 

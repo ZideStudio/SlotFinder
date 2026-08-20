@@ -32,9 +32,9 @@ func createTestAccount(t *testing.T) model.Account {
 	t.Helper()
 	username := "slot-" + uuid.NewString()
 	email := username + "@example.com"
-	account := model.Account{Id: uuid.New(), UserName: &username, Email: &email}
+	account := model.Account{Id: uuid.New(), Username: &username, Email: &email}
 	require.NoError(t, repository.NewAccountRepository(nil).Create(repository.AccountCreateDto{
-		Id: account.Id, UserName: &username, Email: &email,
+		Id: account.Id, Username: &username, Email: &email,
 	}, &account))
 	return account
 }

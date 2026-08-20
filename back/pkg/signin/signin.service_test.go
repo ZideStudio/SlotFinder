@@ -34,7 +34,7 @@ func createTestAccount(t *testing.T, s *SigninService, username, password string
 	var account model.Account
 	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{
 		Id:       id,
-		UserName: &username,
+		Username: &username,
 		Password: password,
 	}, &account))
 	return id

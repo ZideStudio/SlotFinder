@@ -148,7 +148,7 @@ func TestAccountController_Update_Success_SetsCookies(t *testing.T) {
 	ctl := &AccountController{accountService: s}
 
 	newName := "upd-" + uuid.NewString()[:8]
-	body, _ := json.Marshal(AccountUpdateDto{UserName: &newName})
+	body, _ := json.Marshal(AccountUpdateDto{Username: &newName})
 	c, recorder := newAuthenticatedAccountContext(t, http.MethodPatch, body, account.Id)
 
 	ctl.Update(c)

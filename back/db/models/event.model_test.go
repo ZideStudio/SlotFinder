@@ -14,16 +14,16 @@ func TestEvent_Sanitized_WithAvailabilities(t *testing.T) {
 	t.Parallel()
 	username := "alice"
 	event := Event{
-		Owner: Account{UserName: &username},
+		Owner: Account{Username: &username},
 		Availabilities: []Availability{
-			{Account: Account{UserName: &username}},
+			{Account: Account{Username: &username}},
 		},
 	}
 
 	sanitized := event.Sanitized()
 
 	assert.Len(t, sanitized.Availabilities, 1)
-	assert.Equal(t, "alice", sanitized.Availabilities[0].UserName)
+	assert.Equal(t, "alice", sanitized.Availabilities[0].Username)
 }
 
 func TestEvent_HasUserAccess_NilUserId(t *testing.T) {

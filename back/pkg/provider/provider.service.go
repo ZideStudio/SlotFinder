@@ -161,7 +161,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 	} else if existingAccountProvider.AccountId != uuid.Nil {
 		jwt, err := s.signinService.GenerateTokens(&guard.Claims{
 			Id:       existingAccountProvider.AccountId,
-			Username: existingAccountProvider.Account.UserName,
+			Username: existingAccountProvider.Account.Username,
 			Email:    existingAccountProvider.Account.Email,
 		})
 		if err != nil {
@@ -174,7 +174,7 @@ func (s *ProviderService) createProviderAccount(providerUser CreateProviderAccou
 	}
 
 	providerAccountResponse.Account = &repository.AccountCreateDto{
-		UserName: &providerUser.ProviderAccount.Username,
+		Username: &providerUser.ProviderAccount.Username,
 		Email:    providerUser.ProviderAccount.Email,
 		Providers: []model.AccountProvider{
 			{
@@ -228,7 +228,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 
 	if providerAccountResponse.Account != nil { // New account
 		// Ensure username and email is provided
-		if providerAccountResponse.Account.UserName == nil || *providerAccountResponse.Account.UserName == "" {
+		if providerAccountResponse.Account.Username == nil || *providerAccountResponse.Account.Username == "" {
 			return tokenResponse, errors.New("username should be provided by provider")
 		}
 		if providerAccountResponse.Account.Email == nil || *providerAccountResponse.Account.Email == "" {
@@ -245,12 +245,12 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		}
 
 		// Check if username is available
-		isUsernameAvailable, err := s.accountService.CheckUserNameAvailability(*providerAccountResponse.Account.UserName, nil)
+		isUsernameAvailable, err := s.accountService.CheckUserNameAvailability(*providerAccountResponse.Account.Username, nil)
 		if err != nil {
 			return tokenResponse, err
 		}
 		if !isUsernameAvailable {
-			providerAccountResponse.Account.UserName = nil
+			providerAccountResponse.Account.Username = nil
 		}
 
 		// Setup avatar
@@ -271,7 +271,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		var account model.Account
 		if err := s.accountRepository.Create(repository.AccountCreateDto{
 			Id:         accountId,
-			UserName:   providerAccountResponse.Account.UserName,
+			Username:   providerAccountResponse.Account.Username,
 			Email:      providerAccountResponse.Account.Email,
 			Color:      string(color),
 			AvatarUrl:  avatarUrl,
@@ -284,7 +284,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 		// Generate token
 		token, err := s.signinService.GenerateTokens(&guard.Claims{
 			Id:       account.Id,
-			Username: account.UserName,
+			Username: account.Username,
 			Email:    account.Email,
 		})
 		if err != nil {
@@ -324,7 +324,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 
 		token, err := s.signinService.GenerateTokens(&guard.Claims{
 			Id:       account.Id,
-			Username: account.UserName,
+			Username: account.Username,
 			Email:    account.Email,
 		})
 		if err != nil {

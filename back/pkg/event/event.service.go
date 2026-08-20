@@ -97,7 +97,7 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventCr
 		EndsAt:      data.EndsAt,
 		Owner: model.Account{
 			Id:       user.Id,
-			UserName: user.Username,
+			Username: user.Username,
 		},
 		Status: constants.EVENT_STATUS_IN_DECISION,
 	}

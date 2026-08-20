@@ -1093,7 +1093,7 @@
                 "timeZone": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -1446,7 +1446,7 @@
                 "color": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -1460,7 +1460,7 @@
                 "color": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }
@@ -1551,7 +1551,7 @@
                 "startsAt": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string"
                 }
             }

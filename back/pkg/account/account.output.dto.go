@@ -9,7 +9,7 @@ type AccountProviderDto struct {
 
 // AccountResponseDto - GET /account/me and PATCH /account
 type AccountResponseDto struct {
-	UserName  *string                   `json:"userName"`
+	Username  *string                   `json:"username"`
 	Email     *string                   `json:"email"`
 	AvatarUrl string                    `json:"avatarUrl"`
 	Language  constants.AccountLanguage `json:"language"`

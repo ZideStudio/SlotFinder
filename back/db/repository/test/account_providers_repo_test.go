@@ -26,7 +26,7 @@ func (suite *AccountProvidersRepoTestSuite) SetupTest() {
 
 func (suite *AccountProvidersRepoTestSuite) createAccount() model.Account {
 	username := "owner"
-	account := model.Account{Id: uuid.New(), UserName: &username}
+	account := model.Account{Id: uuid.New(), Username: &username}
 	suite.db.Create(&account)
 	return account
 }

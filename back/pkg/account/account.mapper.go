@@ -8,7 +8,7 @@ func MapToAccountResponseDto(a model.Account) AccountResponseDto {
 		providers = append(providers, AccountProviderDto{Provider: p.Provider})
 	}
 	return AccountResponseDto{
-		UserName:  a.UserName,
+		Username:  a.Username,
 		Email:     a.Email,
 		AvatarUrl: a.AvatarUrl,
 		Language:  a.Language,

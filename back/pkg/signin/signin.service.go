@@ -47,7 +47,7 @@ func (s *SigninService) Signin(data *SigninDto) (token TokenResponseDto, err err
 
 	claims := &guard.Claims{
 		Id:            account.Id,
-		Username:      account.UserName,
+		Username:      account.Username,
 		Email:         account.Email,
 		TermsAccepted: account.TermsAcceptedAt != nil,
 	}
@@ -138,7 +138,7 @@ func (s *SigninService) RefreshAccessToken(refreshTokenString string) (tokenResp
 	// Generate new tokens
 	claims := &guard.Claims{
 		Id:            account.Id,
-		Username:      account.UserName,
+		Username:      account.Username,
 		Email:         account.Email,
 		TermsAccepted: account.TermsAcceptedAt != nil,
 	}

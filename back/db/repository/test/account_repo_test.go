@@ -31,7 +31,7 @@ func (suite *AccountRepoTestSuite) createDto() repository.AccountCreateDto {
 	termsVersion := "v1"
 	return repository.AccountCreateDto{
 		Id:           uuid.New(),
-		UserName:     &username,
+		Username:     &username,
 		Email:        &email,
 		Color:        "#FFFFFF",
 		Language:     constants.ACCOUNT_LANGUAGE_EN,

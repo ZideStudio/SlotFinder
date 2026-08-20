@@ -184,7 +184,7 @@ func TestMapToEventFullResponseDto_ParticipantsWithColors(t *testing.T) {
 			{
 				Color: &eventColor,
 				Account: model.Account{
-					UserName: &userName,
+					Username: &userName,
 					Color:    "#000000",
 				},
 			},
@@ -213,7 +213,7 @@ func TestMapToEventFullResponseDto_AvailabilityUserName(t *testing.T) {
 			{
 				Id: uuid.New(),
 				Account: model.Account{
-					UserName: &userName,
+					Username: &userName,
 				},
 			},
 		},
@@ -221,5 +221,5 @@ func TestMapToEventFullResponseDto_AvailabilityUserName(t *testing.T) {
 	dto := MapToEventFullResponseDto(e)
 
 	assert.Len(t, dto.Availabilities, 1)
-	assert.Equal(t, "alice", dto.Availabilities[0].UserName)
+	assert.Equal(t, "alice", dto.Availabilities[0].Username)
 }

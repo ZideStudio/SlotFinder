@@ -103,11 +103,11 @@ func (s *MailService) eventEmailEnrichOptionalFields(
 	participant model.Account,
 	event model.Event,
 ) {
-	if participant.UserName != nil {
-		params["username"] = *participant.UserName
+	if participant.Username != nil {
+		params["username"] = *participant.Username
 	}
-	if event.Owner.UserName != nil {
-		params["owner"] = *event.Owner.UserName
+	if event.Owner.Username != nil {
+		params["owner"] = *event.Owner.Username
 	}
 	if event.Description != nil {
 		params["eventDescription"] = *event.Description
@@ -123,7 +123,7 @@ func (s *MailService) SendEventConfirmationEmail(
 	startsAt time.Time,
 	endsAt time.Time,
 ) {
-	if participant.Email == nil || participant.UserName == nil {
+	if participant.Email == nil || participant.Username == nil {
 		return
 	}
 
@@ -155,7 +155,7 @@ func (s *MailService) SendEventCancellationEmail(
 	startsAt time.Time,
 	endsAt time.Time,
 ) {
-	if account.Email == nil || account.UserName == nil {
+	if account.Email == nil || account.Username == nil {
 		return
 	}
 

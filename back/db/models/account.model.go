@@ -10,7 +10,7 @@ import (
 
 type Account struct {
 	Id                   uuid.UUID                 `gorm:"column:id;type:uuid;unique;primary_key" json:"id,omitzero"`
-	UserName             *string                   `gorm:"column:username;default:null;size:255" json:"userName"`
+	Username             *string                   `gorm:"column:username;default:null;size:255" json:"username"`
 	Email                *string                   `gorm:"column:email;default:null;size:255" json:"email,omitempty"`
 	Password             *string                   `gorm:"column:password;size:255" json:"-"`
 	AvatarUrl            string                    `gorm:"column:avatar_url;size:255;default:null" json:"avatarUrl"`
@@ -49,7 +49,7 @@ func (a *Account) Sanitized(overrideColor *string) Account {
 	}
 
 	return Account{
-		UserName:  a.UserName,
+		Username:  a.Username,
 		AvatarUrl: a.AvatarUrl,
 		Color:     color,
 	}

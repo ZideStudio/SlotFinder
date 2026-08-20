@@ -25,7 +25,7 @@ func (suite *AccountEventRepoTestSuite) SetupTest() {
 }
 
 func (suite *AccountEventRepoTestSuite) createAccount(username string) model.Account {
-	account := model.Account{Id: uuid.New(), UserName: &username}
+	account := model.Account{Id: uuid.New(), Username: &username}
 	suite.db.Create(&account)
 	return account
 }

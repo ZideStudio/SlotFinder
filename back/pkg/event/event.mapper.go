@@ -20,7 +20,7 @@ func mapToOwnerDto(account model.Account, colorOverride *string) EventOwnerDto {
 		color = *colorOverride
 	}
 	return EventOwnerDto{
-		UserName:  account.UserName,
+		Username:  account.Username,
 		AvatarUrl: account.AvatarUrl,
 		Color:     color,
 	}
@@ -33,7 +33,7 @@ func mapToParticipantDto(ae model.AccountEvent) EventParticipantDto {
 		color = *ae.Color
 	}
 	return EventParticipantDto{
-		UserName:  ae.Account.UserName,
+		Username:  ae.Account.Username,
 		AvatarUrl: ae.Account.AvatarUrl,
 		Color:     color,
 	}

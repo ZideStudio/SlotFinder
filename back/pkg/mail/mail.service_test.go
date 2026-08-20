@@ -146,8 +146,8 @@ func TestEventEmailEnrichOptionalFields(t *testing.T) {
 	username := "alice"
 	ownerUsername := "bob"
 	description := "Weekly sync"
-	participant := model.Account{UserName: &username}
-	event := model.Event{Owner: model.Account{UserName: &ownerUsername}, Description: &description}
+	participant := model.Account{Username: &username}
+	event := model.Event{Owner: model.Account{Username: &ownerUsername}, Description: &description}
 
 	params := map[string]string{}
 	s.eventEmailEnrichOptionalFields(params, participant, event)
@@ -256,7 +256,7 @@ func TestSendEventConfirmationEmail_Success(t *testing.T) {
 	email := "participant@example.com"
 	username := "participant"
 	ownerId := uuid.New()
-	participant := model.Account{Id: ownerId, Email: &email, UserName: &username, Language: constants.ACCOUNT_LANGUAGE_FR}
+	participant := model.Account{Id: ownerId, Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_FR}
 	event := model.Event{Name: "Sync"}
 
 	s.SendEventConfirmationEmail(participant, event, uuid.New(), ownerId, time.Now(), time.Now().Add(time.Hour))
@@ -281,7 +281,7 @@ func TestSendEventCancellationEmail_Success(t *testing.T) {
 	email := "account@example.com"
 	username := "account"
 	ownerId := uuid.New()
-	account := model.Account{Id: uuid.New(), Email: &email, UserName: &username, Language: constants.ACCOUNT_LANGUAGE_EN}
+	account := model.Account{Id: uuid.New(), Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_EN}
 	event := model.Event{Name: "Sync"}
 
 	s.SendEventCancellationEmail(account, event, uuid.New(), ownerId, time.Now(), time.Now().Add(time.Hour))
@@ -306,7 +306,7 @@ func TestSendEventCancellationEmail_FrenchSubject(t *testing.T) {
 	email := "account-fr@example.com"
 	username := "account"
 	ownerId := uuid.New()
-	account := model.Account{Id: uuid.New(), Email: &email, UserName: &username, Language: constants.ACCOUNT_LANGUAGE_FR}
+	account := model.Account{Id: uuid.New(), Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_FR}
 	event := model.Event{Name: "Sync"}
 
 	s.SendEventCancellationEmail(account, event, uuid.New(), ownerId, time.Now(), time.Now().Add(time.Hour))

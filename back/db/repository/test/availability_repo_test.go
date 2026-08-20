@@ -30,7 +30,7 @@ func (suite *AvailabilityRepoTestSuite) createTestAccount() model.Account {
 	email := "test@example.com"
 	account := model.Account{
 		Id:       uuid.New(),
-		UserName: &username,
+		Username: &username,
 		Email:    &email,
 	}
 	suite.db.Create(&account)
@@ -497,7 +497,7 @@ func (suite *AvailabilityRepoTestSuite) TestCreate_Success() {
 
 	err := suite.repo.Create(availability)
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), *account.UserName, availability.UserName, "Sanitized() should populate UserName from the preloaded Account")
+	assert.Equal(suite.T(), *account.Username, availability.Username, "Sanitized() should populate Username from the preloaded Account")
 }
 
 func (suite *AvailabilityRepoTestSuite) TestFindOneById_Success() {

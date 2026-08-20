@@ -38,7 +38,7 @@ func TestAccount_Sanitized_WithOverrideColor(t *testing.T) {
 	t.Parallel()
 	username := "alice"
 	overrideColor := "#ffffff"
-	account := Account{UserName: &username, Color: "#000000"}
+	account := Account{Username: &username, Color: "#000000"}
 
 	sanitized := account.Sanitized(&overrideColor)
 
@@ -62,15 +62,15 @@ func TestAccountEvent_Sanitized(t *testing.T) {
 	color := "#123456"
 	accountEvent := AccountEvent{
 		Color:   &color,
-		Account: Account{UserName: &username},
-		Event:   Event{Owner: Account{UserName: &ownerName}},
+		Account: Account{Username: &username},
+		Event:   Event{Owner: Account{Username: &ownerName}},
 	}
 
 	sanitized := accountEvent.Sanitized()
 
-	assert.Equal(t, "alice", *sanitized.Account.UserName)
+	assert.Equal(t, "alice", *sanitized.Account.Username)
 	assert.Equal(t, "#123456", sanitized.Account.Color)
-	assert.Equal(t, "bob", *sanitized.Event.Owner.UserName)
+	assert.Equal(t, "bob", *sanitized.Event.Owner.Username)
 }
 
 func TestAccountProvider_TableName(t *testing.T) {
