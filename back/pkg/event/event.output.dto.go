@@ -17,14 +17,14 @@ type EventDurationFields struct {
 
 // EventOwnerDto - owner with event-specific color
 type EventOwnerDto struct {
-	UserName  *string `json:"userName"`
+	Username  *string `json:"username"`
 	AvatarUrl string  `json:"avatarUrl"`
 	Color     string  `json:"color"`
 }
 
 // EventParticipantDto - participant with event-specific color
 type EventParticipantDto struct {
-	UserName  *string `json:"userName"`
+	Username  *string `json:"username"`
 	AvatarUrl string  `json:"avatarUrl"`
 	Color     string  `json:"color"`
 }

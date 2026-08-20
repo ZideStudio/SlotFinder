@@ -23,7 +23,7 @@ func NewAccountProvidersRepository(database *gorm.DB) *AccountProvidersRepositor
 }
 
 type AccountProviderCreateDto struct {
-	UserName  string
+	Username  string
 	Email     string
 	Password  string
 	Providers []model.AccountProvider

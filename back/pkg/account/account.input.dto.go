@@ -14,7 +14,7 @@ type AccountCreateDto struct {
 }
 
 type AccountUpdateDto struct {
-	UserName      *string                    `json:"username" binding:"omitempty,min=3,max=30"`
+	Username      *string                    `json:"username" binding:"omitempty,min=3,max=30"`
 	Email         *string                    `json:"email" binding:"omitempty,min=6,max=320"`
 	Password      *string                    `json:"password" binding:"omitempty,max=100"`
 	Color         *string                    `json:"color"`

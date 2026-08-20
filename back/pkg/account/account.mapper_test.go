@@ -12,7 +12,7 @@ func TestMapToAccountResponseDto_WithProviders(t *testing.T) {
 	t.Parallel()
 	username := "mapped"
 	account := model.Account{
-		UserName: &username,
+		Username: &username,
 		Providers: []model.AccountProvider{
 			{Provider: constants.PROVIDER_GOOGLE},
 			{Provider: constants.PROVIDER_GITHUB},
@@ -21,7 +21,7 @@ func TestMapToAccountResponseDto_WithProviders(t *testing.T) {
 
 	dto := MapToAccountResponseDto(account)
 
-	assert.Equal(t, username, *dto.UserName)
+	assert.Equal(t, username, *dto.Username)
 	assert.Len(t, dto.Providers, 2)
 	assert.Equal(t, constants.PROVIDER_GOOGLE, dto.Providers[0].Provider)
 	assert.Equal(t, constants.PROVIDER_GITHUB, dto.Providers[1].Provider)

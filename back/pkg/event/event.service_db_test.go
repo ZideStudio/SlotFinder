@@ -35,7 +35,7 @@ func createTestOwner(t *testing.T) uuid.UUID {
 	id := uuid.New()
 	username := "event-owner-" + uuid.NewString()
 	require.NoError(t, repository.NewAccountRepository(nil).Create(repository.AccountCreateDto{
-		Id: id, UserName: &username,
+		Id: id, Username: &username,
 	}, &model.Account{}))
 	return id
 }

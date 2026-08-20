@@ -29,7 +29,7 @@ func NewAccountRepository(database *gorm.DB) *AccountRepository {
 
 type AccountCreateDto struct {
 	Id           uuid.UUID
-	UserName     *string
+	Username     *string
 	Email        *string
 	Color        string
 	Language     constants.AccountLanguage
@@ -44,7 +44,7 @@ type AccountCreateDto struct {
 func (r *AccountRepository) Create(data AccountCreateDto, account *model.Account) error {
 	*account = model.Account{
 		Id:           data.Id,
-		UserName:     data.UserName,
+		Username:     data.Username,
 		Email:        data.Email,
 		Color:        data.Color,
 		Language:     data.Language,

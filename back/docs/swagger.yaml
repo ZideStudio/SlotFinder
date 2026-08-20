@@ -49,7 +49,7 @@ definitions:
         type: array
       timeZone:
         type: string
-      userName:
+      username:
         type: string
     type: object
   account.AccountUpdateDto:
@@ -289,7 +289,7 @@ definitions:
         type: string
       color:
         type: string
-      userName:
+      username:
         type: string
     type: object
   event.EventParticipantDto:
@@ -298,7 +298,7 @@ definitions:
         type: string
       color:
         type: string
-      userName:
+      username:
         type: string
     type: object
   event.EventProfileDto:
@@ -361,7 +361,7 @@ definitions:
         type: string
       startsAt:
         type: string
-      userName:
+      username:
         type: string
     type: object
   model.Slot:

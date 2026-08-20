@@ -29,7 +29,7 @@ func (suite *EventRepoTestSuite) SetupTest() {
 }
 
 func (suite *EventRepoTestSuite) createAccount(username string) model.Account {
-	account := model.Account{Id: uuid.New(), UserName: &username}
+	account := model.Account{Id: uuid.New(), Username: &username}
 	suite.db.Create(&account)
 	return account
 }
@@ -125,8 +125,8 @@ func (suite *EventRepoTestSuite) TestFindOneById_Found() {
 	assert.Len(suite.T(), found.Participants, 2)
 	// Owner is replaced by its sanitized copy (Id intentionally stripped), so we
 	// can only assert on the fields Sanitized() preserves.
-	assert.NotNil(suite.T(), found.Owner.UserName)
-	assert.Equal(suite.T(), *owner.UserName, *found.Owner.UserName)
+	assert.NotNil(suite.T(), found.Owner.Username)
+	assert.Equal(suite.T(), *owner.Username, *found.Owner.Username)
 }
 
 func (suite *EventRepoTestSuite) TestFindOneById_NotFound() {

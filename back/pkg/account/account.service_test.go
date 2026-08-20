@@ -87,8 +87,8 @@ func TestNewAccountService_Nil_BuildsRealInstance(t *testing.T) {
 func TestCheckUserNameAvailability(t *testing.T) {
 	s := newTestAccountService(t)
 	username := "checkuser-" + uuid.NewString()
-	account := model.Account{Id: uuid.New(), UserName: &username}
-	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: account.Id, UserName: &username}, &model.Account{}))
+	account := model.Account{Id: uuid.New(), Username: &username}
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: account.Id, Username: &username}, &model.Account{}))
 
 	available, err := s.CheckUserNameAvailability("someone-else-"+uuid.NewString(), nil)
 	assert.NoError(t, err)
@@ -235,11 +235,11 @@ func TestGetMe_Found(t *testing.T) {
 	s := newTestAccountService(t)
 	username := "getme-" + uuid.NewString()
 	var created model.Account
-	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), UserName: &username}, &created))
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Username: &username}, &created))
 
 	dto, err := s.GetMe(created.Id)
 	assert.NoError(t, err)
-	assert.Equal(t, username, *dto.UserName)
+	assert.Equal(t, username, *dto.Username)
 }
 
 func TestGetMe_NotFound(t *testing.T) {
@@ -251,7 +251,7 @@ func TestGetMe_NotFound(t *testing.T) {
 func createTestAccountWithUsername(t *testing.T, s *AccountService, username string) model.Account {
 	t.Helper()
 	var created model.Account
-	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), UserName: &username}, &created))
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Username: &username}, &created))
 	return created
 }
 
@@ -260,7 +260,7 @@ func TestUpdate_UsernameTooShort(t *testing.T) {
 	account := createTestAccountWithUsername(t, s, "orig-"+uuid.NewString())
 	shortName := "ab"
 
-	_, _, err := s.Update(&AccountUpdateDto{UserName: &shortName}, account.Id)
+	_, _, err := s.Update(&AccountUpdateDto{Username: &shortName}, account.Id)
 	assert.Error(t, err)
 }
 
@@ -270,7 +270,7 @@ func TestUpdate_UsernameAlreadyTaken(t *testing.T) {
 	createTestAccountWithUsername(t, s, taken)
 	account := createTestAccountWithUsername(t, s, "orig-"+uuid.NewString())
 
-	_, _, err := s.Update(&AccountUpdateDto{UserName: &taken}, account.Id)
+	_, _, err := s.Update(&AccountUpdateDto{Username: &taken}, account.Id)
 	assert.ErrorIs(t, err, constants.ERR_USERNAME_ALREADY_TAKEN.Err)
 }
 
@@ -281,9 +281,9 @@ func TestUpdate_UsernameSameAsCurrent_NoOp(t *testing.T) {
 
 	// Re-submitting the current username is filtered by the outer guard
 	// before the "same as itself" check runs — a silent no-op.
-	dto, _, err := s.Update(&AccountUpdateDto{UserName: &username}, account.Id)
+	dto, _, err := s.Update(&AccountUpdateDto{Username: &username}, account.Id)
 	assert.NoError(t, err)
-	assert.Equal(t, username, *dto.UserName)
+	assert.Equal(t, username, *dto.Username)
 }
 
 func TestUpdate_UsernameChanged_ReturnsNewTokens(t *testing.T) {
@@ -291,9 +291,9 @@ func TestUpdate_UsernameChanged_ReturnsNewTokens(t *testing.T) {
 	account := createTestAccountWithUsername(t, s, "orig-"+uuid.NewString())
 	newName := "newname-" + uuid.NewString()
 
-	dto, tokens, err := s.Update(&AccountUpdateDto{UserName: &newName}, account.Id)
+	dto, tokens, err := s.Update(&AccountUpdateDto{Username: &newName}, account.Id)
 	assert.NoError(t, err)
-	assert.Equal(t, newName, *dto.UserName)
+	assert.Equal(t, newName, *dto.Username)
 	assert.NotNil(t, tokens)
 	assert.NotEmpty(t, tokens.AccessToken)
 }
@@ -305,7 +305,7 @@ func TestUpdate_UsernameTrimmedEqualsCurrent(t *testing.T) {
 
 	// Differs from the stored username only by whitespace, so trimming makes it equal again.
 	padded := "  " + username + "  "
-	_, _, err := s.Update(&AccountUpdateDto{UserName: &padded}, account.Id)
+	_, _, err := s.Update(&AccountUpdateDto{Username: &padded}, account.Id)
 	assert.ErrorIs(t, err, constants.ERR_USERNAME_ALREADY_TAKEN.Err)
 }
 
@@ -462,7 +462,7 @@ func TestUpdate_GenerateTokensError_RollsBackAccount(t *testing.T) {
 	s.signinService = signinServiceWithBadPrivateKey(t)
 	newName := "renamed-" + uuid.NewString()
 
-	_, _, err := s.Update(&AccountUpdateDto{UserName: &newName}, account.Id)
+	_, _, err := s.Update(&AccountUpdateDto{Username: &newName}, account.Id)
 	assert.Error(t, err)
 }
 

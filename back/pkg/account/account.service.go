@@ -119,7 +119,7 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 	// Generate token
 	claims := &guard.Claims{
 		Id:            account.Id,
-		Username:      account.UserName,
+		Username:      account.Username,
 		Email:         account.Email,
 		TermsAccepted: true,
 	}
@@ -170,22 +170,22 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 
 	var tokens *AccountTokensDto
 
-	if dto.UserName != nil && (account.UserName == nil || *dto.UserName != *account.UserName) {
-		*dto.UserName = strings.TrimSpace(*dto.UserName)
-		if len(*dto.UserName) < 3 {
+	if dto.Username != nil && (account.Username == nil || *dto.Username != *account.Username) {
+		*dto.Username = strings.TrimSpace(*dto.Username)
+		if len(*dto.Username) < 3 {
 			return AccountResponseDto{}, nil, errors.New("username must be at least 3 characters long")
 		}
-		if account.UserName != nil && *dto.UserName == *account.UserName {
+		if account.Username != nil && *dto.Username == *account.Username {
 			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
 		}
-		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.UserName, &userId)
+		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.Username, &userId)
 		if err != nil {
 			return AccountResponseDto{}, nil, err
 		}
 		if !isUserNameAvailable {
 			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
 		}
-		account.UserName = dto.UserName
+		account.Username = dto.Username
 	}
 	if dto.Email != nil {
 		account.Email = dto.Email
@@ -231,7 +231,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 	}
 
 	// Generate new tokens if username was set or password was changed
-	if dto.UserName != nil || termsUpdated || passwordChanged {
+	if dto.Username != nil || termsUpdated || passwordChanged {
 		// If password changed, revoke all existing refresh tokens to force re-login on all devices
 		if passwordChanged {
 			_ = s.refreshTokenRepository.RevokeAllForAccount(userId)
@@ -239,7 +239,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 
 		claims := &guard.Claims{
 			Id:            account.Id,
-			Username:      account.UserName,
+			Username:      account.Username,
 			Email:         account.Email,
 			TermsAccepted: account.TermsAcceptedAt != nil,
 		}
