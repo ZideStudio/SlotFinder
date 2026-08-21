@@ -74,7 +74,7 @@
     "oxlint": "1.78.0",
     "remark-gfm": "4.0.1",
     "storybook": "10.5.8",
-    "storybook-react-rsbuild": "3.4.1",
+    "storybook-react-rsbuild": "3.4.2",
     "stylelint": "17.14.1",
     "stylelint-scss": "7.2.0",
     "tsc-files": "1.1.4",
