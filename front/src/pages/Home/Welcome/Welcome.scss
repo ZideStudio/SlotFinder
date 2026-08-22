@@ -1,0 +1,12 @@
+@use "../../../utils/sass/mixins/helpers";
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+
+  &__connexion-button {
+    align-self: flex-end;
+    width: fit-content;
+    margin-top: #{helpers.pxToRem(20)};
+  }
+}
