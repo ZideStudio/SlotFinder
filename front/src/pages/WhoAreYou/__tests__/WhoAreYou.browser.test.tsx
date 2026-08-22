@@ -2,10 +2,11 @@ import { appRoutes } from "@Front/routing/appRoutes";
 import { renderBrowserRoute } from "@Front/utils/testsUtils/customRender/customRender.browser";
 import { worker } from "@Mocks/browser";
 import {
-  patchAccount200,
-  patchAccount400,
-  patchAvatarAccount200,
-  patchAvatarAccount400,
+    getAccountMe200,
+    patchAccount200,
+    patchAccount400,
+    patchAvatarAccount200,
+    patchAvatarAccount400,
 } from "@Mocks/handlers/accountHandlers";
 import { page } from "vitest/browser";
 
@@ -211,6 +212,54 @@ describe("WhoAreYou Page", () => {
           page.getByText("Failed to upload the avatar. Please try again."),
         )
         .toBeInTheDocument();
+    });
+  });
+
+  describe("Form pre-fill from account data", () => {
+    it("should pre-fill form with account data on mount", async () => {
+      worker.use(
+        getAccountMe200,
+        patchAccount200,
+        patchAvatarAccount200,
+      );
+
+      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+
+      // Wait for form to be pre-filled
+      const usernameInput = page.getByRole("textbox", { name: /Username/u });
+      await expect.element(usernameInput).toHaveValue("test_user");
+    });
+
+    it("should show avatar preview from account data", async () => {
+      worker.use(
+        getAccountMe200,
+        patchAccount200,
+        patchAvatarAccount200,
+      );
+
+      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+
+      // Wait for avatar preview to appear - this checks if the defaultPreviewUrl was set
+      const avatarContainer = page.getByLabelText(/Avatar/u);
+      await expect.element(avatarContainer).toBeInTheDocument();
+    });
+
+    it("should allow updating pre-filled username", async () => {
+      worker.use(
+        getAccountMe200,
+        patchAccount200,
+        patchAvatarAccount200,
+      );
+
+      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+
+      const usernameInput = page.getByRole("textbox", { name: /Username/u });
+      await expect.element(usernameInput).toHaveValue("test_user");
+
+      await usernameInput.clear();
+      await usernameInput.fill("new_username");
+
+      await expect.element(usernameInput).toHaveValue("new_username");
     });
   });
 });

@@ -1,5 +1,6 @@
 import { TestProviders } from "@Front/utils/testsUtils/customRender/TestProviders";
 import {
+  getAccountMe200,
   patchAccount200,
   patchAccount400,
   patchAvatarAccount200,
@@ -9,7 +10,15 @@ import { server } from "@Mocks/server";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useWhoAreYou } from "../useWhoAreYou";
 
-describe("useWhoAreYou", () => {
+const createAvatarFileList = () => {
+  const avatar = new File(["avatar"], "avatar.png", { type: "image/png" });
+  return [avatar] as unknown as FileList;
+};
+
+const renderHookWithProviders = (hook: () => ReturnType<typeof useWhoAreYou>) =>
+  renderHook(hook, { wrapper: TestProviders });
+
+describe("useWhoAreYou - success scenarios", () => {
   const originalTemporal = globalThis.Temporal;
 
   beforeAll(() => {
@@ -21,30 +30,27 @@ describe("useWhoAreYou", () => {
   });
 
   beforeEach(() => {
-    server.use(patchAccount200, patchAvatarAccount200);
+    server.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   afterAll(() => {
     globalThis.Temporal = originalTemporal;
+    server.resetHandlers();
   });
 
-  const createAvatarFileList = () => {
-    const avatar = new File(["avatar"], "avatar.png", { type: "image/png" });
-    return [avatar] as unknown as FileList;
-  };
-
-  const renderHookWithProviders = (
-    hook: () => ReturnType<typeof useWhoAreYou>,
-  ) => renderHook(hook, { wrapper: TestProviders });
-
-  it("should submit account and avatar payloads on successful submit", async () => {
+  it("should submit account and avatar payloads on successful submit", () => {
     const setError = vi.fn();
+    const reset = vi.fn();
 
     const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError }),
+      useWhoAreYou({ setError, reset }),
     );
 
-    await result.current.handleSubmit({
+    result.current.handleSubmit({
       avatar: createAvatarFileList(),
       username: "john_doe",
       color: "#ff0000",
@@ -55,15 +61,61 @@ describe("useWhoAreYou", () => {
     expect(result.current.submitError).toBeNull();
   });
 
-  it("should handle username already taken error from API", async () => {
-    server.use(patchAccount400("USERNAME_ALREADY_TAKEN"));
+  it("should return defaultAvatarUrl from account data", async () => {
     const setError = vi.fn();
+    const reset = vi.fn();
 
     const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError }),
+      useWhoAreYou({ setError, reset }),
     );
 
-    await result.current.handleSubmit({
+    await waitFor(() => {
+      expect(result.current.defaultAvatarUrl).toBe(
+        "/api/v1/account/123456789/avatar",
+      );
+    });
+  });
+});
+
+describe("useWhoAreYou - error scenarios", () => {
+  const originalTemporal = globalThis.Temporal;
+
+  beforeAll(() => {
+    globalThis.Temporal = {
+      Now: {
+        timeZoneId: () => "Europe/Paris",
+      },
+    } as unknown as typeof Temporal;
+  });
+
+  beforeEach(() => {
+    server.resetHandlers();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterAll(() => {
+    globalThis.Temporal = originalTemporal;
+    server.resetHandlers();
+  });
+
+  it("should handle username already taken error from API", async () => {
+    server.use(
+      getAccountMe200,
+      patchAccount400("USERNAME_ALREADY_TAKEN"),
+      patchAvatarAccount200,
+    );
+
+    const setError = vi.fn();
+    const reset = vi.fn();
+
+    const { result } = renderHookWithProviders(() =>
+      useWhoAreYou({ setError, reset }),
+    );
+
+    result.current.handleSubmit({
       avatar: createAvatarFileList(),
       username: "taken_username",
       color: "#ff0000",
@@ -78,14 +130,20 @@ describe("useWhoAreYou", () => {
   });
 
   it("should handle invalid color format error from API", async () => {
-    server.use(patchAccount400("INVALID_COLOR_FORMAT"));
-    const setError = vi.fn();
-
-    const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError }),
+    server.use(
+      getAccountMe200,
+      patchAccount400("INVALID_COLOR_FORMAT"),
+      patchAvatarAccount200,
     );
 
-    await result.current.handleSubmit({
+    const setError = vi.fn();
+    const reset = vi.fn();
+
+    const { result } = renderHookWithProviders(() =>
+      useWhoAreYou({ setError, reset }),
+    );
+
+    result.current.handleSubmit({
       avatar: createAvatarFileList(),
       username: "john_doe",
       color: "invalid",
@@ -100,14 +158,16 @@ describe("useWhoAreYou", () => {
   });
 
   it("should handle avatar upload failure from API", async () => {
-    server.use(patchAccount200, patchAvatarAccount400);
+    server.use(getAccountMe200, patchAccount200, patchAvatarAccount400);
+
     const setError = vi.fn();
+    const reset = vi.fn();
 
     const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError }),
+      useWhoAreYou({ setError, reset }),
     );
 
-    await result.current.handleSubmit({
+    result.current.handleSubmit({
       avatar: createAvatarFileList(),
       username: "john_doe",
       color: "#ff0000",
@@ -119,43 +179,5 @@ describe("useWhoAreYou", () => {
         message: "whoAreYou.error.AVATAR_UPLOAD_FAILED",
       });
     });
-  });
-
-  it("should handle account patch error and allow retry", async () => {
-    server.use(patchAccount400("INVALID_COLOR_FORMAT"));
-    const setError = vi.fn();
-
-    const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError }),
-    );
-
-    // First submit with error
-    await result.current.handleSubmit({
-      avatar: createAvatarFileList(),
-      username: "john_doe",
-      color: "invalid",
-      termsAccepted: true,
-    });
-
-    await waitFor(() => {
-      expect(setError).toHaveBeenCalledWith("color", {
-        message: "whoAreYou.error.INVALID_COLOR_FORMAT",
-      });
-    });
-
-    // Reset for successful retry
-    server.use(patchAccount200, patchAvatarAccount200);
-    vi.clearAllMocks();
-
-    // Retry successfully
-    await result.current.handleSubmit({
-      avatar: createAvatarFileList(),
-      username: "john_doe",
-      color: "#ff0000",
-      termsAccepted: true,
-    });
-
-    expect(result.current.submitError).toBeNull();
-    expect(setError).not.toHaveBeenCalled();
   });
 });

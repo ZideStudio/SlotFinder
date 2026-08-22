@@ -2,6 +2,7 @@ import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/
 import { type HelpersApiError } from "@Front/api/generated/slotFinderAPI.schemas";
 import { SERVER_ERROR } from "@Front/utils/constants/api";
 import {
+  getAccountMe200Fixture,
   patchAccount200Fixture,
   postAccount201Fixture,
   postAccount400Fixture,
@@ -63,5 +64,26 @@ export const patchAvatarAccount400 = http.patch(
       { code: SERVER_ERROR },
       { status: 400 },
     );
+  },
+);
+
+export const getAccountMe200 = http.get(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/me`,
+  async () => {
+    await delay();
+
+    return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
+  },
+);
+
+export const getAccountAvatar200 = http.get(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/:id/avatar`,
+  async () => {
+    await delay();
+
+    return new HttpResponse(new Uint8Array(0), {
+      status: 200,
+      headers: { "Content-Type": "image/png" },
+    });
   },
 );
