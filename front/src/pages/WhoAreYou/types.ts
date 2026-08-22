@@ -1,6 +1,6 @@
 export type WhoAreYouFormData = {
   avatar: FileList;
-  userName: string;
+  username: string;
   color: string;
   termsAccepted: boolean;
 };

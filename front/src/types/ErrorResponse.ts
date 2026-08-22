@@ -1,10 +1,15 @@
-export class ErrorResponse<ErrorCodeType extends string> extends Error {
+import { SERVER_ERROR } from "@Front/utils/constants/api";
+
+export class ErrorResponse<ErrorCodeType extends string = never> extends Error {
   constructor(message: string) {
     super(message);
     this.name = "ErrorResponse";
   }
 
-  getErrorCode(): ErrorCodeType | "SERVER_ERROR" {
+  getErrorCode(
+    this: ErrorResponse<ErrorCodeType>,
+  ): ErrorCodeType | "SERVER_ERROR";
+  getErrorCode(this: ErrorResponse<never>): "SERVER_ERROR" {
     try {
       const parsed = JSON.parse(this.message);
       if (
@@ -18,6 +23,6 @@ export class ErrorResponse<ErrorCodeType extends string> extends Error {
     } catch {
       // Ignore
     }
-    return "SERVER_ERROR";
+    return SERVER_ERROR;
   }
 }
