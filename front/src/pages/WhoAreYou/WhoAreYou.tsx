@@ -9,8 +9,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AVATAR_FILE_TYPES } from "./constants";
 import type { WhoAreYouFormData } from "./types";
+import { useWhoAreYou } from "./useWhoAreYou";
 import { getSchema } from "./validation";
 
+import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import "./WhoAreYou.scss";
 
 export const WhoAreYou = () => {
@@ -18,13 +20,16 @@ export const WhoAreYou = () => {
   const methods = useForm<WhoAreYouFormData>({
     resolver: yupResolver(getSchema(t)),
   });
+  const { handleSubmit, isLoading, submitError } = useWhoAreYou({
+    setError: methods.setError,
+  });
 
   return (
     <CardPage className="who-are-you" title={t("title")}>
       <FormProvider {...methods}>
         <form
           className="who-are-you-form"
-          onSubmit={methods.handleSubmit((data) => console.log(data))}
+          onSubmit={methods.handleSubmit(handleSubmit)}
           noValidate
         >
           <PictureUploadField
@@ -35,8 +40,8 @@ export const WhoAreYou = () => {
             required
           />
           <TextField
-            label={t("userNameLabel")}
-            name="userName"
+            label={t("usernameLabel")}
+            name="username"
             autoComplete="username"
             required
           />
@@ -51,9 +56,14 @@ export const WhoAreYou = () => {
             name="termsAccepted"
             required
           />
-          <Button className="who-are-you-form__submit-button" type="submit">
+          <Button
+            className="who-are-you-form__submit-button"
+            type="submit"
+            isLoading={isLoading}
+          >
             Continuer
           </Button>
+          <InputErrorMessage>{submitError}</InputErrorMessage>
         </form>
       </FormProvider>
     </CardPage>

@@ -38,7 +38,7 @@ export const getSchema = (
         }
         return AVATAR_FILE_TYPES.includes(value[0].type);
       }),
-    userName: string()
+    username: string()
       .required(translate("requiredUsername"))
       .min(
         USERNAME_MIN_LENGTH,
