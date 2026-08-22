@@ -22,3 +22,17 @@ export const patchAccount200Fixture: AccountAccountResponseDto = {
   ],
   timeZone: "Europe/Paris",
 };
+
+export const getAccountMe200Fixture: AccountAccountResponseDto = {
+  username: "test_user",
+  email: "test@example.com",
+  avatarUrl: "/api/v1/account/123456789/avatar",
+  color: "#ff0000",
+  language: "en",
+  providers: [
+    {
+      provider: "github",
+    },
+  ],
+  timeZone: "Europe/Paris",
+};

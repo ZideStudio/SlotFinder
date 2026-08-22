@@ -20,9 +20,11 @@ export const WhoAreYou = () => {
   const methods = useForm<WhoAreYouFormData>({
     resolver: yupResolver(getSchema(t)),
   });
-  const { handleSubmit, isLoading, submitError } = useWhoAreYou({
-    setError: methods.setError,
-  });
+  const { handleSubmit, isSubmitting, submitError, defaultAvatarUrl } =
+    useWhoAreYou({
+      setError: methods.setError,
+      reset: methods.reset,
+    });
 
   return (
     <CardPage className="who-are-you" title={t("title")}>
@@ -37,6 +39,7 @@ export const WhoAreYou = () => {
             name="avatar"
             accept={AVATAR_FILE_TYPES.join(",")}
             previewVariant="rounded"
+            defaultPreviewUrl={defaultAvatarUrl}
             required
           />
           <TextField
@@ -59,7 +62,7 @@ export const WhoAreYou = () => {
           <Button
             className="who-are-you-form__submit-button"
             type="submit"
-            isLoading={isLoading}
+            isLoading={isSubmitting}
           >
             Continuer
           </Button>
