@@ -22,7 +22,7 @@ export const usePatchAccountAvatar = ({
   });
 
   return {
-    patchAccountAvatar: mutation.mutate,
+    patchAccountAvatar: mutation.mutateAsync,
     isLoading: mutation.isPending,
   };
 };

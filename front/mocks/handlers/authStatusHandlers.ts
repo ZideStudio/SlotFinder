@@ -1,3 +1,4 @@
+import type { AuthStatusErrorCodeType } from "@Front/types/Authentication/authStatus/authStatus.types";
 import {
   getAuthStatus200Fixture,
   getAuthStatus401Fixture,
@@ -24,14 +25,14 @@ export const getAuthStatus401 = http.get(
   },
 );
 
-export const getAuthStatus403 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
-  async () => {
+export const getAuthStatus403 = (errorCode: AuthStatusErrorCodeType) =>
+  http.get(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`, async () => {
     await delay();
 
-    return HttpResponse.json(getAuthStatus403Fixture, { status: 403 });
-  },
-);
+    return HttpResponse.json(getAuthStatus403Fixture(errorCode), {
+      status: 403,
+    });
+  });
 
 export const getAuthStatus498 = http.get(
   `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,

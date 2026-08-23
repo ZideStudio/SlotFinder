@@ -5,6 +5,7 @@ import {
 import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/types";
 import { usePatchAccount } from "@Front/api/account/patchAccount/usePatchAccount";
 import { usePatchAccountAvatar } from "@Front/api/account/patchAccountAvatar/usePatchAccountAvatar";
+import { useAuthenticationContext } from "@Front/hooks/useAuthenticationContext";
 import type { ErrorResponse } from "@Front/types/ErrorResponse";
 import { urlToFileList } from "@Front/utils/helpers/urlToFileList";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +35,7 @@ export const useWhoAreYou = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const hasInitialized = useRef(false);
   const { data: accountData } = useGetAccountMe();
+  const { checkAuthentication } = useAuthenticationContext();
   const queryClient = useQueryClient();
 
   const handlePatchAccountError = useCallback(
@@ -107,11 +109,12 @@ export const useWhoAreYou = ({
         ]);
 
         queryClient.invalidateQueries({ queryKey: getAccountMeQueryKey });
+        checkAuthentication();
       } catch {
         setSubmitError(t("error.SERVER_ERROR"));
       }
     },
-    [patchAccount, patchAccountAvatar, queryClient, t],
+    [patchAccount, patchAccountAvatar, queryClient, t, checkAuthentication],
   );
 
   return {

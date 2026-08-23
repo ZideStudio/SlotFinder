@@ -4,6 +4,7 @@ import { SERVER_ERROR } from "@Front/utils/constants/api";
 import {
   getAccountMe200Fixture,
   patchAccount200Fixture,
+  patchAccount400Fixture,
   postAccount201Fixture,
   postAccount400Fixture,
 } from "@Mocks/fixtures/accountFixtures";
@@ -40,10 +41,9 @@ export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
   http.patch(`${import.meta.env.FRONT_BACKEND_URL}/v1/account`, async () => {
     await delay();
 
-    return HttpResponse.json<HelpersApiError>(
-      { code: errorCode },
-      { status: 400 },
-    );
+    return HttpResponse.json(patchAccount400Fixture(errorCode), {
+      status: 400,
+    });
   });
 
 export const patchAvatarAccount200 = http.patch(

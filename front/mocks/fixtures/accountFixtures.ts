@@ -1,3 +1,4 @@
+import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/types";
 import type {
   AccountAccountResponseDto,
   HelpersApiError,
@@ -22,6 +23,12 @@ export const patchAccount200Fixture: AccountAccountResponseDto = {
   ],
   timeZone: "Europe/Paris",
 };
+
+export const patchAccount400Fixture = (
+  errorCode: PatchAccountErrorCodeType,
+): HelpersApiError => ({
+  code: errorCode,
+});
 
 export const getAccountMe200Fixture: AccountAccountResponseDto = {
   username: "test_user",
