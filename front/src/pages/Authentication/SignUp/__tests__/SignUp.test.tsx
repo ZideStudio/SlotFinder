@@ -155,6 +155,7 @@ describe("SignUp", () => {
       postAuthRedirectPath: undefined,
       setPostAuthRedirectPath: vi.fn(),
       resetPostAuthRedirectPath: vi.fn(),
+      authenticationError: undefined,
     });
 
     renderRoute(renderRouteOptions);
