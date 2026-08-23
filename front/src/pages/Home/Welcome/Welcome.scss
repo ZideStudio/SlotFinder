@@ -13,26 +13,30 @@
 
   &__logo {
     --start: 1;
-    --cols: 4;
+    --cols: 5;
 
+    grid-row: 2;
     justify-self: center;
     width: 100%;
     height: auto;
   }
 
-  h1 {
-    --start: 1;
-    --cols: 4;
-
-    grid-row: 2;
-  }
-
+  h1,
   h2 {
     --start: 1;
     --cols: 5;
 
     grid-row: 2;
-    margin-top: #{helpers.pxToRem(50)};
+    height: fit-content;
+  }
+
+  h1 {
+    font-size: #{helpers.pxToRem(48)};
+    font-weight: 600;
+  }
+
+  h2 {
+    margin-top: #{helpers.pxToRem(60)};
   }
 
   &__event-button {
@@ -53,25 +57,20 @@
 
     &__logo {
       --start: 5;
-      --cols: 4;
     }
 
     h1 {
       margin-top: #{helpers.pxToRem(100)};
+      font-size: #{helpers.pxToRem(64)};
     }
 
     h2 {
-      --start: 1;
       --cols: 4;
 
-      grid-row: 2;
       margin-top: #{helpers.pxToRem(200)};
     }
 
     &__event-button {
-      --start: 1;
-      --cols: 4;
-
       grid-row: 2;
       margin-top: #{helpers.pxToRem(300)};
     }
@@ -85,48 +84,13 @@
 
     &__logo {
       --start: 7;
-      --cols: 5;
-    }
-
-    &__event-button {
-      --start: 1;
-      --cols: 4;
     }
   }
 
   // Desktop medium
   @include responsive.mediaExceedsWidth("desktop-medium") {
     &__connexion-button {
-      --start: 10;
       --cols: 3;
-    }
-
-    &__logo {
-      --start: 7;
-      --cols: 5;
-    }
-
-    &__event-button {
-      --start: 1;
-      --cols: 4;
-    }
-  }
-
-  // Desktop large
-  @include responsive.mediaExceedsWidth("desktop-large") {
-    &__connexion-button {
-      --start: 10;
-      --cols: 3;
-    }
-
-    &__logo {
-      --start: 7;
-      --cols: 5;
-    }
-
-    &__event-button {
-      --start: 1;
-      --cols: 4;
     }
   }
 }
