@@ -30,6 +30,8 @@ if (typeof globalThis.DataTransfer === "undefined") {
     MockDataTransfer;
 }
 
+process.env.TZ = "Europe/Paris";
+
 expect.extend(matchers);
 
 beforeAll(() => {
