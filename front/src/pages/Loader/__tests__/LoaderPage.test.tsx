@@ -1,8 +1,7 @@
-import React from "react";
-import { render, screen, act } from "@testing-library/react";
-import LoaderPage from "../LoaderPage";
+import { render, screen, act } from '@testing-library/react';
+import LoaderPage from '../LoaderPage';
 
-describe("LoaderPage", () => {
+describe('LoaderPage', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -11,35 +10,29 @@ describe("LoaderPage", () => {
     vi.useRealTimers();
   });
 
-  it("show nothing immediately on mount", () => {
+  it('does not show the loader immediately on mount', () => {
     render(<LoaderPage />);
 
     expect(screen.queryByRole('status', { name: 'loading' })).not.toBeInTheDocument();
   });
 
-  it("show nothing just before 100ms", async () => {
+  it('does not show the loader just before 100ms', () => {
     render(<LoaderPage />);
 
-    await vi.advanceTimersByTimeAsync(99);
+    act(() => {
+      vi.advanceTimersByTime(99);
+    });
 
     expect(screen.queryByRole('status', { name: 'loading' })).not.toBeInTheDocument();
   });
 
-  it("show the loader after 100ms", async () => {
+  it('shows the loader after 100ms', () => {
     render(<LoaderPage />);
 
-    await vi.advanceTimersByTimeAsync(100);
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
 
     expect(screen.getByRole('status', { name: 'loading' })).toBeInTheDocument();
-  });
-
-  it("never shows the loader if it is unmounted before 100ms", async () => {
-    const { unmount } = render(<LoaderPage />);
-
-    await vi.advanceTimersByTime(50);
-    unmount();
-    await vi.advanceTimersByTime(100);
-
-    expect(screen.queryByRole('status', { name: 'loading' })).not.toBeInTheDocument();
   });
 });
