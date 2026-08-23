@@ -1,4 +1,5 @@
 
+import { TERMS_VERSION } from "@Front/utils/constants/terms";
 import type { WhoAreYouFormData } from "../types";
 import { buildAccountUpdateDTO } from "../whoAreYou.helpers";
 
@@ -32,6 +33,7 @@ describe("whoAreYou helpers", () => {
         username: "john_doe",
         color: "#ff0000",
         termsAccepted: true,
+        termsVersion: TERMS_VERSION,
         timeZone: "Europe/Paris",
       });
     });

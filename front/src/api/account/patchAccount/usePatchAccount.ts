@@ -37,7 +37,7 @@ export const usePatchAccount = ({
   );
 
   return {
-    patchAccount: mutation.mutate,
+    patchAccount: mutation.mutateAsync,
     isLoading: mutation.isPending,
     errorCode,
   };

@@ -1,3 +1,5 @@
+// oxlint-disable-next-line import/no-namespace
+import * as useAuthenticationContext from "@Front/hooks/useAuthenticationContext";
 import { TestProviders } from "@Front/utils/testsUtils/customRender/TestProviders";
 import {
   getAccountMe200,
@@ -73,6 +75,36 @@ describe("useWhoAreYou - success scenarios", () => {
       expect(result.current.defaultAvatarUrl).toBe(
         "/api/v1/account/123456789/avatar",
       );
+    });
+  });
+
+  it("should refresh authentication state after a successful submit", async () => {
+    const setError = vi.fn();
+    const reset = vi.fn();
+    const checkAuthentication = vi.fn();
+
+    vi.spyOn(
+      useAuthenticationContext,
+      "useAuthenticationContext",
+    ).mockReturnValue({
+      checkAuthentication,
+    } as unknown as ReturnType<
+      typeof useAuthenticationContext.useAuthenticationContext
+    >);
+
+    const { result } = renderHookWithProviders(() =>
+      useWhoAreYou({ setError, reset }),
+    );
+
+    result.current.handleSubmit({
+      avatar: createAvatarFileList(),
+      username: "john_doe",
+      color: "#ff0000",
+      termsAccepted: true,
+    });
+
+    await waitFor(() => {
+      expect(checkAuthentication).toHaveBeenCalledTimes(1);
     });
   });
 });

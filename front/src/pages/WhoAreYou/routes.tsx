@@ -6,5 +6,6 @@ export const whoAreYouRoutes: RouteObject = {
   element: <WhoAreYou />,
   handle: {
     hideHeader: true,
+    mustBeAuthenticate: false,
   },
 };
