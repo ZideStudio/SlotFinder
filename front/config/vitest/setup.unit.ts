@@ -30,6 +30,8 @@ if (typeof globalThis.DataTransfer === "undefined") {
     MockDataTransfer;
 }
 
+process.env.TZ = "Europe/Paris";
+
 vi.mock("react-i18next", () => ({
   useTranslation: vi.fn((resource: string) => ({
     t: (messageId: string, args: Record<string, unknown>) =>
