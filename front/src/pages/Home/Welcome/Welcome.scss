@@ -31,15 +31,17 @@
     --start: 1;
     --cols: 5;
 
-    grid-row: 3;
-    align-self: end;
+    grid-row: 2;
+    margin-top: #{helpers.pxToRem(50)};
   }
 
   &__event-button {
     --start: 1;
     --cols: 4;
 
+    grid-row: 4;
     width: fit-content;
+    height: fit-content;
   }
 
   // Tablet : 8 colonnes
@@ -55,8 +57,7 @@
     }
 
     h1 {
-      --start: 1;
-      --cols: 4;
+      margin-top: #{helpers.pxToRem(100)};
     }
 
     h2 {
@@ -64,11 +65,15 @@
       --cols: 4;
 
       grid-row: 2;
+      margin-top: #{helpers.pxToRem(200)};
     }
 
     &__event-button {
       --start: 1;
       --cols: 4;
+
+      grid-row: 2;
+      margin-top: #{helpers.pxToRem(300)};
     }
   }
 
@@ -81,18 +86,6 @@
     &__logo {
       --start: 7;
       --cols: 5;
-    }
-
-    h1 {
-      --start: 1;
-      --cols: 4;
-    }
-
-    h2 {
-      --start: 1;
-      --cols: 4;
-
-      grid-row: 2;
     }
 
     &__event-button {
@@ -113,18 +106,6 @@
       --cols: 5;
     }
 
-    h1 {
-      --start: 1;
-      --cols: 4;
-    }
-
-    h2 {
-      --start: 1;
-      --cols: 4;
-
-      grid-row: 2;
-    }
-
     &__event-button {
       --start: 1;
       --cols: 4;
@@ -141,18 +122,6 @@
     &__logo {
       --start: 7;
       --cols: 5;
-    }
-
-    h1 {
-      --start: 1;
-      --cols: 4;
-    }
-
-    h2 {
-      --start: 1;
-      --cols: 4;
-
-      grid-row: 2;
     }
 
     &__event-button {
