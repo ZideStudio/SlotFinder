@@ -13,7 +13,9 @@ type UsePatchAccountProps = {
 };
 
 type UsePatchAccountReturn = {
-  patchAccount: (data: AccountAccountUpdateDto) => void;
+  patchAccount: (
+    data: AccountAccountUpdateDto,
+  ) => Promise<AccountAccountResponseDto>;
   isLoading: boolean;
   errorCode?: PatchAccountErrorCodeType;
 };
