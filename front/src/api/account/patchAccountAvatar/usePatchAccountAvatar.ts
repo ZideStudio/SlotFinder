@@ -8,7 +8,7 @@ type UsePatchAccountAvatarProps = {
 };
 
 type UsePatchAccountAvatarReturn = {
-  patchAccountAvatar: (data: PatchV1AccountAvatarBody) => void;
+  patchAccountAvatar: (data: PatchV1AccountAvatarBody) => Promise<void>;
   isLoading: boolean;
 };
 
