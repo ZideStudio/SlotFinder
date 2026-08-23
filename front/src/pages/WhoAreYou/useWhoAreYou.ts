@@ -102,19 +102,19 @@ export const useWhoAreYou = ({
       const patchAccountDTO = buildAccountUpdateDTO(data);
       const [avatarFile] = data.avatar;
 
-      try {
-        await Promise.all([
-          patchAccount(patchAccountDTO),
-          patchAccountAvatar({ image: avatarFile }),
-        ]);
+      const results = await Promise.allSettled([
+        patchAccount(patchAccountDTO),
+        patchAccountAvatar({ image: avatarFile }),
+      ]);
 
-        queryClient.invalidateQueries({ queryKey: getAccountMeQueryKey });
-        checkAuthentication();
-      } catch {
-        setSubmitError(t("error.SERVER_ERROR"));
+      if (results.some((result) => result.status === "rejected")) {
+        return;
       }
+
+      queryClient.invalidateQueries({ queryKey: getAccountMeQueryKey });
+      checkAuthentication();
     },
-    [patchAccount, patchAccountAvatar, queryClient, t, checkAuthentication],
+    [patchAccount, patchAccountAvatar, queryClient, checkAuthentication],
   );
 
   return {
