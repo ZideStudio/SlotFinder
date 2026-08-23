@@ -1,3 +1,4 @@
+import type { AuthStatusErrorCodeType } from "@Front/types/Authentication/authStatus/authStatus.types";
 import { useMemo, useState, type ReactNode } from "react";
 import { AuthenticationContext } from "./AuthenticationContext";
 import { useCheckAuthentication } from "./useCheckAuthentication";
@@ -11,9 +12,17 @@ export const AuthenticationContextProvider = ({
   children,
 }: AuthenticationContextProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | undefined>();
+  const [authenticationError, setAuthenticationError] =
+    useState<AuthStatusErrorCodeType>();
   const { checkAuthentication } = useCheckAuthentication({
-    onSuccess: () => setIsAuthenticated(true),
-    onError: () => setIsAuthenticated(false),
+    onSuccess: () => {
+      setIsAuthenticated(true);
+      setAuthenticationError(undefined);
+    },
+    onError: (error) => {
+      setIsAuthenticated(false);
+      setAuthenticationError(error.getErrorCode());
+    },
   });
   const {
     postAuthRedirectPath,
@@ -24,6 +33,7 @@ export const AuthenticationContextProvider = ({
   const value = useMemo(
     () => ({
       isAuthenticated,
+      authenticationError,
       postAuthRedirectPath,
       setPostAuthRedirectPath,
       resetPostAuthRedirectPath,
@@ -31,6 +41,7 @@ export const AuthenticationContextProvider = ({
     }),
     [
       isAuthenticated,
+      authenticationError,
       postAuthRedirectPath,
       setPostAuthRedirectPath,
       resetPostAuthRedirectPath,

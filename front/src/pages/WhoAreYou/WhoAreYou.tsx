@@ -64,7 +64,7 @@ export const WhoAreYou = () => {
             type="submit"
             isLoading={isSubmitting}
           >
-            Continuer
+            {t("submitButtonLabel")}
           </Button>
           <InputErrorMessage>{submitError}</InputErrorMessage>
         </form>

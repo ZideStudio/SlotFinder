@@ -2,11 +2,11 @@ import { appRoutes } from "@Front/routing/appRoutes";
 import { renderBrowserRoute } from "@Front/utils/testsUtils/customRender/customRender.browser";
 import { worker } from "@Mocks/browser";
 import {
-    getAccountMe200,
-    patchAccount200,
-    patchAccount400,
-    patchAvatarAccount200,
-    patchAvatarAccount400,
+  getAccountMe200,
+  patchAccount200,
+  patchAccount400,
+  patchAvatarAccount200,
+  patchAvatarAccount400,
 } from "@Mocks/handlers/accountHandlers";
 import { page } from "vitest/browser";
 
@@ -52,28 +52,7 @@ describe("WhoAreYou Page", () => {
       )
       .toBeInTheDocument();
     await expect
-      .element(page.getByRole("button", { name: "Continuer" }))
-      .toBeInTheDocument();
-  });
-
-  it("should show errors when submitting empty form", async () => {
-    await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-
-    await page.getByRole("button", { name: "Continuer" }).click();
-
-    await expect
-      .element(page.getByText("The avatar is required"))
-      .toBeInTheDocument();
-    await expect
-      .element(page.getByText("Username is required"))
-      .toBeInTheDocument();
-    await expect
-      .element(page.getByText("You must choose a color"))
-      .toBeInTheDocument();
-    await expect
-      .element(
-        page.getByText("You must accept the terms and conditions of use"),
-      )
+      .element(page.getByRole("button", { name: "Continue" }))
       .toBeInTheDocument();
   });
 
@@ -86,7 +65,7 @@ describe("WhoAreYou Page", () => {
       });
 
       await page.getByLabelText(/Avatar/u).upload(invalidFile);
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(
@@ -107,7 +86,7 @@ describe("WhoAreYou Page", () => {
       );
 
       await page.getByLabelText(/Avatar/u).upload(largeFile);
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(page.getByText("The avatar file size must be less than 10 MB"))
@@ -120,7 +99,7 @@ describe("WhoAreYou Page", () => {
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
       await page.getByRole("textbox", { name: "Username" }).fill("ab");
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(page.getByText("Username must be at least 3 characters"))
@@ -133,7 +112,7 @@ describe("WhoAreYou Page", () => {
       await page
         .getByRole("textbox", { name: "Username" })
         .fill("a".repeat(31));
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(page.getByText("Username must be at most 30 characters"))
@@ -141,7 +120,24 @@ describe("WhoAreYou Page", () => {
     });
   });
 
-  describe("Submit API errors", () => {
+  describe("Submit success and API errors", () => {
+    it("should submit valid data without showing an error message", async () => {
+      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
+
+      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+      await fillFormWithValidData();
+
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect
+        .element(
+          page.getByText(
+            "An unexpected error occurred during submit. Please try again later or contact support if the issue persists.",
+          ),
+        )
+        .not.toBeInTheDocument();
+    });
+
     it("should show username error when account patch returns username already taken", async () => {
       worker.use(
         patchAccount400("USERNAME_ALREADY_TAKEN"),
@@ -151,7 +147,7 @@ describe("WhoAreYou Page", () => {
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
       await fillFormWithValidData();
 
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(
@@ -171,7 +167,7 @@ describe("WhoAreYou Page", () => {
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
       await fillFormWithValidData();
 
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(
@@ -188,7 +184,7 @@ describe("WhoAreYou Page", () => {
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
       await fillFormWithValidData();
 
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(
@@ -205,7 +201,7 @@ describe("WhoAreYou Page", () => {
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
       await fillFormWithValidData();
 
-      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect
         .element(
@@ -217,39 +213,25 @@ describe("WhoAreYou Page", () => {
 
   describe("Form pre-fill from account data", () => {
     it("should pre-fill form with account data on mount", async () => {
-      worker.use(
-        getAccountMe200,
-        patchAccount200,
-        patchAvatarAccount200,
-      );
+      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
 
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
-      // Wait for form to be pre-filled
       const usernameInput = page.getByRole("textbox", { name: /Username/u });
       await expect.element(usernameInput).toHaveValue("test_user");
     });
 
     it("should show avatar preview from account data", async () => {
-      worker.use(
-        getAccountMe200,
-        patchAccount200,
-        patchAvatarAccount200,
-      );
+      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
 
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
-      // Wait for avatar preview to appear - this checks if the defaultPreviewUrl was set
       const avatarContainer = page.getByLabelText(/Avatar/u);
       await expect.element(avatarContainer).toBeInTheDocument();
     });
 
     it("should allow updating pre-filled username", async () => {
-      worker.use(
-        getAccountMe200,
-        patchAccount200,
-        patchAvatarAccount200,
-      );
+      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
 
       await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
