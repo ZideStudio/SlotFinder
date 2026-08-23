@@ -1,12 +1,163 @@
 @use "../../../utils/sass/mixins/helpers";
+@use "../../../utils/sass/mixins/responsive";
 
 .welcome {
-  display: flex;
-  flex-direction: column;
-
   &__connexion-button {
-    align-self: flex-end;
+    --start: 1;
+    --cols: 4;
+
+    justify-self: end;
     width: fit-content;
     margin-top: #{helpers.pxToRem(20)};
+  }
+
+  &__logo {
+    --start: 1;
+    --cols: 4;
+
+    justify-self: center;
+    width: 100%;
+    height: auto;
+  }
+
+  h1 {
+    --start: 1;
+    --cols: 4;
+
+    grid-row: 2;
+  }
+
+  h2 {
+    --start: 1;
+    --cols: 5;
+
+    grid-row: 3;
+    align-self: end;
+  }
+
+  &__event-button {
+    --start: 1;
+    --cols: 4;
+
+    width: fit-content;
+  }
+
+  // Tablet : 8 colonnes
+  @include responsive.mediaExceedsWidth("tablet") {
+    &__connexion-button {
+      --start: 6;
+      --cols: 3;
+    }
+
+    &__logo {
+      --start: 5;
+      --cols: 4;
+    }
+
+    h1 {
+      --start: 1;
+      --cols: 4;
+    }
+
+    h2 {
+      --start: 1;
+      --cols: 4;
+
+      grid-row: 2;
+    }
+
+    &__event-button {
+      --start: 1;
+      --cols: 4;
+    }
+  }
+
+  // Desktop small : 12 colonnes
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    &__connexion-button {
+      --start: 10;
+    }
+
+    &__logo {
+      --start: 7;
+      --cols: 5;
+    }
+
+    h1 {
+      --start: 1;
+      --cols: 4;
+    }
+
+    h2 {
+      --start: 1;
+      --cols: 4;
+
+      grid-row: 2;
+    }
+
+    &__event-button {
+      --start: 1;
+      --cols: 4;
+    }
+  }
+
+  // Desktop medium
+  @include responsive.mediaExceedsWidth("desktop-medium") {
+    &__connexion-button {
+      --start: 10;
+      --cols: 3;
+    }
+
+    &__logo {
+      --start: 7;
+      --cols: 5;
+    }
+
+    h1 {
+      --start: 1;
+      --cols: 4;
+    }
+
+    h2 {
+      --start: 1;
+      --cols: 4;
+
+      grid-row: 2;
+    }
+
+    &__event-button {
+      --start: 1;
+      --cols: 4;
+    }
+  }
+
+  // Desktop large
+  @include responsive.mediaExceedsWidth("desktop-large") {
+    &__connexion-button {
+      --start: 10;
+      --cols: 3;
+    }
+
+    &__logo {
+      --start: 7;
+      --cols: 5;
+    }
+
+    h1 {
+      --start: 1;
+      --cols: 4;
+    }
+
+    h2 {
+      --start: 1;
+      --cols: 4;
+
+      grid-row: 2;
+    }
+
+    &__event-button {
+      --start: 1;
+      --cols: 4;
+    }
   }
 }
