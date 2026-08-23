@@ -21,16 +21,6 @@ const renderHookWithProviders = (hook: () => ReturnType<typeof useWhoAreYou>) =>
   renderHook(hook, { wrapper: TestProviders });
 
 describe("useWhoAreYou - success scenarios", () => {
-  const originalTemporal = globalThis.Temporal;
-
-  beforeAll(() => {
-    globalThis.Temporal = {
-      Now: {
-        timeZoneId: () => "Europe/Paris",
-      },
-    } as unknown as typeof Temporal;
-  });
-
   beforeEach(() => {
     server.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
   });
@@ -40,7 +30,6 @@ describe("useWhoAreYou - success scenarios", () => {
   });
 
   afterAll(() => {
-    globalThis.Temporal = originalTemporal;
     server.resetHandlers();
   });
 
@@ -110,16 +99,6 @@ describe("useWhoAreYou - success scenarios", () => {
 });
 
 describe("useWhoAreYou - error scenarios", () => {
-  const originalTemporal = globalThis.Temporal;
-
-  beforeAll(() => {
-    globalThis.Temporal = {
-      Now: {
-        timeZoneId: () => "Europe/Paris",
-      },
-    } as unknown as typeof Temporal;
-  });
-
   beforeEach(() => {
     server.resetHandlers();
   });
@@ -129,7 +108,6 @@ describe("useWhoAreYou - error scenarios", () => {
   });
 
   afterAll(() => {
-    globalThis.Temporal = originalTemporal;
     server.resetHandlers();
   });
 

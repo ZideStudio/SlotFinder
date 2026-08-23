@@ -3,20 +3,6 @@ import type { WhoAreYouFormData } from "../types";
 import { buildAccountUpdateDTO } from "../whoAreYou.helpers";
 
 describe("whoAreYou helpers", () => {
-  const originalTemporal = globalThis.Temporal;
-
-  beforeAll(() => {
-    globalThis.Temporal = {
-      Now: {
-        timeZoneId: () => "Europe/Paris",
-      },
-    } as unknown as typeof Temporal;
-  });
-
-  afterAll(() => {
-    globalThis.Temporal = originalTemporal;
-  });
-
   describe("buildAccountUpdateDTO", () => {
     it("should build correct DTO from form data", () => {
       const formData: WhoAreYouFormData = {
