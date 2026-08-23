@@ -1,4 +1,3 @@
-
 import { TERMS_VERSION } from "@Front/utils/constants/terms";
 import type { WhoAreYouFormData } from "../types";
 import { buildAccountUpdateDTO } from "../whoAreYou.helpers";

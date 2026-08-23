@@ -7,7 +7,9 @@ export const getAuthStatus401Fixture: HelpersApiError = {
   code: "NOT_AUTHENTICATED",
 };
 
-export const getAuthStatus403Fixture = (errorCode: AuthStatusErrorCodeType): HelpersApiError => ({
+export const getAuthStatus403Fixture = (
+  errorCode: AuthStatusErrorCodeType,
+): HelpersApiError => ({
   code: errorCode,
 });
 
