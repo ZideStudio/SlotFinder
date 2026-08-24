@@ -14,8 +14,8 @@ export const Welcome = () => {
       <Button className="welcome__connexion-button">{t("connexion")}</Button>
       <Icon className="welcome__logo" icon={logo} />
       <Heading level={1}>{t("slotFinder")}</Heading>
-      <Heading level={2}>{t("your disponibility, our solution")}</Heading>
-      <Button className="welcome__event-button">{t("create an event")}</Button>
+      <Heading level={2}>{t("title")}</Heading>
+      <Button className="welcome__event-button">{t("createEvent")}</Button>
     </div>
   );
 };
