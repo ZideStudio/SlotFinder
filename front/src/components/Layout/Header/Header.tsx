@@ -21,6 +21,7 @@ export const Header = ({
   className = "",
 }: HeaderProps) => {
   const matches = useMatches() as UIMatch<unknown, RouteHandle>[];
+  
   const parentClassName = getClassName({
     defaultClassName: "header",
     className,

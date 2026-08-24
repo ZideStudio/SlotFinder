@@ -2,9 +2,9 @@ import { Heading } from "@Front/ui/atoms/Heading/Heading";
 import { Button } from "@Front/ui/molecules/Button/Button";
 import { useTranslation } from "react-i18next";
 import logo from "../../../assets/svg/logo/colored_logo_no_bg.svg";
+import { Icon } from "@Front/ui/atoms/Icon/Icon";
 
 import "./Welcome.scss";
-import { Icon } from "@Front/ui/atoms/Icon/Icon";
 
 export const Welcome = () => {
   const { t } = useTranslation("welcome");
