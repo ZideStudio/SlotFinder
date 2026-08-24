@@ -42,7 +42,6 @@ jobs:
           base: ${{ inputs.base_ref }}
           filters: |
             docker:
-              - 'docker-compose.dev.yml'
               - 'docker/**'
               - 'front/Dockerfile'
               - 'back/Dockerfile'
@@ -62,4 +61,4 @@ jobs:
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 
       - name: Build Development Docker Compose
-        run: docker compose -f docker-compose.dev.yml build
+        run: docker compose -f docker/docker-compose.dev.yml build

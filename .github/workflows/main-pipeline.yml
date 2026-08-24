@@ -59,7 +59,7 @@ jobs:
         run: printf '%s' "${{ secrets.FRONT_ENV_PRD }}" > .env
 
       - name: Build Production Images
-        run: docker compose -f docker-compose-build-prd.yml build
+        run: docker compose -f docker/docker-compose-build-prd.yml build
         env:
           IMAGE_TAG: ${{ github.sha }}
 
@@ -80,7 +80,7 @@ jobs:
           export DOMAIN=${PRD_DOMAIN}
           export FRONT_IMAGE=prd-${IMAGE_NAME}-front:${{ github.sha }}
           export BACK_IMAGE=prd-${IMAGE_NAME}-back:${{ github.sha }}
-          docker compose -f docker-compose-prd.yml up -d
+          docker compose -f docker/docker-compose-prd.yml up -d
         env:
           COMPOSE_PROJECT_NAME: slotfinder-prd
 

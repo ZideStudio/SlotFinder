@@ -83,7 +83,7 @@ RUN NODE_BIN="$(find /home/vscode/.local/share/mise/installs/node -name node -ma
     && ln -sf "$NODE_BIN" /usr/local/bin/node \
     && ln -sf "$NODE_DIR/npm" /usr/local/bin/npm \
     && ln -sf "$NODE_DIR/npx" /usr/local/bin/npx
-    
+
 WORKDIR /workspace
 USER vscode
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

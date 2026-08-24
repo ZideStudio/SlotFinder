@@ -36,7 +36,7 @@ storybook:
 # Start dockerized dependencies (host mode)
 docker-deps:
 	@echo "\n🐳 Starting dockerized dependencies..."
-	@docker compose -f docker-compose.dev.yml -f docker-compose.traefik-host.yml up -d traefik postgres
+	@docker compose -f docker/docker-compose.dev.yml -f docker/docker-compose.traefik-host.yml up -d traefik postgres
 	@echo "✅ Traefik is starting on https://localhost (dashboard: http://localhost:9000)"
 	@echo "✅ Postgres is starting on localhost:5432"
 	@echo "📝 Make sure your frontend is running on http://localhost:3000"
@@ -45,5 +45,5 @@ docker-deps:
 # Stop dockerized dependencies (host mode)
 docker-deps-down:
 	@echo "\n🐳 Stopping dockerized dependencies..."
-	@docker compose -f docker-compose.dev.yml -f docker-compose.traefik-host.yml down
+	@docker compose -f docker/docker-compose.dev.yml -f docker/docker-compose.traefik-host.yml down
 	@echo "🛑 Dependencies stopped"

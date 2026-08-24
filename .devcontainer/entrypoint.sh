@@ -5,6 +5,11 @@ if [ -S /var/run/docker.sock ]; then
     sudo chmod 666 /var/run/docker.sock
 fi
 
+# Re-own GOPATH: Zed's UID/GID remap leaves image-build-time files (e.g. /go) owned by the old UID.
+if [ -n "$GOPATH" ] && [ -d "$GOPATH" ]; then
+    sudo chown -R "$(id -u):$(id -g)" "$GOPATH"
+fi
+
 # Recover from stale Xvfb lock after an unclean previous shutdown.
 LOCK_FILE="/tmp/.X99-lock"
 SOCKET_FILE="/tmp/.X11-unix/X99"

@@ -58,7 +58,7 @@ jobs:
         run: printf '%s' "${{ secrets.FRONT_ENV_STG }}" > .env
 
       - name: Build Staging Images
-        run: docker compose -f docker-compose-build-stg.yml build
+        run: docker compose -f docker/docker-compose-build-stg.yml build
         env:
           IMAGE_TAG: ${{ github.sha }}
 
@@ -82,6 +82,6 @@ jobs:
           export DOMAIN=stg.slotfinder.fr
           export FRONT_IMAGE=stg-slotfinder-front:${{ github.sha }}
           export BACK_IMAGE=stg-slotfinder-back:${{ github.sha }}
-          docker compose -f docker-compose-stg.yml up -d
+          docker compose -f docker/docker-compose-stg.yml up -d
         env:
           COMPOSE_PROJECT_NAME: slotfinder-stg
