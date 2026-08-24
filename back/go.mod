@@ -45,7 +45,7 @@ require (
 	github.com/gohugoio/hugo v0.165.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
-	github.com/mattn/go-sqlite3 v1.14.49 // indirect
+	github.com/mattn/go-sqlite3 v1.14.50 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
