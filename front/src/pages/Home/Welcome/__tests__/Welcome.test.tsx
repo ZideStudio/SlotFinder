@@ -37,7 +37,7 @@ describe("Welcome", () => {
 
   it("does render the create an event button", async () => {
     await expect(
-      screen.findByRole("button", { name: "welcome.create an event" }),
+      screen.findByRole("button", { name: "welcome.createEvent" }),
     ).resolves.toBeInTheDocument();
   });
 });
