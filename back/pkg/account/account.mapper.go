@@ -8,12 +8,14 @@ func MapToAccountResponseDto(a model.Account) AccountResponseDto {
 		providers = append(providers, AccountProviderDto{Provider: p.Provider})
 	}
 	return AccountResponseDto{
-		Username:  a.Username,
-		Email:     a.Email,
-		AvatarUrl: a.AvatarUrl,
-		Language:  a.Language,
-		Color:     a.Color,
-		TimeZone:  a.TimeZone,
-		Providers: providers,
+		Username:      a.Username,
+		Email:         a.Email,
+		AvatarUrl:     a.AvatarUrl,
+		Language:      a.Language,
+		Color:         a.Color,
+		TimeZone:      a.TimeZone,
+		Providers:     providers,
+		TermsAccepted: a.TermsAcceptedAt != nil,
+		TermsVersion:  a.TermsVersion,
 	}
 }

@@ -1098,6 +1098,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/account.AccountProviderDto"
                     }
                 },
+                "termsAccepted": {
+                    "type": "boolean"
+                },
+                "termsVersion": {
+                    "type": "string"
+                },
                 "timeZone": {
                     "type": "string"
                 },

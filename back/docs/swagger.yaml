@@ -47,6 +47,10 @@ definitions:
         items:
           $ref: '#/definitions/account.AccountProviderDto'
         type: array
+      termsAccepted:
+        type: boolean
+      termsVersion:
+        type: string
       timeZone:
         type: string
       username:
