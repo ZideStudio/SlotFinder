@@ -10,6 +10,8 @@ import (
 	"image/png"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -58,6 +60,36 @@ func TestGetDicebearSVG_Deterministic(t *testing.T) {
 	assert.Equal(t, svg1, svg2)
 	assert.NotEqual(t, svg1, svg3)
 	assert.Contains(t, svg1, "<svg")
+}
+
+func TestFallbackAvatarURL_MatchesGlyphsStyleParams(t *testing.T) {
+	got := fallbackAvatarURL("someuser")
+
+	parsed, err := url.Parse(got)
+	require.NoError(t, err)
+	assert.Equal(t, "https://api.dicebear.com/10.x/glyphs/svg", parsed.Scheme+"://"+parsed.Host+parsed.Path)
+
+	query := parsed.Query()
+	assert.Equal(t, "someuser", query.Get("seed"))
+	assert.Equal(t, "2", query.Get("glyphColorFillStops"))
+	assert.Equal(t, "-25", query.Get("glyphColorAngle"))
+
+	wantShapeVariants := make([]string, len(glyphShapeVariants))
+	for i, v := range glyphShapeVariants {
+		wantShapeVariants[i] = v.(string)
+	}
+	assert.Equal(t, strings.Join(wantShapeVariants, ","), query.Get("shapeVariant"))
+
+	wantColors := make([]string, len(glyphColors))
+	for i, c := range glyphColors {
+		wantColors[i] = c.(string)
+	}
+	assert.Equal(t, strings.Join(wantColors, ","), query.Get("glyphColor"))
+}
+
+func TestFallbackAvatarURL_VariesWithSeed(t *testing.T) {
+	assert.NotEqual(t, fallbackAvatarURL("someuser"), fallbackAvatarURL("otheruser"))
+	assert.Equal(t, fallbackAvatarURL("someuser"), fallbackAvatarURL("someuser"))
 }
 
 func TestFetchAndStoreDefaultAvatar_Success(t *testing.T) {
