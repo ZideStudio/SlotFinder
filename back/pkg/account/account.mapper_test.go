@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMapToAccountResponseDto_WithProviders(t *testing.T) {
@@ -46,9 +47,9 @@ func TestMapToAccountResponseDto_TermsAccepted(t *testing.T) {
 	dto := MapToAccountResponseDto(account)
 
 	assert.True(t, dto.TermsAccepted)
-	if assert.NotNil(t, dto.TermsVersion) {
-		assert.Equal(t, version, *dto.TermsVersion)
-	}
+	require.NotNil(t, dto.TermsVersion)
+	assert.Equal(t, version, *dto.TermsVersion)
+}
 
 func TestMapToAccountResponseDto_TermsNotAccepted(t *testing.T) {
 	t.Parallel()
