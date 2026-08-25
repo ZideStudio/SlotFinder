@@ -46,8 +46,9 @@ func TestMapToAccountResponseDto_TermsAccepted(t *testing.T) {
 	dto := MapToAccountResponseDto(account)
 
 	assert.True(t, dto.TermsAccepted)
-	assert.Equal(t, version, *dto.TermsVersion)
-}
+	if assert.NotNil(t, dto.TermsVersion) {
+		assert.Equal(t, version, *dto.TermsVersion)
+	}
 
 func TestMapToAccountResponseDto_TermsNotAccepted(t *testing.T) {
 	t.Parallel()
