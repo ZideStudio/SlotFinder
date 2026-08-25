@@ -10,7 +10,6 @@ import (
 	"image/png"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/google/uuid"
@@ -43,81 +42,32 @@ func newImageTestServer(t *testing.T, body []byte, status int) *httptest.Server 
 	return server
 }
 
-// gravatarRedirectTransport reroutes any request to www.gravatar.com to a
-// local httptest server, matching by host since the path carries a hash.
-type gravatarRedirectTransport struct {
-	target string
-	next   http.RoundTripper
-}
-
-func (rt *gravatarRedirectTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	if req.URL.Host != "www.gravatar.com" {
-		return rt.next.RoundTrip(req)
-	}
-
-	newURL, err := url.Parse(rt.target)
-	if err != nil {
-		return nil, err
-	}
-
-	req = req.Clone(req.Context())
-	req.URL = newURL
-	req.Host = ""
-
-	return rt.next.RoundTrip(req)
-}
-
-// withGravatarRedirect installs the redirect on http.DefaultTransport for
-// the test's duration, since lib.ProcessAvatarFromURL uses http.Get.
-func withGravatarRedirect(t *testing.T, target string) {
-	t.Helper()
-	orig := http.DefaultTransport
-	http.DefaultTransport = &gravatarRedirectTransport{target: target, next: orig}
-	t.Cleanup(func() { http.DefaultTransport = orig })
-}
-
 func TestNewAvatarService_ReusesProvidedInstance(t *testing.T) {
 	existing := &AvatarService{}
 	assert.Same(t, existing, NewAvatarService(existing))
 }
 
-func TestGetGravatarURL_Deterministic(t *testing.T) {
-	url1 := GetGravatarURL("someuser")
-	url2 := GetGravatarURL("someuser")
-	url3 := GetGravatarURL("otheruser")
-	assert.Equal(t, url1, url2)
-	assert.NotEqual(t, url1, url3)
-	assert.Contains(t, url1, "https://www.gravatar.com/avatar/")
+func TestGetDicebearSVG_Deterministic(t *testing.T) {
+	svg1, err := GetDicebearSVG("someuser")
+	require.NoError(t, err)
+	svg2, err := GetDicebearSVG("someuser")
+	require.NoError(t, err)
+	svg3, err := GetDicebearSVG("otheruser")
+	require.NoError(t, err)
+
+	assert.Equal(t, svg1, svg2)
+	assert.NotEqual(t, svg1, svg3)
+	assert.Contains(t, svg1, "<svg")
 }
 
-func TestFetchAndStoreGravatar_Success(t *testing.T) {
-	imgServer := newImageTestServer(t, validPNG(t, 10, 10), http.StatusOK)
-	withGravatarRedirect(t, imgServer.URL)
-
+func TestFetchAndStoreDefaultAvatar_Success(t *testing.T) {
 	s := &AvatarService{}
 	accountId := uuid.New()
 
-	data, avatarUrl := s.FetchAndStoreGravatar("someuser", accountId)
+	data, avatarUrl := s.FetchAndStoreDefaultAvatar("someuser", accountId)
 
 	assert.NotEmpty(t, data)
 	assert.Equal(t, "/api/v1/account/"+accountId.String()+"/avatar", avatarUrl)
-}
-
-func TestFetchAndStoreGravatar_FetchFails(t *testing.T) {
-	// Start and immediately close a server so the redirect target is
-	// guaranteed to refuse connections, regardless of platform.
-	badServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-	badURL := badServer.URL
-	badServer.Close()
-	withGravatarRedirect(t, badURL)
-
-	s := &AvatarService{}
-	accountId := uuid.New()
-
-	data, avatarUrl := s.FetchAndStoreGravatar("someuser", accountId)
-
-	assert.Nil(t, data)
-	assert.Equal(t, GetGravatarURL(accountId.String()), avatarUrl)
 }
 
 func TestFindAvatarById(t *testing.T) {

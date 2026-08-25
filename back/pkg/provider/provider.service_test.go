@@ -478,7 +478,7 @@ func TestProviderCallback_Google_NewAccount(t *testing.T) {
 
 	// The mock userinfo response has an empty "picture" field, so
 	// avatarService.UploadAvatar(&"", nil, ...) fails fast (invalid URL) and
-	// ProviderCallback falls back to GetGravatarURL — no imgbb stub needed.
+	// ProviderCallback falls back to the generated Dicebear avatar — no imgbb stub needed.
 	s := newTestProviderService(t)
 	s.httpClient = oauthRedirectClient(t, map[string]string{
 		realGoogleTokenURL:    server.URL + "/token",
