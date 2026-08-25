@@ -16,7 +16,7 @@ const PopoverStory = ({ openOnMount = false, ...args }: PopoverStoryProps) => {
     if (openOnMount) {
       document.getElementById(popoverProps.id)?.showPopover();
     }
-    // oxlint-disable-next-line eslint-plugin-react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies react-hooks/exhaustive-deps
   }, []);
 
   return (
