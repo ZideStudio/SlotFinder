@@ -75,10 +75,11 @@ func TestGetAuthConfig_Success(t *testing.T) {
 
 func TestGetEmailConfig_Success(t *testing.T) {
 	envs := map[string]string{
-		"EMAIL_HOST":     "smtp.example.com",
-		"EMAIL_PORT":     "587",
-		"EMAIL_ADDRESS":  "noreply@example.com",
-		"EMAIL_PASSWORD": "secret",
+		"EMAIL_HOST":             "smtp.example.com",
+		"EMAIL_PORT":             "587",
+		"EMAIL_ADDRESS":          "noreply@example.com",
+		"EMAIL_PASSWORD":         "secret",
+		"EMAIL_SENDING_DISABLED": "true",
 	}
 	originals := setEnvs(t, envs)
 	defer restoreEnvs(originals)
@@ -89,6 +90,16 @@ func TestGetEmailConfig_Success(t *testing.T) {
 	assert.Equal(t, "587", c.Port)
 	assert.Equal(t, "noreply@example.com", c.Address)
 	assert.Equal(t, "secret", c.Password)
+	assert.True(t, c.Disabled)
+}
+
+func TestGetEmailConfig_DisabledDefaultsFalse(t *testing.T) {
+	originals := setEnvs(t, map[string]string{"EMAIL_SENDING_DISABLED": ""})
+	defer restoreEnvs(originals)
+
+	c := GetEmailConfig()
+
+	assert.False(t, c.Disabled)
 }
 
 func TestGetProviderConfig_Success(t *testing.T) {

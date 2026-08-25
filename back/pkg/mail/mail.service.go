@@ -375,6 +375,14 @@ func (s *MailService) SendMail(params EmailParams) error {
 		params.Language = constants.ACCOUNT_LANGUAGE_EN
 	}
 
+	if s.Config.Email.Disabled {
+		log.Info().
+			Str("template", string(params.Template)).
+			Str("to", params.To).
+			Msg("MAIL_SERVICE::SEND_MAIL Email sending disabled, skipping")
+		return nil
+	}
+
 	// Ensure params map is not nil
 	if params.Params == nil {
 		params.Params = make(map[string]string)
