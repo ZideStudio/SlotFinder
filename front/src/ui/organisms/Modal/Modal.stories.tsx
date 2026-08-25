@@ -14,7 +14,7 @@ const ModalStory = ({ openOnMount = false, ...args }: ModalStoryProps) => {
     if (openOnMount) {
       openModal();
     }
-    // oxlint-disable-next-line eslint-plugin-react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies react-hooks/exhaustive-deps
   }, []);
 
   return (

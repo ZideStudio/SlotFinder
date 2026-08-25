@@ -33,7 +33,7 @@ export const useCheckAuthentication = ({
 
   useLayoutEffect(() => {
     mutation.mutate();
-    // oxlint-disable-next-line exhaustive-deps
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies react-hooks/exhaustive-deps
   }, []);
 
   return { checkAuthentication: mutation.mutate };
