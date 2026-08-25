@@ -129,6 +129,10 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		if err := s.availabilityRepository.Create(&availabilityToCreate); err != nil {
 			return AvailabilityResponseDto{}, err
 		}
+
+		// Trigger slot recalculation asynchronously
+		go s.slotService.LoadSlots(eventId)
+
 		return MapToAvailabilityResponseDto(availabilityToCreate), nil
 	}
 
