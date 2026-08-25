@@ -179,9 +179,7 @@ func TestAvailabilityService_Create_MergesOverlapping(t *testing.T) {
 
 	var availabilities []model.Availability
 	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
-			return false
-		}
+		require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 		return len(availabilities) == 1
 	})
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
@@ -573,9 +571,7 @@ func TestAvailabilityService_Update_MergesOverlapping(t *testing.T) {
 
 	var availabilities []model.Availability
 	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
-			return false
-		}
+		require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 		return len(availabilities) == 1
 	})
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
