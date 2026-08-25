@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 )
 
 type EmailConfiguration struct {
@@ -9,13 +10,17 @@ type EmailConfiguration struct {
 	Port     string `env:"EMAIL_PORT"`
 	Address  string `env:"EMAIL_ADDRESS"`
 	Password string `env:"EMAIL_PASSWORD"`
+	Disabled bool   `env:"EMAIL_SENDING_DISABLED"`
 }
 
 func GetEmailConfig() EmailConfiguration {
+	disabled, _ := strconv.ParseBool(os.Getenv("EMAIL_SENDING_DISABLED"))
+
 	return EmailConfiguration{
 		Host:     os.Getenv("EMAIL_HOST"),
 		Port:     os.Getenv("EMAIL_PORT"),
 		Address:  os.Getenv("EMAIL_ADDRESS"),
 		Password: os.Getenv("EMAIL_PASSWORD"),
+		Disabled: disabled,
 	}
 }

@@ -218,6 +218,23 @@ func TestSendMail_DefaultsLanguageAndParams(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestSendMail_Disabled_SkipsSending(t *testing.T) {
+	t.Parallel()
+	s := newTestMailService(t)
+	s.Config.Email.Disabled = true
+
+	called := false
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+		called = true
+		return nil
+	}
+
+	err := s.SendMail(EmailParams{Template: constants.MAIL_TEMPLATE_WELCOME, To: "a@b.com", Subject: "Welcome"})
+
+	assert.NoError(t, err)
+	assert.False(t, called)
+}
+
 func TestSendMail_SmtpError(t *testing.T) {
 	t.Parallel()
 	s := newTestMailService(t)
