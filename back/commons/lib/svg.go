@@ -23,8 +23,13 @@ func RenderSVGToPNG(svg []byte, size int) ([]byte, error) {
 	}
 	icon.SetTarget(0, 0, float64(size), float64(size))
 
-	// oksvg doesn't scale stroke-width/dash with SetTarget, scale them by hand
-	scale := float64(size) / icon.ViewBox.W
+	// oksvg doesn't scale stroke-width/dash with SetTarget, scale them by hand.
+	// SetTarget fits the viewBox into a square target, so a non-square viewBox
+	// is scaled non-uniformly on X and Y; average the two so strokes land close
+	// to correct on both axes instead of just matching the X scale.
+	scaleX := float64(size) / icon.ViewBox.W
+	scaleY := float64(size) / icon.ViewBox.H
+	scale := (scaleX + scaleY) / 2
 	for i := range icon.SVGPaths {
 		p := &icon.SVGPaths[i]
 		p.LineWidth *= scale

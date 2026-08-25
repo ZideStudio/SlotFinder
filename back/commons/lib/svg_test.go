@@ -61,6 +61,33 @@ func TestRenderSVGToPNG_ScalesStrokeWidth(t *testing.T) {
 	assert.Greater(t, run, 6, "stroke should be scaled up with the rest of the geometry, not left at its raw SVG-unit width")
 }
 
+// TestRenderSVGToPNG_NonSquareViewBox_ScalesStrokeUsingBothAxes is a
+// regression test for a bug where stroke-width was scaled using only
+// ViewBox.W, ignoring ViewBox.H. SetTarget fits a non-square viewBox into a
+// square target non-uniformly on X and Y, so scaling stroke-width by the X
+// factor alone comes out far thinner than intended when H is much larger
+// than W (relative to the target). A 1-unit stroke in a 40x10 viewBox,
+// rendered at 100x100, should come out closer to the X/Y average scale
+// (~6.25px) than the X-only scale (~2.5px).
+func TestRenderSVGToPNG_NonSquareViewBox_ScalesStrokeUsingBothAxes(t *testing.T) {
+	svg := `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 10"><line x1="5" y1="5" x2="35" y2="5" stroke="#000000" stroke-width="1"/></svg>`
+
+	data, err := RenderSVGToPNG([]byte(svg), 100)
+	require.NoError(t, err)
+	img := decodePNG(t, data)
+
+	// Scan the vertical column at x=50 for the run of dark pixels around the
+	// horizontal stroke. X-only scaling (the bug) would give ~2.5px; scaling
+	// by the X/Y average gives ~6.25px.
+	run := 0
+	for y := 0; y < 100; y++ {
+		if isDark(img, 50, y) {
+			run++
+		}
+	}
+	assert.Greater(t, run, 4, "stroke should be scaled using both viewBox axes, not just width, for non-square viewBoxes")
+}
+
 func TestRenderSVGToPNG_NoViewBoxOrSize_ReturnsError(t *testing.T) {
 	svg := `<svg xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="5" r="5" fill="#000000"/></svg>`
 
