@@ -22,9 +22,11 @@ const LoaderPage: React.FC = () => {
       <div className="loader-logo-wrapper" role="status" aria-label="loading">
         <div
           className="loader-page__liquid-container"
-          style={{
-            "--logo-url": `url(${LogoColor})`,
-          } as React.CSSProperties}
+          style={
+            {
+              "--logo-url": `url(${LogoColor})`,
+            } as React.CSSProperties
+          }
         >
           <div className="loader-page__liquid-fill">
             <div className="wave wave-1" />

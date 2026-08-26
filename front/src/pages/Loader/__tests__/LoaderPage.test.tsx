@@ -1,7 +1,7 @@
-import { render, screen, act } from '@testing-library/react';
-import LoaderPage from '../LoaderPage';
+import { render, screen, act } from "@testing-library/react";
+import LoaderPage from "../LoaderPage";
 
-describe('LoaderPage', () => {
+describe("LoaderPage", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -10,29 +10,33 @@ describe('LoaderPage', () => {
     vi.useRealTimers();
   });
 
-  it('does not show the loader immediately on mount', () => {
+  it("does not show the loader immediately on mount", () => {
     render(<LoaderPage />);
 
-    expect(screen.queryByRole('status', { name: 'loading' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "loading" }),
+    ).not.toBeInTheDocument();
   });
 
-  it('does not show the loader just before 100ms', () => {
+  it("does not show the loader just before 100ms", () => {
     render(<LoaderPage />);
 
     act(() => {
       vi.advanceTimersByTime(99);
     });
 
-    expect(screen.queryByRole('status', { name: 'loading' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "loading" }),
+    ).not.toBeInTheDocument();
   });
 
-  it('shows the loader after 100ms', () => {
+  it("shows the loader after 100ms", () => {
     render(<LoaderPage />);
 
     act(() => {
       vi.advanceTimersByTime(100);
     });
 
-    expect(screen.getByRole('status', { name: 'loading' })).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "loading" })).toBeInTheDocument();
   });
 });

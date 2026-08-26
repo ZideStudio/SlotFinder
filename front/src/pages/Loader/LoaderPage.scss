@@ -1,4 +1,4 @@
-@use '../../utils/sass/mixins/helpers';
+@use "../../utils/sass/mixins/helpers";
 
 $colorPink: #b1297e;
 $colorMagenta: #e52656;
@@ -28,7 +28,12 @@ $colorMagenta: #e52656;
   &__liquid-fill {
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, var(--color-primary) 0%, $colorPink 50%, $colorMagenta 100%);
+    background: linear-gradient(
+      0deg,
+      var(--color-primary) 0%,
+      $colorPink 50%,
+      $colorMagenta 100%
+    );
 
     .wave {
       position: absolute;
