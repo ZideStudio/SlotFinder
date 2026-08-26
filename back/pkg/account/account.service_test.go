@@ -369,6 +369,28 @@ func TestUpdate_PasswordChanged_RevokesRefreshTokens(t *testing.T) {
 	assert.Equal(t, 1, activeCount, "the password-change token regeneration should have created a new active token")
 }
 
+func TestUpdate_NoPasswordField_DoesNotRehashExistingPassword(t *testing.T) {
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	password := "SuperSecret123!"
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{
+		Id:       uuid.New(),
+		Email:    &email,
+		Password: password,
+	}, &account))
+
+	// Update a field unrelated to the password (e.g. completing profile setup
+	// after signup, or changing timezone) — the DTO carries no password.
+	newTz := "America/New_York"
+	_, _, err := s.Update(&AccountUpdateDto{TimeZone: &newTz}, account.Id)
+	assert.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
+	assert.True(t, found.ComparePassword(password), "password hash should be left untouched when Update is called without a new password")
+}
+
 func TestUpdate_InvalidColor(t *testing.T) {
 	s := newTestAccountService(t)
 	account := createTestAccountWithUsername(t, s, "color-"+uuid.NewString())
