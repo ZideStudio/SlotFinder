@@ -468,6 +468,33 @@ func TestUpdate_LanguageChanged(t *testing.T) {
 	assert.Equal(t, lang, dto.Language)
 }
 
+func TestUpdate_PartialUpdate_LeavesOtherFieldsUntouched(t *testing.T) {
+	s := newTestAccountService(t)
+	username := "partial-" + uuid.NewString()
+	email := uniqueEmail(t)
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{
+		Id:       uuid.New(),
+		Username: &username,
+		Email:    &email,
+		Color:    "#111111",
+		Language: constants.ACCOUNT_LANGUAGE_EN,
+	}, &account))
+
+	// Only Language is provided in the DTO — Username/Email/Color must survive
+	// untouched, proving Updates() only receives explicitly-changed fields.
+	newLang := constants.ACCOUNT_LANGUAGE_FR
+	_, _, err := s.Update(&AccountUpdateDto{Language: &newLang}, account.Id)
+	assert.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
+	assert.Equal(t, newLang, found.Language)
+	assert.Equal(t, username, *found.Username)
+	assert.Equal(t, email, *found.Email)
+	assert.Equal(t, "#111111", found.Color)
+}
+
 func TestUpdate_RepositoryUpdatesError(t *testing.T) {
 	s := newTestAccountService(t)
 	account := createTestAccountWithUsername(t, s, "updfail-"+uuid.NewString())
