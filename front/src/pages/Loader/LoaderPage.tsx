@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./LoaderPage.scss";
-import LogoColor from "../../../public/assets/colored_logo_no_bg.svg";
+import LogoColorUrl from "@Front/assets/svg/logo/colored_logo_no_bg.svg?url";
+import { useTranslation } from "react-i18next";
 
-const LoaderPage: React.FC = () => {
+const LoaderPage = () => {
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation("loader");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,12 +21,16 @@ const LoaderPage: React.FC = () => {
 
   return (
     <div className="loader-page">
-      <div className="loader-logo-wrapper" role="status" aria-label="loading">
+      <div
+        className="loader-logo-wrapper"
+        role="status" // oxlint-disable-line jsx-a11y/prefer-tag-over-role
+        aria-label={t("loading")}
+      >
         <div
           className="loader-page__liquid-container"
           style={
             {
-              "--logo-url": `url(${LogoColor})`,
+              "--logo-url": `url(${LogoColorUrl})`,
             } as React.CSSProperties
           }
         >
@@ -34,6 +40,7 @@ const LoaderPage: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role*/}
     </div>
   );
 };

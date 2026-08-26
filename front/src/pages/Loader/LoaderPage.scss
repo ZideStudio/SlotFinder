@@ -1,8 +1,5 @@
 @use "../../utils/sass/mixins/helpers";
 
-$colorPink: #b1297e;
-$colorMagenta: #e52656;
-
 .loader-page {
   display: flex;
   align-items: center;
@@ -29,10 +26,9 @@ $colorMagenta: #e52656;
     position: absolute;
     inset: 0;
     background: linear-gradient(
-      0deg,
+      43.889deg,
       var(--color-primary) 0%,
-      $colorPink 50%,
-      $colorMagenta 100%
+      var(--color-accent) 100%
     );
 
     .wave {
