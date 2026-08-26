@@ -2,7 +2,7 @@
 @use "../../../utils/sass/mixins/responsive";
 
 .welcome {
-  &__connexion-button {
+  &__sign-in-button {
     --start: 1;
     --cols: 4;
 
@@ -15,42 +15,34 @@
     --start: 1;
     --cols: 4;
 
-    grid-row: 2;
     justify-self: center;
     width: 100%;
     height: auto;
   }
 
-  h1,
-  h2 {
+  &__slot-finder,
+  &__tag-line {
     --start: 1;
     --cols: 5;
 
-    grid-row: 2;
     height: fit-content;
   }
 
-  h1 {
-    font-size: #{helpers.pxToRem(32)};
+  &__slot-finder {
     font-weight: 600;
-  }
-
-  h2 {
-    margin-top: #{helpers.pxToRem(60)};
   }
 
   &__event-button {
     --start: 1;
     --cols: 4;
 
-    grid-row: 4;
     width: fit-content;
     height: fit-content;
   }
 
   // Tablet : 8 colonnes
   @include responsive.mediaExceedsWidth("tablet") {
-    &__connexion-button {
+    &__sign-in-button {
       --start: 6;
       --cols: 3;
     }
@@ -60,37 +52,30 @@
       --cols: 6;
     }
 
-    h1 {
-      margin-top: #{helpers.pxToRem(100)};
+    &__slot-finder {
       font-size: #{helpers.pxToRem(48)};
     }
 
-    h2 {
+    &__tag-line {
       --cols: 5;
-
-      margin-top: #{helpers.pxToRem(200)};
-    }
-
-    &__event-button {
-      grid-row: 2;
-      margin-top: #{helpers.pxToRem(300)};
     }
   }
 
   // Desktop small : 12 colonnes
   @include responsive.mediaExceedsWidth("desktop-small") {
-    &__connexion-button {
+    &__sign-in-button {
       --start: 10;
     }
 
     &__logo {
       --start: 7;
+      --cols: 5;
     }
   }
 
   // Desktop medium
   @include responsive.mediaExceedsWidth("desktop-medium") {
-    &__connexion-button {
+    &__sign-in-button {
       --cols: 3;
     }
   }

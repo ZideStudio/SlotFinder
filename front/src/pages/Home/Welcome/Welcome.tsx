@@ -10,12 +10,19 @@ export const Welcome = () => {
   const { t } = useTranslation("welcome");
 
   return (
-    <div className="welcome subgrid">
-      <Button className="welcome__connexion-button">{t("connexion")}</Button>
+    <section className="welcome subgrid">
+      <Button className="welcome__sign-in-button">{t("signIn")}</Button>
+
+      <Heading level={1} className="welcome__slot-finder">
+        {t("slotFinder")}
+      </Heading>
+      <Heading level={2} className="welcome__tag-line">
+        {t("tagLine")}
+      </Heading>
+
       <Icon className="welcome__logo" icon={logo} />
-      <Heading level={1}>{t("slotFinder")}</Heading>
-      <Heading level={2}>{t("title")}</Heading>
+
       <Button className="welcome__event-button">{t("createEvent")}</Button>
-    </div>
+    </section>
   );
 };
