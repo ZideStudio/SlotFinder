@@ -255,7 +255,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 
 		// Setup avatar
 		accountId := uuid.New()
-		avatarData, avatarUrl := s.avatarService.FetchAndStoreGravatar(accountId.String(), accountId)
+		avatarData, avatarUrl := s.avatarService.FetchAndStoreDefaultAvatar(accountId.String(), accountId)
 		if providerAccount.AvatarUrl != nil {
 			if processed, err := s.avatarService.UploadAvatar(providerAccount.AvatarUrl, nil); err == nil {
 				avatarData = processed
