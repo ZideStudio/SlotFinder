@@ -1,42 +1,42 @@
 @use '../../utils/sass/mixins/helpers';
 
-$color-pink: #b1297e;
-$color-magenta: #e52656;
+$colorPink: #b1297e;
+$colorMagenta: #e52656;
 
 .loader-page {
   display: flex;
-  width: 100vw;
-  height: 100vh;
   align-items: center;
   justify-content: center;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   background-color: var(--color-white, #fff);
 
   &__liquid-container {
     position: relative;
     display: flex;
-    width: helpers.pxToRem(180);
-    height: helpers.pxToRem(180);
     align-items: center;
     justify-content: center;
+    width: helpers.pxToRem(180);
+    height: helpers.pxToRem(180);
     mask-image: var(--logo-url);
-    mask-position: center;
     mask-repeat: no-repeat;
+    mask-position: center;
     mask-size: contain;
   }
 
   &__liquid-fill {
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, var(--color-primary) 0%, $color-pink 50%, $color-magenta 100%);
+    background: linear-gradient(0deg, var(--color-primary) 0%, $colorPink 50%, $colorMagenta 100%);
 
     .wave {
       position: absolute;
       left: -50%;
       width: 200%;
       height: 200%;
-      border-radius: 40%;
       background-color: var(--color-black);
+      border-radius: 40%;
       animation:
         fill-rise 4s ease-in-out infinite,
         wave-rotate 6s linear infinite;
