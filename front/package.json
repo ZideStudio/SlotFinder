@@ -67,7 +67,7 @@
     "concurrently": "10.0.5",
     "i18next-resources-for-ts": "2.1.0",
     "jsdom": "30.0.1",
-    "monocart-coverage-reports": "2.12.12",
+    "monocart-coverage-reports": "2.13.0",
     "msw": "2.15.0",
     "orval": "8.24.0",
     "oxfmt": "0.64.0",
