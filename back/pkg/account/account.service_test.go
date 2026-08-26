@@ -369,6 +369,28 @@ func TestUpdate_PasswordChanged_RevokesRefreshTokens(t *testing.T) {
 	assert.Equal(t, 1, activeCount, "the password-change token regeneration should have created a new active token")
 }
 
+func TestUpdate_NoPasswordField_DoesNotRehashExistingPassword(t *testing.T) {
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+	password := "SuperSecret123!"
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{
+		Id:       uuid.New(),
+		Email:    &email,
+		Password: password,
+	}, &account))
+
+	// Update a field unrelated to the password (e.g. completing profile setup
+	// after signup, or changing timezone) — the DTO carries no password.
+	newTz := "America/New_York"
+	_, _, err := s.Update(&AccountUpdateDto{TimeZone: &newTz}, account.Id)
+	assert.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
+	assert.True(t, found.ComparePassword(password), "password hash should be left untouched when Update is called without a new password")
+}
+
 func TestUpdate_InvalidColor(t *testing.T) {
 	s := newTestAccountService(t)
 	account := createTestAccountWithUsername(t, s, "color-"+uuid.NewString())
@@ -444,6 +466,33 @@ func TestUpdate_LanguageChanged(t *testing.T) {
 	dto, _, err := s.Update(&AccountUpdateDto{Language: &lang}, account.Id)
 	assert.NoError(t, err)
 	assert.Equal(t, lang, dto.Language)
+}
+
+func TestUpdate_PartialUpdate_LeavesOtherFieldsUntouched(t *testing.T) {
+	s := newTestAccountService(t)
+	username := "partial-" + uuid.NewString()
+	email := uniqueEmail(t)
+	var account model.Account
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{
+		Id:       uuid.New(),
+		Username: &username,
+		Email:    &email,
+		Color:    "#111111",
+		Language: constants.ACCOUNT_LANGUAGE_EN,
+	}, &account))
+
+	// Only Language is provided in the DTO — Username/Email/Color must survive
+	// untouched, proving Updates() only receives explicitly-changed fields.
+	newLang := constants.ACCOUNT_LANGUAGE_FR
+	_, _, err := s.Update(&AccountUpdateDto{Language: &newLang}, account.Id)
+	assert.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
+	assert.Equal(t, newLang, found.Language)
+	assert.Equal(t, username, *found.Username)
+	assert.Equal(t, email, *found.Email)
+	assert.Equal(t, "#111111", found.Color)
 }
 
 func TestUpdate_RepositoryUpdatesError(t *testing.T) {

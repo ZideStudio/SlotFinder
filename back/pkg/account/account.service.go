@@ -168,6 +168,8 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 		return AccountResponseDto{}, nil, err
 	}
 
+	updatedAccount := model.Account{Id: account.Id}
+
 	var tokens *AccountTokensDto
 
 	if dto.Username != nil && (account.Username == nil || *dto.Username != *account.Username) {
@@ -186,9 +188,11 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
 		}
 		account.Username = dto.Username
+		updatedAccount.Username = dto.Username
 	}
 	if dto.Email != nil {
 		account.Email = dto.Email
+		updatedAccount.Email = dto.Email
 	}
 
 	if dto.TimeZone != nil {
@@ -197,6 +201,7 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 			return AccountResponseDto{}, nil, errors.New("invalid time zone")
 		}
 		account.TimeZone = timeZone.String()
+		updatedAccount.TimeZone = account.TimeZone
 	}
 	passwordChanged := false
 	if dto.Password != nil {
@@ -204,16 +209,19 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 			return AccountResponseDto{}, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
 		}
 		account.Password = dto.Password
+		updatedAccount.Password = dto.Password
 		passwordChanged = true
 	}
 	if dto.Language != nil {
 		account.Language = *dto.Language
+		updatedAccount.Language = *dto.Language
 	}
 	if dto.Color != nil {
 		if !lib.IsHexa(*dto.Color) {
 			return AccountResponseDto{}, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
 		}
 		account.Color = *dto.Color
+		updatedAccount.Color = *dto.Color
 	}
 	termsUpdated := false
 	if dto.TermsAccepted != nil && dto.TermsVersion != nil && (account.TermsVersion == nil || *account.TermsVersion != *dto.TermsVersion) {
@@ -223,10 +231,12 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 		now := time.Now()
 		account.TermsAcceptedAt = &now
 		account.TermsVersion = dto.TermsVersion
+		updatedAccount.TermsAcceptedAt = &now
+		updatedAccount.TermsVersion = dto.TermsVersion
 		termsUpdated = true
 	}
 
-	if err := s.accountRepository.Updates(account); err != nil {
+	if err := s.accountRepository.Updates(updatedAccount); err != nil {
 		return AccountResponseDto{}, nil, err
 	}
 
