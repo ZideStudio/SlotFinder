@@ -168,6 +168,9 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 		return AccountResponseDto{}, nil, err
 	}
 
+	// Clear the loaded hash so Updates() doesn't re-hash it
+	account.Password = nil
+
 	var tokens *AccountTokensDto
 
 	if dto.Username != nil && (account.Username == nil || *dto.Username != *account.Username) {
