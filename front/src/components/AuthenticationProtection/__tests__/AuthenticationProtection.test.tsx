@@ -40,6 +40,13 @@ describe("AuthenticationProtection", () => {
             },
 
             {
+              path: "/who-are-you",
+              element: <p>whoAreYou</p>,
+              handle: {
+                mustBeAuthenticate: false,
+              },
+            },
+            {
               path: "/sign-up",
               element: <p>signUp</p>,
               handle: {
@@ -58,6 +65,7 @@ describe("AuthenticationProtection", () => {
   ) => {
     const contextValue = {
       isAuthenticated: true,
+      authenticationError: undefined,
       postAuthRedirectPath: undefined,
       setPostAuthRedirectPath: vi.fn(),
       resetPostAuthRedirectPath: vi.fn(),
@@ -195,6 +203,26 @@ describe("AuthenticationProtection", () => {
       expect(mockSetPostAuthRedirectPath).toHaveBeenCalledWith(
         "/needAuthentication",
       );
+    });
+
+    // oxlint-disable-next-line vitest/expect-expect
+    it("should redirect to the WhoAreYou page when the auth status says the username is missing", async () => {
+      mockAuthenticationContext({
+        isAuthenticated: false,
+        authenticationError: "USERNAME_MISSING",
+      });
+
+      await expectDisplayedText("/needAuthentication", "whoAreYou");
+    });
+
+    // oxlint-disable-next-line vitest/expect-expect
+    it("should redirect to the WhoAreYou page when terms are not accepted", async () => {
+      mockAuthenticationContext({
+        isAuthenticated: false,
+        authenticationError: "TERMS_NOT_ACCEPTED",
+      });
+
+      await expectDisplayedText("/needAuthentication", "whoAreYou");
     });
   });
 });

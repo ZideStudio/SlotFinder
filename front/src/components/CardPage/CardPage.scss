@@ -2,7 +2,7 @@
 @use "../../utils/sass/mixins/helpers";
 
 .card-page {
-  --card-page-margin-top: #{helpers.pxToRem(16)};
+  --card-page-padding-top: #{helpers.pxToRem(16)};
   --card-page-row-gap: #{helpers.pxToRem(16)};
   --logo-width: #{helpers.pxToRem(48)};
 
@@ -10,11 +10,11 @@
   display: flex;
   flex-direction: column;
   row-gap: var(--card-page-row-gap);
+  align-items: center;
   justify-content: center;
-  min-height: 100vh;
   min-height: 100dvh;
-  margin-top: var(--card-page-margin-top);
-  margin-bottom: #{helpers.pxToRem(16)};
+  padding-top: var(--card-page-padding-top);
+  padding-bottom: #{helpers.pxToRem(16)};
 
   &__logo {
     display: block;
@@ -31,6 +31,18 @@
     text-align: center;
   }
 
+  &__card {
+    --card-padding-inline: #{helpers.pxToRem(16)};
+
+    width: fit-content;
+    padding-block: #{helpers.pxToRem(16)};
+    padding-inline: var(--card-padding-inline);
+
+    @include responsive.mediaExceedsWidth("tablet") {
+      --card-padding-inline: #{helpers.pxToRem(32)};
+    }
+  }
+
   @include responsive.mediaExceedsWidth("tablet") {
     --cols: 6;
     --start: 2;
@@ -40,6 +52,6 @@
   @include responsive.mediaExceedsWidth("desktop-small") {
     --start: 4;
     --card-page-row-gap: #{helpers.pxToRem(24)};
-    --card-page-margin-top: #{helpers.pxToRem(32)};
+    --card-page-padding-top: #{helpers.pxToRem(32)};
   }
 }

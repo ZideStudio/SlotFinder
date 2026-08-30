@@ -1,4 +1,4 @@
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import UploadIcon from "@material-symbols/svg-400/outlined/upload_file.svg";
 import { useId, type ComponentPropsWithRef } from "react";
 

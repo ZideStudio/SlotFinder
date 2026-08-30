@@ -1,5 +1,5 @@
-import { getClassName } from "@Front/utils/getClassName";
-import { getContrastTextColor } from "@Front/utils/getContrastTextColor";
+import { getClassName } from "@Front/utils/helpers/getClassName";
+import { getContrastTextColor } from "@Front/utils/helpers/getContrastTextColor";
 import PaletteIcon from "@material-symbols/svg-400/outlined/palette.svg";
 import {
   type ChangeEventHandler,
