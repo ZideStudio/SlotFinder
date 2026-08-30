@@ -49,7 +49,7 @@
       "enabled": false
     },
     {
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": ["patch", "minor"],
       "minimumConfidence": "neutral",
       "automerge": true,
       "automergeType": "branch",
