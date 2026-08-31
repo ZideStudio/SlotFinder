@@ -1,5 +1,4 @@
 import { Outlet } from "react-router";
-import { OAuth } from "./OAuth/OAuth";
 
 import "./Authentication.scss";
 import { Heading } from "@Front/ui/atoms/Heading/Heading";
@@ -12,6 +11,5 @@ export const Authentication = () => (
     <div className="authentication__content">
       <Outlet />
     </div>
-    <OAuth />
   </section>
 );
