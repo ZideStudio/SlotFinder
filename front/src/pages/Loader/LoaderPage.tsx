@@ -40,7 +40,6 @@ const LoaderPage = () => {
           </div>
         </div>
       </div>
-      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role*/}
     </div>
   );
 };
