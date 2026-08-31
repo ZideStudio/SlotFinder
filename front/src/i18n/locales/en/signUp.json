@@ -1,5 +1,5 @@
 {
-  "title": "Sign Up",
+  "title": "Sign Up to SlotFinder",
   "username": "Username",
   "requiredUsername": "Username is required",
   "minLengthUsername": "Username must be at least {{min}} characters",
