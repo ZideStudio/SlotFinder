@@ -160,6 +160,7 @@ func TestAvailabilityController_Update_Success(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
+	awaitAsyncSlotWork(t)
 
 	ctl := &AvailabilityController{availabilityService: s}
 	newEnd := event.StartsAt.Add(90 * time.Minute)
@@ -198,6 +199,7 @@ func TestAvailabilityController_Delete_Success(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
+	awaitAsyncSlotWork(t)
 
 	ctl := &AvailabilityController{availabilityService: s}
 	c, recorder := newAvailabilityTestContext(t, http.MethodDelete, nil, "", created.Id.String(), claims)
