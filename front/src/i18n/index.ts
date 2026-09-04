@@ -6,6 +6,7 @@ import enError from "./locales/en/error.json";
 import enSignUp from "./locales/en/signUp.json";
 import enWelcome from "./locales/en/welcome.json";
 import enDuration from "./locales/en/duration.json";
+import enLoader from "./locales/en/loader.json";
 
 // oxlint-disable-next-line vitest/require-hook, react-hooks/rules-of-hooks
 use(initReactI18next).init({
@@ -17,6 +18,7 @@ use(initReactI18next).init({
       signUp: enSignUp,
       welcome: enWelcome,
       duration: enDuration,
+      loader: enLoader,
     },
   },
   lng: "en",
