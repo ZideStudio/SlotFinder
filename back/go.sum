@@ -70,8 +70,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dicebear/dicebear-go/v10 v10.6.1 h1:VVixVliJuPzT+AjQEHDBt2705Gac6AdizL0b+mlY6nw=
-github.com/dicebear/dicebear-go/v10 v10.6.1/go.mod h1:6nBKmuqIxAdPvBzeTKsBLDX9cua+4nP6q1Sv4XnQsUs=
+github.com/dicebear/dicebear-go/v10 v10.7.0 h1:0N/1p+7Tl/30WzDlWW2YqfkyCHi7/bDWvvFNBZgiKPE=
+github.com/dicebear/dicebear-go/v10 v10.7.0/go.mod h1:27DjTXF3+ctaBY/40xwUdfT91YfH1H0atZR8htLtjEk=
 github.com/dicebear/schema v1.5.1 h1:D9SahhUdqOJrJoDx5pWMcC6WMueFidnFq8s+4kkzt6o=
 github.com/dicebear/schema v1.5.1/go.mod h1:MPcjp3gkb9i9qJZ1CttUo/brppkIN4f+7CFFlW6KWU4=
 github.com/dicebear/styles/v10 v10.5.0 h1:JDTp8GcVzppU+/IwxE3ExC5D7UtKNB3bzo+txbHkXDQ=
