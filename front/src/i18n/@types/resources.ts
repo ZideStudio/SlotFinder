@@ -4,6 +4,7 @@ import error from "../locales/en/error.json";
 import signUp from "../locales/en/signUp.json";
 import welcome from "../locales/en/welcome.json";
 import duration from "../locales/en/duration.json";
+import loader from "../locales/en/loader.json";
 
 const resources = {
   authentication,
@@ -12,6 +13,7 @@ const resources = {
   signUp,
   welcome,
   duration,
+  loader,
 } as const;
 
 export default resources;
