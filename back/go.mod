@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/dicebear/dicebear-go/v10 v10.6.1
-	github.com/dicebear/styles/v10 v10.5.0
+	github.com/dicebear/styles/v10 v10.6.0
 	github.com/gin-contrib/gzip v1.2.6
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-resty/resty/v2 v2.17.2
