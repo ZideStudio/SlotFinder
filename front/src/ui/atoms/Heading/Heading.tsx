@@ -1,5 +1,6 @@
 import { getClassName } from "@Front/utils/getClassName";
 import type { HTMLAttributes, ReactNode } from "react";
+
 import "./Heading.scss";
 
 type HeadingTag = "h1" | "h2" | "h3";
@@ -13,7 +14,6 @@ export const Heading = ({ level, className, ...props }: HeadingProps) => {
     defaultClassName: "ds-heading",
     className,
   });
-
   const Tag = `h${level}` satisfies HeadingTag;
 
   return <Tag {...props} className={parentClassName} />;

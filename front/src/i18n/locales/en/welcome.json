@@ -1,3 +1,6 @@
 {
-  "title": "Welcome to the Home page!"
+  "slotFinder": "Slot Finder",
+  "signIn": "Sign in",
+  "tagLine": "Your disponibility, our solution.",
+  "createEvent": "Create an event"
 }

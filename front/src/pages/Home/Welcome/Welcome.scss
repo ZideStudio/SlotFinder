@@ -1,0 +1,82 @@
+@use "../../../utils/sass/mixins/helpers";
+@use "../../../utils/sass/mixins/responsive";
+
+.welcome {
+  &__sign-in-button {
+    --start: 1;
+    --cols: 4;
+
+    justify-self: end;
+    width: fit-content;
+    margin-top: #{helpers.pxToRem(20)};
+  }
+
+  &__logo {
+    --start: 1;
+    --cols: 4;
+
+    justify-self: center;
+    width: 100%;
+    height: auto;
+  }
+
+  &__slot-finder,
+  &__tag-line {
+    --start: 1;
+    --cols: 5;
+
+    height: fit-content;
+  }
+
+  &__slot-finder {
+    font-weight: 600;
+  }
+
+  &__event-button {
+    --start: 1;
+    --cols: 4;
+
+    width: fit-content;
+    height: fit-content;
+  }
+
+  // Tablet : 8 colonnes
+  @include responsive.mediaExceedsWidth("tablet") {
+    &__sign-in-button {
+      --start: 6;
+      --cols: 3;
+    }
+
+    &__logo {
+      --start: 5;
+      --cols: 6;
+    }
+
+    &__slot-finder {
+      font-size: #{helpers.pxToRem(48)};
+    }
+
+    &__tag-line {
+      --cols: 5;
+    }
+  }
+
+  // Desktop small : 12 colonnes
+  @include responsive.mediaExceedsWidth("desktop-small") {
+    &__sign-in-button {
+      --start: 10;
+    }
+
+    &__logo {
+      --start: 7;
+      --cols: 5;
+    }
+  }
+
+  // Desktop medium
+  @include responsive.mediaExceedsWidth("desktop-medium") {
+    &__sign-in-button {
+      --cols: 3;
+    }
+  }
+}

@@ -21,17 +21,23 @@ describe("Welcome", () => {
 
   it("renders the home heading", async () => {
     await expect(
-      screen.findByRole("heading", { level: 1, name: "welcome.title" }),
+      screen.findByRole("heading", { level: 1, name: "welcome.slotFinder" }),
     ).resolves.toBeInTheDocument();
-  });
-
-  it("renders the sign up link", async () => {
-    await expect(
-      screen.findByRole("link", { name: "Sign Up" }),
-    ).resolves.toHaveAttribute("href", appRoutes.signUp());
   });
 
   it("does not render the header banner", () => {
     expect(screen.queryByRole("banner")).toBeNull();
+  });
+
+  it("does render the connexion button", async () => {
+    await expect(
+      screen.findByRole("button", { name: "welcome.connexion" }),
+    ).resolves.toBeInTheDocument();
+  });
+
+  it("does render the create an event button", async () => {
+    await expect(
+      screen.findByRole("button", { name: "welcome.createEvent" }),
+    ).resolves.toBeInTheDocument();
   });
 });
