@@ -1,0 +1,78 @@
+@use "../../utils/sass/mixins/helpers";
+
+.loader-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--color-white, #fff);
+
+  &__liquid-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: helpers.pxToRem(180);
+    height: helpers.pxToRem(180);
+    mask-image: var(--logo-url);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+  }
+
+  &__liquid-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      43.889deg,
+      var(--color-primary) 0%,
+      var(--color-accent) 100%
+    );
+
+    .wave {
+      position: absolute;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-color: var(--color-black);
+      border-radius: 40%;
+      animation:
+        fill-rise 4s ease-in-out infinite,
+        wave-rotate 6s linear infinite;
+
+      &.wave-2 {
+        border-radius: 36%;
+        opacity: 0.6;
+        animation:
+          fill-rise 4s ease-in-out infinite,
+          wave-rotate 9s linear infinite reverse;
+      }
+    }
+  }
+}
+
+@keyframes fill-rise {
+  0% {
+    top: 92%;
+  }
+
+  50% {
+    top: -20%;
+  }
+
+  100% {
+    top: 92%;
+  }
+}
+
+@keyframes wave-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
