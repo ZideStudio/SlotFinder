@@ -29,9 +29,9 @@ describe("Welcome", () => {
     expect(screen.queryByRole("banner")).toBeNull();
   });
 
-  it("does render the connexion button", async () => {
+  it("does render the signIn button", async () => {
     await expect(
-      screen.findByRole("button", { name: "welcome.connexion" }),
+      screen.findByRole("button", { name: "welcome.signIn" }),
     ).resolves.toBeInTheDocument();
   });
 
