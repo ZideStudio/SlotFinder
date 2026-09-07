@@ -13,16 +13,17 @@ export const Welcome = () => {
     <section className="welcome subgrid">
       <Button className="welcome__sign-in-button">{t("signIn")}</Button>
 
-      <Heading level={1} className="welcome__slot-finder">
-        {t("slotFinder")}
-      </Heading>
-      <Heading level={2} className="welcome__tag-line">
-        {t("tagLine")}
-      </Heading>
+      <div className="welcome__container">
+        <Heading level={1} className="welcome__slot-finder">
+          {t("slotFinder")}
+        </Heading>
+        <Heading level={2} className="welcome__tag-line">
+          {t("tagLine")}
+        </Heading>
+        <Button className="welcome__event-button">{t("createEvent")}</Button>
+      </div>
 
       <Icon className="welcome__logo" icon={logo} />
-
-      <Button className="welcome__event-button">{t("createEvent")}</Button>
     </section>
   );
 };
