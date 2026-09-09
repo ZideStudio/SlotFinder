@@ -1,5 +1,5 @@
 {
-  "title": "Sign Up",
+  "title": "Sign Up to SlotFinder",
   "username": "Username",
   "requiredUsername": "Username is required",
   "minLengthUsername": "Username must be at least {{min}} characters",
@@ -13,6 +13,7 @@
   "confirmPassword": "Confirm password",
   "requiredConfirmPassword": "Confirm password is required",
   "passwordsDoNotMatch": "Passwords do not match",
+  "termsAndConditions": "I agree to the Terms and Conditions",
   "submit": "Create Account",
   "error": {
     "USERNAME_ALREADY_TAKEN": "This username is already taken. Please choose another one.",
