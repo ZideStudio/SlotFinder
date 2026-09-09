@@ -3,8 +3,8 @@ import { Heading } from "@Front/ui/atoms/Heading/Heading";
 import { Icon } from "@Front/ui/atoms/Icon/Icon";
 import { Button } from "@Front/ui/molecules/Button/Button";
 import BoatIcon from "@material-symbols/svg-300/outlined/directions_boat.svg";
-
 import { useTranslation } from "react-i18next";
+
 import "./Dashboard.scss";
 
 export const Dashboard = () => {
