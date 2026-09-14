@@ -17,7 +17,7 @@ describe("Home page", () => {
       .element(
         page.getByRole("heading", {
           level: 1,
-          name: "Welcome to the Home page!",
+          name: "Slot Finder",
         }),
       )
       .toBeVisible();

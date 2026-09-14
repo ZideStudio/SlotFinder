@@ -9,7 +9,7 @@
   max-width: 100vw;
   padding: #{helpers.pxToRem(20)};
 
-  &---logo {
+  &__logo {
     width: #{helpers.pxToRem(50)};
     height: auto;
   }
