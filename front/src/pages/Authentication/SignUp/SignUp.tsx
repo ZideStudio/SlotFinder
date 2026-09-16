@@ -19,41 +19,42 @@ export const SignUp = () => {
   });
 
   return (
-    <CardPage title={t("title")} className="sign-up-page">
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(signUp)}>
-          <TextInput
-            name="email"
-            label={t("email")}
-            id="email"
-            error={methods.formState.errors.email?.message}
-          />
-          <TextInput
-            name="password"
-            label={t("password")}
-            id="password"
-            type="password"
-            error={methods.formState.errors.password?.message}
-          />
-          <TextInput
-            name="confirmPassword"
-            label={t("confirmPassword")}
-            id="confirmPassword"
-            type="password"
-            error={methods.formState.errors.confirmPassword?.message}
-          />
-          <CheckboxField
-            label={t("termsAndConditions")}
-            name="termsAndConditions"
-            id="termsAndConditions"
-            required
-          />
-          <hr />
-          <OAuth />
-          <Button type="submit">{t("submit")}</Button>
-        </form>
-      </FormProvider>
-    </CardPage>
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(signUp)}>
+        <TextInput
+          name="email"
+          label={t("email")}
+          className="sign-up-input"
+          id="email"
+          error={methods.formState.errors.email?.message}
+        />
+        <TextInput
+          name="password"
+          label={t("password")}
+          className="sign-up-input"
+          id="password"
+          type="password"
+          error={methods.formState.errors.password?.message}
+        />
+        <TextInput
+          name="confirmPassword"
+          label={t("confirmPassword")}
+          className="sign-up-input"
+          id="confirmPassword"
+          type="password"
+          error={methods.formState.errors.confirmPassword?.message}
+        />
+        <CheckboxField
+          label={t("termsAndConditions")}
+          name="termsAndConditions"
+          id="termsAndConditions"
+          required
+        />
+        <hr />
+        <OAuth />
+        <Button type="submit">{t("submit")}</Button>
+      </form>
+    </FormProvider>
     // <FormProvider {...methods}>
     //   <form
     //     OnSubmit={methods.handleSubmit(signUp)}
