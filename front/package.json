@@ -88,9 +88,9 @@
   },
   "allowScripts": {
     "msw@2.15.0": true,
-    "esbuild@0.28.1": true,
-    "@swc/core@1.15.47": true,
-    "@parcel/watcher@2.6.0": true
+    "@parcel/watcher@2.6.0": true,
+    "esbuild@0.28.2": true,
+    "@swc/core@1.16.2": true
   },
   "msw": {
     "workerDirectory": [
