@@ -26,6 +26,7 @@ yarn-debug.log*
 yarn-error.log*
 
 /.idea
+/public/mockServiceWorker.js
 
 *storybook.log
 storybook-static
