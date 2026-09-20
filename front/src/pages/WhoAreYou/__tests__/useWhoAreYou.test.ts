@@ -64,6 +64,20 @@ describe("useWhoAreYou - success scenarios", () => {
       expect(result.current.defaultAvatarUrl).toBe(
         "/api/v1/account/123456789/avatar",
       );
+      expect(result.current.hasAcceptedCurrentTermsVersion).toBe(true);
+    });
+  });
+
+  it("should prefill termsAccepted as true when current terms are already accepted", async () => {
+    const setError = vi.fn();
+    const reset = vi.fn();
+
+    renderHookWithProviders(() => useWhoAreYou({ setError, reset }));
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ termsAccepted: true }),
+      );
     });
   });
 

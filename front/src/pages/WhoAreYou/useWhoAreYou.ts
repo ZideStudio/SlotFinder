@@ -7,10 +7,11 @@ import { usePatchAccount } from "@Front/api/account/patchAccount/usePatchAccount
 import { usePatchAccountAvatar } from "@Front/api/account/patchAccountAvatar/usePatchAccountAvatar";
 import { useAuthenticationContext } from "@Front/hooks/useAuthenticationContext";
 import type { ErrorResponse } from "@Front/types/ErrorResponse";
+import { TERMS_VERSION } from "@Front/utils/constants/terms";
 import { urlToFileList } from "@Front/utils/helpers/urlToFileList";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { UseFormReset, UseFormSetError } from "react-hook-form";
+import { type UseFormReset, type UseFormSetError } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { WhoAreYouFormData } from "./types";
 import { buildAccountUpdateDTO } from "./whoAreYou.helpers";
@@ -25,6 +26,7 @@ type UseWhoAreYouReturn = {
   isSubmitting: boolean;
   submitError: string | null;
   defaultAvatarUrl?: string;
+  hasAcceptedCurrentTermsVersion: boolean;
 };
 
 export const useWhoAreYou = ({
@@ -35,6 +37,9 @@ export const useWhoAreYou = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const hasInitialized = useRef(false);
   const { data: accountData } = useGetAccountMe();
+  const hasAcceptedCurrentTermsVersion = Boolean(
+    accountData?.termsAccepted && accountData.termsVersion === TERMS_VERSION,
+  );
   const { checkAuthentication } = useAuthenticationContext();
   const queryClient = useQueryClient();
 
@@ -87,19 +92,23 @@ export const useWhoAreYou = ({
         avatar: avatarFileList,
         username: accountData.username,
         color: accountData.color,
+        termsAccepted: hasAcceptedCurrentTermsVersion,
       });
 
       hasInitialized.current = true;
     };
 
     initializeFormValues();
-  }, [accountData, reset]);
+  }, [accountData, hasAcceptedCurrentTermsVersion, reset]);
 
   const handleSubmit = useCallback(
     async (data: WhoAreYouFormData) => {
       setSubmitError(null);
 
-      const patchAccountDTO = buildAccountUpdateDTO(data);
+      const patchAccountDTO = buildAccountUpdateDTO({
+        ...data,
+        termsAccepted: hasAcceptedCurrentTermsVersion || data.termsAccepted,
+      });
       const [avatarFile] = data.avatar;
 
       const results = await Promise.allSettled([
@@ -114,7 +123,13 @@ export const useWhoAreYou = ({
       queryClient.invalidateQueries({ queryKey: getAccountMeQueryKey });
       checkAuthentication();
     },
-    [patchAccount, patchAccountAvatar, queryClient, checkAuthentication],
+    [
+      patchAccount,
+      patchAccountAvatar,
+      queryClient,
+      checkAuthentication,
+      hasAcceptedCurrentTermsVersion,
+    ],
   );
 
   return {
@@ -122,5 +137,6 @@ export const useWhoAreYou = ({
     isSubmitting: isAccountPatchLoading || isAvatarPatchLoading,
     submitError,
     defaultAvatarUrl: accountData?.avatarUrl,
+    hasAcceptedCurrentTermsVersion,
   };
 };
