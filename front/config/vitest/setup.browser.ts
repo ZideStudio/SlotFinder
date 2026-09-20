@@ -6,12 +6,7 @@ import "@Front/i18n/index";
 import { worker } from "@Mocks/browser";
 
 beforeAll(async () => {
-  await worker.start({
-    onUnhandledRequest: "bypass",
-    serviceWorker: {
-      url: "/mockServiceWorker.js",
-    },
-  });
+  await worker.start({ onUnhandledRequest: "bypass" });
 });
 
 afterEach(() => {
