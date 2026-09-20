@@ -3,10 +3,10 @@ import {
   getAccountAvatar200,
   getAccountMe200,
 } from "./handlers/accountHandlers";
-import { getAuthStatus403 } from "./handlers/authStatusHandlers";
+import { getAuthStatus200 } from "./handlers/authStatusHandlers";
 
 export const worker = setupWorker(
-  getAuthStatus403("USERNAME_MISSING"),
+  getAuthStatus200,
   getAccountMe200,
   getAccountAvatar200,
 );
