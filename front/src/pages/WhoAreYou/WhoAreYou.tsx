@@ -20,11 +20,16 @@ export const WhoAreYou = () => {
   const methods = useForm<WhoAreYouFormData>({
     resolver: yupResolver(getSchema(t)),
   });
-  const { handleSubmit, isSubmitting, submitError, defaultAvatarUrl } =
-    useWhoAreYou({
-      setError: methods.setError,
-      reset: methods.reset,
-    });
+  const {
+    handleSubmit,
+    isSubmitting,
+    submitError,
+    defaultAvatarUrl,
+    hasAcceptedCurrentTermsVersion,
+  } = useWhoAreYou({
+    setError: methods.setError,
+    reset: methods.reset,
+  });
 
   return (
     <CardPage className="who-are-you" title={t("title")}>
@@ -54,11 +59,13 @@ export const WhoAreYou = () => {
             description={t("colorDescription")}
             required
           />
-          <CheckboxField
-            label={t("termsAcceptedLabel")}
-            name="termsAccepted"
-            required
-          />
+          {!hasAcceptedCurrentTermsVersion && (
+            <CheckboxField
+              label={t("termsAcceptedLabel")}
+              name="termsAccepted"
+              required
+            />
+          )}
           <Button
             className="who-are-you-form__submit-button"
             type="submit"

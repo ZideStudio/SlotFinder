@@ -3,6 +3,7 @@ import { type HelpersApiError } from "@Front/api/generated/slotFinderAPI.schemas
 import { SERVER_ERROR } from "@Front/utils/constants/api";
 import {
   getAccountMe200Fixture,
+  getAccountMeWithoutTerms200Fixture,
   patchAccount200Fixture,
   patchAccount400Fixture,
   postAccount201Fixture,
@@ -73,6 +74,17 @@ export const getAccountMe200 = http.get(
     await delay();
 
     return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
+  },
+);
+
+export const getAccountMeWithoutTerms200 = http.get(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/me`,
+  async () => {
+    await delay();
+
+    return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
+      status: 200,
+    });
   },
 );
 

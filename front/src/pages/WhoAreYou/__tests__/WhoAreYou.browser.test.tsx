@@ -3,6 +3,7 @@ import { renderBrowserRoute } from "@Front/utils/testsUtils/customRender/customR
 import { worker } from "@Mocks/browser";
 import {
   getAccountMe200,
+  getAccountMeWithoutTerms200,
   patchAccount200,
   patchAccount400,
   patchAvatarAccount200,
@@ -10,7 +11,7 @@ import {
 } from "@Mocks/handlers/accountHandlers";
 import { page } from "vitest/browser";
 
-// TODO: Fix flaky tests by implementing playwright or improving test stability on vitest browser
+// Flaky in Vitest browser mode; kept skipped until test stability is improved.
 // oxlint-disable-next-line vitest/no-disabled-tests
 describe.skip("WhoAreYou Page", () => {
   const fillFormWithValidData = async () => {
@@ -22,18 +23,13 @@ describe.skip("WhoAreYou Page", () => {
     await avatarInput.upload(validAvatar);
     await page.getByLabelText(/Username/u).fill("john_doe");
     await page.getByLabelText(/Favorite color/u).fill("#ff0000");
-    await page
-      .getByRole("checkbox", {
-        name: /I accept the terms and conditions of use/u,
-      })
-      .click();
   };
 
   afterEach(() => {
     worker.resetHandlers();
   });
 
-  it("should render page with all fields", async () => {
+  it("should hide terms checkbox when terms are already accepted at current version", async () => {
     await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
     await expect
@@ -52,9 +48,23 @@ describe.skip("WhoAreYou Page", () => {
           name: /I accept the terms and conditions of use/u,
         }),
       )
-      .toBeInTheDocument();
+      .not.toBeInTheDocument();
     await expect
       .element(page.getByRole("button", { name: "Continue" }))
+      .toBeInTheDocument();
+  });
+
+  it("should show terms checkbox when terms are not accepted", async () => {
+    worker.use(getAccountMeWithoutTerms200);
+
+    await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+
+    await expect
+      .element(
+        page.getByRole("checkbox", {
+          name: /I accept the terms and conditions of use/u,
+        }),
+      )
       .toBeInTheDocument();
   });
 
