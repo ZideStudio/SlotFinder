@@ -6,7 +6,6 @@ export default defineConfig(({ mode }) => {
   const base = getBaseConfig(mode);
   return {
     ...base,
-    publicDir: new URL("../../public", import.meta.url).pathname,
     test: {
       ...base.test,
       name: "browser",
