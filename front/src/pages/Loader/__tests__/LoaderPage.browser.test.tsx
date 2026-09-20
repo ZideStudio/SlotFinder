@@ -1,5 +1,5 @@
-import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
+import { page } from "vitest/browser";
 import LoaderPage from "../LoaderPage";
 
 describe("LoaderPage", () => {
@@ -15,7 +15,7 @@ describe("LoaderPage", () => {
     render(<LoaderPage />);
 
     await expect
-      .element(page.getByRole("status", { name: "loading" }))
+      .element(page.getByRole("status", { name: "Loading" }))
       .not.toBeInTheDocument();
   });
 
@@ -25,7 +25,7 @@ describe("LoaderPage", () => {
     await vi.advanceTimersByTimeAsync(99);
 
     await expect
-      .element(page.getByRole("status", { name: "loading" }))
+      .element(page.getByRole("status", { name: "Loading" }))
       .not.toBeInTheDocument();
   });
 
@@ -35,7 +35,7 @@ describe("LoaderPage", () => {
     await vi.advanceTimersByTimeAsync(100);
 
     await expect
-      .element(page.getByRole("status", { name: "loading" }))
+      .element(page.getByRole("status", { name: "Loading" }))
       .toBeInTheDocument();
   });
 });
