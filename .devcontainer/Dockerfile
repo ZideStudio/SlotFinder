@@ -60,6 +60,8 @@ COPY --chown=vscode:vscode .mise.toml /tmp/mise/.mise.toml
 
 RUN cd /tmp/mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscode/.local/bin/mise install
 
+RUN mise settings auto_update=true
+
 RUN /home/vscode/.local/bin/mise exec -C /tmp/mise -- npx playwright install --with-deps
 
 # Go
