@@ -84,9 +84,15 @@ export const useWhoAreYou = ({
     }
 
     const initializeFormValues = async () => {
-      const avatarFileList = accountData.avatarUrl
-        ? await urlToFileList(accountData.avatarUrl, "avatar.jpg")
-        : undefined;
+      let avatarFileList: FileList | undefined;
+
+      try {
+        avatarFileList = accountData.avatarUrl
+          ? await urlToFileList(accountData.avatarUrl, "avatar.jpg")
+          : undefined;
+      } catch {
+        avatarFileList = undefined;
+      }
 
       reset({
         avatar: avatarFileList,
