@@ -12,16 +12,20 @@ export default defineConfig(({ mode }) => {
       root: new URL("../../", import.meta.url).pathname,
       include: ["src/**/*.browser.test.[jt]sx"],
       setupFiles: ["config/vitest/setup.browser.ts"],
+      api: {
+        host: "0.0.0.0",
+        allowExec: true,
+      },
       browser: {
         enabled: true,
+        headless: true,
         provider: playwright(),
         instances: [
-          { browser: "chromium", viewport: { width: 1920, height: 1080 } },
+          {
+            browser: "chromium",
+            viewport: { width: 1920, height: 1080 },
+          },
         ],
-        api: {
-          host: "0.0.0.0",
-          allowExec: true,
-        },
       },
     },
   };

@@ -24,7 +24,7 @@ export const fetchApiMutator = async <Response>(
   options: RequestInit,
   signal?: AbortSignal,
 ): Promise<Response> => {
-  const apiUrlFull = `${window.location.origin}${import.meta.env.FRONT_BACKEND_URL ?? ""}`;
+  const apiUrlFull = `${globalThis.window.location.origin}${import.meta.env.FRONT_BACKEND_URL ?? ""}`;
 
   const makeRequest = async (): Promise<globalThis.Response> =>
     await fetch(url, { ...options, signal });
