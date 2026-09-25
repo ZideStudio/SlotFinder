@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import type { DurationUnit } from "@Front/utils/units";
+import type { DurationUnit } from "@Front/utils/constants/units";
 import { DurationInput } from "../DurationInput";
 
 const UNITS: DurationUnit[] = ["days", "hours", "minutes"];

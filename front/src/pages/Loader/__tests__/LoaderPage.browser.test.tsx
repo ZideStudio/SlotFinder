@@ -1,5 +1,5 @@
-import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
+import { page } from "vitest/browser";
 import LoaderPage from "../LoaderPage";
 
 describe("LoaderPage", () => {

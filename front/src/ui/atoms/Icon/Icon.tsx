@@ -1,5 +1,5 @@
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import { type FC, type SVGProps } from "react";
-import { getClassName } from "@Front/utils/getClassName";
 
 import "./Icon.scss";
 

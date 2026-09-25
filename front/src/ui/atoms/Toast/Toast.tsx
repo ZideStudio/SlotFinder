@@ -1,6 +1,6 @@
 import { useToastSelector } from "@Front/ui/utils/toast/hooks/useToastSelector";
 import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import { memo } from "react";
 
 import "./Toast.scss";

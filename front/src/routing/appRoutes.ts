@@ -1,18 +1,15 @@
 import { signUpRoutes } from "@Front/pages/Authentication/SignUp";
 import { errorRoutes } from "@Front/pages/Error";
 import { oauthCallbackRoutes } from "@Front/pages/OAuthCallback";
+import { whoAreYouRoutes } from "@Front/pages/WhoAreYou/routes";
 
-type AppRoute = {
-  home: () => string;
-  signUp: () => string;
-  oAuthCallback: (params?: { error?: string; returnUrl?: string }) => string;
-  error: () => string;
-};
-
-export const appRoutes: AppRoute = {
+export const appRoutes = {
   home: () => "/",
   signUp: () => `/${signUpRoutes.path}`,
-  oAuthCallback: ({ error, returnUrl } = {}) => {
+  oAuthCallback: ({
+    error,
+    returnUrl,
+  }: { error?: string; returnUrl?: string } = {}) => {
     let route = `/${oauthCallbackRoutes.path}`;
 
     const queryParams = new URLSearchParams();
@@ -28,5 +25,6 @@ export const appRoutes: AppRoute = {
     }
     return route;
   },
+  whoAreYou: () => `/${whoAreYouRoutes.path}`,
   error: () => `/${errorRoutes.path}`,
 };

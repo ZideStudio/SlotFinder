@@ -1,11 +1,11 @@
 import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
 // oxlint-disable-next-line import/no-namespace
 import * as useAuthenticationContext from "@Front/hooks/useAuthenticationContext";
+import { LoaderProvider } from "@Front/providers/loaderProvider/LoaderProvider";
 import { renderWithQueryClient } from "@Front/utils/testsUtils/customRender/customRender";
 import { screen } from "@testing-library/react";
 import { oauthProvidersData } from "../constants";
 import { OAuth } from "../OAuth";
-import { LoaderProvider } from "@Front/providers/loaderProvider/LoaderProvider";
 
 const renderOAuth = () =>
   renderWithQueryClient(
@@ -51,6 +51,7 @@ describe("OAuth", () => {
       setPostAuthRedirectPath: vi.fn(),
       resetPostAuthRedirectPath: vi.fn(),
       checkAuthentication: vi.fn(),
+      authenticationError: undefined,
     });
 
     renderOAuth();
