@@ -61,8 +61,9 @@ After every file modification:
 
 ## RTK Integration (Token Optimization)
 
-This repository uses [RTK](https://www.rtk-ai.app/) to optimize Copilot token usage. RTK intercepts commands and filters output transparently. Run `rtk gain` to see savings. Use `RTK_DISABLED=1 <cmd>` to bypass, `rtk recall <hash>` to retrieve trimmed output. See [.github/instructions/rtk.instructions.md](.github/instructions/rtk.instructions.md) for details.
+This repository uses [RTK](https://www.rtk-ai.app/) to optimize Copilot token usage. The dedicated setup and usage notes live in [.github/instructions/rtk.instructions.md](.github/instructions/rtk.instructions.md). If RTK is unavailable, continue normally and surface the issue as a warning instead of blocking the environment.
 
+<!-- rtk-instructions v2 -->
 # RTK — Token-Optimized CLI
 
 **rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
@@ -88,3 +89,4 @@ rtk gain --history    # Per-command savings history
 rtk discover          # Find missed rtk opportunities
 rtk proxy <cmd>       # Run raw (no filtering) but track usage
 ```
+<!-- /rtk-instructions -->
