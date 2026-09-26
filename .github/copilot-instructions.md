@@ -70,8 +70,8 @@ This repository uses [RTK](https://www.rtk-ai.app/) to optimize Copilot token us
 
 ## Rule
 
-Always prefix shell commands with `rtk`:
-
+Run commands normally; when the RTK Copilot hook is active it will rewrite them automatically.
+If the hook is not active, you may prefix commands with `rtk` to force token-optimized output.
 ```bash
 # Instead of:              Use:
 git status                 rtk git status
