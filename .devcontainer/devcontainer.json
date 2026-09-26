@@ -5,6 +5,7 @@
   "workspaceFolder": "/workspace",
   "runServices": ["traefik", "postgres", "devtools"],
   "shutdownAction": "stopCompose",
+  "postCreateCommand": "rtk init --copilot --auto-patch 2>/dev/null || true",
   "remoteEnv": {
     "DISPLAY": ":99",
     "GOPATH": "/go",

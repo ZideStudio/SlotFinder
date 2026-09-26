@@ -50,3 +50,33 @@ After every file modification:
 - Always use English for code, documentation, tests, and comments
 - Follow the established file and directory structure
 - Maintain consistency with existing codebase patterns
+
+## RTK Integration (Token Optimization)
+
+This repository uses [RTK](https://www.rtk-ai.app/) to optimize Copilot token usage. RTK intercepts commands and filters output transparently. Run `rtk gain` to see savings. Use `RTK_DISABLED=1 <cmd>` to bypass, `rtk recall <hash>` to retrieve trimmed output. See [.github/instructions/rtk.instructions.md](.github/instructions/rtk.instructions.md) for details.
+
+# RTK — Token-Optimized CLI
+
+**rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
+
+## Rule
+
+Always prefix shell commands with `rtk`:
+
+```bash
+# Instead of:              Use:
+git status                 rtk git status
+git log -10                rtk git log -10
+cargo test                 rtk cargo test
+docker ps                  rtk docker ps
+kubectl get pods           rtk kubectl get pods
+```
+
+## Meta commands (use directly)
+
+```bash
+rtk gain              # Token savings dashboard
+rtk gain --history    # Per-command savings history
+rtk discover          # Find missed rtk opportunities
+rtk proxy <cmd>       # Run raw (no filtering) but track usage
+```
