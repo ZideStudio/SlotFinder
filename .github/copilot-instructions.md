@@ -51,6 +51,14 @@ After every file modification:
 - Follow the established file and directory structure
 - Maintain consistency with existing codebase patterns
 
+## Response Style
+
+- Keep responses concise, direct, and practical.
+- Prefer short answers with the essential information only.
+- Use bullet points instead of long explanations unless the user asks for detailed reasoning.
+- Do not include lengthy preambles, repeated context, or verbose summaries.
+- When a fix is simple, provide the minimum necessary explanation and next step.
+
 ## RTK Integration (Token Optimization)
 
 This repository uses [RTK](https://www.rtk-ai.app/) to optimize Copilot token usage. RTK intercepts commands and filters output transparently. Run `rtk gain` to see savings. Use `RTK_DISABLED=1 <cmd>` to bypass, `rtk recall <hash>` to retrieve trimmed output. See [.github/instructions/rtk.instructions.md](.github/instructions/rtk.instructions.md) for details.
