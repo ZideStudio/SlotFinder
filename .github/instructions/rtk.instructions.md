@@ -16,7 +16,7 @@ rtk gain            # See cumulative token savings (grows after Copilot commands
 
 ## Usage
 
-- **Transparent**: Hook auto-rewrites commands (e.g., `npm run test` → `rtk npm run test`). You never type `rtk` manually.
+- **Transparent**: When the Copilot hook is active, it auto-rewrites commands (e.g., `npm run test` → `rtk npm run test`), so you usually don’t need to prefix commands yourself (except for RTK meta commands like `rtk gain`).
 - **Safe**: If RTK is unavailable or disabled, commands run unchanged.
 - **Bypass one command**: `RTK_DISABLED=1 npm run test` (runs unfiltered).
 - **Retrieve trimmed output**: Terminal shows `[full output: rtk recall HASH_ID]`. Run it exactly to get full output.
