@@ -19,23 +19,6 @@ success() {
 
 info "Starting post-create script..."
 
-if ! command -v rtk >/dev/null 2>&1; then
-  warn "RTK is not installed; continuing without automatic Copilot hook setup."
-else
-  info "Initializing RTK..."
-  rtk init --copilot --auto-patch >/tmp/rtk-init.log 2>&1
-  status=$?
-
-  if [ "$status" -ne 0 ]; then
-    warn "RTK initialization failed; continuing without automatic Copilot hook setup."
-    if [ -s /tmp/rtk-init.log ]; then
-      cat /tmp/rtk-init.log
-    fi
-  else
-    success "RTK initialized successfully."
-  fi
-fi
-
 if [ -d "/workspace/front" ]; then
   info "Checking frontend dependencies..."
   if [ -f "/workspace/front/package.json" ]; then
