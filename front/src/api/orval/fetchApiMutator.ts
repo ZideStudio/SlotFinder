@@ -24,7 +24,10 @@ export const fetchApiMutator = async <Response>(
   options: RequestInit,
   signal?: AbortSignal,
 ): Promise<Response> => {
-  const apiUrlFull = `${globalThis.window.location.origin}${import.meta.env.FRONT_BACKEND_URL ?? ""}`;
+  const apiUrlFull =
+    typeof window === "undefined"
+      ? undefined
+      : `${window.location.origin}${import.meta.env.FRONT_BACKEND_URL ?? ""}`;
 
   const makeRequest = async (): Promise<globalThis.Response> =>
     await fetch(url, { ...options, signal });
@@ -32,7 +35,11 @@ export const fetchApiMutator = async <Response>(
   let response = await makeRequest();
 
   // Handle 498 status code from api (expired access token)
-  if (response.status === 498 && response.url.startsWith(apiUrlFull)) {
+  if (
+    apiUrlFull &&
+    response.status === 498 &&
+    response.url.startsWith(apiUrlFull)
+  ) {
     await tokenRefreshManager.refreshToken();
     // Retry the original request
     response = await makeRequest();
