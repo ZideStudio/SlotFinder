@@ -19,6 +19,22 @@ success() {
 
 info "Starting post-create script..."
 
+if command -v go >/dev/null 2>&1; then
+  info "Installing Go developer tools..."
+  if (
+    cd /workspace &&
+      go install golang.org/x/tools/gopls@v0.21.1 &&
+      go install github.com/go-delve/delve/cmd/dlv@v1.26.0 &&
+      go install golang.org/x/tools/cmd/goimports@v0.44.0
+  ); then
+    success "Go developer tools installed."
+  else
+    warn "Failed to install Go developer tools."
+  fi
+else
+  warn "The go command is not available; Go developer tools installation skipped."
+fi
+
 if [ -d "/workspace/front" ]; then
   info "Checking frontend dependencies..."
   if [ -f "/workspace/front/package.json" ]; then

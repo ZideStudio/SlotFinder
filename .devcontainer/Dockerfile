@@ -68,12 +68,6 @@ RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | 
     rtk --version && \
     echo "✓ RTK installed successfully"
 
-# Go
-RUN cd /tmp/mise && \
-    go install golang.org/x/tools/gopls@v0.21.1 && \
-    go install github.com/go-delve/delve/cmd/dlv@v1.26.0 && \
-    go install golang.org/x/tools/cmd/goimports@v0.44.0
-
 RUN cat <<EOF >> /home/vscode/.bashrc
 alias lg="lazygit"
 export DISPLAY=:99
