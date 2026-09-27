@@ -16,6 +16,17 @@ const FormWrapper = ({
 };
 
 describe("PictureUploadField", () => {
+  beforeAll(() => {
+    vi.spyOn(URL, "createObjectURL").mockReturnValue(
+      "blob:http://localhost/mock-preview",
+    );
+    vi.spyOn(URL, "revokeObjectURL").mockReturnValue(undefined);
+  });
+
+  afterAll(() => {
+    vi.restoreAllMocks();
+  });
+
   it("renders without crashing", () => {
     render(
       <FormWrapper>
