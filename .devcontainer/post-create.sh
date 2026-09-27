@@ -43,7 +43,7 @@ if [ -d "/workspace/front" ]; then
 
     if [ ! -d "node_modules" ]; then
       info "Installing frontend npm dependencies..."
-      npm install
+      npm ci
     else
       info "Frontend npm dependencies are already installed."
     fi
