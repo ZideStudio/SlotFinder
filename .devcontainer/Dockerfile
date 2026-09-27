@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
+FROM mcr.microsoft.com/devcontainers/base:ubuntu26.04
 
 ARG TARGETARCH
 ENV GOTOOLCHAIN=local
@@ -62,19 +62,11 @@ RUN cd /tmp/mise && /home/vscode/.local/bin/mise trust .mise.toml && /home/vscod
 
 RUN mise settings auto_update=true
 
-RUN /home/vscode/.local/bin/mise exec -C /tmp/mise -- npx playwright install --with-deps
-
 # RTK (Rust Token Killer) - AI token optimization CLI
 # Install RTK binary via official installation script
 RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh && \
     rtk --version && \
     echo "✓ RTK installed successfully"
-
-# Go
-RUN cd /tmp/mise && \
-    go install golang.org/x/tools/gopls@v0.21.1 && \
-    go install github.com/go-delve/delve/cmd/dlv@v1.26.0 && \
-    go install golang.org/x/tools/cmd/goimports@v0.44.0
 
 RUN cat <<EOF >> /home/vscode/.bashrc
 alias lg="lazygit"
