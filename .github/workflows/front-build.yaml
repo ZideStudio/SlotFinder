@@ -116,6 +116,13 @@ jobs:
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npx playwright install
 
+      - name: Init MSW worker
+        working-directory: ${{ env.FRONT_FOLDER }}
+        run: |
+          if [ ! -f public/mockServiceWorker.js ]; then
+            npx msw init public --save
+          fi
+
       - name: Run test
         working-directory: ${{ env.FRONT_FOLDER }}
         run: npm run test
