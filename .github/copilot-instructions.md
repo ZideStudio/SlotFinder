@@ -50,3 +50,43 @@ After every file modification:
 - Always use English for code, documentation, tests, and comments
 - Follow the established file and directory structure
 - Maintain consistency with existing codebase patterns
+
+## Response Style
+
+- Keep responses concise, direct, and practical.
+- Prefer short answers with the essential information only.
+- Use bullet points instead of long explanations unless the user asks for detailed reasoning.
+- Do not include lengthy preambles, repeated context, or verbose summaries.
+- When a fix is simple, provide the minimum necessary explanation and next step.
+
+## RTK Integration (Token Optimization)
+
+This repository uses [RTK](https://www.rtk-ai.app/) to optimize Copilot token usage. The dedicated setup and usage notes live in [.github/instructions/rtk.instructions.md](.github/instructions/rtk.instructions.md). If RTK is unavailable, continue normally and surface the issue as a warning instead of blocking the environment.
+
+<!-- rtk-instructions v2 -->
+# RTK — Token-Optimized CLI
+
+**rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
+
+## Rule
+
+Run commands normally; when the RTK Copilot hook is active it will rewrite them automatically.
+If the hook is not active, you may prefix commands with `rtk` to force token-optimized output.
+```bash
+# Instead of:              Use:
+git status                 rtk git status
+git log -10                rtk git log -10
+cargo test                 rtk cargo test
+docker ps                  rtk docker ps
+kubectl get pods           rtk kubectl get pods
+```
+
+## Meta commands (use directly)
+
+```bash
+rtk gain              # Token savings dashboard
+rtk gain --history    # Per-command savings history
+rtk discover          # Find missed rtk opportunities
+rtk proxy <cmd>       # Run raw (no filtering) but track usage
+```
+<!-- /rtk-instructions -->
