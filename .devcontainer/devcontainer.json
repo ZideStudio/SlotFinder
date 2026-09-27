@@ -3,6 +3,7 @@
   "dockerComposeFile": ["../docker/docker-compose.dev.yml"],
   "service": "devtools",
   "workspaceFolder": "/workspace",
+  "updateRemoteUserUID": false,
   "runServices": ["traefik", "postgres", "devtools"],
   "shutdownAction": "stopCompose",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
@@ -83,8 +84,8 @@
         "stylelint.validate": ["css", "scss"],
         "stylelint.stylelintPath": "front/node_modules/stylelint",
         "stylelint.configFile": "/workspace/front/stylelint.config.mjs",
-        "typescript.tsdk": "front/node_modules/typescript/lib",
-        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "js/ts.tsdk.path": "front/node_modules/typescript/lib",
+        "js/ts.tsdk.promptToUseWorkspaceVersion": true,
         "debug.javascript.autoAttachFilter": "disabled",
         "files.watcherExclude": {
           "**/node_modules/**": true,
