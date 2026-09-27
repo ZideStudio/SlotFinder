@@ -64,6 +64,12 @@ RUN mise settings auto_update=true
 
 RUN /home/vscode/.local/bin/mise exec -C /tmp/mise -- npx playwright install --with-deps
 
+# RTK (Rust Token Killer) - AI token optimization CLI
+# Install RTK binary via official installation script
+RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh && \
+    rtk --version && \
+    echo "✓ RTK installed successfully"
+
 # Go
 RUN cd /tmp/mise && \
     go install golang.org/x/tools/gopls@v0.21.1 && \

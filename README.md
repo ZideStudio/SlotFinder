@@ -143,11 +143,24 @@ make back           # Start backend only (with hot reload)
 make storybook      # Start Storybook
 ```
 
+## RTK Integration (Token Optimization)
+
+RTK optimizes Copilot token usage by filtering command output transparently. Auto-installed in dev container.
+
+```bash
+rtk gain                    # See token savings
+RTK_DISABLED=1 npm run test # Bypass for one command
+rtk recall <hash>           # Retrieve trimmed output (shown in terminal)
+```
+
+See [.github/instructions/rtk.instructions.md](.github/instructions/rtk.instructions.md) for full details.
+
 ## Technology Stack
 
 - **Frontend**: React with Rsbuild, TypeScript, Sass
 - **Backend**: Go with Gin framework, PostgreSQL
 - **Development**: Docker Compose with Traefik reverse proxy
+- **Token Optimization**: RTK (Rust Token Killer) for Copilot
 - **Hot Reload**: Automatic updates for both frontend and backend
 
 ## License

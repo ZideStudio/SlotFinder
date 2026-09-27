@@ -5,6 +5,7 @@
   "workspaceFolder": "/workspace",
   "runServices": ["traefik", "postgres", "devtools"],
   "shutdownAction": "stopCompose",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
   "remoteEnv": {
     "DISPLAY": ":99",
     "GOPATH": "/go",
