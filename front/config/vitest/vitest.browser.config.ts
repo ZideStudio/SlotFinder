@@ -1,6 +1,6 @@
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
-import { getBaseConfig } from "./base";
+import { getBaseConfig } from "./base.config.ts";
 
 export default defineConfig(({ mode }) => {
   const base = getBaseConfig(mode);

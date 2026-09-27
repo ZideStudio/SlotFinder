@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config';
-import { getBaseConfig } from './base';
+import { defineConfig } from "vitest/config";
+import { getBaseConfig } from "./base.config.ts";
 
 /**
  * Workspace config that runs unit and browser tests in a single Vitest process.
@@ -17,7 +17,10 @@ export default defineConfig(({ mode }) => {
   return {
     test: {
       coverage,
-      projects: ['./config/vitest/vitest.unit.config.ts', './config/vitest/vitest.browser.config.ts'],
+      projects: [
+        "./config/vitest/vitest.unit.config.ts",
+        "./config/vitest/vitest.browser.config.ts",
+      ],
     },
   };
 });
