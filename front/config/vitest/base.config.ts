@@ -1,8 +1,6 @@
-import react from "@vitejs/plugin-react-swc";
-import { resolve } from "node:path";
+import react from "@vitejs/plugin-react";
 import { loadEnv } from "vite";
 import svgr from "vite-plugin-svgr";
-import viteTsconfigPaths from "vite-tsconfig-paths";
 
 const MAX_WORKERS = 2;
 export const getBaseConfig = (mode: string) => {
@@ -10,9 +8,6 @@ export const getBaseConfig = (mode: string) => {
   return {
     plugins: [
       react(),
-      viteTsconfigPaths({
-        projects: [resolve(__dirname, "../../tsconfig.test.json")],
-      }),
       svgr({
         svgrOptions: {
           ref: true,
@@ -22,6 +17,9 @@ export const getBaseConfig = (mode: string) => {
         include: "**/*.svg",
       }),
     ],
+    resolve: {
+      tsconfigPaths: true,
+    },
     envPrefix: env.ENV_PREFIX ?? "FRONT_",
     test: {
       globals: true,

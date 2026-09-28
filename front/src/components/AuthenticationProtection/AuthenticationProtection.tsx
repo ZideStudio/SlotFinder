@@ -1,7 +1,7 @@
 import { useAuthenticationContext } from "@Front/hooks/useAuthenticationContext";
 import LoaderPage from "@Front/pages/Loader/LoaderPage";
 import { appRoutes } from "@Front/routing/appRoutes";
-import { useMemo, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Navigate, useLocation, useMatches, type UIMatch } from "react-router";
 import type { RouteHandle } from "@Front/routing/routeHandle";
 
@@ -21,26 +21,26 @@ export const AuthenticationProtection = ({
   const { pathname } = useLocation();
   const matches = useMatches() as UIMatch<unknown, RouteHandle>[];
 
-  const mustBeAuthenticate = useMemo(() => {
-    const currentMatch = matches.at(-1);
+  const currentMatch = matches.at(-1);
+  const mustBeAuthenticate = currentMatch?.handle?.mustBeAuthenticate;
 
-    if (currentMatch?.handle?.mustBeAuthenticate === true && !isAuthenticated) {
+  useEffect(() => {
+    if (mustBeAuthenticate === true && !isAuthenticated) {
       setPostAuthRedirectPath(pathname);
+      return;
     }
 
     if (
-      currentMatch?.handle?.mustBeAuthenticate === false &&
+      mustBeAuthenticate === false &&
       isAuthenticated &&
       postAuthRedirectPath
     ) {
       resetPostAuthRedirectPath();
     }
-
-    return currentMatch?.handle?.mustBeAuthenticate;
   }, [
-    pathname,
-    matches,
+    mustBeAuthenticate,
     isAuthenticated,
+    pathname,
     postAuthRedirectPath,
     setPostAuthRedirectPath,
     resetPostAuthRedirectPath,

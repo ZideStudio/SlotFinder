@@ -2,7 +2,7 @@ import { getV1AuthStatus } from "@Front/api/generated/authentication/authenticat
 import type { AuthStatusErrorCodeType } from "@Front/types/Authentication/authStatus/authStatus.types";
 import { type ErrorResponse } from "@Front/types/ErrorResponse";
 import { useMutation, type UseMutateFunction } from "@tanstack/react-query";
-import { useLayoutEffect } from "react";
+import { useEffect } from "react";
 
 type UseCheckAuthenticationProps = {
   onSuccess: () => void;
@@ -31,7 +31,11 @@ export const useCheckAuthentication = ({
     onError,
   });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     mutation.mutate();
     // oxlint-disable-next-line react/exhaustive-effect-dependencies react-hooks/exhaustive-deps
   }, []);
