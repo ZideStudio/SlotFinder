@@ -5,19 +5,25 @@ import {
 } from "@Mocks/handlers/tokenRefreshHandlers";
 import { server } from "@Mocks/server";
 import { http, HttpResponse } from "msw";
+import { fetchApiMutator } from "../orval/fetchApiMutator";
 import { tokenRefreshManager } from "../tokenRefreshManager";
 
 describe("TokenRefreshManager", () => {
   const mockLocationReload = vi.fn();
 
-  const originalLocation = globalThis.location;
-  vi.spyOn(globalThis, "location", "get").mockReturnValue({
-    ...originalLocation,
-    reload: mockLocationReload,
+  beforeEach(() => {
+    const originalLocation = globalThis.location;
+
+    vi.spyOn(globalThis, "location", "get").mockReturnValue({
+      ...originalLocation,
+      reload: mockLocationReload,
+    });
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   describe("refreshToken", () => {
@@ -81,5 +87,17 @@ describe("TokenRefreshManager", () => {
 
       expect(mockLocationReload).not.toHaveBeenCalled();
     });
+  });
+
+  it("should not crash when window is unavailable", async () => {
+    vi.stubGlobal("window", undefined);
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(null, { status: 204 }),
+    );
+
+    await expect(
+      fetchApiMutator("/v1/auth/status", { method: "GET" }),
+    ).resolves.toBeUndefined();
   });
 });
