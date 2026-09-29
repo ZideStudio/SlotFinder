@@ -1,4 +1,5 @@
 import { TERMS_VERSION } from "@Front/utils/constants/terms";
+import { Temporal } from "@js-temporal/polyfill";
 import type { WhoAreYouFormData } from "../types";
 import { buildAccountUpdateDTO } from "../whoAreYou.helpers";
 
@@ -19,7 +20,7 @@ describe("whoAreYou helpers", () => {
         color: "#ff0000",
         termsAccepted: true,
         termsVersion: TERMS_VERSION,
-        timeZone: "Europe/Paris",
+        timeZone: Temporal.Now.timeZoneId(),
       });
     });
 
@@ -33,7 +34,7 @@ describe("whoAreYou helpers", () => {
 
       const result = buildAccountUpdateDTO(formData);
 
-      expect(result.timeZone).toBe("Europe/Paris");
+      expect(result.timeZone).toBe(Temporal.Now.timeZoneId());
     });
   });
 });

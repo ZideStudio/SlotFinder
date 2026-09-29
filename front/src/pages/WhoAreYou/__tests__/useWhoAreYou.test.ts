@@ -1,6 +1,10 @@
+import { AuthenticationContext } from "@Front/contexts/AuthenticationContext/AuthenticationContext";
+import type { AuthenticationContextType } from "@Front/contexts/AuthenticationContext/types";
+import { createQueryClient } from "@Front/utils/testsUtils/customRender/TestProviders";
 // oxlint-disable-next-line import/no-namespace
-import * as useAuthenticationContext from "@Front/hooks/useAuthenticationContext";
-import { TestProviders } from "@Front/utils/testsUtils/customRender/TestProviders";
+import * as patchAccountHook from "@Front/api/account/patchAccount/usePatchAccount";
+// oxlint-disable-next-line import/no-namespace
+import * as patchAccountAvatarHook from "@Front/api/account/patchAccountAvatar/usePatchAccountAvatar";
 import {
   getAccountMe200,
   patchAccount200,
@@ -9,7 +13,9 @@ import {
   patchAvatarAccount400,
 } from "@Mocks/handlers/accountHandlers";
 import { server } from "@Mocks/server";
-import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { createElement, type PropsWithChildren } from "react";
 import { useWhoAreYou } from "../useWhoAreYou";
 
 const createAvatarFileList = () => {
@@ -17,8 +23,41 @@ const createAvatarFileList = () => {
   return [avatar] as unknown as FileList;
 };
 
-const renderHookWithProviders = (hook: () => ReturnType<typeof useWhoAreYou>) =>
-  renderHook(hook, { wrapper: TestProviders });
+const createAuthenticationContextValue = (
+  overrides: Partial<AuthenticationContextType> = {},
+): AuthenticationContextType => ({
+  isAuthenticated: true,
+  authenticationError: undefined,
+  checkAuthentication: vi.fn(),
+  postAuthRedirectPath: undefined,
+  setPostAuthRedirectPath: vi.fn(),
+  resetPostAuthRedirectPath: vi.fn(),
+  ...overrides,
+});
+
+const renderHookWithProviders = (
+  hook: () => ReturnType<typeof useWhoAreYou>,
+  authContextOverrides: Partial<AuthenticationContextType> = {},
+) => {
+  const client = createQueryClient();
+  const authContextValue = createAuthenticationContextValue(authContextOverrides);
+
+  const wrapper = ({ children }: PropsWithChildren) =>
+    createElement(
+      QueryClientProvider,
+      { client },
+      createElement(
+        AuthenticationContext.Provider,
+        { value: authContextValue },
+        children,
+      ),
+    );
+
+  return {
+    ...renderHook(hook, { wrapper }),
+    authContextValue,
+  };
+};
 
 describe("useWhoAreYou - success scenarios", () => {
   beforeEach(() => {
@@ -85,28 +124,39 @@ describe("useWhoAreYou - success scenarios", () => {
     const setError = vi.fn();
     const reset = vi.fn();
     const checkAuthentication = vi.fn();
+    const patchAccount = vi.fn().mockResolvedValue({});
+    const patchAccountAvatar = vi.fn().mockResolvedValue(undefined);
 
+    vi.spyOn(patchAccountHook, "usePatchAccount").mockReturnValue({
+      patchAccount,
+      isLoading: false,
+      errorCode: undefined,
+    });
     vi.spyOn(
-      useAuthenticationContext,
-      "useAuthenticationContext",
+      patchAccountAvatarHook,
+      "usePatchAccountAvatar",
     ).mockReturnValue({
-      checkAuthentication,
-    } as unknown as ReturnType<
-      typeof useAuthenticationContext.useAuthenticationContext
-    >);
+      patchAccountAvatar,
+      isLoading: false,
+    });
 
     const { result } = renderHookWithProviders(() =>
       useWhoAreYou({ setError, reset }),
+      { checkAuthentication },
     );
 
-    result.current.handleSubmit({
-      avatar: createAvatarFileList(),
-      username: "john_doe",
-      color: "#ff0000",
-      termsAccepted: true,
+    await act(async () => {
+      await result.current.handleSubmit({
+        avatar: createAvatarFileList(),
+        username: "john_doe",
+        color: "#ff0000",
+        termsAccepted: true,
+      });
     });
 
     await waitFor(() => {
+      expect(patchAccount).toHaveBeenCalledTimes(1);
+      expect(patchAccountAvatar).toHaveBeenCalledTimes(1);
       expect(checkAuthentication).toHaveBeenCalledTimes(1);
     });
   });
