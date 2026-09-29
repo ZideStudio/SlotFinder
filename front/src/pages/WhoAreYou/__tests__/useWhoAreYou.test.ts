@@ -73,26 +73,7 @@ describe("useWhoAreYou - success scenarios", () => {
     server.resetHandlers();
   });
 
-  it("should submit account and avatar payloads on successful submit", () => {
-    const setError = vi.fn();
-    const reset = vi.fn();
-
-    const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError, reset }),
-    );
-
-    result.current.handleSubmit({
-      avatar: createAvatarFileList(),
-      username: "john_doe",
-      color: "#ff0000",
-      termsAccepted: true,
-    });
-
-    expect(setError).not.toHaveBeenCalled();
-    expect(result.current.submitError).toBeNull();
-  });
-
-  it("should return defaultAvatarUrl from account data", async () => {
+  it("should initialize account data and prefill accepted terms", async () => {
     const setError = vi.fn();
     const reset = vi.fn();
 
@@ -105,23 +86,13 @@ describe("useWhoAreYou - success scenarios", () => {
         "/api/v1/account/123456789/avatar",
       );
       expect(result.current.hasAcceptedCurrentTermsVersion).toBe(true);
-    });
-  });
-
-  it("should prefill termsAccepted as true when current terms are already accepted", async () => {
-    const setError = vi.fn();
-    const reset = vi.fn();
-
-    renderHookWithProviders(() => useWhoAreYou({ setError, reset }));
-
-    await waitFor(() => {
       expect(reset).toHaveBeenCalledWith(
         expect.objectContaining({ termsAccepted: true }),
       );
     });
   });
 
-  it("should refresh authentication state after a successful submit", async () => {
+  it("should submit successfully and refresh authentication state", async () => {
     const setError = vi.fn();
     const reset = vi.fn();
     const checkAuthentication = vi.fn();
@@ -156,6 +127,8 @@ describe("useWhoAreYou - success scenarios", () => {
       expect(patchAccount).toHaveBeenCalledTimes(1);
       expect(patchAccountAvatar).toHaveBeenCalledTimes(1);
       expect(checkAuthentication).toHaveBeenCalledTimes(1);
+      expect(setError).not.toHaveBeenCalled();
+      expect(result.current.submitError).toBeNull();
     });
   });
 });
@@ -229,30 +202,6 @@ describe("useWhoAreYou - error scenarios", () => {
     });
   });
 
-  it("should handle avatar upload failure from API", async () => {
-    server.use(getAccountMe200, patchAccount200, patchAvatarAccount400);
-
-    const setError = vi.fn();
-    const reset = vi.fn();
-
-    const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError, reset }),
-    );
-
-    result.current.handleSubmit({
-      avatar: createAvatarFileList(),
-      username: "john_doe",
-      color: "#ff0000",
-      termsAccepted: true,
-    });
-
-    await waitFor(() => {
-      expect(setError).toHaveBeenCalledWith("avatar", {
-        message: "whoAreYou.error.AVATAR_UPLOAD_FAILED",
-      });
-    });
-  });
-
   it("should not call checkAuthentication when avatar upload fails even if account update succeeds", async () => {
     server.use(getAccountMe200, patchAccount200, patchAvatarAccount400);
 
@@ -280,35 +229,5 @@ describe("useWhoAreYou - error scenarios", () => {
         message: "whoAreYou.error.AVATAR_UPLOAD_FAILED",
       });
     });
-  });
-});
-
-describe("useWhoAreYou - form validation through form submission", () => {
-  beforeEach(() => {
-    server.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  afterAll(() => {
-    server.resetHandlers();
-  });
-
-  it("should initialize hook and prepare for form submission without validation errors", async () => {
-    const setError = vi.fn();
-    const reset = vi.fn();
-
-    const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError, reset }),
-    );
-
-    await waitFor(() => {
-      expect(result.current.defaultAvatarUrl).toBeDefined();
-    });
-
-    expect(setError).not.toHaveBeenCalled();
-    expect(result.current.submitError).toBeNull();
   });
 });
