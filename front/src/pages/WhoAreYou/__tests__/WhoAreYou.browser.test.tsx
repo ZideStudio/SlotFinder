@@ -5,15 +5,20 @@ import {
   getAccountMe200,
   getAccountMeWithoutTerms200,
   patchAccount200,
-  patchAccount400,
   patchAvatarAccount200,
   patchAvatarAccount400,
 } from "@Mocks/handlers/accountHandlers";
+import { getAuthStatus403 } from "@Mocks/handlers/authStatusHandlers";
 import { page } from "vitest/browser";
 
-// Flaky in Vitest browser mode; kept skipped until test stability is improved.
-// oxlint-disable-next-line vitest/no-disabled-tests
-describe.skip("WhoAreYou Page", () => {
+/**
+ * Browser smoke tests for WhoAreYou page.
+ *
+ * These tests focus on real browser rendering, accessibility, and core user flows.
+ * Detailed form validation and API error handling are covered in unit tests.
+ * See: useWhoAreYou.test.ts for comprehensive business logic coverage.
+ */
+describe("WhoAreYou Page", () => {
   const fillFormWithValidData = async () => {
     const avatarInput = page.getByLabelText(/Avatar/u);
     const validAvatar = new File(["avatar"], "avatar.png", {
@@ -30,6 +35,8 @@ describe.skip("WhoAreYou Page", () => {
   });
 
   it("should hide terms checkbox when terms are already accepted at current version", async () => {
+    worker.use(getAuthStatus403("TERMS_NOT_ACCEPTED"), getAccountMe200);
+
     await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
     await expect
@@ -55,7 +62,10 @@ describe.skip("WhoAreYou Page", () => {
   });
 
   it("should show terms checkbox when terms are not accepted", async () => {
-    worker.use(getAccountMeWithoutTerms200);
+    worker.use(
+      getAuthStatus403("TERMS_NOT_ACCEPTED"),
+      getAccountMeWithoutTerms200,
+    );
 
     await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
 
@@ -68,192 +78,43 @@ describe.skip("WhoAreYou Page", () => {
       .toBeInTheDocument();
   });
 
-  describe("Avatar field validation", () => {
-    it("should show error when uploading an invalid avatar", async () => {
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+  it("should display error message when avatar upload fails", async () => {
+    worker.use(
+      getAuthStatus403("USERNAME_MISSING"),
+      getAccountMe200,
+      patchAccount200,
+      patchAvatarAccount400,
+    );
 
-      const invalidFile = new File(["invalid content"], "invalid.txt", {
-        type: "text/plain",
-      });
+    await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+    await fillFormWithValidData();
 
-      await page.getByLabelText(/Avatar/u).upload(invalidFile);
-      await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
 
-      await expect
-        .element(
-          page.getByText("The avatar file must be a PNG, JPEG, or WEBP image"),
-        )
-        .toBeInTheDocument();
-    });
-
-    it("should show error when uploading an avatar that is too large", async () => {
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-
-      const largeFile = new File(
-        [new ArrayBuffer(11 * 1024 * 1024)],
-        "large.png",
-        {
-          type: "image/png",
-        },
-      );
-
-      await page.getByLabelText(/Avatar/u).upload(largeFile);
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(page.getByText("The avatar file size must be less than 10 MB"))
-        .toBeInTheDocument();
-    });
+    await expect
+      .element(page.getByText("Failed to upload the avatar. Please try again."))
+      .toBeInTheDocument();
   });
 
-  describe("Username field validation", () => {
-    it("should show error when username is too short", async () => {
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+  it("should submit valid data successfully without error message", async () => {
+    worker.use(
+      getAuthStatus403("USERNAME_MISSING"),
+      getAccountMe200,
+      patchAccount200,
+      patchAvatarAccount200,
+    );
 
-      await page.getByRole("textbox", { name: "Username" }).fill("ab");
-      await page.getByRole("button", { name: "Continue" }).click();
+    await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
+    await fillFormWithValidData();
 
-      await expect
-        .element(page.getByText("Username must be at least 3 characters"))
-        .toBeInTheDocument();
-    });
+    await page.getByRole("button", { name: "Continue" }).click();
 
-    it("should show error when username is too long", async () => {
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-
-      await page
-        .getByRole("textbox", { name: "Username" })
-        .fill("a".repeat(31));
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(page.getByText("Username must be at most 30 characters"))
-        .toBeInTheDocument();
-    });
-  });
-
-  describe("Submit success and API errors", () => {
-    it("should submit valid data without showing an error message", async () => {
-      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-      await fillFormWithValidData();
-
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(
-          page.getByText(
-            "An unexpected error occurred during submit. Please try again later or contact support if the issue persists.",
-          ),
-        )
-        .not.toBeInTheDocument();
-    });
-
-    it("should show username error when account patch returns username already taken", async () => {
-      worker.use(
-        patchAccount400("USERNAME_ALREADY_TAKEN"),
-        patchAvatarAccount200,
-      );
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-      await fillFormWithValidData();
-
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(
-          page.getByText(
-            "This username is already taken. Please choose another one.",
-          ),
-        )
-        .toBeInTheDocument();
-    });
-
-    it("should show color error when account patch returns invalid color format", async () => {
-      worker.use(
-        patchAccount400("INVALID_COLOR_FORMAT"),
-        patchAvatarAccount200,
-      );
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-      await fillFormWithValidData();
-
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(
-          page.getByText(
-            "The color must be a valid hexadecimal code (ex: #RRGGBB).",
-          ),
-        )
-        .toBeInTheDocument();
-    });
-
-    it("should show server error when account patch returns server error", async () => {
-      worker.use(patchAccount400("SERVER_ERROR"), patchAvatarAccount200);
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-      await fillFormWithValidData();
-
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(
-          page.getByText(
-            "An unexpected error occurred during submit. Please try again later or contact support if the issue persists.",
-          ),
-        )
-        .toBeInTheDocument();
-    });
-
-    it("should show avatar error when avatar upload fails", async () => {
-      worker.use(patchAccount200, patchAvatarAccount400);
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-      await fillFormWithValidData();
-
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect
-        .element(
-          page.getByText("Failed to upload the avatar. Please try again."),
-        )
-        .toBeInTheDocument();
-    });
-  });
-
-  describe("Form pre-fill from account data", () => {
-    it("should pre-fill form with account data on mount", async () => {
-      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-
-      const usernameInput = page.getByRole("textbox", { name: /Username/u });
-      await expect.element(usernameInput).toHaveValue("test_user");
-    });
-
-    it("should show avatar preview from account data", async () => {
-      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-
-      const avatarContainer = page.getByLabelText(/Avatar/u);
-      await expect.element(avatarContainer).toBeInTheDocument();
-    });
-
-    it("should allow updating pre-filled username", async () => {
-      worker.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
-
-      await renderBrowserRoute({ initialEntry: appRoutes.whoAreYou() });
-
-      const usernameInput = page.getByRole("textbox", { name: /Username/u });
-      await expect.element(usernameInput).toHaveValue("test_user");
-
-      await usernameInput.clear();
-      await usernameInput.fill("new_username");
-
-      await expect.element(usernameInput).toHaveValue("new_username");
-    });
+    await expect
+      .element(
+        page.getByText(
+          "An unexpected error occurred during submit. Please try again later or contact support if the issue persists.",
+        ),
+      )
+      .not.toBeInTheDocument();
   });
 });

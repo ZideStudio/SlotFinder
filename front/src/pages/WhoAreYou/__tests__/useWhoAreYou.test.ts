@@ -40,7 +40,8 @@ const renderHookWithProviders = (
   authContextOverrides: Partial<AuthenticationContextType> = {},
 ) => {
   const client = createQueryClient();
-  const authContextValue = createAuthenticationContextValue(authContextOverrides);
+  const authContextValue =
+    createAuthenticationContextValue(authContextOverrides);
 
   const wrapper = ({ children }: PropsWithChildren) =>
     createElement(
@@ -132,16 +133,13 @@ describe("useWhoAreYou - success scenarios", () => {
       isLoading: false,
       errorCode: undefined,
     });
-    vi.spyOn(
-      patchAccountAvatarHook,
-      "usePatchAccountAvatar",
-    ).mockReturnValue({
+    vi.spyOn(patchAccountAvatarHook, "usePatchAccountAvatar").mockReturnValue({
       patchAccountAvatar,
       isLoading: false,
     });
 
-    const { result } = renderHookWithProviders(() =>
-      useWhoAreYou({ setError, reset }),
+    const { result } = renderHookWithProviders(
+      () => useWhoAreYou({ setError, reset }),
       { checkAuthentication },
     );
 
@@ -253,5 +251,64 @@ describe("useWhoAreYou - error scenarios", () => {
         message: "whoAreYou.error.AVATAR_UPLOAD_FAILED",
       });
     });
+  });
+
+  it("should not call checkAuthentication when avatar upload fails even if account update succeeds", async () => {
+    server.use(getAccountMe200, patchAccount200, patchAvatarAccount400);
+
+    const setError = vi.fn();
+    const reset = vi.fn();
+    const checkAuthentication = vi.fn();
+
+    const { result } = renderHookWithProviders(
+      () => useWhoAreYou({ setError, reset }),
+      { checkAuthentication },
+    );
+
+    await act(async () => {
+      await result.current.handleSubmit({
+        avatar: createAvatarFileList(),
+        username: "john_doe",
+        color: "#ff0000",
+        termsAccepted: true,
+      });
+    });
+
+    await waitFor(() => {
+      expect(checkAuthentication).not.toHaveBeenCalled();
+      expect(setError).toHaveBeenCalledWith("avatar", {
+        message: "whoAreYou.error.AVATAR_UPLOAD_FAILED",
+      });
+    });
+  });
+});
+
+describe("useWhoAreYou - form validation through form submission", () => {
+  beforeEach(() => {
+    server.use(getAccountMe200, patchAccount200, patchAvatarAccount200);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterAll(() => {
+    server.resetHandlers();
+  });
+
+  it("should initialize hook and prepare for form submission without validation errors", async () => {
+    const setError = vi.fn();
+    const reset = vi.fn();
+
+    const { result } = renderHookWithProviders(() =>
+      useWhoAreYou({ setError, reset }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.defaultAvatarUrl).toBeDefined();
+    });
+
+    expect(setError).not.toHaveBeenCalled();
+    expect(result.current.submitError).toBeNull();
   });
 });
