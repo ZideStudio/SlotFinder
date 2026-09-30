@@ -4,6 +4,7 @@ import {
   type AccountAccountCreateDto,
 } from "@Front/api/generated/slotFinderAPI.schemas";
 import type { SignUpRequestBodyType } from "@Front/types/Authentication/signUp/signUp.types";
+import { TERMS_VERSION } from "@Front/utils/constants/terms";
 import { Temporal } from "@js-temporal/polyfill";
 
 /**
@@ -33,7 +34,7 @@ export const signUpApi = ({
       ? language
       : AccountAccountCreateDtoLanguage.en,
     termsAccepted: true,
-    termsVersion: "1.0",
+    termsVersion: TERMS_VERSION,
     timeZone: Temporal.Now.timeZoneId(),
   };
 

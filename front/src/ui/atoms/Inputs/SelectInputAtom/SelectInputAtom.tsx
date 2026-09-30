@@ -1,4 +1,4 @@
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type { ComponentPropsWithRef, OptionHTMLAttributes } from "react";
 
 import "./SelectInputAtom.scss";

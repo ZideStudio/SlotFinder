@@ -1,5 +1,5 @@
 import { useModal } from "@Front/ui/utils/hooks/useModal/useModal";
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import {
   useId,
   type ComponentProps,
