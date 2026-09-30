@@ -90,7 +90,9 @@ export const useWhoAreYou = ({
         avatarFileList = accountData.avatarUrl
           ? await urlToFileList(accountData.avatarUrl, "avatar.jpg")
           : undefined;
-      } catch {}
+      } catch {
+        // Ignore avatar prefill failures; the user can still upload manually
+      }
 
       reset({
         avatar: avatarFileList,
