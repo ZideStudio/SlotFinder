@@ -1,4 +1,4 @@
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type { ReactNode } from "react";
 import "./LabelInput.scss";
 
@@ -23,7 +23,7 @@ export const LabelInput = ({
   return (
     <label htmlFor={inputId} className={parentClassName}>
       {children}
-      {Boolean(required) && <span aria-hidden>*</span>}
+      {Boolean(required) && <span aria-hidden> *</span>}
     </label>
   );
 };

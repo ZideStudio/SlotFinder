@@ -1,11 +1,7 @@
+import { USERNAME_MIN_LENGTH } from "@Front/pages/WhoAreYou/constants";
 import type { TFunction } from "i18next";
 import { object, ref, string } from "yup";
-import {
-  EMAIL_REGEX,
-  PASSWORD_MIN_LENGTH,
-  PASSWORD_REGEX,
-  USERNAME_MIN_LENGTH,
-} from "./constants";
+import { EMAIL_REGEX, PASSWORD_MIN_LENGTH, PASSWORD_REGEX } from "./constants";
 
 export const getSchema = (translate: TFunction) =>
   object({

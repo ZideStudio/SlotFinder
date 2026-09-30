@@ -1,9 +1,9 @@
-import { getClassName } from "@Front/utils/getClassName";
+import { getClassName } from "@Front/utils/helpers/getClassName";
 import type { ComponentProps, ReactNode } from "react";
 import { OverlayContent } from "../OverlayContent/OverlayContent";
 
-import "./Popover.scss";
 import { Card } from "@Front/ui/atoms/Card/Card";
+import "./Popover.scss";
 
 type PopoverProps = {
   id: string;

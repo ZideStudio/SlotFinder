@@ -1,5 +1,5 @@
 import { appRoutes } from "@Front/routing/appRoutes";
-import { isInternalUrl } from "@Front/utils/isInternalUrl";
+import { isInternalUrl } from "@Front/utils/helpers/isInternalUrl";
 import { Navigate, useSearchParams } from "react-router";
 
 export const OAuthCallback = () => {

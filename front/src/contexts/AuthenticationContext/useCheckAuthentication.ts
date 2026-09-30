@@ -6,7 +6,9 @@ import { useEffect } from "react";
 
 type UseCheckAuthenticationProps = {
   onSuccess: () => void;
-  onError: () => void;
+  onError: (
+    error: ErrorResponse<AuthStatusErrorCodeType>,
+  ) => Promise<unknown> | unknown;
 };
 
 export type UseCheckAuthenticationReturn = {

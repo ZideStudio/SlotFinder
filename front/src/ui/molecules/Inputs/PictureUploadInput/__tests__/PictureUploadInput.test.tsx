@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { PictureUploadInput } from "../PictureUploadInput";
 import userEvent from "@testing-library/user-event";
+import { PictureUploadInput } from "../PictureUploadInput";
 
 describe("PictureUploadInput", () => {
   beforeAll(() => {
@@ -75,5 +75,25 @@ describe("PictureUploadInput", () => {
     await user.upload(input, file);
 
     expect(screen.queryByAltText("Preview")).toHaveAttribute("hidden");
+  });
+
+  it("should render rounded image preview when previewVariant is set to 'rounded'", async () => {
+    const user = userEvent.setup();
+    render(
+      <PictureUploadInput
+        label="Test Label"
+        name="test-input"
+        previewVariant="rounded"
+      />,
+    );
+
+    const input = screen.getByLabelText("Test Label");
+    const file = new File(["test"], "test-image.png", { type: "image/png" });
+
+    await user.upload(input, file);
+
+    const img = screen.getByAltText("Preview");
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveClass("ds-picture-upload-input__preview--rounded");
   });
 });

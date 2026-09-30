@@ -10,6 +10,9 @@ const meta = {
     name: "picture-upload-input",
     required: false,
     previewText: "Preview",
+    previewVariant: "default",
+    defaultPreviewUrl:
+      "https://avatars.githubusercontent.com/u/152389914?s=60&v=4",
     className: "custom-class",
   },
   argTypes: {
@@ -27,6 +30,18 @@ const meta = {
 export default meta;
 
 export const Default: StoryObj<typeof meta> = {};
+
+export const DefaultWithoutDefaultPreview: StoryObj<typeof meta> = {
+  args: {
+    defaultPreviewUrl: undefined,
+  },
+};
+
+export const WithRoundedPreview: StoryObj<typeof meta> = {
+  args: {
+    previewVariant: "rounded",
+  },
+};
 
 export const Invalid: StoryObj<typeof meta> = {
   args: {
