@@ -63,7 +63,7 @@
     "@vitejs/plugin-react": "6.1.1",
     "@vitest/browser-playwright": "5.0.1",
     "@vitest/coverage-v8": "5.0.1",
-    "chromatic": "18.9.4",
+    "chromatic": "18.9.5",
     "concurrently": "10.0.5",
     "i18next-resources-for-ts": "2.1.0",
     "jsdom": "30.1.1",
