@@ -5,6 +5,7 @@ export type SignUpRequestBodyType = {
   email: string;
   password: string;
   language: string;
+  termsAccepted: boolean;
 };
 
 export type SignUpFormType = Omit<SignUpRequestBodyType, "language"> & {
