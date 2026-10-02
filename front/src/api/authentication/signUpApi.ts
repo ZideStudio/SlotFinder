@@ -25,6 +25,7 @@ export const signUpApi = ({
   email,
   password,
   language,
+  termsAccepted,
 }: SignUpRequestBodyType): Promise<void> => {
   const dto: AccountAccountCreateDto & { username: string } = {
     username,
@@ -33,7 +34,7 @@ export const signUpApi = ({
     language: isValidLanguage(language)
       ? language
       : AccountAccountCreateDtoLanguage.en,
-    termsAccepted: true,
+    termsAccepted,
     termsVersion: TERMS_VERSION,
     timeZone: Temporal.Now.timeZoneId(),
   };
