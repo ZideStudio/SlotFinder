@@ -20,7 +20,7 @@ export const SignUp = () => {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(signUp)}>
+      <form noValidate onSubmit={methods.handleSubmit(signUp)}>
         <TextField
           name="email"
           label={t("email")}
