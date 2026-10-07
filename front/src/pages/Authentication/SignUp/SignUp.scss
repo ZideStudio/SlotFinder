@@ -1,3 +1,11 @@
-.sign-up-input input {
-  width: auto;
+@use "../../../utils/sass/mixins/helpers";
+
+.sign-up-input {
+  margin-bottom: helpers.pxToRem(12);
+
+  input {
+    width: auto;
+  }
 }
+
+
