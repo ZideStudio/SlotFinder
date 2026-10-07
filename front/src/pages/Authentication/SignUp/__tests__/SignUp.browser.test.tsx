@@ -23,7 +23,7 @@ describe("SignUp page", () => {
       .element(
         page.getByRole("heading", {
           level: 1,
-          name: "Sign Up to SlotFinder",
+          name: "Sign Up",
         }),
       )
       .toBeInTheDocument();
