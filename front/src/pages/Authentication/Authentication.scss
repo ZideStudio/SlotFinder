@@ -1,23 +1,25 @@
 @use "../../utils/sass/mixins/responsive";
 
 .authentication {
-  &__title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+  &__logo,
+  &__content,
+  &__oauth {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
   }
 
-  &__content {
-    --cols: 4;
-    --start: 1;
+  &__logo {
+    width: 100px;
+    height: auto;
+  }
 
-    @include responsive.mediaExceedsWidth("tablet") {
-      --cols: 2;
-      --start: 4;
-    }
+  &__content,
+  &__oauth {
+    max-width: 28rem;
 
     @include responsive.mediaExceedsWidth("desktop-small") {
-      --start: 6;
+      max-width: 36rem;
     }
   }
 }
