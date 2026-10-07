@@ -6,6 +6,7 @@ import loader from "../locales/en/loader.json";
 import signUp from "../locales/en/signUp.json";
 import welcome from "../locales/en/welcome.json";
 import whoAreYou from "../locales/en/whoAreYou.json";
+import signIn from "../locales/en/signIn.json";
 
 const resources = {
   authentication,
@@ -16,6 +17,7 @@ const resources = {
   welcome,
   whoAreYou,
   loader,
+  signIn,
 } as const;
 
 export default resources;
