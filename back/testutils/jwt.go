@@ -70,8 +70,13 @@ func acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath string, deadl
 			return nil, nil
 		}
 		if info, statErr := os.Stat(lockPath); statErr == nil && time.Since(info.ModTime()) > staleLockAge {
-			_ = os.Remove(lockPath)
-			continue
+			// Only retry immediately when the stale lock is actually gone
+			// (removed by us or by another process already); a removal
+			// failure (e.g. still open elsewhere) would otherwise spin this
+			// loop tightly instead of falling through to the sleep below.
+			if rmErr := os.Remove(lockPath); rmErr == nil || os.IsNotExist(rmErr) {
+				continue
+			}
 		}
 		if time.Now().After(deadline) {
 			return nil, errors.New("timed out waiting for another process to generate the test JWT keypair")
