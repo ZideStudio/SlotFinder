@@ -46,6 +46,14 @@ func EnsureTestJWTKeyPair(privateKeyPath, publicKeyPath string) error {
 	return generateTestJWTKeyPair(privateKeyPath, publicKeyPath)
 }
 
+// staleLockAge is how long a .generating.lock file may exist before it's
+// assumed to belong to a process that crashed before its defer could remove
+// it (panic, SIGKILL, OOM), rather than one still genuinely generating a
+// 2048-bit RSA keypair — which normally takes well under a second. Without
+// this, a single crash during generation would stall every other package's
+// TestMain for the full deadline below and then panic them all too.
+const staleLockAge = 15 * time.Second
+
 // acquireGenerationLock returns a held lock file if the caller should
 // generate the keypair, or (nil, nil) if another process already finished
 // generating it while this one was waiting.
@@ -60,6 +68,10 @@ func acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath string, deadl
 		}
 		if fileExists(privateKeyPath) && fileExists(publicKeyPath) {
 			return nil, nil
+		}
+		if info, statErr := os.Stat(lockPath); statErr == nil && time.Since(info.ModTime()) > staleLockAge {
+			_ = os.Remove(lockPath)
+			continue
 		}
 		if time.Now().After(deadline) {
 			return nil, errors.New("timed out waiting for another process to generate the test JWT keypair")

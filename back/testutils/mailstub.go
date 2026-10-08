@@ -41,14 +41,40 @@ func StubSMTPAwait(t *testing.T, target *SendMailFunc) <-chan struct{} {
 	return called
 }
 
+const (
+	awaitSMTPMinTimeout    = 2 * time.Second
+	awaitSMTPMaxTimeout    = 10 * time.Second
+	awaitSMTPDeadlineShare = 4 // use at most 1/4 of the test's remaining deadline
+)
+
+// awaitSMTPTimeout scales with how much time the test has left before its
+// -timeout deadline, so a loaded CI runner gets proportionally more slack
+// than a fast local run, while a test close to its own deadline fails fast
+// instead of spending its whole remaining budget on one wait.
+func awaitSMTPTimeout(t testingT) time.Duration {
+	deadline, ok := t.Deadline()
+	if !ok {
+		return awaitSMTPMinTimeout
+	}
+	remaining := time.Until(deadline) / awaitSMTPDeadlineShare
+	switch {
+	case remaining < awaitSMTPMinTimeout:
+		return awaitSMTPMinTimeout
+	case remaining > awaitSMTPMaxTimeout:
+		return awaitSMTPMaxTimeout
+	default:
+		return remaining
+	}
+}
+
 // AwaitSMTP blocks until called receives (see StubSMTPAwait) or fails the
-// test after 2s, for callers waiting on an asynchronously-spawned SendMail
-// goroutine.
+// test once awaitSMTPTimeout elapses, for callers waiting on an
+// asynchronously-spawned SendMail goroutine.
 func AwaitSMTP(t testingT, called <-chan struct{}) {
 	t.Helper()
 	select {
 	case <-called:
-	case <-time.After(2 * time.Second):
+	case <-time.After(awaitSMTPTimeout(t)):
 		t.Fatalf("expected the async SendMail goroutine to run")
 	}
 }

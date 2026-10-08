@@ -30,6 +30,7 @@ type testingT interface {
 	Helper()
 	Fatalf(format string, args ...any)
 	Cleanup(func())
+	Deadline() (time.Time, bool)
 }
 
 // LoadTestEnv loads .env.test (or .env) from the module root regardless of
