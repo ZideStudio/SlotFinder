@@ -16,12 +16,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// asyncSlotWorkDelay bounds how long we wait for the LoadSlots goroutine
-// triggered by Create/Update/Delete to finish.
+// asyncSlotWorkDelay is a fixed, best-effort delay giving the LoadSlots
+// goroutine triggered by Create/Update/Delete time to finish. It does not
+// guarantee completion (slow CI may need longer).
 const asyncSlotWorkDelay = 300 * time.Millisecond
 
-// awaitAsyncSlotWork waits for an in-flight LoadSlots goroutine to finish
-// before the test's shared transaction is reused or rolled back.
+// awaitAsyncSlotWork sleeps for asyncSlotWorkDelay so an in-flight LoadSlots
+// goroutine is likely done before the test's shared transaction is reused or
+// rolled back. It is not a synchronization point: assertions that depend on
+// the async result must poll with testutils.AwaitAsyncDBWorkUntil.
 func awaitAsyncSlotWork(t *testing.T) {
 	t.Helper()
 	time.Sleep(asyncSlotWorkDelay)
@@ -30,8 +33,9 @@ func awaitAsyncSlotWork(t *testing.T) {
 func newTestAvailabilityService(t *testing.T) *AvailabilityService {
 	t.Helper()
 	testutils.TestDB(t)
-	// Let a trailing LoadSlots goroutine finish before rollback (t.Cleanup
-	// is LIFO, so this runs first). Chained calls still need their own await.
+	// Give a trailing LoadSlots goroutine time to finish before rollback
+	// (best-effort sleep; t.Cleanup is LIFO, so this runs first). Chained
+	// calls still need their own await.
 	t.Cleanup(func() { time.Sleep(asyncSlotWorkDelay) })
 	return &AvailabilityService{
 		slotService:            slot.NewSlotService(nil),
@@ -196,7 +200,9 @@ func TestAvailabilityService_Create_MergesOverlapping(t *testing.T) {
 
 	var availabilities []model.Availability
 	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
+		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
+			return false
+		}
 		return len(availabilities) == 1
 	})
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
@@ -241,7 +247,9 @@ func TestAvailabilityService_Create_NoMergeTriggersSlotRecalculation(t *testing.
 
 	var slots []model.Slot
 	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		require.NoError(t, repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots))
+		if err := repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots); err != nil {
+			return false
+		}
 		return len(slots) > 0
 	})
 	assert.NotEmpty(t, slots, "overlapping availabilities from two participants should produce at least one slot")
@@ -632,7 +640,9 @@ func TestAvailabilityService_Update_MergesOverlapping(t *testing.T) {
 
 	var availabilities []model.Availability
 	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
+		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
+			return false
+		}
 		return len(availabilities) == 1
 	})
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
