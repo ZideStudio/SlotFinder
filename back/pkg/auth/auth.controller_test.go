@@ -120,7 +120,12 @@ func TestCleanRefreshTokens_DeletesExpiredOnTick(t *testing.T) {
 	require.NoError(t, db.Create(&expired).Error)
 
 	ctl := NewAuthController(&AuthController{refreshTokenRepository: repo, clock: fake})
-	defer ctl.cleanupCancel()
+	// Stop the cleanup goroutine and wait for it before the DB rollback, so
+	// it can't still be using the shared connection.
+	defer func() {
+		ctl.cleanupCancel()
+		ctl.cleanupDone.Wait()
+	}()
 
 	fake.Advance(refreshTokenCleanupInterval)
 
@@ -145,9 +150,9 @@ func TestCleanRefreshTokens_StopsOnCancel(t *testing.T) {
 
 	ctl.cleanupCancel()
 
-	// Give the goroutine a moment to observe cancellation and return; there's
-	// nothing further to assert beyond "this doesn't hang/panic".
-	time.Sleep(50 * time.Millisecond)
+	// Blocks until cleanRefreshTokens returns; hangs (test timeout) if
+	// cancellation is ignored.
+	ctl.cleanupDone.Wait()
 }
 
 func TestFakeTicker_StoppedTicker_DoesNotFire(t *testing.T) {

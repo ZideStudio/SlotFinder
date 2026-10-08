@@ -131,7 +131,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 		}
 
 		// Trigger slot recalculation asynchronously
-		go s.slotService.LoadSlots(eventId)
+		s.slotService.LoadSlotsAsync(eventId)
 
 		return MapToAvailabilityResponseDto(availabilityToCreate), nil
 	}
@@ -160,7 +160,7 @@ func (s *AvailabilityService) Create(data *AvailabilityCreateDto, eventId uuid.U
 	}
 
 	// Trigger slot recalculation asynchronously
-	go s.slotService.LoadSlots(eventId)
+	s.slotService.LoadSlotsAsync(eventId)
 
 	return MapToAvailabilityResponseDto(availabilityToCreate), nil
 }
@@ -234,7 +234,7 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 		}
 
 		// Trigger slot recalculation asynchronously
-		go s.slotService.LoadSlots(availability.EventId)
+		s.slotService.LoadSlotsAsync(availability.EventId)
 
 		return MapToAvailabilityResponseDto(availability), nil
 	}
@@ -268,7 +268,7 @@ func (s *AvailabilityService) Update(data *AvailabilityUpdateDto, availabilityId
 	}
 
 	// Trigger slot recalculation asynchronously
-	go s.slotService.LoadSlots(availability.EventId)
+	s.slotService.LoadSlotsAsync(availability.EventId)
 
 	return MapToAvailabilityResponseDto(availability), nil
 }
@@ -310,7 +310,7 @@ func (s *AvailabilityService) Delete(availabilityId uuid.UUID, user *guard.Claim
 	}
 
 	// Trigger slot recalculation asynchronously
-	go s.slotService.LoadSlots(availability.EventId)
+	s.slotService.LoadSlotsAsync(availability.EventId)
 
 	return nil
 }

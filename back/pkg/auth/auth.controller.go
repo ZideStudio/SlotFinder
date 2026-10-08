@@ -6,6 +6,7 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"context"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ type AuthController struct {
 	refreshTokenRepository *repository.RefreshTokenRepository
 	cleanupCtx             context.Context
 	cleanupCancel          context.CancelFunc
+	cleanupDone            sync.WaitGroup // Done once cleanRefreshTokens has returned
 	clock                  clock
 }
 
@@ -32,7 +34,11 @@ func NewAuthController(ctl *AuthController) *AuthController {
 
 	ctl.cleanupCtx, ctl.cleanupCancel = context.WithCancel(context.Background())
 	t := ctl.clock.NewTicker(refreshTokenCleanupInterval)
-	go ctl.cleanRefreshTokens(t)
+	ctl.cleanupDone.Add(1)
+	go func() {
+		defer ctl.cleanupDone.Done()
+		ctl.cleanRefreshTokens(t)
+	}()
 
 	return ctl
 }

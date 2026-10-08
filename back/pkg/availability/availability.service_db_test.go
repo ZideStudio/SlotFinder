@@ -16,32 +16,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// asyncSlotWorkDelay is a fixed, best-effort delay giving the LoadSlots
-// goroutine triggered by Create/Update/Delete time to finish. It does not
-// guarantee completion (slow CI may need longer).
-const asyncSlotWorkDelay = 300 * time.Millisecond
-
-// awaitAsyncSlotWork sleeps for asyncSlotWorkDelay so an in-flight LoadSlots
-// goroutine is likely done before the test's shared transaction is reused or
-// rolled back. It is not a synchronization point: assertions that depend on
-// the async result must poll with testutils.AwaitAsyncDBWorkUntil.
-func awaitAsyncSlotWork(t *testing.T) {
+// awaitAsyncSlotWork blocks until every LoadSlots goroutine triggered by
+// Create/Update/Delete on s has finished, so the test's shared transaction
+// can be safely reused or rolled back.
+func awaitAsyncSlotWork(t *testing.T, s *AvailabilityService) {
 	t.Helper()
-	time.Sleep(asyncSlotWorkDelay)
+	s.slotService.WaitAsyncLoads()
 }
 
 func newTestAvailabilityService(t *testing.T) *AvailabilityService {
 	t.Helper()
 	testutils.TestDB(t)
-	// Give a trailing LoadSlots goroutine time to finish before rollback
-	// (best-effort sleep; t.Cleanup is LIFO, so this runs first). Chained
-	// calls still need their own await.
-	t.Cleanup(func() { time.Sleep(asyncSlotWorkDelay) })
-	return &AvailabilityService{
+	s := &AvailabilityService{
 		slotService:            slot.NewSlotService(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
 		eventRepository:        repository.NewEventRepository(nil),
 	}
+	// Wait for trailing LoadSlots goroutines before rollback (t.Cleanup is
+	// LIFO, so this runs first). Chained calls still need their own await.
+	t.Cleanup(s.slotService.WaitAsyncLoads)
+	return s
 }
 
 // alignedNow returns a time truncated to a 5-minute boundary in UTC, a
@@ -191,7 +185,7 @@ func TestAvailabilityService_Create_MergesOverlapping(t *testing.T) {
 	require.NoError(t, err)
 	// This Create also triggers LoadSlots now; wait before the next call
 	// reuses the shared transaction, or the two goroutines race on it.
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Overlaps with the first availability -> should merge into one.
 	dto, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(30 * time.Minute), EndsAt: event.StartsAt.Add(90 * time.Minute)}, event.Id, claims)
@@ -199,12 +193,8 @@ func TestAvailabilityService_Create_MergesOverlapping(t *testing.T) {
 	assert.True(t, dto.EndsAt.Equal(event.StartsAt.Add(90*time.Minute)))
 
 	var availabilities []model.Availability
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
-			return false
-		}
-		return len(availabilities) == 1
-	})
+	awaitAsyncSlotWork(t, s)
+	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
 }
 
@@ -219,7 +209,7 @@ func TestAvailabilityService_Create_MergesOverlapping_ExtendsEnd(t *testing.T) {
 
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(2 * time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Contained within the first (0-2h): overlaps, but its own EndsAt (1h)
 	// is earlier than the existing one's (2h) -> existing end should win.
@@ -241,17 +231,13 @@ func TestAvailabilityService_Create_NoMergeTriggersSlotRecalculation(t *testing.
 	// Each participant's first availability hits the no-merge branch.
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 	_, err = s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: participant})
 	require.NoError(t, err)
 
 	var slots []model.Slot
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots); err != nil {
-			return false
-		}
-		return len(slots) > 0
-	})
+	awaitAsyncSlotWork(t, s)
+	require.NoError(t, repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots))
 	assert.NotEmpty(t, slots, "overlapping availabilities from two participants should produce at least one slot")
 }
 
@@ -283,7 +269,7 @@ func TestAvailabilityService_Create_MergePath_DeleteByIdsError(t *testing.T) {
 
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	testutils.MakeReadOnly(t)
 
@@ -311,7 +297,7 @@ func TestAvailabilityService_Update_InvalidTimes(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// New end before existing start -> validateAvailabilityTimes rejects it.
 	newEnd := event.StartsAt.Add(-time.Hour)
@@ -341,7 +327,7 @@ func TestAvailabilityService_Update_AccessDenied(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	stranger := &guard.Claims{Id: uuid.New()}
 	_, err = s.Update(&AvailabilityUpdateDto{}, created.Id, stranger)
@@ -356,7 +342,7 @@ func TestAvailabilityService_Update_NoFieldsProvided_NoOp(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	updated, err := s.Update(&AvailabilityUpdateDto{}, created.Id, claims)
 	assert.NoError(t, err)
@@ -371,7 +357,7 @@ func TestAvailabilityService_Update_Success(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	newEnd := event.StartsAt.Add(90 * time.Minute)
 	updated, err := s.Update(&AvailabilityUpdateDto{EndsAt: &newEnd}, created.Id, claims)
@@ -387,7 +373,7 @@ func TestAvailabilityService_Update_NoMergeCase_RepositoryUpdateError(t *testing
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	testutils.MakeReadOnly(t)
 
@@ -407,12 +393,12 @@ func TestAvailabilityService_Update_MergesOverlapping_ExtendsEnd(t *testing.T) {
 	// Wide, will be "existing" once the second one is updated to overlap it.
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(2 * time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Initially non-overlapping.
 	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(3 * time.Hour), EndsAt: event.StartsAt.Add(3*time.Hour + 30*time.Minute)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Move it to be fully contained within the wide one's range -> overlaps,
 	// and its own EndsAt is earlier than the existing (wide) one's -> existing wins.
@@ -435,12 +421,12 @@ func TestAvailabilityService_Update_MergePath_RevalidationFails(t *testing.T) {
 	// Wide, stays untouched and will lend its EndsAt to the merged result.
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(3 * time.Hour), EndsAt: event.StartsAt.Add(3*time.Hour + 50*time.Minute)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Initially non-overlapping.
 	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Shrink the event so the wide availability's EndsAt (3h50) no longer fits,
 	// while still leaving room for the moved availability's own range to validate.
@@ -463,10 +449,10 @@ func TestAvailabilityService_Update_MergePath_DeleteByIdsError(t *testing.T) {
 
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(2 * time.Hour), EndsAt: event.StartsAt.Add(3 * time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	testutils.MakeReadOnly(t)
 
@@ -498,7 +484,7 @@ func TestAvailabilityService_Delete_AccessDenied(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	stranger := &guard.Claims{Id: uuid.New()}
 	err = s.Delete(created.Id, stranger)
@@ -513,18 +499,14 @@ func TestAvailabilityService_Delete_Success(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	err = s.Delete(created.Id, claims)
 	assert.NoError(t, err)
 
 	var availabilities []model.Availability
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
-			return false
-		}
-		return len(availabilities) == 0
-	})
+	awaitAsyncSlotWork(t, s)
+	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 	assert.Len(t, availabilities, 0)
 }
 
@@ -538,7 +520,7 @@ func TestAvailabilityService_Delete_EventAccessDenied(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	require.NoError(t, appdb.GetDB().Where("account_id = ? AND event_id = ?", owner, event.Id).Delete(&model.AccountEvent{}).Error)
 
@@ -569,7 +551,7 @@ func TestAvailabilityService_Delete_RepositoryDeleteError(t *testing.T) {
 
 	created, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	testutils.MakeReadOnly(t)
 
@@ -626,11 +608,11 @@ func TestAvailabilityService_Update_MergesOverlapping(t *testing.T) {
 
 	first, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	second, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(2 * time.Hour), EndsAt: event.StartsAt.Add(3 * time.Hour)}, event.Id, claims)
 	require.NoError(t, err)
-	awaitAsyncSlotWork(t)
+	awaitAsyncSlotWork(t, s)
 
 	// Extend the second availability so it now overlaps the first -> merge.
 	newStart := event.StartsAt.Add(30 * time.Minute)
@@ -639,11 +621,7 @@ func TestAvailabilityService_Update_MergesOverlapping(t *testing.T) {
 	assert.True(t, updated.StartsAt.Equal(first.StartsAt))
 
 	var availabilities []model.Availability
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.availabilityRepository.FindByEventId(event.Id, &availabilities); err != nil {
-			return false
-		}
-		return len(availabilities) == 1
-	})
+	awaitAsyncSlotWork(t, s)
+	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
 	assert.Len(t, availabilities, 1, "overlapping availabilities should have been merged")
 }
