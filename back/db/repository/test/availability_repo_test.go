@@ -4,6 +4,8 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/testutils"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -618,13 +620,44 @@ func (suite *AvailabilityRepoTestSuite) TestUpdate_NotFound() {
 	assert.ErrorIs(suite.T(), err, gorm.ErrRecordNotFound)
 }
 
-// Drops the table inside the per-test transaction (rolled back after, no
-// impact on other tests) via suite.db.Exec, not suite.db.DB(): the latter
-// reaches into the *sql.Tx for its underlying pool, escaping the transaction.
+// Drops the availability table to force the find query to fail. This runs
+// in its own private schema rather than the shared TestDB transaction:
+// DROP TABLE takes an AccessExclusiveLock on availability, and every
+// package's tests share the same physical database — holding that lock
+// against the live, shared table risks deadlocking against another
+// package's concurrent reads/writes to it (this is the same class of bug
+// that caused a confirmed "deadlock detected" CI failure on the analogous
+// event-table drop in TestFindEventsByAccountId_PluckQueryFails). A
+// dedicated schema keeps the drop from ever touching what other processes
+// are using.
 func (suite *AvailabilityRepoTestSuite) TestDeleteOutOfEventRangeAndAdjustOverlaps_FindQueryFails() {
-	suite.Require().NoError(suite.db.Exec("DROP TABLE availability").Error)
+	t := suite.T()
+	database := testutils.FreshDB(t)
+	t.Cleanup(func() {
+		if sqlDB, err := database.DB(); err == nil {
+			_ = sqlDB.Close()
+		}
+	})
 
-	err := suite.repo.DeleteOutOfEventRangeAndAdjustOverlaps(uuid.New(), time.Now(), time.Now().Add(time.Hour))
+	schema := "availability_fail_" + strings.ReplaceAll(uuid.NewString(), "-", "_")
+	suite.Require().NoError(database.Exec(fmt.Sprintf("CREATE SCHEMA %s", schema)).Error)
+	t.Cleanup(func() {
+		database.Exec(fmt.Sprintf("DROP SCHEMA IF EXISTS %s CASCADE", schema))
+	})
+	// No fallback to public in search_path: once availability is dropped
+	// below, queries against it must fail outright instead of silently
+	// resolving to the real, shared public.availability table. That means
+	// event_status can't rely on public's copy either, so a throwaway one
+	// (values don't matter — this test never inserts an Event row) is
+	// created inside the new schema for Event's column type to reference.
+	suite.Require().NoError(database.Exec(fmt.Sprintf("SET search_path TO %s", schema)).Error)
+	suite.Require().NoError(database.Exec("CREATE TYPE event_status AS ENUM ('PLACEHOLDER')").Error)
+	suite.Require().NoError(database.AutoMigrate(&model.Account{}, &model.Event{}, &model.Availability{}))
+
+	suite.Require().NoError(database.Exec("DROP TABLE availability").Error)
+
+	repo := repository.NewAvailabilityRepository(database)
+	err := repo.DeleteOutOfEventRangeAndAdjustOverlaps(uuid.New(), time.Now(), time.Now().Add(time.Hour))
 	assert.Error(suite.T(), err)
 }
 
