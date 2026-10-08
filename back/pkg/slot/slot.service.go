@@ -23,7 +23,8 @@ type SlotService struct {
 	sseService             *sse.SSEService
 	mailService            *mail.MailService
 	config                 *config.Config
-	loadSlotsMutexes       sync.Map // Map of eventId to *sync.Mutex for preventing concurrent LoadSlots
+	loadSlotsMutexes       sync.Map       // Map of eventId to *sync.Mutex for preventing concurrent LoadSlots
+	asyncLoads             sync.WaitGroup // Tracks in-flight LoadSlotsAsync calls
 }
 
 func NewSlotService(service *SlotService) *SlotService {
@@ -166,9 +167,24 @@ func (s *SlotService) RemoveValidatedSlot(slotId uuid.UUID, userId uuid.UUID) er
 	}
 
 	// Recalculate slots
-	go s.LoadSlots(selectedSlot.EventId)
+	s.LoadSlotsAsync(selectedSlot.EventId)
 
 	return nil
+}
+
+// LoadSlotsAsync runs LoadSlots in the background and tracks it so callers
+// (tests) can wait for it deterministically with WaitAsyncLoads.
+func (s *SlotService) LoadSlotsAsync(eventId uuid.UUID) {
+	s.asyncLoads.Add(1)
+	go func() {
+		defer s.asyncLoads.Done()
+		s.LoadSlots(eventId)
+	}()
+}
+
+// WaitAsyncLoads blocks until every LoadSlotsAsync call has finished.
+func (s *SlotService) WaitAsyncLoads() {
+	s.asyncLoads.Wait()
 }
 
 // Recalculates and recreates all slots for an event

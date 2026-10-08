@@ -20,7 +20,7 @@ import (
 func newTestEventService(t *testing.T) *EventService {
 	t.Helper()
 	testutils.TestDB(t)
-	return &EventService{
+	s := &EventService{
 		eventRepository:        repository.NewEventRepository(nil),
 		accountEventRepository: repository.NewAccountEventRepository(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
@@ -28,6 +28,10 @@ func newTestEventService(t *testing.T) *EventService {
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
 	}
+	// Wait for trailing LoadSlots goroutines before rollback (t.Cleanup is
+	// LIFO, so this runs first).
+	t.Cleanup(s.slotService.WaitAsyncLoads)
+	return s
 }
 
 func createTestOwner(t *testing.T) uuid.UUID {
@@ -222,12 +226,8 @@ func TestEventService_Update_BreakingChange_RecalculatesSlots(t *testing.T) {
 	assert.NoError(t, err)
 
 	var found model.Event
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
-			return false
-		}
-		return found.StartsAt.Equal(newStart)
-	})
+	s.slotService.WaitAsyncLoads()
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.True(t, found.StartsAt.Equal(newStart))
 }
 
@@ -316,12 +316,8 @@ func TestEventService_Update_DaysOnly_RecalculatesSlots(t *testing.T) {
 	assert.NoError(t, err)
 
 	var found model.Event
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
-			return false
-		}
-		return found.Duration != event.Duration
-	})
+	s.slotService.WaitAsyncLoads()
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.NotEqual(t, event.Duration, found.Duration)
 }
 
@@ -335,12 +331,8 @@ func TestEventService_Update_MinutesOnly_RecalculatesSlots(t *testing.T) {
 	assert.NoError(t, err)
 
 	var found model.Event
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
-			return false
-		}
-		return found.Duration != event.Duration
-	})
+	s.slotService.WaitAsyncLoads()
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.NotEqual(t, event.Duration, found.Duration)
 }
 
@@ -364,12 +356,8 @@ func TestEventService_Update_DurationOnly_RecalculatesSlots(t *testing.T) {
 	assert.NoError(t, err)
 
 	var found model.Event
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.eventRepository.FindOneById(event.Id, &found); err != nil {
-			return false
-		}
-		return found.Duration != event.Duration
-	})
+	s.slotService.WaitAsyncLoads()
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.NotEqual(t, event.Duration, found.Duration)
 }
 

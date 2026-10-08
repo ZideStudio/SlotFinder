@@ -255,7 +255,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 
 	// Load slots
-	go s.slotService.LoadSlots(eventId)
+	s.slotService.LoadSlotsAsync(eventId)
 
 	return nil
 }

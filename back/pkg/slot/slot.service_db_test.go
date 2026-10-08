@@ -18,7 +18,7 @@ import (
 func newTestSlotService(t *testing.T) *SlotService {
 	t.Helper()
 	testutils.TestDB(t)
-	return &SlotService{
+	s := &SlotService{
 		slotRepository:         repository.NewSlotRepository(nil),
 		eventRepository:        repository.NewEventRepository(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
@@ -26,6 +26,10 @@ func newTestSlotService(t *testing.T) *SlotService {
 		sseService:             sse.NewSSEService(),
 		mailService:            mail.NewMailService(nil),
 	}
+	// Wait for trailing LoadSlotsAsync goroutines before rollback (t.Cleanup
+	// is LIFO, so this runs first).
+	t.Cleanup(s.WaitAsyncLoads)
+	return s
 }
 
 func createTestAccount(t *testing.T) model.Account {
@@ -292,16 +296,11 @@ func TestSlotService_RemoveValidatedSlot_Success(t *testing.T) {
 
 	err := s.RemoveValidatedSlot(slotEntity.Id, owner.Id)
 	assert.NoError(t, err)
-	// RemoveValidatedSlot also spawns `go s.LoadSlots(...)`, which reuses this
-	// test's dedicated connection; poll (in this goroutine) instead of
-	// blindly sleeping before querying again.
+	// RemoveValidatedSlot also triggers LoadSlotsAsync, which reuses this
+	// test's dedicated connection; wait for it before querying again.
 	var updatedEvent model.Event
-	testutils.AwaitAsyncDBWorkUntil(t, 2*time.Second, func() bool {
-		if err := s.eventRepository.FindOneById(event.Id, &updatedEvent); err != nil {
-			return false
-		}
-		return updatedEvent.Status == constants.EVENT_STATUS_IN_DECISION
-	})
+	s.WaitAsyncLoads()
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &updatedEvent))
 	assert.Equal(t, constants.EVENT_STATUS_IN_DECISION, updatedEvent.Status)
 
 	// Wait for the async cancellation email goroutine (owner is the sole participant).
