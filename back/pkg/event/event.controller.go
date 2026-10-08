@@ -83,6 +83,33 @@ func (ctl *EventController) Update(c *gin.Context) {
 	helpers.HandleJSONResponse(c, nil, err)
 }
 
+// @Summary Delete an event
+// @Tags Event
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event Id"
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, or ERR_EVENT_FINISHED_CANNOT_BE_DELETED"
+// @Router /api/v1/events/{eventId} [delete]
+func (ctl *EventController) Delete(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	idUuid, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	err = ctl.eventService.Delete(idUuid, user)
+
+	helpers.HandleJSONResponse(c, nil, err)
+}
+
 // @Summary Get user events
 // @Tags Event
 // @Accept json

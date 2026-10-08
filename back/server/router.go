@@ -82,6 +82,7 @@ func NewRouter() *gin.Engine {
 			eventGroup.GET("", guard.AuthCheck(nil), eventRouter.GetUserEvents)
 			eventGroup.POST("", guard.AuthCheck(nil), eventRouter.Create)
 			eventGroup.PATCH("/:eventId", guard.AuthCheck(nil), eventRouter.Update)
+			eventGroup.DELETE("/:eventId", guard.AuthCheck(nil), eventRouter.Delete)
 
 			specificEventGroup := eventGroup.Group("/:eventId")
 			{

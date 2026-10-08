@@ -6,15 +6,18 @@ import (
 	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
+	"app/pkg/mail"
 	"app/pkg/signin"
 	"app/pkg/slot"
 	"app/testutils"
+	"net/smtp"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 )
 
 func newTestEventService(t *testing.T) *EventService {
@@ -27,6 +30,7 @@ func newTestEventService(t *testing.T) *EventService {
 		slotRepository:         repository.NewSlotRepository(nil),
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
+		mailService:            mail.NewMailService(nil),
 	}
 	// Wait for trailing LoadSlots goroutines before rollback (t.Cleanup is
 	// LIFO, so this runs first).
@@ -613,4 +617,152 @@ func TestEventService_UpdateProfile_RepositoryUpdatesError(t *testing.T) {
 func TestNewEventService_ReusesProvidedInstance(t *testing.T) {
 	existing := &EventService{}
 	assert.Same(t, existing, NewEventService(existing))
+}
+
+func createTestAccountWithEmail(t *testing.T) uuid.UUID {
+	t.Helper()
+	id := uuid.New()
+	username := "account-" + uuid.NewString()
+	email := testutils.UniqueEmail(t)
+	require.NoError(t, repository.NewAccountRepository(nil).Create(repository.AccountCreateDto{
+		Id: id, Username: &username, Email: &email,
+	}, &model.Account{}))
+	return id
+}
+
+// stubDeletionMails counts SMTP calls so tests can wait for every participant's email.
+func stubDeletionMails(s *EventService) <-chan struct{} {
+	sent := make(chan struct{}, 10)
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+		sent <- struct{}{}
+		return nil
+	}
+	return sent
+}
+
+func TestEventService_Delete_NotFound(t *testing.T) {
+	s := newTestEventService(t)
+
+	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_NOT_FOUND.Err)
+}
+
+func TestEventService_Delete_EventRepositoryError(t *testing.T) {
+	s := newTestEventService(t)
+	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
+
+	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
+	assert.Error(t, err)
+	assert.NotErrorIs(t, err, constants.ERR_EVENT_NOT_FOUND.Err)
+}
+
+func TestEventService_Delete_AccessDenied(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	participant := createTestOwner(t)
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: participant})
+	require.NoError(t, err)
+
+	err = s.Delete(event.Id, &guard.Claims{Id: participant})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ACCESS_DENIED.Err)
+
+	var found model.Event
+	assert.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+}
+
+func TestEventService_Delete_FinishedStatus(t *testing.T) {
+	s := newTestEventService(t)
+	sent := stubDeletionMails(s)
+	owner := createTestAccountWithEmail(t)
+	event := createTestEventForOwner(t, s, owner)
+	event.Status = constants.EVENT_STATUS_FINISHED
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	err := s.Delete(event.Id, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err)
+
+	var found model.Event
+	assert.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.Empty(t, sent)
+}
+
+func TestEventService_Delete_EndedEventAutoFinished(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createEndedEventForOwner(t, s, owner)
+
+	err := s.Delete(event.Id, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.Equal(t, constants.EVENT_STATUS_FINISHED, found.Status)
+}
+
+func TestEventService_Delete_StatusUpdateError(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createEndedEventForOwner(t, s, owner)
+	testutils.MakeReadOnly(t)
+
+	err := s.Delete(event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+	assert.NotErrorIs(t, err, constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err)
+}
+
+func TestEventService_Delete_DeleteError_NoMailSent(t *testing.T) {
+	s := newTestEventService(t)
+	sent := stubDeletionMails(s)
+	owner := createTestAccountWithEmail(t)
+	event := createTestEventForOwner(t, s, owner)
+	testutils.MakeReadOnly(t)
+
+	err := s.Delete(event.Id, &guard.Claims{Id: owner})
+	assert.Error(t, err)
+	assert.Empty(t, sent)
+}
+
+func TestEventService_Delete_Success_RemovesAllRelations(t *testing.T) {
+	s := newTestEventService(t)
+	sent := stubDeletionMails(s)
+	owner := createTestAccountWithEmail(t)
+	event := createTestEventForOwner(t, s, owner)
+	participant := createTestAccountWithEmail(t)
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: participant})
+	require.NoError(t, err)
+
+	require.NoError(t, s.availabilityRepository.Create(&model.Availability{
+		Id: uuid.New(), AccountId: participant, EventId: event.Id,
+		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(2 * time.Hour),
+	}))
+	require.NoError(t, s.slotRepository.Create(&model.Slot{
+		Id: uuid.New(), EventId: event.Id,
+		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour),
+	}))
+	require.NoError(t, s.slotRepository.Create(&model.Slot{
+		Id: uuid.New(), EventId: event.Id,
+		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour), IsValidated: true,
+	}))
+
+	require.NoError(t, s.Delete(event.Id, &guard.Claims{Id: owner}))
+
+	var found model.Event
+	assert.ErrorIs(t, s.eventRepository.FindOneById(event.Id, &found), gorm.ErrRecordNotFound)
+
+	var slots []model.Slot
+	require.NoError(t, s.slotRepository.FindByEventId(event.Id, &slots))
+	assert.Empty(t, slots)
+
+	var availabilities []model.Availability
+	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
+	assert.Empty(t, availabilities)
+
+	var participants []model.Account
+	require.NoError(t, s.accountEventRepository.FindAccountsByEventId(event.Id, &participants))
+	assert.Empty(t, participants)
+
+	// Owner and participant each receive the deletion email
+	testutils.AwaitSMTP(t, sent)
+	testutils.AwaitSMTP(t, sent)
 }

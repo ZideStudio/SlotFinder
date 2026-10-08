@@ -115,6 +115,38 @@ func TestEventController_Update_Success(t *testing.T) {
 	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
+func TestEventController_Delete_InvalidClaimsType(t *testing.T) {
+	ctl := &EventController{eventService: newTestEventService(t)}
+	c, recorder := newEventTestContext(t, http.MethodDelete, "/", nil, uuid.New().String(), nil)
+	c.Set("user", "not-a-claims-pointer")
+
+	ctl.Delete(c)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+func TestEventController_Delete_InvalidEventId(t *testing.T) {
+	ctl := &EventController{eventService: newTestEventService(t)}
+	c, recorder := newEventTestContext(t, http.MethodDelete, "/", nil, "not-a-uuid", &guard.Claims{Id: uuid.New()})
+
+	ctl.Delete(c)
+
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
+}
+
+func TestEventController_Delete_Success(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	ctl := &EventController{eventService: s}
+
+	c, recorder := newEventTestContext(t, http.MethodDelete, "/", nil, event.Id.String(), &guard.Claims{Id: owner})
+
+	ctl.Delete(c)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
 func TestEventController_GetUserEvents_InvalidClaimsType(t *testing.T) {
 	ctl := &EventController{eventService: newTestEventService(t)}
 	c, recorder := newEventTestContext(t, http.MethodGet, "/?page=1&limit=10", nil, "", nil)

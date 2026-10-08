@@ -1,0 +1,13 @@
+{
+  "title": "Event Deleted",
+  "greeting": "Hello",
+  "ownerMessageBefore": "You deleted the event",
+  "ownerMessageAfter": ".",
+  "participantMessageBefore": "deleted the event",
+  "participantMessageAfter": ".",
+  "deletedInfo": "All related availabilities and slots have been removed.",
+  "when": "📅 When:",
+  "team": "The SlotFinder Team",
+  "contact": "If you have any questions, contact us at support@slotfinder.com",
+  "automated": "This is an automated message, please do not reply to this email."
+}

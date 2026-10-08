@@ -177,3 +177,25 @@ func (r *EventRepository) Delete(id uuid.UUID) error {
 
 	return nil
 }
+
+// DeleteWithRelations removes the event along with its slots, availabilities and participants in a single transaction
+func (r *EventRepository) DeleteWithRelations(id uuid.UUID) error {
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("event_id = ?", id).Delete(&model.Slot{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("event_id = ?", id).Delete(&model.Availability{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("event_id = ?", id).Delete(&model.AccountEvent{}).Error; err != nil {
+			return err
+		}
+		return tx.Where("id = ?", id).Delete(&model.Event{}).Error
+	})
+	if err != nil {
+		log.Error().Err(err).Str("eventId", id.String()).Msg("EVENT_REPOSITORY::DELETE_WITH_RELATIONS Failed to delete event with relations")
+		return err
+	}
+
+	return nil
+}

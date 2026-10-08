@@ -1,0 +1,13 @@
+{
+  "title": "Évènement supprimé",
+  "greeting": "Bonjour",
+  "ownerMessageBefore": "Vous avez supprimé l'évènement",
+  "ownerMessageAfter": ".",
+  "participantMessageBefore": "a supprimé l'évènement",
+  "participantMessageAfter": ".",
+  "deletedInfo": "Toutes les disponibilités et créneaux associés ont été supprimés.",
+  "when": "📅 Quand :",
+  "team": "L'équipe SlotFinder",
+  "contact": "Si vous avez des questions, contactez-nous à support@slotfinder.com",
+  "automated": "Ceci est un message automatique, merci de ne pas répondre à cet email."
+}
