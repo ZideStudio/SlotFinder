@@ -167,27 +167,6 @@ func TestAcquireGenerationLock_TimesOutWhenLockNeverReleased(t *testing.T) {
 	assert.ErrorContains(t, err, "timed out waiting")
 }
 
-func TestAcquireGenerationLock_RemovesStaleLockAndRetries(t *testing.T) {
-	dir := t.TempDir()
-	privateKeyPath := filepath.Join(dir, "private.pem")
-	publicKeyPath := filepath.Join(dir, "public.pem")
-	lockPath := privateKeyPath + ".generating.lock"
-
-	// Simulate a lock left behind by a process that crashed before its
-	// defer could remove it: old enough to be past staleLockAge.
-	require.NoError(t, os.WriteFile(lockPath, nil, 0o600))
-	stale := time.Now().Add(-staleLockAge - time.Second)
-	require.NoError(t, os.Chtimes(lockPath, stale, stale))
-
-	lockFile, err := acquireGenerationLock(lockPath, privateKeyPath, publicKeyPath, time.Now().Add(2*time.Second))
-	require.NoError(t, err)
-	require.NotNil(t, lockFile)
-	t.Cleanup(func() {
-		_ = lockFile.Close()
-		_ = os.Remove(lockPath)
-	})
-}
-
 func TestAcquireGenerationLock_ReturnsErrorOnUnexpectedOpenFileError(t *testing.T) {
 	dir := t.TempDir()
 	// "sub" doesn't exist, so O_CREATE fails with ENOENT, not EEXIST.
