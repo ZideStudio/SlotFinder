@@ -35,9 +35,9 @@
                                     <td style="font-size:16px;line-height:1.6;color:#333333;font-family:Arial,Helvetica,sans-serif;">
                                         <p style="margin:0 0 16px 0">{{.greeting}} {{.username}},</p>
                                         {{if eq .isOwner "true"}}
-                                        <p style="margin:0 0 10px 0;">{{.ownerMessageBefore}} <strong>{{.eventName}}</strong>{{.ownerMessageAfter}}</p>
+                                        <p style="margin:0 0 10px 0;">{{.ownerMessage}} <strong>{{.eventName}}</strong>.</p>
                                         {{else}}
-                                        <p style="margin:0 0 10px 0;"><strong>{{.owner}}</strong> {{.participantMessageBefore}} <strong>{{.eventName}}</strong>{{.participantMessageAfter}}</p>
+                                        <p style="margin:0 0 10px 0;"><strong>{{.owner}}</strong> {{.participantMessage}} <strong>{{.eventName}}</strong>.</p>
                                         {{end}}
                                         <p style="margin:0 0 20px 0;">{{.deletedInfo}}</p>
                                     </td>

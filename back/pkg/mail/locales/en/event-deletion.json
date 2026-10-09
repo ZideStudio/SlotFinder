@@ -1,10 +1,8 @@
 {
   "title": "Event Deleted",
   "greeting": "Hello",
-  "ownerMessageBefore": "You deleted the event",
-  "ownerMessageAfter": ".",
-  "participantMessageBefore": "deleted the event",
-  "participantMessageAfter": ".",
+  "ownerMessage": "You deleted the event",
+  "participantMessage": "deleted the event",
   "deletedInfo": "All related availabilities and slots have been removed.",
   "when": "📅 When:",
   "team": "The SlotFinder Team",

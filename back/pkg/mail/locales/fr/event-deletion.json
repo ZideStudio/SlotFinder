@@ -1,10 +1,8 @@
 {
   "title": "Évènement supprimé",
   "greeting": "Bonjour",
-  "ownerMessageBefore": "Vous avez supprimé l'évènement",
-  "ownerMessageAfter": ".",
-  "participantMessageBefore": "a supprimé l'évènement",
-  "participantMessageAfter": ".",
+  "ownerMessage": "Vous avez supprimé l'évènement",
+  "participantMessage": "a supprimé l'évènement",
   "deletedInfo": "Toutes les disponibilités et créneaux associés ont été supprimés.",
   "when": "📅 Quand :",
   "team": "L'équipe SlotFinder",
