@@ -3,10 +3,10 @@ import {
   getAccountAvatar200,
   getAccountMe200,
 } from "./handlers/accountHandlers";
-import { getAuthStatus200 } from "./handlers/authStatusHandlers";
+import { getAuthStatus401 } from "./handlers/authStatusHandlers";
 
 export const worker = setupWorker(
-  getAuthStatus200,
+  getAuthStatus401,
   getAccountMe200,
   getAccountAvatar200,
 );
