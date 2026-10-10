@@ -339,6 +339,20 @@ export const ComponentName = () => {
 
 ==> Component names, file names, and folder names should follow the **PascalCase** convention.
 
+## 🧪 Playwright BDD UI + watch mode
+
+The current `playwright-bdd` CLI does not expose a built-in `--watch` flag. The supported workflow is to run a small watch process that regenerates the BDD files while the Playwright UI stays open.
+
+```bash
+npm run test:playwright:ui
+```
+
+This script watches `tests/**/*.feature` and `tests/**/*.steps.*`, reruns `bddgen` when those files change, and opens Playwright's UI runner on `http://127.0.0.1:9323`.
+
+`npm run test:playwright:watch` is kept as an alias for the same behavior.
+
+In CI (`CI=true` / GitHub Actions), the script automatically falls back to a one-shot run: it regenerates the BDD files and executes `playwright test` without launching the interactive UI or staying in watch mode.
+
 ## ⚠️ Caution with Environment Variables
 
 The webpack configuration of this project allows for environment variables to be included in the application bundle. This could potentially expose sensitive information if the bundle is publicly accessible.
