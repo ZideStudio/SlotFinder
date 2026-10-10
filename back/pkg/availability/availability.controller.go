@@ -24,33 +24,33 @@ func NewAvailabilityController(ctl *AvailabilityController) *AvailabilityControl
 }
 
 // extracts and validates the eventId parameter from the URL path.
-func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventIdUuid uuid.UUID, err error) {
-	eventId := c.Param("eventId")
-	if eventId == "" {
-		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
+func (ctl *AvailabilityController) getEventIdParam(c *gin.Context) (eventId uuid.UUID, err error) {
+	eventIdParam := c.Param("eventId")
+	if eventIdParam == "" {
+		return eventId, constants.ERR_EVENT_NOT_FOUND.Err
 	}
 
-	eventIdUuid, err = uuid.Parse(eventId)
-	if err != nil || eventIdUuid == uuid.Nil {
-		return eventIdUuid, constants.ERR_EVENT_NOT_FOUND.Err
+	eventId, err = uuid.Parse(eventIdParam)
+	if err != nil || eventId == uuid.Nil {
+		return eventId, constants.ERR_EVENT_NOT_FOUND.Err
 	}
 
-	return eventIdUuid, nil
+	return eventId, nil
 }
 
 // extracts and validates the availability parameter from the URL path.
-func (ctl *AvailabilityController) getAvailabilityIdParam(c *gin.Context) (availabilityIdUuid uuid.UUID, err error) {
-	availability := c.Param("availabilityId")
-	if availability == "" {
-		return availabilityIdUuid, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+func (ctl *AvailabilityController) getAvailabilityIdParam(c *gin.Context) (availabilityId uuid.UUID, err error) {
+	availabilityIdParam := c.Param("availabilityId")
+	if availabilityIdParam == "" {
+		return availabilityId, constants.ERR_AVAILABILITY_NOT_FOUND.Err
 	}
 
-	availabilityIdUuid, err = uuid.Parse(availability)
-	if err != nil || availabilityIdUuid == uuid.Nil {
-		return availabilityIdUuid, constants.ERR_AVAILABILITY_NOT_FOUND.Err
+	availabilityId, err = uuid.Parse(availabilityIdParam)
+	if err != nil || availabilityId == uuid.Nil {
+		return availabilityId, constants.ERR_AVAILABILITY_NOT_FOUND.Err
 	}
 
-	return availabilityIdUuid, nil
+	return availabilityId, nil
 }
 
 // @Summary Create an availability

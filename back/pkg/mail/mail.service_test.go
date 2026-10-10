@@ -62,6 +62,7 @@ func TestLoadTemplates_AllTemplatesLoaded(t *testing.T) {
 		constants.MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION,
 		constants.MAIL_TEMPLATE_EVENT_CONFIRMATION,
 		constants.MAIL_TEMPLATE_EVENT_CANCELLATION,
+		constants.MAIL_TEMPLATE_EVENT_DELETION,
 	} {
 		_, exists := s.templates[tmpl]
 		assert.True(t, exists, "expected template %s to be loaded", tmpl)
@@ -333,6 +334,113 @@ func TestSendEventCancellationEmail_FrenchSubject(t *testing.T) {
 	case <-time.After(2 * time.Second):
 		t.Fatal("expected SendMail to be called asynchronously")
 	}
+}
+
+// captureDeletionEmail sends the deletion email and returns the raw message passed to SMTP.
+func captureDeletionEmail(t *testing.T, account model.Account, event model.Event) string {
+	t.Helper()
+	s := newTestMailService(t)
+
+	sent := make(chan []byte, 1)
+	s.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+		sent <- msg
+		return nil
+	}
+
+	s.SendEventDeletionEmail(account, event)
+
+	select {
+	case msg := <-sent:
+		return string(msg)
+	case <-time.After(2 * time.Second):
+		t.Fatal("expected SendMail to be called asynchronously")
+		return ""
+	}
+}
+
+func newDeletionTestEvent(ownerId uuid.UUID) model.Event {
+	ownerUsername := "the-owner"
+	start := time.Date(2030, 5, 14, 17, 0, 0, 0, time.UTC)
+	return model.Event{
+		Id:       uuid.New(),
+		Name:     "Sync",
+		OwnerId:  ownerId,
+		Owner:    model.Account{Id: ownerId, Username: &ownerUsername},
+		StartsAt: start,
+		EndsAt:   start.Add(48 * time.Hour),
+	}
+}
+
+func TestSendEventDeletionEmail_NoEmailOrUsername_NoOp(t *testing.T) {
+	t.Parallel()
+	s := newTestMailService(t)
+	s.SendEventDeletionEmail(model.Account{}, model.Event{})
+}
+
+func TestSendEventDeletionEmail_Owner(t *testing.T) {
+	t.Parallel()
+	email := "owner@example.com"
+	username := "the-owner"
+	ownerId := uuid.New()
+	account := model.Account{Id: ownerId, Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_EN}
+
+	msg := captureDeletionEmail(t, account, newDeletionTestEvent(ownerId))
+
+	assert.Contains(t, msg, "Subject: "+constants.MAIL_SUBJECT_EVENT_DELETION_EN)
+	assert.Contains(t, msg, "You deleted the event <strong>Sync</strong>")
+	assert.NotContains(t, msg, "</strong> deleted the event")
+}
+
+func TestSendEventDeletionEmail_Participant(t *testing.T) {
+	t.Parallel()
+	email := "participant@example.com"
+	username := "participant"
+	account := model.Account{Id: uuid.New(), Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_EN}
+
+	msg := captureDeletionEmail(t, account, newDeletionTestEvent(uuid.New()))
+
+	assert.Contains(t, msg, "<strong>the-owner</strong> deleted the event <strong>Sync</strong>")
+	assert.NotContains(t, msg, "You deleted the event")
+}
+
+func TestSendEventDeletionEmail_FrenchSubject(t *testing.T) {
+	t.Parallel()
+	email := "participant-fr@example.com"
+	username := "participant"
+	account := model.Account{Id: uuid.New(), Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_FR}
+
+	msg := captureDeletionEmail(t, account, newDeletionTestEvent(uuid.New()))
+
+	assert.Contains(t, msg, "Subject: "+constants.MAIL_SUBJECT_EVENT_DELETION_FR)
+}
+
+func TestSendEventDeletionEmail_NoEventUrl(t *testing.T) {
+	t.Parallel()
+	email := "participant@example.com"
+	username := "participant"
+	account := model.Account{Id: uuid.New(), Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_EN}
+	event := newDeletionTestEvent(uuid.New())
+
+	msg := captureDeletionEmail(t, account, event)
+
+	assert.NotContains(t, msg, "/event/"+event.Id.String())
+}
+
+func TestSendEventDeletionEmail_UsesValidatedSlotDates(t *testing.T) {
+	t.Parallel()
+	email := "participant@example.com"
+	username := "participant"
+	account := model.Account{Id: uuid.New(), Email: &email, Username: &username, Language: constants.ACCOUNT_LANGUAGE_EN, TimeZone: "UTC"}
+	event := newDeletionTestEvent(uuid.New())
+	event.Slots = []model.Slot{{
+		StartsAt:    event.StartsAt.Add(time.Hour),
+		EndsAt:      event.StartsAt.Add(2 * time.Hour),
+		IsValidated: true,
+	}}
+
+	msg := captureDeletionEmail(t, account, event)
+
+	assert.Contains(t, msg, "18:00–19:00")
 }
 
 func TestBuildEmailMessage(t *testing.T) {

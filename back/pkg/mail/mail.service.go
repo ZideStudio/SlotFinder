@@ -178,6 +178,39 @@ func (s *MailService) SendEventCancellationEmail(
 	})
 }
 
+// SendEventDeletionEmail sends the "event deleted" email for a given account.
+func (s *MailService) SendEventDeletionEmail(account model.Account, event model.Event) {
+	if account.Email == nil || account.Username == nil {
+		return
+	}
+
+	subject := constants.MAIL_SUBJECT_EVENT_DELETION_EN
+	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
+		subject = constants.MAIL_SUBJECT_EVENT_DELETION_FR
+	}
+
+	// Show the validated slot if any, otherwise the event period
+	startsAt, endsAt := event.StartsAt, event.EndsAt
+	if validatedSlot := event.GetValidatedSlot(); validatedSlot != nil {
+		startsAt, endsAt = validatedSlot.StartsAt, validatedSlot.EndsAt
+	}
+
+	params := s.eventEmailCommonParams(event, event.Id, startsAt, endsAt, account.Language, account.TimeZone)
+	params["isOwner"] = lib.BoolToString(account.Id == event.OwnerId)
+	// The event no longer exists, so there is nothing to link to
+	delete(params, "eventUrl")
+
+	s.eventEmailEnrichOptionalFields(params, account, event)
+
+	go s.SendMail(EmailParams{
+		Template: constants.MAIL_TEMPLATE_EVENT_DELETION,
+		To:       *account.Email,
+		Subject:  subject,
+		Params:   params,
+		Language: account.Language,
+	})
+}
+
 // loadTemplates loads all HTML templates from the templates directory
 func (s *MailService) loadTemplates() error {
 	templateFiles, err := templateFS.ReadDir("templates")

@@ -72,13 +72,40 @@ func (ctl *EventController) Update(c *gin.Context) {
 		return
 	}
 
-	idUuid, err := uuid.Parse(c.Param("eventId"))
+	eventId, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return
 	}
 
-	err = ctl.eventService.Update(idUuid, &data, user)
+	err = ctl.eventService.Update(eventId, &data, user)
+
+	helpers.HandleJSONResponse(c, nil, err)
+}
+
+// @Summary Delete an event
+// @Tags Event
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event Id"
+// @Security BearerAuth
+// @Success 200
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, or ERR_EVENT_FINISHED_CANNOT_BE_DELETED"
+// @Router /api/v1/events/{eventId} [delete]
+func (ctl *EventController) Delete(c *gin.Context) {
+	var user *guard.Claims
+	if err := guard.GetUserClaims(c, &user); err != nil {
+		helpers.HandleJSONResponse(c, nil, err)
+		return
+	}
+
+	eventId, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
+		return
+	}
+
+	err = ctl.eventService.Delete(eventId, user)
 
 	helpers.HandleJSONResponse(c, nil, err)
 }
@@ -124,13 +151,13 @@ func (ctl *EventController) GetUserEvents(c *gin.Context) {
 // @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_EVENT_NOT_FOUND"
 // @Router /api/v1/events/{eventId}/summary [get]
 func (ctl *EventController) GetEventSummary(c *gin.Context) {
-	idUuid, err := uuid.Parse(c.Param("eventId"))
+	eventId, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return
 	}
 
-	result, err := ctl.eventService.GetEventSummary(idUuid)
+	result, err := ctl.eventService.GetEventSummary(eventId)
 	helpers.HandleJSONResponse(c, result, err)
 }
 
@@ -150,13 +177,13 @@ func (ctl *EventController) GetEvent(c *gin.Context) {
 		return
 	}
 
-	idUuid, err := uuid.Parse(c.Param("eventId"))
+	eventId, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return
 	}
 
-	result, err := ctl.eventService.GetEvent(idUuid, user)
+	result, err := ctl.eventService.GetEvent(eventId, user)
 	helpers.HandleJSONResponse(c, result, err)
 }
 
@@ -176,13 +203,13 @@ func (ctl *EventController) JoinEvent(c *gin.Context) {
 		return
 	}
 
-	idUuid, err := uuid.Parse(c.Param("eventId"))
+	eventId, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return
 	}
 
-	result, err := ctl.eventService.JoinEvent(idUuid, user)
+	result, err := ctl.eventService.JoinEvent(eventId, user)
 	helpers.HandleJSONResponse(c, result, err)
 }
 
@@ -202,7 +229,7 @@ func (ctl *EventController) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	idUuid, err := uuid.Parse(c.Param("eventId"))
+	eventId, err := uuid.Parse(c.Param("eventId"))
 	if err != nil {
 		helpers.HandleJSONResponse(c, nil, constants.ERR_EVENT_NOT_FOUND.Err)
 		return
@@ -214,7 +241,7 @@ func (ctl *EventController) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	err = ctl.eventService.UpdateProfile(&data, idUuid, user)
+	err = ctl.eventService.UpdateProfile(&data, eventId, user)
 
 	helpers.HandleJSONResponse(c, nil, err)
 }
