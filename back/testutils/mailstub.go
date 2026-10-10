@@ -43,6 +43,7 @@ func StubSMTPAwait(t *testing.T, target *SendMailFunc) <-chan struct{} {
 
 const (
 	awaitSMTPDefaultTimeout = 2 * time.Second // used only when no test deadline is available
+	awaitSMTPMinWait        = 100 * time.Millisecond
 	awaitSMTPMaxTimeout     = 10 * time.Second
 	awaitSMTPDeadlineShare  = 4 // use at most 1/4 of the test's remaining deadline
 )
@@ -52,7 +53,12 @@ const (
 // than a fast local run. It never exceeds that remaining budget, even if
 // it's under awaitSMTPDefaultTimeout: a test already close to its deadline
 // must still fail fast via t.Fatalf instead of being killed by go test's own
-// -timeout once this call's share of the budget runs out.
+// -timeout once this call's share of the budget runs out. It's floored at
+// awaitSMTPMinWait rather than letting the budget reach zero: by the time
+// that share is this thin the test's own deadline has essentially already
+// passed, so a few more milliseconds can't meaningfully blow the deadline,
+// but they do give the async goroutine a real chance to run instead of
+// guaranteeing a failure no matter how fast it is.
 func awaitSMTPTimeout(t testingT) time.Duration {
 	deadline, ok := t.Deadline()
 	if !ok {
@@ -60,8 +66,8 @@ func awaitSMTPTimeout(t testingT) time.Duration {
 	}
 	remaining := time.Until(deadline) / awaitSMTPDeadlineShare
 	switch {
-	case remaining <= 0:
-		return 0
+	case remaining < awaitSMTPMinWait:
+		return awaitSMTPMinWait
 	case remaining > awaitSMTPMaxTimeout:
 		return awaitSMTPMaxTimeout
 	default:
