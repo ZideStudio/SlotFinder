@@ -44,3 +44,8 @@ chromatic-diagnostics.json
 # Orval — generated from swagger at build time, do not commit
 /src/api/generated/
 /src/api/orval/swagger.json
+
+# Playwright BDD generated files
+.features-gen/
+playwright-report/
+test-results/

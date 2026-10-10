@@ -104,7 +104,7 @@
       }
     }
   },
-  "forwardPorts": [3002, 3003, 51204, 63315],
+  "forwardPorts": [3002, 3003, 3004, 51204, 63315, 9323],
   "portsAttributes": {
     "3000": {
       "label": "Frontend (internal - use Traefik on 443)",
@@ -122,6 +122,10 @@
       "label": "Frontend Mock",
       "onAutoForward": "notify"
     },
+    "3004": {
+      "label": "Playwright BDD app render",
+      "onAutoForward": "notify"
+    },
     "5432": {
       "label": "PostgreSQL",
       "onAutoForward": "ignore"
@@ -136,6 +140,10 @@
     },
     "63315": {
       "label": "Vitest Browser UI",
+      "onAutoForward": "notify"
+    },
+    "9323": {
+      "label": "Playwright BDD UI",
       "onAutoForward": "notify"
     }
   }
