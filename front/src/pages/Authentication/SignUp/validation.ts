@@ -1,16 +1,9 @@
-import { USERNAME_MIN_LENGTH } from "@Front/pages/WhoAreYou/constants";
 import type { TFunction } from "i18next";
-import { object, ref, string } from "yup";
+import { boolean, object, ref, string } from "yup";
 import { EMAIL_REGEX, PASSWORD_MIN_LENGTH, PASSWORD_REGEX } from "./constants";
 
 export const getSchema = (translate: TFunction) =>
   object({
-    username: string()
-      .required(translate("requiredUsername"))
-      .min(
-        USERNAME_MIN_LENGTH,
-        translate("minLengthUsername", { min: USERNAME_MIN_LENGTH }),
-      ),
     email: string()
       .required(translate("requiredEmail"))
       .matches(EMAIL_REGEX, translate("invalidEmail")),
@@ -24,4 +17,7 @@ export const getSchema = (translate: TFunction) =>
     confirmPassword: string()
       .required(translate("requiredConfirmPassword"))
       .oneOf([ref("password")], translate("passwordsDoNotMatch")),
+    termsAccepted: boolean()
+      .oneOf([true], translate("termsAcceptedError"))
+      .required(translate("termsAcceptedError")),
   });

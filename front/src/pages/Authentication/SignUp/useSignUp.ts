@@ -25,8 +25,17 @@ export const useSignUp = (): UseSignUpApiReturn => {
     SignUpFormType
   >({
     mutationKey: ["signUp"],
-    mutationFn: ({ username, email, password }: SignUpFormType) =>
-      signUpApi({ username, email, password, language: i18n.language }),
+    mutationFn: ({
+      email,
+      password,
+      termsAccepted,
+    }: SignUpFormType) =>
+      signUpApi({
+        email,
+        password,
+        language: i18n.language,
+        termsAccepted,
+      }),
     onSuccess: () => {
       checkAuthentication();
     },
