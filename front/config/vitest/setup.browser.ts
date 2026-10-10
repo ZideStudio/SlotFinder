@@ -6,13 +6,13 @@ import "@Front/i18n/index";
 import { worker } from "@Mocks/browser";
 
 beforeAll(async () => {
-  await worker.start({ onUnhandledRequest: "bypass" });
+  await worker.start({ onUnhandledFrame: "bypass" });
 });
 
 afterEach(() => {
   worker.resetHandlers();
 });
 
-afterAll(() => {
-  worker.stop();
+afterAll(async () => {
+  await worker.stop();
 });

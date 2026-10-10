@@ -3,7 +3,7 @@ const enableMock = async () => {
     const { worker } = await import("@Mocks/browser");
 
     return worker.start({
-      onUnhandledRequest: "warn",
+      onUnhandledFrame: "warn",
     });
   }
 };
