@@ -49,7 +49,7 @@ vi.mock("react-i18next", () => ({
 expect.extend(matchers);
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
 });
 
 afterAll(() => {

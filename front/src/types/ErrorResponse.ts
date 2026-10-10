@@ -1,28 +1,42 @@
 import { SERVER_ERROR } from "@Front/utils/constants/api";
+import {
+  getErrorCodeFromPayload,
+  getErrorMessageFromPayload,
+} from "./ErrorResponse.helpers";
 
 export class ErrorResponse<ErrorCodeType extends string = never> extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ErrorResponse";
+  code: ErrorCodeType | "SERVER_ERROR";
+
+  static from(payload: unknown): ErrorResponse<string> {
+    if (payload instanceof ErrorResponse) {
+      return payload as ErrorResponse<string>;
+    }
+
+    const message = getErrorMessageFromPayload(payload);
+    const code = getErrorCodeFromPayload(payload) as string;
+
+    return new ErrorResponse<string>(message, code as "SERVER_ERROR" | string);
   }
 
-  getErrorCode(
-    this: ErrorResponse<ErrorCodeType>,
-  ): ErrorCodeType | "SERVER_ERROR";
-  getErrorCode(this: ErrorResponse<never>): "SERVER_ERROR" {
-    try {
-      const parsed = JSON.parse(this.message);
-      if (
-        parsed &&
-        typeof parsed === "object" &&
-        "code" in parsed &&
-        typeof parsed.code === "string"
-      ) {
-        return parsed.code;
-      }
-    } catch {
-      // Ignore
+  constructor(
+    message: string,
+    code: ErrorCodeType | "SERVER_ERROR" = SERVER_ERROR,
+  ) {
+    super(message);
+    this.name = "ErrorResponse";
+    this.code = code;
+  }
+
+  getErrorCode(): ErrorCodeType | "SERVER_ERROR" {
+    if (this.code) {
+      return this.code;
     }
-    return SERVER_ERROR;
+
+    const fallbackCode = getErrorCodeFromPayload(this.message) as
+      | ErrorCodeType
+      | "SERVER_ERROR";
+    this.code = fallbackCode;
+
+    return fallbackCode;
   }
 }

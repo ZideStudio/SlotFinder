@@ -82,7 +82,7 @@ describe("TokenRefreshManager", () => {
       server.use(postTokenRefreshNetworkError);
 
       await expect(tokenRefreshManager.refreshToken()).rejects.toThrow(
-        "Failed to fetch",
+        "fetch failed",
       );
 
       expect(mockLocationReload).not.toHaveBeenCalled();
