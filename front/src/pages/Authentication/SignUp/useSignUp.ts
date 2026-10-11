@@ -25,11 +25,7 @@ export const useSignUp = (): UseSignUpApiReturn => {
     SignUpFormType
   >({
     mutationKey: ["signUp"],
-    mutationFn: ({
-      email,
-      password,
-      termsAccepted,
-    }: SignUpFormType) =>
+    mutationFn: ({ email, password, termsAccepted }: SignUpFormType) =>
       signUpApi({
         email,
         password,
