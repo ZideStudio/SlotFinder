@@ -5,6 +5,8 @@ import (
 	model "app/db/models"
 	"app/db/repository"
 	"app/testutils"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -213,13 +215,41 @@ func TestEventRepoTestSuite(t *testing.T) {
 	suite.Run(t, new(EventRepoTestSuite))
 }
 
-// Uses its own dedicated DB (not the shared suite one) since it drops the
-// event table to force the paginated id lookup (Pluck) to fail.
+// Drops the event table to force the paginated id lookup (Pluck) to fail.
+// This runs in its own private schema rather than the shared TestDB
+// transaction: DROP TABLE ... CASCADE takes an AccessExclusiveLock on event
+// (and, via CASCADE, on account_event's FK to it), and every package's tests
+// share the same physical database — holding that lock against the live
+// event/account_event tables deadlocked against other packages' concurrent
+// inserts in CI (see the "deadlock detected" incident this test caused).
+// A dedicated schema keeps the drop from ever touching what other processes
+// are using.
 func TestFindEventsByAccountId_PluckQueryFails(t *testing.T) {
-	database := testutils.TestDB(t)
-	repo := repository.NewEventRepository(database)
+	database := testutils.FreshDB(t)
+	t.Cleanup(func() {
+		if sqlDB, err := database.DB(); err == nil {
+			_ = sqlDB.Close()
+		}
+	})
+
+	schema := "pluck_fail_" + strings.ReplaceAll(uuid.NewString(), "-", "_")
+	require.NoError(t, database.Exec(fmt.Sprintf("CREATE SCHEMA %s", schema)).Error)
+	t.Cleanup(func() {
+		database.Exec(fmt.Sprintf("DROP SCHEMA IF EXISTS %s CASCADE", schema))
+	})
+	// search_path deliberately has no fallback to public: once event is
+	// dropped below, any query touching it must fail outright rather than
+	// silently resolving to the real, shared public.event table. That means
+	// event_status can't rely on public's copy either, so a throwaway one
+	// (values don't matter — this test never inserts an Event row) is
+	// created inside the new schema for the column type to reference.
+	require.NoError(t, database.Exec(fmt.Sprintf("SET search_path TO %s", schema)).Error)
+	require.NoError(t, database.Exec("CREATE TYPE event_status AS ENUM ('PLACEHOLDER')").Error)
+	require.NoError(t, database.AutoMigrate(&model.Account{}, &model.Event{}, &model.AccountEvent{}))
 
 	require.NoError(t, database.Migrator().DropTable(&model.Event{}))
+
+	repo := repository.NewEventRepository(database)
 
 	_, _, err := repo.FindEventsByAccountId(uuid.New(), 10, 0)
 	assert.Error(t, err)

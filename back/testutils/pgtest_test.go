@@ -22,8 +22,9 @@ type fatalCalled struct{ message string }
 // without failing the real test binary.
 type fakeT struct{}
 
-func (fakeT) Helper()        {}
-func (fakeT) Cleanup(func()) {}
+func (fakeT) Helper()                     {}
+func (fakeT) Cleanup(func())              {}
+func (fakeT) Deadline() (time.Time, bool) { return time.Time{}, false }
 func (fakeT) Fatalf(format string, args ...any) {
 	panic(fatalCalled{message: fmt.Sprintf(format, args...)})
 }
