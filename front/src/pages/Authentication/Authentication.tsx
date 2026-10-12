@@ -12,7 +12,7 @@ export const Authentication = () => {
 
   return (
     <section className="authentication subgrid">
-      <CardPage title={t(currentTitle)} className="authentication__content">
+      <CardPage as="section" title={currentTitle ? t(currentTitle) : ""} className="authentication__content">
         <Outlet />
       </CardPage>
     </section>
