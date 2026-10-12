@@ -25,20 +25,17 @@ export const SignUp = () => {
           name="email"
           label={t("email")}
           className="sign-up-input"
-          id="email"
         />
         <TextField
           name="password"
           label={t("password")}
           className="sign-up-input"
-          id="password"
           type="password"
         />
         <TextField
           name="confirmPassword"
           label={t("confirmPassword")}
           className="sign-up-input"
-          id="confirmPassword"
           type="password"
         />
         <CheckboxField
@@ -47,7 +44,7 @@ export const SignUp = () => {
           required
         />
         <InputErrorMessage>
-          {errorCode ? t(`error.${errorCode}`) : undefined}
+          {t(`error.${errorCode}`)}
         </InputErrorMessage>
         <hr />
         <OAuth />
