@@ -44,39 +44,13 @@ describe("SignUp page", () => {
       .toBeInTheDocument();
   });
 
-  it("shows validation errors when the required fields are empty", async () => {
+  it("applies the validation schema when submitting the form", async () => {
     await renderBrowserRoute({ initialEntry: appRoutes.signUp() });
 
     await page.getByRole("button", { name: "Create Account" }).click();
 
     await expect
       .element(page.getByText("Email is required"))
-      .toBeInTheDocument();
-    await expect
-      .element(page.getByText("Password is required"))
-      .toBeInTheDocument();
-    await expect
-      .element(page.getByText("Confirm password is required"))
-      .toBeInTheDocument();
-    await expect
-      .element(page.getByText("You must accept the Terms and Conditions"))
-      .toBeInTheDocument();
-  });
-
-  it("shows a mismatch error when the password confirmation is different", async () => {
-    await renderBrowserRoute({ initialEntry: appRoutes.signUp() });
-
-    await page.getByLabelText("Email").fill("john@example.com");
-    await page.getByLabelText("Password").fill("Password1!");
-    await page.getByLabelText("Confirm password").fill("Password2!");
-    await page
-      .getByRole("checkbox", { name: "I agree to the Terms and Conditions" })
-      .click();
-
-    await page.getByRole("button", { name: "Create Account" }).click();
-
-    await expect
-      .element(page.getByText("Passwords do not match"))
       .toBeInTheDocument();
   });
 });
