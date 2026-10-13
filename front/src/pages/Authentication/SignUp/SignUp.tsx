@@ -12,7 +12,7 @@ import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/Inpu
 import { getSchema } from "./validation";
 
 export const SignUp = () => {
-  const { signUp, errorCode } = useSignUp();
+  const { signUp, isLoading, errorCode } = useSignUp();
   const { t } = useTranslation("signUp");
   const methods = useForm<SignUpFormType>({
     resolver: yupResolver(getSchema(t)),
@@ -21,11 +21,7 @@ export const SignUp = () => {
   return (
     <FormProvider {...methods}>
       <form noValidate onSubmit={methods.handleSubmit(signUp)}>
-        <TextField
-          name="email"
-          label={t("email")}
-          className="sign-up-input"
-        />
+        <TextField name="email" label={t("email")} className="sign-up-input" />
         <TextField
           name="password"
           label={t("password")}
@@ -43,12 +39,14 @@ export const SignUp = () => {
           name="termsAccepted"
           required
         />
-        <InputErrorMessage>
-          {t(`error.${errorCode}`)}
-        </InputErrorMessage>
+        {errorCode && (
+          <InputErrorMessage>{t(`error.${errorCode}`)}</InputErrorMessage>
+        )}
         <hr />
         <OAuth />
-        <Button type="submit">{t("submit")}</Button>
+        <Button type="submit" isLoading={isLoading}>
+          {t("submit")}
+        </Button>
       </form>
     </FormProvider>
   );
