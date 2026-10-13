@@ -11,7 +11,7 @@ import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/Inpu
 import { getSchema } from "./validation";
 
 export const SignUp = () => {
-  const { signUp, errorCode } = useSignUp();
+  const { signUp, isLoading, errorCode } = useSignUp();
   const { t } = useTranslation("signUp");
   const methods = useForm<SignUpFormType>({
     resolver: yupResolver(getSchema(t)),
