@@ -30,6 +30,27 @@ export const postAccount400 = http.post(
   },
 );
 
+export const postForgotPassword200 = http.post(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
+  async () => {
+    await applyMockDelay();
+
+    return new HttpResponse(null, { status: 200 });
+  },
+);
+
+export const postForgotPassword400 = http.post(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
+  async () => {
+    await applyMockDelay();
+
+    return HttpResponse.json(
+      { code: "PASSWORD_RESET_TOO_FREQUENT" },
+      { status: 400 },
+    );
+  },
+);
+
 export const patchAccount200 = http.patch(
   `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
   async () => {
