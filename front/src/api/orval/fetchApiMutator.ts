@@ -32,33 +32,41 @@ export const fetchApiMutator = async <Response>(
   const makeRequest = async (): Promise<globalThis.Response> =>
     await fetch(url, { ...options, signal });
 
-  let response = await makeRequest();
+  try {
+    let response = await makeRequest();
 
-  // Handle 498 status code from api (expired access token)
-  if (
-    apiUrlFull &&
-    response.status === 498 &&
-    response.url.startsWith(apiUrlFull)
-  ) {
-    await tokenRefreshManager.refreshToken();
-    // Retry the original request
-    response = await makeRequest();
+    // Handle 498 status code from api (expired access token)
+    if (
+      apiUrlFull &&
+      response.status === 498 &&
+      response.url.startsWith(apiUrlFull)
+    ) {
+      await tokenRefreshManager.refreshToken();
+      // Retry the original request
+      response = await makeRequest();
+    }
+
+    const content = await response.text();
+
+    if (!response.ok) {
+      throw ErrorResponse.from(content);
+    }
+
+    // Some endpoints legitimately return an empty body (e.g. 204 or void responses)
+    if (!content) {
+      return undefined as Response;
+    }
+
+    if ((response.headers.get(HEADERS.contentType) ?? "").includes("json")) {
+      return JSON.parse(content) as Response;
+    }
+
+    return content as Response;
+  } catch (error) {
+    if (error instanceof ErrorResponse) {
+      throw error;
+    }
+
+    throw ErrorResponse.from(error);
   }
-
-  const content = await response.text();
-
-  if (!response.ok) {
-    throw new ErrorResponse(content);
-  }
-
-  // Some endpoints legitimately return an empty body (e.g. 204 or void responses)
-  if (!content) {
-    return undefined as Response;
-  }
-
-  if ((response.headers.get(HEADERS.contentType) ?? "").includes("json")) {
-    return JSON.parse(content) as Response;
-  }
-
-  return content as Response;
 };

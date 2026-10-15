@@ -3,7 +3,7 @@ import {
   postTokenRefresh200Fixture,
   postTokenRefresh500Fixture,
 } from "@Mocks/fixtures/tokenRefreshFixtures";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 
 export const postTokenRefresh200 = http.post(
   `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,

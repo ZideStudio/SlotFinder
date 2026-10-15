@@ -6,7 +6,7 @@ import {
   getAuthStatus403Fixture,
   getAuthStatus498Fixture,
 } from "@Mocks/fixtures/authStatusFixtures";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 
 export const getAuthStatus200 = http.get(
   `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,

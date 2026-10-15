@@ -4,7 +4,7 @@ import {
   postTokenRefreshNetworkError,
 } from "@Mocks/handlers/tokenRefreshHandlers";
 import { server } from "@Mocks/server";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 import { fetchApiMutator } from "../orval/fetchApiMutator";
 import { tokenRefreshManager } from "../tokenRefreshManager";
 
@@ -82,7 +82,7 @@ describe("TokenRefreshManager", () => {
       server.use(postTokenRefreshNetworkError);
 
       await expect(tokenRefreshManager.refreshToken()).rejects.toThrow(
-        "Failed to fetch",
+        "fetch failed",
       );
 
       expect(mockLocationReload).not.toHaveBeenCalled();

@@ -1,4 +1,4 @@
-import { delay } from "msw";
+import { delay } from "msw/utils/delay";
 
 const isVitestRuntime =
   typeof process !== "undefined" && process.env.VITEST === "true";

@@ -10,7 +10,7 @@ import {
   postAccount201Fixture,
   postAccount400Fixture,
 } from "@Mocks/fixtures/accountFixtures";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 
 export const postAccount201 = http.post(
   `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
