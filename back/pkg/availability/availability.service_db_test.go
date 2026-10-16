@@ -147,6 +147,17 @@ func TestAvailabilityService_Create_AutoFinishUpdateError(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestAvailabilityService_Create_EventCanceled(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	event.Status = constants.EVENT_STATUS_CANCELED
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
 func TestAvailabilityService_Create_EventNotFound(t *testing.T) {
 	s := newTestAvailabilityService(t)
 	user := &guard.Claims{Id: uuid.New()}

@@ -663,43 +663,6 @@ const docTemplate = `{
                     }
                 ]
             },
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Delete an event",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Event Id",
-                        "name": "eventId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "400": {
-                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, or ERR_EVENT_FINISHED_CANNOT_BE_DELETED",
-                        "schema": {
-                            "$ref": "#/definitions/helpers.ApiError"
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            },
             "patch": {
                 "consumes": [
                     "application/json"
@@ -786,6 +749,45 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.ApiError"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/events/{eventId}/cancel": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Cancel an event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event Id",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, or ERR_EVENT_CLOSED_CANNOT_BE_CANCELED",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -1276,12 +1278,14 @@ const docTemplate = `{
             "enum": [
                 "IN_DECISION",
                 "UPCOMING",
-                "FINISHED"
+                "FINISHED",
+                "CANCELED"
             ],
             "x-enum-varnames": [
                 "EVENT_STATUS_IN_DECISION",
                 "EVENT_STATUS_UPCOMING",
-                "EVENT_STATUS_FINISHED"
+                "EVENT_STATUS_FINISHED",
+                "EVENT_STATUS_CANCELED"
             ]
         },
         "constants.Provider": {
@@ -1723,6 +1727,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "SlotFinder API Doc",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

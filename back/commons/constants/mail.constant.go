@@ -8,7 +8,7 @@ const (
 	MAIL_TEMPLATE_PASSWORD_RESET_CONFIRMATION MailTemplate = "password-reset-confirmation"
 	MAIL_TEMPLATE_EVENT_CONFIRMATION          MailTemplate = "event-confirmation"
 	MAIL_TEMPLATE_EVENT_CANCELLATION          MailTemplate = "event-cancellation"
-	MAIL_TEMPLATE_EVENT_DELETION              MailTemplate = "event-deletion"
+	MAIL_TEMPLATE_EVENT_CANCELED              MailTemplate = "event-canceled"
 )
 
 const (
@@ -22,6 +22,6 @@ const (
 	MAIL_SUBJECT_EVENT_CONFIRMATION_FR     = "Évènement confirmé"
 	MAIL_SUBJECT_EVENT_CANCELLATION_EN     = "Event cancelled"
 	MAIL_SUBJECT_EVENT_CANCELLATION_FR     = "Évènement annulé"
-	MAIL_SUBJECT_EVENT_DELETION_EN         = "Event deleted"
-	MAIL_SUBJECT_EVENT_DELETION_FR         = "Évènement supprimé"
+	MAIL_SUBJECT_EVENT_CANCELED_EN         = "Event canceled"
+	MAIL_SUBJECT_EVENT_CANCELED_FR         = "Évènement annulé"
 )

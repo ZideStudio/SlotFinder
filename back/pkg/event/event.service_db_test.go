@@ -17,7 +17,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func newTestEventService(t *testing.T) *EventService {
@@ -500,6 +499,18 @@ func TestEventService_JoinEvent_AlreadyJoined(t *testing.T) {
 	assert.ErrorIs(t, err, constants.ERR_EVENT_ALREADY_JOINED.Err)
 }
 
+func TestEventService_JoinEvent_EventCanceled(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	event.Status = constants.EVENT_STATUS_CANCELED
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: uuid.New()})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
 func TestEventService_JoinEvent_EventEnded(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
@@ -630,8 +641,8 @@ func createTestAccountWithEmail(t *testing.T) uuid.UUID {
 	return id
 }
 
-// stubDeletionMails counts SMTP calls so tests can wait for every participant's email.
-func stubDeletionMails(s *EventService) <-chan struct{} {
+// stubCanceledMails counts SMTP calls so tests can wait for every participant's email.
+func stubCanceledMails(s *EventService) <-chan struct{} {
 	sent := make(chan struct{}, 10)
 	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
 		sent <- struct{}{}
@@ -640,23 +651,23 @@ func stubDeletionMails(s *EventService) <-chan struct{} {
 	return sent
 }
 
-func TestEventService_Delete_NotFound(t *testing.T) {
+func TestEventService_Cancel_NotFound(t *testing.T) {
 	s := newTestEventService(t)
 
-	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
+	err := s.Cancel(uuid.New(), &guard.Claims{Id: uuid.New()})
 	assert.ErrorIs(t, err, constants.ERR_EVENT_NOT_FOUND.Err)
 }
 
-func TestEventService_Delete_EventRepositoryError(t *testing.T) {
+func TestEventService_Cancel_EventRepositoryError(t *testing.T) {
 	s := newTestEventService(t)
 	s.eventRepository = repository.NewEventRepository(testutils.ClosedDB(t))
 
-	err := s.Delete(uuid.New(), &guard.Claims{Id: uuid.New()})
+	err := s.Cancel(uuid.New(), &guard.Claims{Id: uuid.New()})
 	assert.Error(t, err)
 	assert.NotErrorIs(t, err, constants.ERR_EVENT_NOT_FOUND.Err)
 }
 
-func TestEventService_Delete_AccessDenied(t *testing.T) {
+func TestEventService_Cancel_AccessDenied(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
 	event := createTestEventForOwner(t, s, owner)
@@ -664,68 +675,81 @@ func TestEventService_Delete_AccessDenied(t *testing.T) {
 	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: participant})
 	require.NoError(t, err)
 
-	err = s.Delete(event.Id, &guard.Claims{Id: participant})
+	err = s.Cancel(event.Id, &guard.Claims{Id: participant})
 	assert.ErrorIs(t, err, constants.ERR_EVENT_ACCESS_DENIED.Err)
 
 	var found model.Event
 	assert.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 }
 
-func TestEventService_Delete_FinishedStatus(t *testing.T) {
+func TestEventService_Cancel_FinishedStatus(t *testing.T) {
 	s := newTestEventService(t)
-	sent := stubDeletionMails(s)
+	sent := stubCanceledMails(s)
 	owner := createTestAccountWithEmail(t)
 	event := createTestEventForOwner(t, s, owner)
 	event.Status = constants.EVENT_STATUS_FINISHED
 	require.NoError(t, s.eventRepository.Updates(&event))
 
-	err := s.Delete(event.Id, &guard.Claims{Id: owner})
-	assert.ErrorIs(t, err, constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err)
+	err := s.Cancel(event.Id, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_CLOSED_CANNOT_BE_CANCELED.Err)
 
 	var found model.Event
 	assert.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.Empty(t, sent)
 }
 
-func TestEventService_Delete_EndedEventAutoFinished(t *testing.T) {
+func TestEventService_Cancel_EndedEventAutoFinished(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
 	event := createEndedEventForOwner(t, s, owner)
 
-	err := s.Delete(event.Id, &guard.Claims{Id: owner})
-	assert.ErrorIs(t, err, constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err)
+	err := s.Cancel(event.Id, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_CLOSED_CANNOT_BE_CANCELED.Err)
 
 	var found model.Event
 	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
 	assert.Equal(t, constants.EVENT_STATUS_FINISHED, found.Status)
 }
 
-func TestEventService_Delete_StatusUpdateError(t *testing.T) {
+func TestEventService_Cancel_StatusUpdateError(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
 	event := createEndedEventForOwner(t, s, owner)
 	testutils.MakeReadOnly(t)
 
-	err := s.Delete(event.Id, &guard.Claims{Id: owner})
+	err := s.Cancel(event.Id, &guard.Claims{Id: owner})
 	assert.Error(t, err)
-	assert.NotErrorIs(t, err, constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err)
+	assert.NotErrorIs(t, err, constants.ERR_EVENT_CLOSED_CANNOT_BE_CANCELED.Err)
 }
 
-func TestEventService_Delete_DeleteError_NoMailSent(t *testing.T) {
+func TestEventService_Cancel_UpdateError_NoMailSent(t *testing.T) {
 	s := newTestEventService(t)
-	sent := stubDeletionMails(s)
+	sent := stubCanceledMails(s)
 	owner := createTestAccountWithEmail(t)
 	event := createTestEventForOwner(t, s, owner)
 	testutils.MakeReadOnly(t)
 
-	err := s.Delete(event.Id, &guard.Claims{Id: owner})
+	err := s.Cancel(event.Id, &guard.Claims{Id: owner})
 	assert.Error(t, err)
 	assert.Empty(t, sent)
 }
 
-func TestEventService_Delete_Success_RemovesAllRelations(t *testing.T) {
+func TestEventService_Cancel_AlreadyCanceled(t *testing.T) {
 	s := newTestEventService(t)
-	sent := stubDeletionMails(s)
+	sent := stubCanceledMails(s)
+	owner := createTestAccountWithEmail(t)
+	event := createTestEventForOwner(t, s, owner)
+	event.Status = constants.EVENT_STATUS_CANCELED
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	err := s.Cancel(event.Id, &guard.Claims{Id: owner})
+	assert.ErrorIs(t, err, constants.ERR_EVENT_CLOSED_CANNOT_BE_CANCELED.Err)
+	assert.Empty(t, sent)
+}
+
+func TestEventService_Cancel_Success_SetsCanceledStatus(t *testing.T) {
+	s := newTestEventService(t)
+	sent := stubCanceledMails(s)
 	owner := createTestAccountWithEmail(t)
 	event := createTestEventForOwner(t, s, owner)
 	participant := createTestAccountWithEmail(t)
@@ -740,29 +764,26 @@ func TestEventService_Delete_Success_RemovesAllRelations(t *testing.T) {
 		Id: uuid.New(), EventId: event.Id,
 		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour),
 	}))
-	require.NoError(t, s.slotRepository.Create(&model.Slot{
-		Id: uuid.New(), EventId: event.Id,
-		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour), IsValidated: true,
-	}))
 
-	require.NoError(t, s.Delete(event.Id, &guard.Claims{Id: owner}))
+	require.NoError(t, s.Cancel(event.Id, &guard.Claims{Id: owner}))
 
 	var found model.Event
-	assert.ErrorIs(t, s.eventRepository.FindOneById(event.Id, &found), gorm.ErrRecordNotFound)
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.Equal(t, constants.EVENT_STATUS_CANCELED, found.Status)
 
 	var slots []model.Slot
 	require.NoError(t, s.slotRepository.FindByEventId(event.Id, &slots))
-	assert.Empty(t, slots)
+	assert.Len(t, slots, 1)
 
 	var availabilities []model.Availability
 	require.NoError(t, s.availabilityRepository.FindByEventId(event.Id, &availabilities))
-	assert.Empty(t, availabilities)
+	assert.Len(t, availabilities, 1)
 
 	var participants []model.Account
 	require.NoError(t, s.accountEventRepository.FindAccountsByEventId(event.Id, &participants))
-	assert.Empty(t, participants)
+	assert.Len(t, participants, 2)
 
-	// Owner and participant each receive the deletion email
+	// Owner and participant each receive the cancellation email
 	testutils.AwaitSMTP(t, sent)
 	testutils.AwaitSMTP(t, sent)
 }

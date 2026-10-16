@@ -143,22 +143,25 @@ func (suite *EventRepoTestSuite) TestFindEventsByAccountId_SortOrderByStatus() {
 	finished := model.Event{Id: uuid.New(), Name: "Finished Event", Duration: 30, StartsAt: time.Now(), EndsAt: time.Now(), OwnerId: owner.Id, Status: "FINISHED"}
 	inDecision := model.Event{Id: uuid.New(), Name: "InDecision Event", Duration: 30, StartsAt: time.Now(), EndsAt: time.Now(), OwnerId: owner.Id, Status: "IN_DECISION"}
 	upcoming := model.Event{Id: uuid.New(), Name: "Upcoming Event", Duration: 30, StartsAt: time.Now(), EndsAt: time.Now(), OwnerId: owner.Id, Status: "UPCOMING"}
+	canceled := model.Event{Id: uuid.New(), Name: "A Canceled Event", Duration: 30, StartsAt: time.Now(), EndsAt: time.Now(), OwnerId: owner.Id, Status: "CANCELED"}
 
+	suite.Require().NoError(suite.repo.Create(&canceled))
 	suite.Require().NoError(suite.repo.Create(&finished))
 	suite.Require().NoError(suite.repo.Create(&inDecision))
 	suite.Require().NoError(suite.repo.Create(&upcoming))
 
-	for _, e := range []model.Event{finished, inDecision, upcoming} {
+	for _, e := range []model.Event{canceled, finished, inDecision, upcoming} {
 		suite.Require().NoError(suite.accountEventDb.Create(&model.AccountEvent{AccountId: owner.Id, EventId: e.Id}))
 	}
 
 	events, total, err := suite.repo.FindEventsByAccountId(owner.Id, 10, 0)
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), int64(3), total)
-	assert.Len(suite.T(), events, 3)
+	assert.Equal(suite.T(), int64(4), total)
+	assert.Len(suite.T(), events, 4)
 	assert.Equal(suite.T(), inDecision.Id, events[0].Id)
 	assert.Equal(suite.T(), upcoming.Id, events[1].Id)
 	assert.Equal(suite.T(), finished.Id, events[2].Id)
+	assert.Equal(suite.T(), canceled.Id, events[3].Id)
 }
 
 func (suite *EventRepoTestSuite) TestFindEventsByAccountId_Pagination() {

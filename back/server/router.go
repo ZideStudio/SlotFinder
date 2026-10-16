@@ -82,7 +82,6 @@ func NewRouter() *gin.Engine {
 			eventGroup.GET("", guard.AuthCheck(nil), eventRouter.GetUserEvents)
 			eventGroup.POST("", guard.AuthCheck(nil), eventRouter.Create)
 			eventGroup.PATCH("/:eventId", guard.AuthCheck(nil), eventRouter.Update)
-			eventGroup.DELETE("/:eventId", guard.AuthCheck(nil), eventRouter.Delete)
 
 			specificEventGroup := eventGroup.Group("/:eventId")
 			{
@@ -90,6 +89,7 @@ func NewRouter() *gin.Engine {
 				specificEventGroup.GET("/summary", eventRouter.GetEventSummary)
 				specificEventGroup.POST("/join", guard.AuthCheck(nil), eventRouter.JoinEvent)
 				specificEventGroup.PATCH("/profile", guard.AuthCheck(nil), eventRouter.UpdateProfile)
+				specificEventGroup.PATCH("/cancel", guard.AuthCheck(nil), eventRouter.Cancel)
 			}
 
 			// Availability routes
