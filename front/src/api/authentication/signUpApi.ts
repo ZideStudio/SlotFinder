@@ -21,19 +21,18 @@ const isValidLanguage = (
 };
 
 export const signUpApi = ({
-  username,
   email,
   password,
   language,
+  termsAccepted,
 }: SignUpRequestBodyType): Promise<void> => {
-  const dto: AccountAccountCreateDto & { username: string } = {
-    username,
+  const dto: AccountAccountCreateDto = {
     email,
     password,
     language: isValidLanguage(language)
       ? language
       : AccountAccountCreateDtoLanguage.en,
-    termsAccepted: true,
+    termsAccepted,
     termsVersion: TERMS_VERSION,
     timeZone: Temporal.Now.timeZoneId(),
   };

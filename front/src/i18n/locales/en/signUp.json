@@ -13,6 +13,8 @@
   "confirmPassword": "Confirm password",
   "requiredConfirmPassword": "Confirm password is required",
   "passwordsDoNotMatch": "Passwords do not match",
+  "termsAcceptedLabel": "I agree to the Terms and Conditions",
+  "termsAcceptedError": "You must accept the Terms and Conditions",
   "submit": "Create Account",
   "error": {
     "USERNAME_ALREADY_TAKEN": "This username is already taken. Please choose another one.",
