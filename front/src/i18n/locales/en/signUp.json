@@ -16,6 +16,8 @@
   "termsAcceptedLabel": "I agree to the Terms and Conditions",
   "termsAcceptedError": "You must accept the Terms and Conditions",
   "submit": "Create Account",
+  "existingAccount": "Already have an account?",
+  "login": "Log in",
   "error": {
     "USERNAME_ALREADY_TAKEN": "This username is already taken. Please choose another one.",
     "INVALID_EMAIL_FORMAT": "Invalid email format. Please enter a valid email address.",
