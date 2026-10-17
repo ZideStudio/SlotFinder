@@ -3,6 +3,7 @@ package provider
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/lib"
 	"app/config"
 	appdb "app/db"
 	model "app/db/models"
@@ -12,7 +13,9 @@ import (
 	"app/pkg/signin"
 	"app/testutils"
 	"bytes"
+	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"net/http"
 	"net/http/httptest"
@@ -810,6 +813,93 @@ func TestProviderCallback_Google_NewAccount_FetchesAvatarFromProviderURL(t *test
 	assert.Contains(t, found.AvatarUrl, "/api/v1/account/")
 
 	awaitSMTP(t, called)
+}
+
+// buildSolidAvatarServer serves an opaque, single-color PNG with the given HTTP status.
+func buildSolidAvatarServer(t *testing.T, c color.RGBA, status int) *httptest.Server {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, 8, 8))
+	for x := 0; x < 8; x++ {
+		for y := 0; y < 8; y++ {
+			img.Set(x, y, c)
+		}
+	}
+	var buf bytes.Buffer
+	require.NoError(t, png.Encode(&buf, img))
+	body := buf.Bytes()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(status)
+		_, _ = w.Write(body)
+	}))
+	t.Cleanup(server.Close)
+	return server
+}
+
+// googleCallbackWithPicture runs a Google ProviderCallback for a brand new account whose profile picture is `picture`,
+// and returns the created account.
+func googleCallbackWithPicture(t *testing.T, picture string) model.Account {
+	t.Helper()
+	email := uniqueEmail(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"access_token": "test-access-token"})
+	})
+	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, map[string]string{"sub": "google-color-" + uuid.NewString(), "name": "coloruser", "email": email, "picture": picture})
+	})
+	server := httptest.NewServer(mux)
+	t.Cleanup(server.Close)
+
+	s := newTestProviderService(t)
+	s.httpClient = oauthRedirectClient(t, map[string]string{
+		realGoogleTokenURL:    server.URL + "/token",
+		realGoogleUserInfoURL: server.URL + "/userinfo",
+	})
+	called := stubSMTPAwait(t, s.mailService)
+
+	_, err := s.ProviderCallback("google", "good-code", "")
+	require.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneByEmail(email, &found))
+	awaitSMTP(t, called)
+	return found
+}
+
+func TestProviderCallback_Google_NewAccount_ColorIsDominantColorOfProviderAvatar(t *testing.T) {
+	avatarServer := buildSolidAvatarServer(t, color.RGBA{R: 255, A: 255}, http.StatusOK)
+
+	found := googleCallbackWithPicture(t, avatarServer.URL)
+
+	// The avatar is re-encoded as lossy JPEG, so allow a small deviation on each channel.
+	var r, g, b int
+	_, err := fmt.Sscanf(found.Color, "#%02X%02X%02X", &r, &g, &b)
+	require.NoError(t, err)
+	assert.InDelta(t, 255, r, 10)
+	assert.InDelta(t, 0, g, 10)
+	assert.InDelta(t, 0, b, 10)
+}
+
+func TestProviderCallback_Google_NewAccount_NoPicture_ColorIsDominantColorOfDefaultAvatar(t *testing.T) {
+	found := googleCallbackWithPicture(t, "")
+
+	require.NotEmpty(t, found.AvatarData)
+	want, err := lib.DominantColor(found.AvatarData)
+	require.NoError(t, err)
+	assert.Equal(t, want, found.Color)
+}
+
+func TestProviderCallback_Google_NewAccount_PictureFetchFails_ColorIsDominantColorOfDefaultAvatar(t *testing.T) {
+	avatarServer := buildSolidAvatarServer(t, color.RGBA{R: 255, A: 255}, http.StatusInternalServerError)
+
+	found := googleCallbackWithPicture(t, avatarServer.URL)
+
+	require.NotEmpty(t, found.AvatarData)
+	want, err := lib.DominantColor(found.AvatarData)
+	require.NoError(t, err)
+	assert.Equal(t, want, found.Color)
+	assert.NotEqual(t, "#FF0000", found.Color)
 }
 
 func TestProviderCallback_Github_ExistingAccountLogin(t *testing.T) {

@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	mathrand "math/rand"
 	"net/url"
 
 	"github.com/go-resty/resty/v2"
@@ -263,9 +262,8 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			}
 		}
 
-		// Choose a random color
-		colors := constants.COLORS
-		color := colors[mathrand.Intn(len(colors))]
+		// Choose the color from the avatar
+		color := s.avatarService.PickAccountColor(avatarData)
 
 		// Create account
 		var account model.Account
@@ -273,7 +271,7 @@ func (s *ProviderService) ProviderCallback(providerEntry string, code string, us
 			Id:         accountId,
 			Username:   providerAccountResponse.Account.Username,
 			Email:      providerAccountResponse.Account.Email,
-			Color:      string(color),
+			Color:      color,
 			AvatarUrl:  avatarUrl,
 			AvatarData: avatarData,
 			Providers:  providerAccountResponse.Account.Providers,

@@ -15,7 +15,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	mathrand "math/rand"
 	"slices"
 	"strings"
 	"time"
@@ -94,18 +93,15 @@ func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error
 		return tokens, errors.New("invalid time zone")
 	}
 
-	// Choose a random color
-	colors := constants.COLORS
-	color := colors[mathrand.Intn(len(colors))]
-
 	// Create account
 	var account model.Account
 	accountId := uuid.New()
 	avatarData, avatarUrl := s.avatarService.FetchAndStoreDefaultAvatar(accountId.String(), accountId)
+	color := s.avatarService.PickAccountColor(avatarData)
 	if err := s.accountRepository.Create(repository.AccountCreateDto{
 		Id:           accountId,
 		Email:        &data.Email,
-		Color:        string(color),
+		Color:        color,
 		Password:     data.Password,
 		Language:     data.Language,
 		TermsVersion: &data.TermsVersion,

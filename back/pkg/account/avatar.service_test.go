@@ -1,6 +1,8 @@
 package account
 
 import (
+	"app/commons/constants"
+	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
 	"app/testutils"
@@ -27,6 +29,20 @@ func validPNG(t *testing.T, w, h int) []byte {
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			img.Set(x, y, color.RGBA{R: uint8(x % 256), G: uint8(y % 256), B: 100, A: 255})
+		}
+	}
+	var buf bytes.Buffer
+	require.NoError(t, png.Encode(&buf, img))
+	return buf.Bytes()
+}
+
+// solidPNG builds a w×h PNG filled with a single opaque color.
+func solidPNG(t *testing.T, w, h int, c color.RGBA) []byte {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			img.Set(x, y, c)
 		}
 	}
 	var buf bytes.Buffer
@@ -194,4 +210,49 @@ func TestUploadUserAvatar_ProcessingFails(t *testing.T) {
 	s := &AvatarService{accountRepository: repository.NewAccountRepository(db)}
 	err := s.UploadUserAvatar([]byte("not-an-image"), uuid.New())
 	assert.Error(t, err)
+}
+
+func TestPickAccountColor_UsesDominantColorOfAvatar(t *testing.T) {
+	s := &AvatarService{}
+
+	got := s.PickAccountColor(solidPNG(t, 8, 8, color.RGBA{R: 255, A: 255}))
+
+	assert.Equal(t, "#FF0000", got)
+}
+
+func TestPickAccountColor_NilDataFallsBackToPalette(t *testing.T) {
+	s := &AvatarService{}
+
+	got := s.PickAccountColor(nil)
+
+	assert.Contains(t, constants.COLORS, constants.Color(got))
+}
+
+func TestPickAccountColor_InvalidDataFallsBackToPalette(t *testing.T) {
+	s := &AvatarService{}
+
+	got := s.PickAccountColor([]byte("not an image"))
+
+	assert.Contains(t, constants.COLORS, constants.Color(got))
+}
+
+func TestPickAccountColor_WhiteAvatarFallsBackToPalette(t *testing.T) {
+	s := &AvatarService{}
+
+	got := s.PickAccountColor(solidPNG(t, 8, 8, color.RGBA{R: 255, G: 255, B: 255, A: 255}))
+
+	assert.Contains(t, constants.COLORS, constants.Color(got))
+}
+
+func TestPickAccountColor_DefaultDicebearAvatar_IsDeterministicValidHex(t *testing.T) {
+	s := &AvatarService{}
+	accountId := uuid.New()
+
+	data, _ := s.FetchAndStoreDefaultAvatar(accountId.String(), accountId)
+	require.NotEmpty(t, data)
+	first := s.PickAccountColor(data)
+	second := s.PickAccountColor(data)
+
+	assert.True(t, lib.IsHexa(first))
+	assert.Equal(t, first, second)
 }
