@@ -46,6 +46,10 @@ func TestSetHttpContextBody_InvalidJSON(t *testing.T) {
 	err := SetHttpContextBody(c, &body)
 	assert.Error(t, err)
 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	var parsed ApiError
+	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &parsed))
+	assert.Equal(t, "INVALID_JSON", parsed.Code)
+	assert.Empty(t, parsed.Fields)
 }
 
 func TestSetHttpContextBody_MissingRequiredField(t *testing.T) {
@@ -56,6 +60,10 @@ func TestSetHttpContextBody_MissingRequiredField(t *testing.T) {
 	err := SetHttpContextBody(c, &body)
 	assert.Error(t, err)
 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	var parsed ApiError
+	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &parsed))
+	assert.Equal(t, "INVALID_BODY", parsed.Code)
+	assert.Equal(t, []FieldError{{Field: "name", Code: "FIELD_REQUIRED"}}, parsed.Fields)
 }
 
 func TestHandleJSONResponse_Success(t *testing.T) {
@@ -101,4 +109,26 @@ func TestHandleJSONResponse_UnknownError_ServerError(t *testing.T) {
 	var parsed ApiError
 	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &parsed))
 	assert.Equal(t, "SERVER_ERROR", parsed.Code)
+}
+
+type termsBody struct {
+	TermsAccepted bool   `json:"termsAccepted" binding:"required,eq=true"`
+	TermsVersion  string `json:"termsVersion" binding:"required"`
+}
+
+func TestSetHttpContextBody_TypeErrorAlsoReportsOtherInvalidFields(t *testing.T) {
+	t.Parallel()
+	c, recorder := newHelperTestContext([]byte(`{"termsAccepted":false,"termsVersion":false}`))
+
+	var body termsBody
+	err := SetHttpContextBody(c, &body)
+	assert.Error(t, err)
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	var parsed ApiError
+	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &parsed))
+	assert.Equal(t, "INVALID_BODY", parsed.Code)
+	assert.Equal(t, []FieldError{
+		{Field: "termsVersion", Code: "FIELD_INVALID_TYPE"},
+		{Field: "termsAccepted", Code: "FIELD_REQUIRED"},
+	}, parsed.Fields)
 }

@@ -1563,6 +1563,26 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/helpers.FieldError"
+                    }
+                }
+            }
+        },
+        "helpers.FieldError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "field": {
+                    "type": "string"
+                },
+                "param": {
+                    "type": "string"
                 }
             }
         },

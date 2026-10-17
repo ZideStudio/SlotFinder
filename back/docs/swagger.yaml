@@ -339,6 +339,19 @@ definitions:
     properties:
       code:
         type: string
+      fields:
+        items:
+          $ref: '#/definitions/helpers.FieldError'
+        type: array
+    type: object
+  helpers.FieldError:
+    properties:
+      code:
+        type: string
+      field:
+        type: string
+      param:
+        type: string
     type: object
   lib.Pagination-event_EventListItemDto:
     properties:
