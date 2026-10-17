@@ -261,7 +261,7 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	return nil
 }
 
-func (s *EventService) Delete(eventId uuid.UUID, user *guard.Claims) error {
+func (s *EventService) Cancel(eventId uuid.UUID, user *guard.Claims) error {
 	// Get event
 	var event model.Event
 	if err := s.eventRepository.FindOneById(eventId, &event); err != nil {
@@ -276,28 +276,29 @@ func (s *EventService) Delete(eventId uuid.UUID, user *guard.Claims) error {
 		return constants.ERR_EVENT_ACCESS_DENIED.Err
 	}
 
-	// Prevent deleting finished events
+	// Prevent canceling closed events
 	if hasStatus, err := event.CheckAndAutoUpdateStatus(s.eventRepository.Updates, &[]constants.EventStatus{constants.EVENT_STATUS_IN_DECISION, constants.EVENT_STATUS_UPCOMING}); !hasStatus || err != nil {
 		if err != nil {
 			return err
 		}
-		return constants.ERR_EVENT_FINISHED_CANNOT_BE_DELETED.Err
+		return constants.ERR_EVENT_CLOSED_CANNOT_BE_CANCELED.Err
 	}
 
-	// Get participants before their relation is removed
-	var participants []model.Account
-	if err := s.accountEventRepository.FindAccountsByEventId(event.Id, &participants); err != nil {
-		log.Error().Err(err).Str("eventId", event.Id.String()).Msg("Failed to get participants for event deletion mail")
-	}
-
-	// Remove slots, availabilities, participants and event
-	if err := s.eventRepository.DeleteWithRelations(event.Id); err != nil {
+	// Update event status to canceled
+	event.Status = constants.EVENT_STATUS_CANCELED
+	if err := s.eventRepository.Updates(&event); err != nil {
 		return err
 	}
 
-	// Send deletion emails to all participants (including owner)
+	// Get participants to notify
+	var participants []model.Account
+	if err := s.accountEventRepository.FindAccountsByEventId(event.Id, &participants); err != nil {
+		log.Error().Err(err).Str("eventId", event.Id.String()).Msg("Failed to get participants for event cancellation mail")
+	}
+
+	// Send cancellation emails to all participants (including owner)
 	for _, participant := range participants {
-		s.mailService.SendEventDeletionEmail(participant, event)
+		s.mailService.SendEventCanceledEmail(participant, event)
 	}
 
 	return nil

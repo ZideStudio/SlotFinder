@@ -104,12 +104,14 @@ func (r *EventRepository) FindEventsByAccountId(
 				WHEN event.status = ? THEN 1
 				WHEN event.status = ? THEN 2
 				WHEN event.status = ? THEN 3
-				ELSE 4
+				WHEN event.status = ? THEN 4
+				ELSE 5
 			END AS sort_order
 		`,
 			constants.EVENT_STATUS_IN_DECISION,
 			constants.EVENT_STATUS_UPCOMING,
 			constants.EVENT_STATUS_FINISHED,
+			constants.EVENT_STATUS_CANCELED,
 		).
 		Joins("JOIN account_event ae ON ae.event_id = event.id").
 		Where("ae.account_id = ?", accountId)
@@ -172,28 +174,6 @@ func (r *EventRepository) FindEventsByAccountId(
 func (r *EventRepository) Delete(id uuid.UUID) error {
 	if err := r.db.Where("id = ?", id.String()).Delete(&model.Event{}).Error; err != nil {
 		log.Error().Err(err).Msg("EVENT_REPOSITORY::DELETE Failed to delete event")
-		return err
-	}
-
-	return nil
-}
-
-// DeleteWithRelations removes the event along with its slots, availabilities and participants in a single transaction
-func (r *EventRepository) DeleteWithRelations(id uuid.UUID) error {
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("event_id = ?", id).Delete(&model.Slot{}).Error; err != nil {
-			return err
-		}
-		if err := tx.Where("event_id = ?", id).Delete(&model.Availability{}).Error; err != nil {
-			return err
-		}
-		if err := tx.Where("event_id = ?", id).Delete(&model.AccountEvent{}).Error; err != nil {
-			return err
-		}
-		return tx.Where("id = ?", id).Delete(&model.Event{}).Error
-	})
-	if err != nil {
-		log.Error().Err(err).Str("eventId", id.String()).Msg("EVENT_REPOSITORY::DELETE_WITH_RELATIONS Failed to delete event with relations")
 		return err
 	}
 

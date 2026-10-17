@@ -97,21 +97,25 @@ func (e *Event) HasOneOfStatuses(requireOneOfStatuses *[]constants.EventStatus) 
 	return slices.Contains(*requireOneOfStatuses, e.Status)
 }
 
-// CheckAndAutoUpdateStatus checks whether the event or its validated slot has ended, updates the status to FINISHED if needed,
-// and then returns whether the (possibly updated) event status is one of the required statuses when requireOneOfStatuses is provided.
-func (e *Event) CheckAndAutoUpdateStatus(updateFunc func(*Event) error, requireOneOfStatuses *[]constants.EventStatus) (hasStatus bool, err error) {
-	slot := e.GetValidatedSlot()
+// IsClosed checks if the event is finished or canceled
+func (e *Event) IsClosed() bool {
+	return e.HasOneOfStatuses(&[]constants.EventStatus{constants.EVENT_STATUS_FINISHED, constants.EVENT_STATUS_CANCELED})
+}
 
-	// Event is still in decision
-	now := time.Now()
-	isEventPassed := now.After(e.EndsAt)
-	isValidatedSlotPassed := slot != nil && now.After(slot.EndsAt)
-	if e.Status != constants.EVENT_STATUS_FINISHED && !isEventPassed && !isValidatedSlotPassed {
-		return e.HasOneOfStatuses(requireOneOfStatuses), nil
+// HasEnded checks if the event period or its validated slot is over at the given time
+func (e *Event) HasEnded(now time.Time) bool {
+	if now.After(e.EndsAt) {
+		return true
 	}
 
-	// Update event status to finished
-	if e.Status != constants.EVENT_STATUS_FINISHED {
+	slot := e.GetValidatedSlot()
+	return slot != nil && now.After(slot.EndsAt)
+}
+
+// CheckAndAutoUpdateStatus updates the status to FINISHED if the event is not closed yet but has ended,
+// and then returns whether the (possibly updated) event status is one of the required statuses when requireOneOfStatuses is provided.
+func (e *Event) CheckAndAutoUpdateStatus(updateFunc func(*Event) error, requireOneOfStatuses *[]constants.EventStatus) (hasStatus bool, err error) {
+	if !e.IsClosed() && e.HasEnded(time.Now()) {
 		e.Status = constants.EVENT_STATUS_FINISHED
 		if err := updateFunc(e); err != nil {
 			return false, err
