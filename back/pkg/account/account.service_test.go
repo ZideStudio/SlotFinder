@@ -610,7 +610,13 @@ func TestResetPassword_InvalidPasswordFormat(t *testing.T) {
 func TestResetPassword_UndecryptableToken(t *testing.T) {
 	s := newTestAccountService(t)
 	err := s.ResetPassword(&ResetPasswordDto{Token: "not-valid-base64!!", Password: "SuperSecret123!"})
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, constants.ERR_INVALID_RESET_TOKEN.Err)
+}
+
+func TestResetPassword_TokenTooShort(t *testing.T) {
+	s := newTestAccountService(t)
+	err := s.ResetPassword(&ResetPasswordDto{Token: "c2hvcnQ=", Password: "SuperSecret123!"})
+	assert.ErrorIs(t, err, constants.ERR_INVALID_RESET_TOKEN.Err)
 }
 
 func TestResetPassword_TokenNotFound(t *testing.T) {

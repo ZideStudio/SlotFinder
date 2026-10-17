@@ -341,7 +341,7 @@ func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 
 	resetTokenDecrypted, err := encryption.Decrypt(dto.Token)
 	if err != nil {
-		return err
+		return constants.ERR_INVALID_RESET_TOKEN.Err
 	}
 
 	var account model.Account
