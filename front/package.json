@@ -48,6 +48,7 @@
     "yup": "1.7.1"
   },
   "devDependencies": {
+    "@msw/playwright": "0.7.0",
     "@playwright/test": "1.65.1",
     "@pplancq/stylelint-config": "6.1.8",
     "@rsbuild/core": "2.3.3",

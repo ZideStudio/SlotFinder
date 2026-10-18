@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "@Front/config/runtimeEnv";
 import { ErrorResponse } from "@Front/types/ErrorResponse";
 import { HEADERS } from "../constant";
 import { tokenRefreshManager } from "../tokenRefreshManager";
@@ -27,7 +28,7 @@ export const fetchApiMutator = async <Response>(
   const apiUrlFull =
     typeof window === "undefined"
       ? undefined
-      : `${window.location.origin}${import.meta.env.FRONT_BACKEND_URL ?? ""}`;
+      : `${window.location.origin}${getRuntimeEnv().FRONT_BACKEND_URL}`;
 
   const makeRequest = async (): Promise<globalThis.Response> =>
     await fetch(url, { ...options, signal });

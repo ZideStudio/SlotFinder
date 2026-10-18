@@ -1,5 +1,6 @@
 import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/types";
 import { type HelpersApiError } from "@Front/api/generated/slotFinderAPI.schemas";
+import { getRuntimeEnv } from "@Front/config/runtimeEnv";
 import { SERVER_ERROR } from "@Front/utils/constants/api";
 import { applyMockDelay } from "@Mocks/delay";
 import {
@@ -13,65 +14,31 @@ import {
 } from "@Mocks/fixtures/accountFixtures";
 import { http, HttpResponse } from "msw/http";
 
-export const postAccount201 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-  async () => {
-    await applyMockDelay();
+const accountUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account`;
+const accountAvatarUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/:id/avatar`;
+const accountMeUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/me`;
+const accountForgotPasswordUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/forgot-password`;
 
-    return HttpResponse.json(postAccount201Fixture, { status: 201 });
-  },
-);
+export const postAccount201 = http.post(accountUrl, async () => {
+  await applyMockDelay();
 
-export const postAccount400 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-  async () => {
-    await applyMockDelay();
+  return HttpResponse.json(postAccount201Fixture, { status: 201 });
+});
 
-    return HttpResponse.json(postAccount400Fixture, { status: 400 });
-  },
-);
+export const postAccount400 = http.post(accountUrl, async () => {
+  await applyMockDelay();
 
-export const postForgotPassword200 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
-  async () => {
-    await applyMockDelay();
+  return HttpResponse.json(postAccount400Fixture, { status: 400 });
+});
 
-    return new HttpResponse(null, { status: 200 });
-  },
-);
+export const patchAccount200 = http.patch(accountUrl, async () => {
+  await applyMockDelay();
 
-export const postForgotPassword400 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
-  async () => {
-    await applyMockDelay();
-
-    return HttpResponse.json(postForgotPassword400Fixture, { status: 400 });
-  },
-);
-
-export const postForgotPassword500 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
-  async () => {
-    await applyMockDelay();
-
-    return HttpResponse.json<HelpersApiError>(
-      { code: SERVER_ERROR },
-      { status: 500 },
-    );
-  },
-);
-
-export const patchAccount200 = http.patch(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-  async () => {
-    await applyMockDelay();
-
-    return HttpResponse.json(patchAccount200Fixture, { status: 200 });
-  },
-);
+  return HttpResponse.json(patchAccount200Fixture, { status: 200 });
+});
 
 export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
-  http.patch(`${import.meta.env.FRONT_BACKEND_URL}/v1/account`, async () => {
+  http.patch(accountUrl, async () => {
     await applyMockDelay();
 
     return HttpResponse.json(patchAccount400Fixture(errorCode), {
@@ -80,7 +47,7 @@ export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
   });
 
 export const patchAvatarAccount200 = http.patch(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/avatar`,
+  `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/avatar`,
   async () => {
     await applyMockDelay();
 
@@ -89,7 +56,7 @@ export const patchAvatarAccount200 = http.patch(
 );
 
 export const patchAvatarAccount400 = http.patch(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/avatar`,
+  `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/avatar`,
   async () => {
     await applyMockDelay();
 
@@ -100,34 +67,55 @@ export const patchAvatarAccount400 = http.patch(
   },
 );
 
-export const getAccountMe200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/me`,
+export const getAccountMe200 = http.get(accountMeUrl, async () => {
+  await applyMockDelay();
+
+  return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
+});
+
+export const getAccountMeWithoutTerms200 = http.get(accountMeUrl, async () => {
+  await applyMockDelay();
+
+  return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
+    status: 200,
+  });
+});
+
+export const getAccountAvatar200 = http.get(accountAvatarUrl, async () => {
+  await applyMockDelay();
+
+  return new HttpResponse(new Uint8Array(0), {
+    status: 200,
+    headers: { "Content-Type": "image/png" },
+  });
+});
+
+export const postForgotPassword200 = http.post(
+  accountForgotPasswordUrl,
   async () => {
     await applyMockDelay();
 
-    return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
+    return new HttpResponse(null, { status: 200 });
   },
 );
 
-export const getAccountMeWithoutTerms200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/me`,
+export const postForgotPassword400 = http.post(
+  accountForgotPasswordUrl,
   async () => {
     await applyMockDelay();
 
-    return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
-      status: 200,
-    });
+    return HttpResponse.json(postForgotPassword400Fixture, { status: 400 });
   },
 );
 
-export const getAccountAvatar200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/:id/avatar`,
+export const postForgotPassword500 = http.post(
+  accountForgotPasswordUrl,
   async () => {
     await applyMockDelay();
 
-    return new HttpResponse(new Uint8Array(0), {
-      status: 200,
-      headers: { "Content-Type": "image/png" },
-    });
+    return HttpResponse.json<HelpersApiError>(
+      { code: SERVER_ERROR },
+      { status: 500 },
+    );
   },
 );

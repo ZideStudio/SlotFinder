@@ -1,8 +1,9 @@
+import { getRuntimeMode } from "@Front/config/runtimeEnv";
 import { delay } from "msw/utils/delay";
 
 const isVitestRuntime =
   typeof process !== "undefined" && process.env.VITEST === "true";
-const isNonDevelopmentMode = import.meta.env?.MODE !== "development";
+const isNonDevelopmentMode = getRuntimeMode() !== "development";
 
 export const applyMockDelay = async () => {
   if (isVitestRuntime || isNonDevelopmentMode) {
