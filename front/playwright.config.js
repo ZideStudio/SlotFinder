@@ -24,6 +24,8 @@ export default defineConfig({
   webServer: {
     command: "npm run start -- --host 0.0.0.0 --port 3004",
     env: {
+      FRONT_MOCK_ENABLE: "false",
+      FRONT_BACKEND_URL: "/mocked-api",
       FRONT_DOMAIN: "https://localhost:3004",
     },
     url: "http://127.0.0.1:3004",
