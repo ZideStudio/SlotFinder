@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "@Front/config/runtimeEnv";
 import { applyMockDelay } from "@Mocks/delay";
 import {
   postTokenRefresh200Fixture,
@@ -5,29 +6,22 @@ import {
 } from "@Mocks/fixtures/tokenRefreshFixtures";
 import { http, HttpResponse } from "msw/http";
 
-export const postTokenRefresh200 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
-  async () => {
-    await applyMockDelay();
+const refreshUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/auth/refresh`;
 
-    return HttpResponse.json(postTokenRefresh200Fixture, { status: 200 });
-  },
-);
+export const postTokenRefresh200 = http.post(refreshUrl, async () => {
+  await applyMockDelay();
 
-export const postTokenRefresh500 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
-  async () => {
-    await applyMockDelay();
+  return HttpResponse.json(postTokenRefresh200Fixture, { status: 200 });
+});
 
-    return HttpResponse.json(postTokenRefresh500Fixture, { status: 500 });
-  },
-);
+export const postTokenRefresh500 = http.post(refreshUrl, async () => {
+  await applyMockDelay();
 
-export const postTokenRefreshNetworkError = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
-  async () => {
-    await applyMockDelay();
+  return HttpResponse.json(postTokenRefresh500Fixture, { status: 500 });
+});
 
-    return HttpResponse.error();
-  },
-);
+export const postTokenRefreshNetworkError = http.post(refreshUrl, async () => {
+  await applyMockDelay();
+
+  return HttpResponse.error();
+});

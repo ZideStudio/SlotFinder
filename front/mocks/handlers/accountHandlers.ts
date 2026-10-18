@@ -1,3 +1,4 @@
+import { getRuntimeEnv } from "@Front/config/runtimeEnv";
 import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/types";
 import { type HelpersApiError } from "@Front/api/generated/slotFinderAPI.schemas";
 import { SERVER_ERROR } from "@Front/utils/constants/api";
@@ -12,35 +13,30 @@ import {
 } from "@Mocks/fixtures/accountFixtures";
 import { http, HttpResponse } from "msw/http";
 
-export const postAccount201 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-  async () => {
-    await applyMockDelay();
+const accountUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account`;
+const accountAvatarUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/:id/avatar`;
+const accountMeUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/me`;
 
-    return HttpResponse.json(postAccount201Fixture, { status: 201 });
-  },
-);
+export const postAccount201 = http.post(accountUrl, async () => {
+  await applyMockDelay();
 
-export const postAccount400 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-  async () => {
-    await applyMockDelay();
+  return HttpResponse.json(postAccount201Fixture, { status: 201 });
+});
 
-    return HttpResponse.json(postAccount400Fixture, { status: 400 });
-  },
-);
+export const postAccount400 = http.post(accountUrl, async () => {
+  await applyMockDelay();
 
-export const patchAccount200 = http.patch(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
-  async () => {
-    await applyMockDelay();
+  return HttpResponse.json(postAccount400Fixture, { status: 400 });
+});
 
-    return HttpResponse.json(patchAccount200Fixture, { status: 200 });
-  },
-);
+export const patchAccount200 = http.patch(accountUrl, async () => {
+  await applyMockDelay();
+
+  return HttpResponse.json(patchAccount200Fixture, { status: 200 });
+});
 
 export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
-  http.patch(`${import.meta.env.FRONT_BACKEND_URL}/v1/account`, async () => {
+  http.patch(accountUrl, async () => {
     await applyMockDelay();
 
     return HttpResponse.json(patchAccount400Fixture(errorCode), {
@@ -49,7 +45,7 @@ export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
   });
 
 export const patchAvatarAccount200 = http.patch(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/avatar`,
+  `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/avatar`,
   async () => {
     await applyMockDelay();
 
@@ -58,7 +54,7 @@ export const patchAvatarAccount200 = http.patch(
 );
 
 export const patchAvatarAccount400 = http.patch(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/avatar`,
+  `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/avatar`,
   async () => {
     await applyMockDelay();
 
@@ -69,34 +65,25 @@ export const patchAvatarAccount400 = http.patch(
   },
 );
 
-export const getAccountMe200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/me`,
-  async () => {
-    await applyMockDelay();
+export const getAccountMe200 = http.get(accountMeUrl, async () => {
+  await applyMockDelay();
 
-    return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
-  },
-);
+  return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
+});
 
-export const getAccountMeWithoutTerms200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/me`,
-  async () => {
-    await applyMockDelay();
+export const getAccountMeWithoutTerms200 = http.get(accountMeUrl, async () => {
+  await applyMockDelay();
 
-    return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
-      status: 200,
-    });
-  },
-);
+  return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
+    status: 200,
+  });
+});
 
-export const getAccountAvatar200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/:id/avatar`,
-  async () => {
-    await applyMockDelay();
+export const getAccountAvatar200 = http.get(accountAvatarUrl, async () => {
+  await applyMockDelay();
 
-    return new HttpResponse(new Uint8Array(0), {
-      status: 200,
-      headers: { "Content-Type": "image/png" },
-    });
-  },
-);
+  return new HttpResponse(new Uint8Array(0), {
+    status: 200,
+    headers: { "Content-Type": "image/png" },
+  });
+});
