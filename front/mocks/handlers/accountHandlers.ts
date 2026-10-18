@@ -1,6 +1,11 @@
 import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/types";
+import {
+  getGetV1AccountMeUrl,
+  getPatchV1AccountAvatarUrl,
+  getPostV1AccountForgotPasswordUrl,
+  getPostV1AccountUrl,
+} from "@Front/api/generated/account/account";
 import { type HelpersApiError } from "@Front/api/generated/slotFinderAPI.schemas";
-import { getRuntimeEnv } from "@Front/config/runtimeEnv";
 import { SERVER_ERROR } from "@Front/utils/constants/api";
 import { applyMockDelay } from "@Mocks/delay";
 import {
@@ -14,31 +19,26 @@ import {
 } from "@Mocks/fixtures/accountFixtures";
 import { http, HttpResponse } from "msw/http";
 
-const accountUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account`;
-const accountAvatarUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/:id/avatar`;
-const accountMeUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/me`;
-const accountForgotPasswordUrl = `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/forgot-password`;
-
-export const postAccount201 = http.post(accountUrl, async () => {
+export const postAccount201 = http.post(getPostV1AccountUrl(), async () => {
   await applyMockDelay();
 
   return HttpResponse.json(postAccount201Fixture, { status: 201 });
 });
 
-export const postAccount400 = http.post(accountUrl, async () => {
+export const postAccount400 = http.post(getPostV1AccountUrl(), async () => {
   await applyMockDelay();
 
   return HttpResponse.json(postAccount400Fixture, { status: 400 });
 });
 
-export const patchAccount200 = http.patch(accountUrl, async () => {
+export const patchAccount200 = http.patch(getPostV1AccountUrl(), async () => {
   await applyMockDelay();
 
   return HttpResponse.json(patchAccount200Fixture, { status: 200 });
 });
 
 export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
-  http.patch(accountUrl, async () => {
+  http.patch(getPostV1AccountUrl(), async () => {
     await applyMockDelay();
 
     return HttpResponse.json(patchAccount400Fixture(errorCode), {
@@ -47,7 +47,7 @@ export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
   });
 
 export const patchAvatarAccount200 = http.patch(
-  `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/avatar`,
+  getPatchV1AccountAvatarUrl(),
   async () => {
     await applyMockDelay();
 
@@ -56,7 +56,7 @@ export const patchAvatarAccount200 = http.patch(
 );
 
 export const patchAvatarAccount400 = http.patch(
-  `${getRuntimeEnv().FRONT_BACKEND_URL}/v1/account/avatar`,
+  getPatchV1AccountAvatarUrl(),
   async () => {
     await applyMockDelay();
 
@@ -67,31 +67,37 @@ export const patchAvatarAccount400 = http.patch(
   },
 );
 
-export const getAccountMe200 = http.get(accountMeUrl, async () => {
+export const getAccountMe200 = http.get(getGetV1AccountMeUrl(), async () => {
   await applyMockDelay();
 
   return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
 });
 
-export const getAccountMeWithoutTerms200 = http.get(accountMeUrl, async () => {
-  await applyMockDelay();
+export const getAccountMeWithoutTerms200 = http.get(
+  getGetV1AccountMeUrl(),
+  async () => {
+    await applyMockDelay();
 
-  return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
-    status: 200,
-  });
-});
+    return HttpResponse.json(getAccountMeWithoutTerms200Fixture, {
+      status: 200,
+    });
+  },
+);
 
-export const getAccountAvatar200 = http.get(accountAvatarUrl, async () => {
-  await applyMockDelay();
+export const getAccountAvatar200 = http.get(
+  getPatchV1AccountAvatarUrl(),
+  async () => {
+    await applyMockDelay();
 
-  return new HttpResponse(new Uint8Array(0), {
-    status: 200,
-    headers: { "Content-Type": "image/png" },
-  });
-});
+    return new HttpResponse(new Uint8Array(0), {
+      status: 200,
+      headers: { "Content-Type": "image/png" },
+    });
+  },
+);
 
 export const postForgotPassword200 = http.post(
-  accountForgotPasswordUrl,
+  getPostV1AccountForgotPasswordUrl(),
   async () => {
     await applyMockDelay();
 
@@ -100,7 +106,7 @@ export const postForgotPassword200 = http.post(
 );
 
 export const postForgotPassword400 = http.post(
-  accountForgotPasswordUrl,
+  getPostV1AccountForgotPasswordUrl(),
   async () => {
     await applyMockDelay();
 
@@ -109,7 +115,7 @@ export const postForgotPassword400 = http.post(
 );
 
 export const postForgotPassword500 = http.post(
-  accountForgotPasswordUrl,
+  getPostV1AccountForgotPasswordUrl(),
   async () => {
     await applyMockDelay();
 
