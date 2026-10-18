@@ -178,15 +178,15 @@ func (s *MailService) SendEventCancellationEmail(
 	})
 }
 
-// SendEventDeletionEmail sends the "event deleted" email for a given account.
-func (s *MailService) SendEventDeletionEmail(account model.Account, event model.Event) {
+// SendEventCanceledEmail sends the "event canceled" email for a given account.
+func (s *MailService) SendEventCanceledEmail(account model.Account, event model.Event) {
 	if account.Email == nil || account.Username == nil {
 		return
 	}
 
-	subject := constants.MAIL_SUBJECT_EVENT_DELETION_EN
+	subject := constants.MAIL_SUBJECT_EVENT_CANCELED_EN
 	if account.Language == constants.ACCOUNT_LANGUAGE_FR {
-		subject = constants.MAIL_SUBJECT_EVENT_DELETION_FR
+		subject = constants.MAIL_SUBJECT_EVENT_CANCELED_FR
 	}
 
 	// Show the validated slot if any, otherwise the event period
@@ -197,13 +197,11 @@ func (s *MailService) SendEventDeletionEmail(account model.Account, event model.
 
 	params := s.eventEmailCommonParams(event, event.Id, startsAt, endsAt, account.Language, account.TimeZone)
 	params["isOwner"] = lib.BoolToString(account.Id == event.OwnerId)
-	// The event no longer exists, so there is nothing to link to
-	delete(params, "eventUrl")
 
 	s.eventEmailEnrichOptionalFields(params, account, event)
 
 	go s.SendMail(EmailParams{
-		Template: constants.MAIL_TEMPLATE_EVENT_DELETION,
+		Template: constants.MAIL_TEMPLATE_EVENT_CANCELED,
 		To:       *account.Email,
 		Subject:  subject,
 		Params:   params,

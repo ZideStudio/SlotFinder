@@ -72,6 +72,21 @@ func TestNewSlotService_ReusesProvidedInstance(t *testing.T) {
 	assert.Same(t, existing, NewSlotService(existing))
 }
 
+func TestSlotService_ConfirmSlot_EventCanceled(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	event.Status = constants.EVENT_STATUS_CANCELED
+	require.NoError(t, s.eventRepository.Updates(&event))
+
+	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
+	assert.ErrorIs(t, err, constants.ERR_EVENT_ENDED.Err)
+}
+
 func TestSlotService_ConfirmSlot_EventEnded(t *testing.T) {
 	s := newTestSlotService(t)
 	owner := createTestAccount(t)

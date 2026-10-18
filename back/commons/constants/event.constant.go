@@ -11,9 +11,10 @@ const (
 	EVENT_STATUS_IN_DECISION EventStatus = "IN_DECISION"
 	EVENT_STATUS_UPCOMING    EventStatus = "UPCOMING"
 	EVENT_STATUS_FINISHED    EventStatus = "FINISHED"
+	EVENT_STATUS_CANCELED    EventStatus = "CANCELED"
 )
 
-var EventStatuses = []EventStatus{EVENT_STATUS_IN_DECISION, EVENT_STATUS_UPCOMING, EVENT_STATUS_FINISHED}
+var EventStatuses = []EventStatus{EVENT_STATUS_IN_DECISION, EVENT_STATUS_UPCOMING, EVENT_STATUS_FINISHED, EVENT_STATUS_CANCELED}
 
 func (ct *EventStatus) Scan(value any) error {
 	if value == nil {

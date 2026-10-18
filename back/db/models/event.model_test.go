@@ -170,3 +170,68 @@ func TestSlot_TableName(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "slot", Slot{}.TableName())
 }
+
+func TestEvent_IsClosed_Finished(t *testing.T) {
+	t.Parallel()
+	event := Event{Status: constants.EVENT_STATUS_FINISHED}
+	assert.True(t, event.IsClosed())
+}
+
+func TestEvent_IsClosed_Canceled(t *testing.T) {
+	t.Parallel()
+	event := Event{Status: constants.EVENT_STATUS_CANCELED}
+	assert.True(t, event.IsClosed())
+}
+
+func TestEvent_IsClosed_InDecision(t *testing.T) {
+	t.Parallel()
+	event := Event{Status: constants.EVENT_STATUS_IN_DECISION}
+	assert.False(t, event.IsClosed())
+}
+
+func TestEvent_HasEnded_EventPassed(t *testing.T) {
+	t.Parallel()
+	now := time.Now()
+	event := Event{EndsAt: now.Add(-time.Hour)}
+	assert.True(t, event.HasEnded(now))
+}
+
+func TestEvent_HasEnded_ValidatedSlotPassed(t *testing.T) {
+	t.Parallel()
+	now := time.Now()
+	event := Event{
+		EndsAt: now.Add(time.Hour),
+		Slots:  []Slot{{EndsAt: now.Add(-time.Hour), IsValidated: true}},
+	}
+	assert.True(t, event.HasEnded(now))
+}
+
+func TestEvent_HasEnded_Future(t *testing.T) {
+	t.Parallel()
+	now := time.Now()
+	event := Event{
+		EndsAt: now.Add(time.Hour),
+		Slots:  []Slot{{EndsAt: now.Add(30 * time.Minute), IsValidated: true}},
+	}
+	assert.False(t, event.HasEnded(now))
+}
+
+func TestEvent_CheckAndAutoUpdateStatus_ExpiredCanceledEvent_StaysCanceled(t *testing.T) {
+	t.Parallel()
+	event := Event{
+		Status: constants.EVENT_STATUS_CANCELED,
+		EndsAt: time.Now().Add(-time.Hour),
+	}
+	requireOneOfStatuses := []constants.EventStatus{constants.EVENT_STATUS_IN_DECISION, constants.EVENT_STATUS_UPCOMING}
+
+	called := false
+	hasStatus, err := event.CheckAndAutoUpdateStatus(func(e *Event) error {
+		called = true
+		return nil
+	}, &requireOneOfStatuses)
+
+	assert.NoError(t, err)
+	assert.False(t, hasStatus)
+	assert.False(t, called)
+	assert.Equal(t, constants.EVENT_STATUS_CANCELED, event.Status)
+}
