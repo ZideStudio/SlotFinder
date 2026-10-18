@@ -28,6 +28,6 @@
       "@Mocks/*": ["./mocks/*"]
     }
   },
-  "include": ["src", "mocks", "rsbuild.config.ts", "config/vitest"],
+  "include": ["src", "mocks", "tests", "rsbuild.config.ts", "config/vitest"],
   "exclude": ["node_modules"]
 }
