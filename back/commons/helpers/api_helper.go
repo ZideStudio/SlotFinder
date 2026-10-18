@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"app/commons/constants"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,13 +10,15 @@ import (
 )
 
 type ApiError struct {
-	Code string `json:"code"`
+	Code   string       `json:"code"`
+	Fields []FieldError `json:"fields,omitempty"`
 }
 
 func SetHttpContextBody(httpContext *gin.Context, body any) error {
 	if err := httpContext.ShouldBindJSON(body); err != nil {
-		httpContext.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return err
+		validationError := parseBodyBindingError(err, body)
+		HandleJSONResponse(httpContext, nil, validationError)
+		return validationError
 	}
 
 	return nil
@@ -24,6 +27,15 @@ func SetHttpContextBody(httpContext *gin.Context, body any) error {
 func HandleJSONResponse(httpContext *gin.Context, response any, err error) {
 	if err == nil {
 		httpContext.AbortWithStatusJSON(http.StatusOK, response)
+		return
+	}
+
+	var validationError *ValidationError
+	if errors.As(err, &validationError) {
+		httpContext.AbortWithStatusJSON(http.StatusBadRequest, ApiError{
+			Code:   validationError.Code.Err.Error(),
+			Fields: validationError.Fields,
+		})
 		return
 	}
 
