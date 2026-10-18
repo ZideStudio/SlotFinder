@@ -10,7 +10,11 @@ export default defineConfig({
       target: "./src/api/generated",
       client: "fetch",
       baseUrl: {
-        runtime: "import.meta.env.FRONT_BACKEND_URL",
+        runtime: "getRuntimeEnv().FRONT_BACKEND_URL",
+        imports: [{
+          name: "getRuntimeEnv",
+          importPath: "@Front/config/runtimeEnv",
+        }],
       },
       override: {
         fetch: {
