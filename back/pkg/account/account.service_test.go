@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	"app/commons/encryption"
 	"app/commons/guard"
+	"app/commons/lib"
 	"app/config"
 	appdb "app/db"
 	model "app/db/models"
@@ -184,6 +185,24 @@ func TestCreate_Success(t *testing.T) {
 	var found model.Account
 	require.NoError(t, s.accountRepository.FindOneByEmail(dto.Email, &found))
 	assert.NotNil(t, found.Password)
+
+	awaitSMTP(t, called)
+}
+
+func TestCreate_Success_ColorIsDominantColorOfDefaultAvatar(t *testing.T) {
+	s := newTestAccountService(t)
+	called := stubSMTPAwait(t, s.mailService)
+	dto := validCreateDto(t)
+
+	_, err := s.Create(dto)
+	require.NoError(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneByEmail(dto.Email, &found))
+	require.NotEmpty(t, found.AvatarData)
+	want, err := lib.DominantColor(found.AvatarData)
+	require.NoError(t, err)
+	assert.Equal(t, want, found.Color)
 
 	awaitSMTP(t, called)
 }

@@ -1,10 +1,12 @@
 package account
 
 import (
+	"app/commons/constants"
 	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
 	"fmt"
+	mathrand "math/rand"
 	"net/url"
 	"strings"
 	"time"
@@ -115,6 +117,19 @@ func (*AvatarService) FetchAndStoreDefaultAvatar(seed string, accountId uuid.UUI
 		return nil, fallbackAvatarURL(seed)
 	}
 	return data, avatarUrl
+}
+
+// PickAccountColor returns the dominant color of the avatar as #RRGGBB
+func (*AvatarService) PickAccountColor(avatarData []byte) string {
+	if avatarData != nil {
+		color, err := lib.DominantColor(avatarData)
+		if err == nil {
+			return color
+		}
+		log.Warn().Err(err).Msg("Failed to compute avatar dominant color")
+	}
+
+	return string(constants.COLORS[mathrand.Intn(len(constants.COLORS))])
 }
 
 func (s *AvatarService) FindAvatarById(id uuid.UUID) ([]byte, *time.Time, error) {
