@@ -69,7 +69,7 @@
     "jsdom": "30.1.2",
     "monocart-coverage-reports": "2.13.2",
     "msw": "3.0.3",
-    "orval": "8.41.0",
+    "orval": "8.42.0",
     "oxfmt": "0.72.0",
     "oxlint": "1.87.0",
     "remark-gfm": "4.0.1",
