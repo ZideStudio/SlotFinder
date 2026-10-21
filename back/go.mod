@@ -7,6 +7,7 @@ require (
 	github.com/dicebear/styles/v10 v10.6.0
 	github.com/gin-contrib/gzip v1.2.8
 	github.com/gin-gonic/gin v1.12.0
+	github.com/go-playground/validator/v10 v10.30.5
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/goodsign/monday v1.0.2
@@ -58,7 +59,6 @@ require (
 	github.com/go-openapi/swag/yamlutils v0.29.2 // indirect
 	github.com/go-playground/locales v0.14.2 // indirect
 	github.com/go-playground/universal-translator v0.18.2 // indirect
-	github.com/go-playground/validator/v10 v10.30.5 // indirect
 	github.com/gobwas/glob v1.0.0 // indirect
 	github.com/goccy/go-json v0.11.2 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
@@ -90,7 +90,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.2 // indirect
 	github.com/urfave/cli/v2 v2.27.7 // indirect
-	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
+	github.com/xrash/smetrics v0.0.0-20261013231157-39c47d93efba // indirect
 	go.mongodb.org/mongo-driver/v2 v2.9.2 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
