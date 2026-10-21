@@ -4,7 +4,7 @@
 .oauth-nav {
   --cols: 4;
 
-  padding: 1rem;
+  padding-bottom: 1rem;
   border-radius: 0.5rem;
 
   @include responsive.mediaExceedsWidth("tablet") {
