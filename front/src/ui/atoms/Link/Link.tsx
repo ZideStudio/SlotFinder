@@ -19,13 +19,12 @@ export const Link = ({
     className,
   });
   const Component = as ?? "a";
+  const openInNewTabProps = openInNewTab
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
 
   return (
-    <Component
-      className={parentClassName}
-      {...(Component === "a" ? { target: openInNewTab ? "_blank" : undefined, rel: openInNewTab ? "noopener noreferrer" : undefined } : {})}
-      {...props}
-    >
+    <Component className={parentClassName} {...openInNewTabProps} {...props}>
       {children}
     </Component>
   );

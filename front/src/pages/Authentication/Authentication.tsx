@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import type { AuthenticationRouteHandle } from "@Front/routing/routeHandle";
 
 import { CardPage } from "@Front/components/CardPage/CardPage";
+import { ExistingAccount } from "./ExistingAccount/ExistingAccount";
 import { OAuth } from "./OAuth/OAuth";
+import "./Authentication.scss";
 
 export const Authentication = () => {
   const { t } = useTranslation();
@@ -13,8 +15,9 @@ export const Authentication = () => {
   return (
     <CardPage title={currentTitle ? t(currentTitle) : ""}>
       <Outlet />
-      <hr />
+      <hr className="authentication-divider" />
       <OAuth />
+      <ExistingAccount />
     </CardPage>
   );
 };

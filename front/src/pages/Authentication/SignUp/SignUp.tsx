@@ -9,7 +9,6 @@ import "./SignUp.scss";
 import { TextField } from "@Front/components/fields/TextField/TextField";
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { getSchema } from "./validation";
-import { Link } from "@Front/ui/atoms/Link/Link";
 
 export const SignUp = () => {
   const { signUp, isLoading, errorCode } = useSignUp();
@@ -20,7 +19,11 @@ export const SignUp = () => {
 
   return (
     <FormProvider {...methods}>
-      <form noValidate onSubmit={methods.handleSubmit(signUp)} className="sign-up-form">
+      <form
+        noValidate
+        onSubmit={methods.handleSubmit(signUp)}
+        className="sign-up-form"
+      >
         <TextField name="email" label={t("email")} className="sign-up-input" />
         <TextField
           name="password"
@@ -46,10 +49,6 @@ export const SignUp = () => {
           {t("submit")}
         </Button>
       </form>
-      {/* <p>
-        {t("existingAccount")} <Link as="a" href="/login">{t("login")}</Link>
-      </p> */}
     </FormProvider>
-    
   );
 };
