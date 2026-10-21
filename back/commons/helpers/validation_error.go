@@ -16,7 +16,6 @@ import (
 type FieldError struct {
 	Field string `json:"field"`
 	Code  string `json:"code"`
-	Param string `json:"param,omitempty"`
 }
 
 type ValidationError struct {
@@ -50,7 +49,6 @@ func ParseBindingError(err error) *ValidationError {
 			fields = append(fields, FieldError{
 				Field: fieldError.Field(),
 				Code:  validationTagToError(fieldError).Err.Error(),
-				Param: fieldError.Param(),
 			})
 		}
 		return &ValidationError{Code: constants.ERR_INVALID_BODY, Fields: fields}

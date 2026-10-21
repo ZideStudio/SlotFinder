@@ -1576,9 +1576,6 @@
                 },
                 "field": {
                     "type": "string"
-                },
-                "param": {
-                    "type": "string"
                 }
             }
         },

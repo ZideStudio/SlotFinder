@@ -352,8 +352,6 @@ definitions:
         type: string
       field:
         type: string
-      param:
-        type: string
     type: object
   lib.Pagination-event_EventListItemDto:
     properties:
