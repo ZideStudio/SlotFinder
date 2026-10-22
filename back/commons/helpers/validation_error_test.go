@@ -45,25 +45,25 @@ func TestParseBindingError_Required(t *testing.T) {
 func TestParseBindingError_StringTooShort(t *testing.T) {
 	t.Parallel()
 	validationError := bindSampleBody(t, `{"name":"ab"}`)
-	assertSingleFieldError(t, validationError, FieldError{Field: "name", Code: "FIELD_TOO_SHORT", Param: "3"})
+	assertSingleFieldError(t, validationError, FieldError{Field: "name", Code: "FIELD_TOO_SHORT"})
 }
 
 func TestParseBindingError_StringTooLong(t *testing.T) {
 	t.Parallel()
 	validationError := bindSampleBody(t, `{"name":"abcdef"}`)
-	assertSingleFieldError(t, validationError, FieldError{Field: "name", Code: "FIELD_TOO_LONG", Param: "5"})
+	assertSingleFieldError(t, validationError, FieldError{Field: "name", Code: "FIELD_TOO_LONG"})
 }
 
 func TestParseBindingError_NumberTooSmall(t *testing.T) {
 	t.Parallel()
 	validationError := bindSampleBody(t, `{"name":"abc","count":0}`)
-	assertSingleFieldError(t, validationError, FieldError{Field: "count", Code: "FIELD_TOO_SMALL", Param: "1"})
+	assertSingleFieldError(t, validationError, FieldError{Field: "count", Code: "FIELD_TOO_SMALL"})
 }
 
 func TestParseBindingError_NumberTooLarge(t *testing.T) {
 	t.Parallel()
 	validationError := bindSampleBody(t, `{"name":"abc","count":11}`)
-	assertSingleFieldError(t, validationError, FieldError{Field: "count", Code: "FIELD_TOO_LARGE", Param: "10"})
+	assertSingleFieldError(t, validationError, FieldError{Field: "count", Code: "FIELD_TOO_LARGE"})
 }
 
 func TestParseBindingError_InvalidEmail(t *testing.T) {
@@ -75,13 +75,13 @@ func TestParseBindingError_InvalidEmail(t *testing.T) {
 func TestParseBindingError_OneOf(t *testing.T) {
 	t.Parallel()
 	validationError := bindSampleBody(t, `{"name":"abc","language":"de"}`)
-	assertSingleFieldError(t, validationError, FieldError{Field: "language", Code: "FIELD_INVALID_VALUE", Param: "en fr"})
+	assertSingleFieldError(t, validationError, FieldError{Field: "language", Code: "FIELD_INVALID_VALUE"})
 }
 
 func TestParseBindingError_Eq(t *testing.T) {
 	t.Parallel()
 	validationError := bindSampleBody(t, `{"name":"abc","accepted":false}`)
-	assertSingleFieldError(t, validationError, FieldError{Field: "accepted", Code: "FIELD_INVALID_VALUE", Param: "true"})
+	assertSingleFieldError(t, validationError, FieldError{Field: "accepted", Code: "FIELD_INVALID_VALUE"})
 }
 
 func TestParseBindingError_MultipleFields(t *testing.T) {
@@ -89,7 +89,7 @@ func TestParseBindingError_MultipleFields(t *testing.T) {
 	validationError := bindSampleBody(t, `{"name":"ab","email":"nope"}`)
 	assert.Equal(t, constants.ERR_INVALID_BODY, validationError.Code)
 	assert.Equal(t, []FieldError{
-		{Field: "name", Code: "FIELD_TOO_SHORT", Param: "3"},
+		{Field: "name", Code: "FIELD_TOO_SHORT"},
 		{Field: "email", Code: "FIELD_INVALID_EMAIL"},
 	}, validationError.Fields)
 }

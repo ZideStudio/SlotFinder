@@ -1584,9 +1584,6 @@ const docTemplate = `{
                 },
                 "field": {
                     "type": "string"
-                },
-                "param": {
-                    "type": "string"
                 }
             }
         },
