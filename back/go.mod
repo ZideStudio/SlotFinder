@@ -86,7 +86,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/tdewolff/parse/v2 v2.8.17 // indirect
+	github.com/tdewolff/parse/v2 v2.8.18 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.2 // indirect
 	github.com/urfave/cli/v2 v2.27.7 // indirect
