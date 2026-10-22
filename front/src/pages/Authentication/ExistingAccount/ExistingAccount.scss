@@ -1,12 +1,5 @@
 @use "../../../utils/sass/mixins/helpers";
 
 .authentication-account-prompt {
-  font-size: helpers.pxToRem(14);
   text-align: center;
-
-  &__link {
-    font-size: helpers.pxToRem(14);
-    color: var(--color-primary);
-    text-decoration: none;
-  }
 }
