@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin/binding"
@@ -24,6 +25,19 @@ type ValidationError struct {
 
 func (e *ValidationError) Error() string {
 	return e.Code.Err.Error()
+}
+
+func init() {
+	// Report field names as they appear in the JSON payload
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterTagNameFunc(func(field reflect.StructField) string {
+			name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
+			if name == "" || name == "-" {
+				return field.Name
+			}
+			return name
+		})
+	}
 }
 
 // NewFieldError reports a validation failure on body fields
