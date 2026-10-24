@@ -46,7 +46,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_INVALID_EMAIL_FORMAT, ERR_INVALID_PASSWORD_FORMAT, or ERR_EMAIL_ALREADY_EXISTS",
+                        "description": "Bad Request - Code can be: ERR_INVALID_BODY (fields codes: ERR_INVALID_EMAIL_FORMAT, ERR_INVALID_PASSWORD_FORMAT, ERR_EMAIL_ALREADY_EXISTS, ERR_FIELD_INVALID_VALUE)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -84,7 +84,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, or ERR_INVALID_COLOR_FORMAT",
+                        "description": "Bad Request - Code can be: ERR_INVALID_BODY (fields codes: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, ERR_INVALID_COLOR_FORMAT, ERR_FIELD_TOO_SHORT, ERR_FIELD_INVALID_VALUE)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -237,7 +237,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_INVALID_PASSWORD_FORMAT, ERR_INVALID_RESET_TOKEN, or ERR_RESET_TOKEN_EXPIRED",
+                        "description": "Bad Request - Code can be: ERR_INVALID_RESET_TOKEN, ERR_RESET_TOKEN_EXPIRED, or ERR_INVALID_BODY (fields codes: ERR_INVALID_PASSWORD_FORMAT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -518,7 +518,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED, ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT",
+                        "description": "Bad Request - Code can be: ERR_AVAILABILITY_NOT_FOUND, ERR_AVAILABILITY_ACCESS_DENIED, ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, or ERR_INVALID_BODY (fields codes: ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, ERR_AVAILABILITY_END_AFTER_EVENT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -609,7 +609,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_EVENT_START_AFTER_END, ERR_EVENT_START_BEFORE_TODAY, or ERR_EVENT_DURATION_TOO_SHORT",
+                        "description": "Bad Request - Code can be: ERR_INVALID_BODY (fields codes: ERR_EVENT_START_AFTER_END, ERR_EVENT_START_BEFORE_TODAY, ERR_EVENT_DURATION_TOO_SHORT, ERR_FIELD_TOO_SHORT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -697,7 +697,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_EVENT_DURATION_TOO_SHORT, ERR_EVENT_START_BEFORE_TODAY, or ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED, or ERR_INVALID_BODY (fields codes: ERR_EVENT_START_AFTER_END, ERR_EVENT_DURATION_TOO_SHORT, ERR_EVENT_START_BEFORE_TODAY, ERR_FIELD_TOO_SHORT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -748,7 +748,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, or ERR_AVAILABILITY_END_AFTER_EVENT",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND, ERR_EVENT_ENDED, ERR_EVENT_ACCESS_DENIED, or ERR_INVALID_BODY (fields codes: ERR_EVENT_START_AFTER_END, ERR_AVAILABILITY_DURATION_TOO_SHORT, ERR_AVAILABILITY_INVALID_TIME_INTERVAL, ERR_AVAILABILITY_START_BEFORE_EVENT, ERR_AVAILABILITY_END_AFTER_EVENT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -877,7 +877,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND or ERR_INVALID_COLOR_FORMAT",
+                        "description": "Bad Request - Code can be: ERR_EVENT_NOT_FOUND or ERR_INVALID_BODY (fields codes: ERR_INVALID_COLOR_FORMAT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -1004,7 +1004,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Code can be: ERR_SLOT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_ENDED, ERR_SLOT_INVALID_STARTS_AT, or ERR_SLOT_INVALID_ENDS_AT",
+                        "description": "Bad Request - Code can be: ERR_SLOT_NOT_FOUND, ERR_EVENT_ACCESS_DENIED, ERR_EVENT_ENDED, or ERR_INVALID_BODY (fields codes: ERR_SLOT_INVALID_STARTS_AT, ERR_SLOT_INVALID_ENDS_AT)",
                         "schema": {
                             "$ref": "#/definitions/helpers.ApiError"
                         }
@@ -1744,8 +1744,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "SlotFinder API Doc",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {

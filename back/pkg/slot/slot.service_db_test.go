@@ -2,6 +2,7 @@ package slot
 
 import (
 	"app/commons/constants"
+	"app/commons/helpers"
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/mail"
@@ -190,7 +191,7 @@ func TestSlotService_ConfirmSlot_InvalidStartsAt(t *testing.T) {
 	require.NoError(t, s.slotRepository.Create(&slotEntity))
 
 	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: event.StartsAt.Add(-time.Hour), EndsAt: slotEntity.EndsAt}, slotEntity.Id, owner.Id)
-	assert.ErrorIs(t, err, constants.ERR_SLOT_INVALID_STARTS_AT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_SLOT_INVALID_STARTS_AT, "startsAt"), err)
 }
 
 func TestSlotService_ConfirmSlot_InvalidEndsAt(t *testing.T) {
@@ -202,7 +203,22 @@ func TestSlotService_ConfirmSlot_InvalidEndsAt(t *testing.T) {
 	require.NoError(t, s.slotRepository.Create(&slotEntity))
 
 	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: slotEntity.StartsAt, EndsAt: slotEntity.EndsAt.Add(time.Hour)}, slotEntity.Id, owner.Id)
-	assert.ErrorIs(t, err, constants.ERR_SLOT_INVALID_ENDS_AT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_SLOT_INVALID_ENDS_AT, "endsAt"), err)
+}
+
+func TestSlotService_ConfirmSlot_ReportsAllInvalidFields(t *testing.T) {
+	s := newTestSlotService(t)
+	owner := createTestAccount(t)
+	event := createTestEvent(t, s, owner.Id)
+
+	slotEntity := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
+	require.NoError(t, s.slotRepository.Create(&slotEntity))
+
+	_, err := s.ConfirmSlot(ConfirmSlotDto{StartsAt: event.StartsAt.Add(-time.Hour), EndsAt: slotEntity.EndsAt.Add(time.Hour)}, slotEntity.Id, owner.Id)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "startsAt", Code: constants.ERR_SLOT_INVALID_STARTS_AT.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_SLOT_INVALID_ENDS_AT.Err.Error()},
+	}}, err)
 }
 
 func TestSlotService_ConfirmSlot_Success(t *testing.T) {

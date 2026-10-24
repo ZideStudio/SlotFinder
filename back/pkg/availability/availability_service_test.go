@@ -2,6 +2,7 @@ package availability
 
 import (
 	"app/commons/constants"
+	"app/commons/helpers"
 	model "app/db/models"
 	"sync"
 	"testing"
@@ -121,7 +122,12 @@ func TestValidateAvailabilityTimes_StartAfterEnd(t *testing.T) {
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for end date before start date")
-	assert.Equal(t, constants.ERR_EVENT_START_AFTER_END.Err, err, "Expected ERR_EVENT_START_AFTER_END error")
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err.Error()},
+		{Field: "startsAt", Code: constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err.Error()},
+	}}, err)
 }
 
 // TestValidateAvailabilityTimes_DurationTooShort tests validation for duration less than 5 minutes
@@ -130,12 +136,15 @@ func TestValidateAvailabilityTimes_DurationTooShort(t *testing.T) {
 	service := &AvailabilityService{}
 
 	event := createMockEvent()
-	startsAt := event.StartsAt.Add(1 * time.Hour)
+	startsAt := event.StartsAt.Truncate(5 * time.Minute).Add(1 * time.Hour)
 	endsAt := startsAt.Add(3 * time.Minute) // Less than 5 minutes
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for duration less than 5 minutes")
-	assert.Equal(t, constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err, err, "Expected ERR_AVAILABILITY_DURATION_TOO_SHORT error")
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err.Error()},
+	}}, err)
 }
 
 // TestValidateAvailabilityTimes_InvalidTimeInterval tests validation for times not aligned on 5-minute intervals
@@ -151,7 +160,7 @@ func TestValidateAvailabilityTimes_InvalidTimeInterval(t *testing.T) {
 
 	err := service.validateAvailabilityTimes(startsAtWithSeconds, endsAtWithSeconds, &event)
 	assert.Error(t, err, "Expected error for times with seconds")
-	assert.Equal(t, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err, err, "Expected ERR_AVAILABILITY_INVALID_TIME_INTERVAL error")
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL, "startsAt", "endsAt"), err)
 }
 
 // TestValidateAvailabilityTimes_InvalidMinuteInterval tests validation for times on wrong minute boundary
@@ -167,7 +176,20 @@ func TestValidateAvailabilityTimes_InvalidMinuteInterval(t *testing.T) {
 
 	err := service.validateAvailabilityTimes(startsAtWrongMinute, endsAtWrongMinute, &event)
 	assert.Error(t, err, "Expected error for times not on 5-minute intervals")
-	assert.Equal(t, constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err, err, "Expected ERR_AVAILABILITY_INVALID_TIME_INTERVAL error")
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL, "startsAt", "endsAt"), err)
+}
+
+// TestValidateAvailabilityTimes_OnlyEndMisaligned reports only the misaligned field
+func TestValidateAvailabilityTimes_OnlyEndMisaligned(t *testing.T) {
+	service := &AvailabilityService{}
+
+	event := createMockEvent()
+
+	startsAt := event.StartsAt.Truncate(5 * time.Minute).Add(1 * time.Hour)
+	endsAt := startsAt.Add(13 * time.Minute)
+
+	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL, "endsAt"), err)
 }
 
 // TestValidateAvailabilityTimes_StartBeforeEvent tests validation for start time before event start
@@ -182,7 +204,7 @@ func TestValidateAvailabilityTimes_StartBeforeEvent(t *testing.T) {
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for start time before event start")
-	assert.Equal(t, constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err, err, "Expected ERR_AVAILABILITY_START_BEFORE_EVENT error")
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_AVAILABILITY_START_BEFORE_EVENT, "startsAt"), err)
 }
 
 // TestValidateAvailabilityTimes_EndAfterEvent tests validation for end time after event end
@@ -197,7 +219,7 @@ func TestValidateAvailabilityTimes_EndAfterEvent(t *testing.T) {
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.Error(t, err, "Expected error for end time after event end")
-	assert.Equal(t, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err, err, "Expected ERR_AVAILABILITY_END_AFTER_EVENT error")
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_AVAILABILITY_END_AFTER_EVENT, "endsAt"), err)
 }
 
 // TestValidateAvailabilityTimes_ValidTimes tests validation for valid times
@@ -212,4 +234,19 @@ func TestValidateAvailabilityTimes_ValidTimes(t *testing.T) {
 
 	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
 	assert.NoError(t, err, "Expected no error for valid times")
+}
+
+func TestValidateAvailabilityTimes_ReportsAllInvalidFields(t *testing.T) {
+	service := &AvailabilityService{}
+
+	event := createMockEvent()
+
+	startsAt := event.StartsAt.Truncate(5 * time.Minute).Add(-1 * time.Hour)
+	endsAt := event.EndsAt.Truncate(5 * time.Minute).Add(1 * time.Hour)
+
+	err := service.validateAvailabilityTimes(startsAt, endsAt, &event)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "startsAt", Code: constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err.Error()},
+	}}, err)
 }

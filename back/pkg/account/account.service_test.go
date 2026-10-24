@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	"app/commons/encryption"
 	"app/commons/guard"
+	"app/commons/helpers"
 	"app/commons/lib"
 	"app/config"
 	appdb "app/db"
@@ -130,7 +131,7 @@ func TestCreate_InvalidTermsVersion(t *testing.T) {
 	dto.TermsVersion = "not-a-real-version"
 
 	_, err := s.Create(dto)
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_INVALID_VALUE, "termsVersion"), err)
 }
 
 func TestCreate_InvalidEmail(t *testing.T) {
@@ -139,7 +140,7 @@ func TestCreate_InvalidEmail(t *testing.T) {
 	dto.Email = "not-an-email"
 
 	_, err := s.Create(dto)
-	assert.ErrorIs(t, err, constants.ERR_INVALID_EMAIL_FORMAT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_INVALID_EMAIL_FORMAT, "email"), err)
 }
 
 func TestCreate_InvalidPassword(t *testing.T) {
@@ -148,7 +149,7 @@ func TestCreate_InvalidPassword(t *testing.T) {
 	dto.Password = "short"
 
 	_, err := s.Create(dto)
-	assert.ErrorIs(t, err, constants.ERR_INVALID_PASSWORD_FORMAT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_INVALID_PASSWORD_FORMAT, "password"), err)
 }
 
 func TestCreate_EmailAlreadyExists(t *testing.T) {
@@ -160,7 +161,7 @@ func TestCreate_EmailAlreadyExists(t *testing.T) {
 	dto.Email = email
 
 	_, err := s.Create(dto)
-	assert.ErrorIs(t, err, constants.ERR_EMAIL_ALREADY_EXISTS.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_EMAIL_ALREADY_EXISTS, "email"), err)
 }
 
 func TestCreate_InvalidTimeZone(t *testing.T) {
@@ -169,7 +170,7 @@ func TestCreate_InvalidTimeZone(t *testing.T) {
 	dto.TimeZone = "Not/AZone"
 
 	_, err := s.Create(dto)
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_INVALID_VALUE, "timeZone"), err)
 }
 
 func TestCreate_Success(t *testing.T) {
@@ -280,7 +281,7 @@ func TestUpdate_UsernameTooShort(t *testing.T) {
 	shortName := "ab"
 
 	_, _, err := s.Update(&AccountUpdateDto{Username: &shortName}, account.Id)
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_TOO_SHORT, "username"), err)
 }
 
 func TestUpdate_UsernameAlreadyTaken(t *testing.T) {
@@ -290,7 +291,7 @@ func TestUpdate_UsernameAlreadyTaken(t *testing.T) {
 	account := createTestAccountWithUsername(t, s, "orig-"+uuid.NewString())
 
 	_, _, err := s.Update(&AccountUpdateDto{Username: &taken}, account.Id)
-	assert.ErrorIs(t, err, constants.ERR_USERNAME_ALREADY_TAKEN.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_USERNAME_ALREADY_TAKEN, "username"), err)
 }
 
 func TestUpdate_UsernameSameAsCurrent_NoOp(t *testing.T) {
@@ -325,7 +326,7 @@ func TestUpdate_UsernameTrimmedEqualsCurrent(t *testing.T) {
 	// Differs from the stored username only by whitespace, so trimming makes it equal again.
 	padded := "  " + username + "  "
 	_, _, err := s.Update(&AccountUpdateDto{Username: &padded}, account.Id)
-	assert.ErrorIs(t, err, constants.ERR_USERNAME_ALREADY_TAKEN.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_USERNAME_ALREADY_TAKEN, "username"), err)
 }
 
 func TestUpdate_ValidTimeZone(t *testing.T) {
@@ -347,7 +348,7 @@ func TestUpdate_InvalidTimeZone(t *testing.T) {
 	badTz := "Not/AZone"
 
 	_, _, err := s.Update(&AccountUpdateDto{TimeZone: &badTz}, account.Id)
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_INVALID_VALUE, "timeZone"), err)
 }
 
 func TestUpdate_InvalidPassword(t *testing.T) {
@@ -356,7 +357,7 @@ func TestUpdate_InvalidPassword(t *testing.T) {
 	badPw := "short"
 
 	_, _, err := s.Update(&AccountUpdateDto{Password: &badPw}, account.Id)
-	assert.ErrorIs(t, err, constants.ERR_INVALID_PASSWORD_FORMAT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_INVALID_PASSWORD_FORMAT, "password"), err)
 }
 
 func TestUpdate_PasswordChanged_RevokesRefreshTokens(t *testing.T) {
@@ -416,7 +417,7 @@ func TestUpdate_InvalidColor(t *testing.T) {
 	badColor := "not-a-color"
 
 	_, _, err := s.Update(&AccountUpdateDto{Color: &badColor}, account.Id)
-	assert.ErrorIs(t, err, constants.ERR_INVALID_COLOR_FORMAT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_INVALID_COLOR_FORMAT, "color"), err)
 }
 
 func TestUpdate_ValidColor(t *testing.T) {
@@ -436,7 +437,7 @@ func TestUpdate_InvalidTermsVersion(t *testing.T) {
 	badVersion := "not-a-version"
 
 	_, _, err := s.Update(&AccountUpdateDto{TermsAccepted: &accepted, TermsVersion: &badVersion}, account.Id)
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_INVALID_VALUE, "termsVersion"), err)
 }
 
 func TestUpdate_ValidTermsVersion_ReturnsTokens(t *testing.T) {
@@ -623,7 +624,7 @@ func TestForgotPassword_UpdateResetTokenError(t *testing.T) {
 func TestResetPassword_InvalidPasswordFormat(t *testing.T) {
 	s := newTestAccountService(t)
 	err := s.ResetPassword(&ResetPasswordDto{Token: "irrelevant", Password: "short"})
-	assert.ErrorIs(t, err, constants.ERR_INVALID_PASSWORD_FORMAT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_INVALID_PASSWORD_FORMAT, "password"), err)
 }
 
 func TestResetPassword_UndecryptableToken(t *testing.T) {
@@ -801,4 +802,48 @@ func TestDelete_DeleteQueryError(t *testing.T) {
 
 	_, err := s.Delete(account.Id, &guard.Claims{Id: account.Id})
 	assert.Error(t, err)
+}
+
+func TestCreate_ReportsAllInvalidFields(t *testing.T) {
+	s := newTestAccountService(t)
+	dto := validCreateDto(t)
+	dto.Email = "not-an-email"
+	dto.Password = "short"
+	dto.TimeZone = "Not/AZone"
+
+	_, err := s.Create(dto)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "email", Code: constants.ERR_INVALID_EMAIL_FORMAT.Err.Error()},
+		{Field: "password", Code: constants.ERR_INVALID_PASSWORD_FORMAT.Err.Error()},
+		{Field: "timeZone", Code: constants.ERR_FIELD_INVALID_VALUE.Err.Error()},
+	}}, err)
+}
+
+func TestUpdate_ReportsAllInvalidFields(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "multi-"+uuid.NewString())
+	shortName := "ab"
+	badPassword := "short"
+	badColor := "not-a-color"
+
+	_, _, err := s.Update(&AccountUpdateDto{Username: &shortName, Password: &badPassword, Color: &badColor}, account.Id)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "username", Code: constants.ERR_FIELD_TOO_SHORT.Err.Error()},
+		{Field: "password", Code: constants.ERR_INVALID_PASSWORD_FORMAT.Err.Error()},
+		{Field: "color", Code: constants.ERR_INVALID_COLOR_FORMAT.Err.Error()},
+	}}, err)
+}
+
+func TestUpdate_InvalidFieldsPersistNothing(t *testing.T) {
+	s := newTestAccountService(t)
+	account := createTestAccountWithUsername(t, s, "keep-"+uuid.NewString())
+	newName := "renamed-" + uuid.NewString()
+	badColor := "not-a-color"
+
+	_, _, err := s.Update(&AccountUpdateDto{Username: &newName, Color: &badColor}, account.Id)
+	require.Error(t, err)
+
+	var found model.Account
+	require.NoError(t, s.accountRepository.FindOneById(account.Id, &found))
+	assert.Equal(t, account.Username, found.Username)
 }

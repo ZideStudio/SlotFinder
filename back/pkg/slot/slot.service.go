@@ -2,6 +2,7 @@ package slot
 
 import (
 	"app/commons/constants"
+	"app/commons/helpers"
 	"app/config"
 	model "app/db/models"
 	"app/db/repository"
@@ -69,13 +70,17 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		return SlotResponseDto{}, constants.ERR_EVENT_ENDED.Err
 	}
 
+	var fieldErrors helpers.FieldErrors
 	// Check if dto StartsAt is equals or after selectedSlot.StartsAt and before selectedSlot.EndsAt
 	if dto.StartsAt.Before(selectedSlot.StartsAt) || !dto.StartsAt.Before(selectedSlot.EndsAt) {
-		return SlotResponseDto{}, constants.ERR_SLOT_INVALID_STARTS_AT.Err
+		fieldErrors.Add(constants.ERR_SLOT_INVALID_STARTS_AT, "startsAt")
 	}
 	// Check if dto EndsAt is after dto.StartsAt and before or equals selectedSlot.EndsAt
 	if !dto.EndsAt.After(dto.StartsAt) || dto.EndsAt.After(selectedSlot.EndsAt) {
-		return SlotResponseDto{}, constants.ERR_SLOT_INVALID_ENDS_AT.Err
+		fieldErrors.Add(constants.ERR_SLOT_INVALID_ENDS_AT, "endsAt")
+	}
+	if err := fieldErrors.Err(); err != nil {
+		return SlotResponseDto{}, err
 	}
 
 	// Create a new validated slot from the selected slot

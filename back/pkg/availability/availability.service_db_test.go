@@ -3,6 +3,7 @@ package availability
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/helpers"
 	appdb "app/db"
 	model "app/db/models"
 	"app/db/repository"
@@ -297,7 +298,10 @@ func TestAvailabilityService_Create_InvalidTimes(t *testing.T) {
 
 	// End before start -> validateAvailabilityTimes rejects it.
 	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt.Add(time.Hour), EndsAt: event.StartsAt}, event.Id, claims)
-	assert.ErrorIs(t, err, constants.ERR_EVENT_START_AFTER_END.Err)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err.Error()},
+	}}, err)
 }
 
 func TestAvailabilityService_Update_InvalidTimes(t *testing.T) {
@@ -313,7 +317,10 @@ func TestAvailabilityService_Update_InvalidTimes(t *testing.T) {
 	// New end before existing start -> validateAvailabilityTimes rejects it.
 	newEnd := event.StartsAt.Add(-time.Hour)
 	_, err = s.Update(&AvailabilityUpdateDto{EndsAt: &newEnd}, created.Id, claims)
-	assert.ErrorIs(t, err, constants.ERR_EVENT_START_AFTER_END.Err)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err.Error()},
+	}}, err)
 }
 
 func TestAvailabilityService_Update_NotFound(t *testing.T) {
@@ -449,7 +456,7 @@ func TestAvailabilityService_Update_MergePath_RevalidationFails(t *testing.T) {
 	newStart := event.StartsAt.Add(2*time.Hour + 55*time.Minute)
 	newEnd := event.StartsAt.Add(3*time.Hour + 5*time.Minute)
 	_, err = s.Update(&AvailabilityUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, second.Id, claims)
-	assert.ErrorIs(t, err, constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_AVAILABILITY_END_AFTER_EVENT, "endsAt"), err)
 }
 
 func TestAvailabilityService_Update_MergePath_DeleteByIdsError(t *testing.T) {
