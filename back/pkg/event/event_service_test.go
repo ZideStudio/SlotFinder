@@ -3,6 +3,7 @@ package event
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/helpers"
 	model "app/db/models"
 	"testing"
 	"time"
@@ -42,7 +43,7 @@ func TestCreate_EventDurationTooShort(t *testing.T) {
 
 	_, err := service.Create(data, user)
 	assert.Error(t, err, "Expected error for event duration less than 1 day")
-	assert.Equal(t, constants.ERR_EVENT_DURATION_TOO_SHORT.Err, err, "Expected ERR_EVENT_DURATION_TOO_SHORT error")
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_DURATION_TOO_SHORT, "endsAt"), err)
 }
 
 func TestCreate_EventStartAfterEnd(t *testing.T) {
@@ -62,7 +63,11 @@ func TestCreate_EventStartAfterEnd(t *testing.T) {
 
 	_, err := service.Create(data, user)
 	assert.Error(t, err, "Expected error for event with end date before start date")
-	assert.Equal(t, constants.ERR_EVENT_START_AFTER_END.Err, err, "Expected ERR_EVENT_START_AFTER_END error")
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_EVENT_START_BEFORE_TODAY.Err.Error()},
+	}}, err)
 }
 
 func TestCreate_EventStartInPast(t *testing.T) {
@@ -82,7 +87,7 @@ func TestCreate_EventStartInPast(t *testing.T) {
 
 	_, err := service.Create(data, user)
 	assert.Error(t, err, "Expected error for event starting in the past")
-	assert.Equal(t, constants.ERR_EVENT_START_BEFORE_TODAY.Err, err, "Expected ERR_EVENT_START_BEFORE_TODAY error")
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_START_BEFORE_TODAY, "startsAt"), err)
 }
 
 func TestParseDtoEventDates_Success(t *testing.T) {
@@ -170,7 +175,10 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, &newStart, nil)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_START_AFTER_END.Err, err)
+		assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+			{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+			{Field: "endsAt", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+		}}, err)
 	})
 
 	t.Run("should return error when end is before start", func(t *testing.T) {
@@ -185,7 +193,10 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, nil, &newEnd)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_START_AFTER_END.Err, err)
+		assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+			{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+			{Field: "endsAt", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+		}}, err)
 	})
 
 	t.Run("should return error when both dates make start after end", func(t *testing.T) {
@@ -201,7 +212,10 @@ func TestParseDtoEventDates_StartAfterEnd(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, &newStart, &newEnd)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_START_AFTER_END.Err, err)
+		assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+			{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+			{Field: "endsAt", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+		}}, err)
 	})
 }
 
@@ -219,7 +233,7 @@ func TestParseDtoEventDates_DurationTooShort(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, nil, &newEnd)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_DURATION_TOO_SHORT.Err, err)
+		assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_DURATION_TOO_SHORT, "endsAt"), err)
 	})
 
 	t.Run("should return error when new start makes duration too short", func(t *testing.T) {
@@ -234,7 +248,7 @@ func TestParseDtoEventDates_DurationTooShort(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, &newStart, nil)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_DURATION_TOO_SHORT.Err, err)
+		assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_DURATION_TOO_SHORT, "endsAt"), err)
 	})
 }
 
@@ -251,7 +265,7 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, &pastDate, nil)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_START_BEFORE_TODAY.Err, err)
+		assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_START_BEFORE_TODAY, "startsAt"), err)
 	})
 
 	t.Run("should return error when end date is in the past", func(t *testing.T) {
@@ -266,7 +280,11 @@ func TestParseDtoEventDates_PastDates(t *testing.T) {
 		err := SetEventDatesFromDto(testEvent, nil, &pastEndDate)
 
 		assert.Error(t, err)
-		assert.Equal(t, constants.ERR_EVENT_START_AFTER_END.Err, err)
+		assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+			{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+			{Field: "endsAt", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+			{Field: "endsAt", Code: constants.ERR_EVENT_START_BEFORE_TODAY.Err.Error()},
+		}}, err)
 	})
 }
 
@@ -283,7 +301,7 @@ func TestSetEventDatesFromDto_EndDateInPast_NoStartDateChange(t *testing.T) {
 
 	err := SetEventDatesFromDto(testEvent, nil, &newEnd)
 
-	assert.ErrorIs(t, err, constants.ERR_EVENT_START_BEFORE_TODAY.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_START_BEFORE_TODAY, "endsAt"), err)
 }
 
 func TestParseDtoEventDates_ValidatedSlotConflict(t *testing.T) {

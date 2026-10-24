@@ -132,3 +132,16 @@ func TestSetHttpContextBody_TypeErrorAlsoReportsOtherInvalidFields(t *testing.T)
 		{Field: "termsAccepted", Code: "FIELD_REQUIRED"},
 	}, parsed.Fields)
 }
+
+func TestHandleJSONResponse_FieldError(t *testing.T) {
+	t.Parallel()
+	c, recorder := newHelperTestContext(nil)
+
+	HandleJSONResponse(c, nil, NewFieldError(constants.ERR_INVALID_PASSWORD_FORMAT, "password"))
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	var parsed ApiError
+	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &parsed))
+	assert.Equal(t, "INVALID_BODY", parsed.Code)
+	assert.Equal(t, []FieldError{{Field: "password", Code: "INVALID_PASSWORD_FORMAT"}}, parsed.Fields)
+}

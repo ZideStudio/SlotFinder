@@ -3,6 +3,7 @@ package event
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/helpers"
 	"app/commons/lib"
 	model "app/db/models"
 	"app/db/repository"
@@ -97,7 +98,7 @@ func TestEventService_Create_NameTooShort(t *testing.T) {
 	dto.Name = "ab"
 
 	_, err := s.Create(dto, &guard.Claims{Id: uuid.New()})
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_TOO_SHORT, "name"), err)
 }
 
 func TestEventService_Create_BlankDescriptionIsCleared(t *testing.T) {
@@ -123,7 +124,7 @@ func TestEventService_Create_InvalidDuration(t *testing.T) {
 	dto.Days, dto.Hours, dto.Minutes = 0, 0, 0
 
 	_, err := s.Create(dto, &guard.Claims{Id: uuid.New()})
-	assert.ErrorIs(t, err, constants.ERR_EVENT_DURATION_TOO_SHORT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_DURATION_TOO_SHORT, "duration"), err)
 }
 
 func TestEventService_Create_Success(t *testing.T) {
@@ -201,7 +202,7 @@ func TestEventService_Update_NameTooShort(t *testing.T) {
 
 	name := "ab"
 	err := s.Update(event.Id, &EventUpdateDto{Name: &name}, &guard.Claims{Id: owner})
-	assert.Error(t, err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_FIELD_TOO_SHORT, "name"), err)
 }
 
 func TestEventService_Update_NonBreakingChange(t *testing.T) {
@@ -306,7 +307,10 @@ func TestEventService_Update_InvalidDates(t *testing.T) {
 	// End before start -> SetEventDatesFromDto rejects it.
 	newStart := event.EndsAt.Add(time.Hour)
 	err := s.Update(event.Id, &EventUpdateDto{StartsAt: &newStart}, &guard.Claims{Id: owner})
-	assert.ErrorIs(t, err, constants.ERR_EVENT_START_AFTER_END.Err)
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "endsAt", Code: constants.ERR_EVENT_START_AFTER_END.Err.Error()},
+		{Field: "endsAt", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+	}}, err)
 }
 
 func TestEventService_Update_DaysOnly_RecalculatesSlots(t *testing.T) {
@@ -346,7 +350,7 @@ func TestEventService_Update_InvalidDuration(t *testing.T) {
 
 	days, hours, minutes := 0, 0, 0
 	err := s.Update(event.Id, &EventUpdateDto{Days: &days, Hours: &hours, Minutes: &minutes}, &guard.Claims{Id: owner})
-	assert.ErrorIs(t, err, constants.ERR_EVENT_DURATION_TOO_SHORT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_EVENT_DURATION_TOO_SHORT, "duration"), err)
 }
 
 func TestEventService_Update_DurationOnly_RecalculatesSlots(t *testing.T) {
@@ -588,7 +592,7 @@ func TestEventService_UpdateProfile_InvalidColor(t *testing.T) {
 	event := createTestEventForOwner(t, s, owner)
 
 	err := s.UpdateProfile(&EventProfileDto{Color: "not-a-color"}, event.Id, &guard.Claims{Id: owner})
-	assert.ErrorIs(t, err, constants.ERR_INVALID_COLOR_FORMAT.Err)
+	assert.Equal(t, helpers.NewFieldError(constants.ERR_INVALID_COLOR_FORMAT, "color"), err)
 }
 
 func TestEventService_UpdateProfile_Success(t *testing.T) {
@@ -786,4 +790,49 @@ func TestEventService_Cancel_Success_SetsCanceledStatus(t *testing.T) {
 	// Owner and participant each receive the cancellation email
 	testutils.AwaitSMTP(t, sent)
 	testutils.AwaitSMTP(t, sent)
+}
+
+func TestEventService_Create_ReportsAllInvalidFields(t *testing.T) {
+	s := newTestEventService(t)
+	dto := validEventCreateDto()
+	dto.Name = "ab"
+	dto.StartsAt = time.Now().UTC().AddDate(0, 0, -3)
+	dto.EndsAt = dto.StartsAt.AddDate(0, 0, 5)
+	dto.Days, dto.Hours, dto.Minutes = 0, 0, 0
+
+	_, err := s.Create(dto, &guard.Claims{Id: uuid.New()})
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "name", Code: constants.ERR_FIELD_TOO_SHORT.Err.Error()},
+		{Field: "startsAt", Code: constants.ERR_EVENT_START_BEFORE_TODAY.Err.Error()},
+		{Field: "duration", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+	}}, err)
+}
+
+func TestEventService_Update_ReportsAllInvalidFields(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	name := "ab"
+	days, hours, minutes := 0, 0, 0
+	err := s.Update(event.Id, &EventUpdateDto{Name: &name, Days: &days, Hours: &hours, Minutes: &minutes}, &guard.Claims{Id: owner})
+	assert.Equal(t, &helpers.ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []helpers.FieldError{
+		{Field: "name", Code: constants.ERR_FIELD_TOO_SHORT.Err.Error()},
+		{Field: "duration", Code: constants.ERR_EVENT_DURATION_TOO_SHORT.Err.Error()},
+	}}, err)
+}
+
+func TestEventService_Update_InvalidFieldsPersistNothing(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+
+	newEnd := event.EndsAt.AddDate(0, 0, 2)
+	days, hours, minutes := 0, 0, 0
+	err := s.Update(event.Id, &EventUpdateDto{EndsAt: &newEnd, Days: &days, Hours: &hours, Minutes: &minutes}, &guard.Claims{Id: owner})
+	require.Error(t, err)
+
+	var found model.Event
+	require.NoError(t, s.eventRepository.FindOneById(event.Id, &found))
+	assert.True(t, event.EndsAt.Equal(found.EndsAt))
 }

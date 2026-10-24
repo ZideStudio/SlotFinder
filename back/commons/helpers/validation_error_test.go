@@ -133,3 +133,55 @@ func TestParseBindingError_UnknownError(t *testing.T) {
 	assert.Equal(t, constants.ERR_INVALID_BODY, validationError.Code)
 	assert.Empty(t, validationError.Fields)
 }
+
+func TestNewFieldError_SingleField(t *testing.T) {
+	t.Parallel()
+	validationError := NewFieldError(constants.ERR_INVALID_PASSWORD_FORMAT, "password")
+	assertSingleFieldError(t, validationError, FieldError{Field: "password", Code: "INVALID_PASSWORD_FORMAT"})
+}
+
+func TestNewFieldError_MultipleFields(t *testing.T) {
+	t.Parallel()
+	validationError := NewFieldError(constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL, "startsAt", "endsAt")
+	assert.Equal(t, constants.ERR_INVALID_BODY, validationError.Code)
+	assert.Equal(t, []FieldError{
+		{Field: "startsAt", Code: "AVAILABILITY_INVALID_TIME_INTERVAL"},
+		{Field: "endsAt", Code: "AVAILABILITY_INVALID_TIME_INTERVAL"},
+	}, validationError.Fields)
+}
+
+func TestFieldErrors_EmptyReturnsNil(t *testing.T) {
+	t.Parallel()
+	var fieldErrors FieldErrors
+	err := fieldErrors.Err()
+	assert.NoError(t, err)
+	assert.Nil(t, err)
+}
+
+func TestFieldErrors_KeepsOrderAndDuplicateFields(t *testing.T) {
+	t.Parallel()
+	var fieldErrors FieldErrors
+	fieldErrors.Add(constants.ERR_EVENT_START_AFTER_END, "endsAt")
+	fieldErrors.Add(constants.ERR_EVENT_START_BEFORE_TODAY, "startsAt")
+	fieldErrors.Add(constants.ERR_EVENT_DURATION_TOO_SHORT, "endsAt")
+
+	assert.Equal(t, &ValidationError{Code: constants.ERR_INVALID_BODY, Fields: []FieldError{
+		{Field: "endsAt", Code: "EVENT_START_AFTER_END"},
+		{Field: "startsAt", Code: "EVENT_START_NOT_TODAY"},
+		{Field: "endsAt", Code: "EVENT_DURATION_TOO_SHORT"},
+	}}, fieldErrors.Err())
+}
+
+func TestFieldErrors_HasCollectedField(t *testing.T) {
+	t.Parallel()
+	var fieldErrors FieldErrors
+	fieldErrors.Add(constants.ERR_INVALID_EMAIL_FORMAT, "email")
+	assert.True(t, fieldErrors.Has("email"))
+}
+
+func TestFieldErrors_HasNotCollectedField(t *testing.T) {
+	t.Parallel()
+	var fieldErrors FieldErrors
+	fieldErrors.Add(constants.ERR_INVALID_EMAIL_FORMAT, "email")
+	assert.False(t, fieldErrors.Has("password"))
+}

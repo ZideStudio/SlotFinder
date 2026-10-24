@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin/binding"
@@ -27,17 +26,42 @@ func (e *ValidationError) Error() string {
 	return e.Code.Err.Error()
 }
 
-func init() {
-	// Report field names as they appear in the JSON payload
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterTagNameFunc(func(field reflect.StructField) string {
-			name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
-			if name == "" || name == "-" {
-				return field.Name
-			}
-			return name
-		})
+// NewFieldError reports a validation failure on body fields
+func NewFieldError(code constants.CustomError, fields ...string) *ValidationError {
+	fieldErrors := make([]FieldError, 0, len(fields))
+	for _, field := range fields {
+		fieldErrors = append(fieldErrors, FieldError{Field: field, Code: code.Err.Error()})
 	}
+	return &ValidationError{Code: constants.ERR_INVALID_BODY, Fields: fieldErrors}
+}
+
+// FieldErrors collects validation failures to return them all at once
+type FieldErrors struct {
+	fields []FieldError
+}
+
+func (f *FieldErrors) Add(code constants.CustomError, fields ...string) {
+	for _, field := range fields {
+		f.fields = append(f.fields, FieldError{Field: field, Code: code.Err.Error()})
+	}
+}
+
+// Has reports whether a field already failed, to skip checks that need a valid value
+func (f *FieldErrors) Has(field string) bool {
+	for _, fieldError := range f.fields {
+		if fieldError.Field == field {
+			return true
+		}
+	}
+	return false
+}
+
+// Err returns nil when nothing was collected
+func (f *FieldErrors) Err() error {
+	if len(f.fields) == 0 {
+		return nil
+	}
+	return &ValidationError{Code: constants.ERR_INVALID_BODY, Fields: f.fields}
 }
 
 // ParseBindingError converts an error returned by gin binding into a ValidationError
