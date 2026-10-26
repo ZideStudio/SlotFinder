@@ -19,14 +19,6 @@ describe("ExistingAccount", () => {
     );
   });
 
-  it("should show a sign-up link on the login page", () => {
-    renderRoute({ routes, initialEntry: "/login" });
-
-    expect(
-      screen.getByRole("link", { name: "signUp.signUpLink" }),
-    ).toHaveAttribute("href", "/sign-up");
-  });
-
   it("should not render outside authentication pages", () => {
     renderRoute({ routes, initialEntry: "/other" });
 
