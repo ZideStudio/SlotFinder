@@ -3,6 +3,7 @@ package event
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/helpers"
 	"app/commons/lib"
 	"app/config"
 	model "app/db/models"
@@ -54,9 +55,10 @@ func FieldsToDuration(days, hours, minutes int) int {
 
 func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventCreateResponseDto, error) {
 	// Data validation
+	var fieldErrors helpers.FieldErrors
 	data.Name = strings.TrimSpace(data.Name)
 	if len(data.Name) < 5 {
-		return EventCreateResponseDto{}, errors.New("event name must be at least 5 characters long")
+		fieldErrors.Add(constants.ERR_FIELD_TOO_SHORT, "name")
 	}
 	if data.Description != nil {
 		*data.Description = strings.TrimSpace(*data.Description)
@@ -65,27 +67,13 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventCr
 		}
 	}
 
-	// Prevent creating events with end date before start date
-	if data.StartsAt.After(data.EndsAt) {
-		return EventCreateResponseDto{}, constants.ERR_EVENT_START_AFTER_END.Err
-	}
+	validateEventDates(&fieldErrors, data.StartsAt, data.EndsAt, true)
 
-	// Prevent creating events in the past
-	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
-	if data.StartsAt.Before(now) {
-		return EventCreateResponseDto{}, constants.ERR_EVENT_START_BEFORE_TODAY.Err
-	}
-
-	// Prevent creating events with duration less than 1 day
-	oneDayAfterStart := data.StartsAt.Add(24 * time.Hour)
-	if data.EndsAt.Before(oneDayAfterStart) {
-		return EventCreateResponseDto{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
-	}
-
-	// Validate duration (15 min minimum, 30240 min = 3 weeks maximum)
 	duration := FieldsToDuration(data.Days, data.Hours, data.Minutes)
-	if duration < 15 || duration > 30240 {
-		return EventCreateResponseDto{}, constants.ERR_EVENT_DURATION_TOO_SHORT.Err
+	validateEventDuration(&fieldErrors, duration)
+
+	if err := fieldErrors.Err(); err != nil {
+		return EventCreateResponseDto{}, err
 	}
 
 	// Create event
@@ -124,6 +112,58 @@ func (s *EventService) Create(data *EventCreateDto, user *guard.Claims) (EventCr
 	return MapToEventCreateResponseDto(event), nil
 }
 
+// validateEventDates collects the date rules shared by event creation and update
+func validateEventDates(fieldErrors *helpers.FieldErrors, startsAt, endsAt time.Time, checkStartsAt bool) {
+	// Prevent end date before start date
+	if startsAt.After(endsAt) {
+		fieldErrors.Add(constants.ERR_EVENT_START_AFTER_END, "endsAt")
+	}
+	// Prevent duration less than 1 day
+	if endsAt.Before(startsAt.Add(24 * time.Hour)) {
+		fieldErrors.Add(constants.ERR_EVENT_DURATION_TOO_SHORT, "endsAt")
+	}
+	// Prevent dates before today
+	today := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
+	if checkStartsAt && startsAt.Before(today) {
+		fieldErrors.Add(constants.ERR_EVENT_START_BEFORE_TODAY, "startsAt")
+	}
+	if endsAt.Before(today) {
+		fieldErrors.Add(constants.ERR_EVENT_START_BEFORE_TODAY, "endsAt")
+	}
+}
+
+// validateEventDuration checks the duration (15 min minimum, 30240 min = 3 weeks maximum)
+func validateEventDuration(fieldErrors *helpers.FieldErrors, duration int) {
+	if duration < 15 || duration > 30240 {
+		fieldErrors.Add(constants.ERR_EVENT_DURATION_TOO_SHORT, "duration")
+	}
+}
+
+// resolveEventDates merges the DTO dates with the current event dates
+func resolveEventDates(event *model.Event, startsAtDto, endsAtDto *time.Time) (startsAt, endsAt time.Time) {
+	startsAt, endsAt = event.StartsAt, event.EndsAt
+	if startsAtDto != nil {
+		startsAt = *startsAtDto
+	}
+	if endsAtDto != nil {
+		endsAt = *endsAtDto
+	}
+	return startsAt, endsAt
+}
+
+// applyEventDates sets already validated dates, unless they conflict with the validated slot
+func applyEventDates(event *model.Event, startsAt, endsAt time.Time) error {
+	if validatedSlot := event.GetValidatedSlot(); validatedSlot != nil && (endsAt.Before(validatedSlot.EndsAt) || startsAt.After(validatedSlot.StartsAt)) {
+		// Prevent updating events to end date before already validated slot
+		return constants.ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED.Err
+	}
+
+	event.StartsAt = startsAt
+	event.EndsAt = endsAt
+
+	return nil
+}
+
 // SetEventDatesFromDto validates and sets the event dates from the provided DTO values.
 func SetEventDatesFromDto(event *model.Event, startsAtDto, endsAtDto *time.Time) error {
 	if event == nil {
@@ -133,42 +173,15 @@ func SetEventDatesFromDto(event *model.Event, startsAtDto, endsAtDto *time.Time)
 		return nil
 	}
 
-	hasStartDate := startsAtDto != nil
-	startsAt := event.StartsAt
-	endsAt := event.EndsAt
-	if hasStartDate {
-		startsAt = *startsAtDto
-	}
-	if endsAtDto != nil {
-		endsAt = *endsAtDto
+	startsAt, endsAt := resolveEventDates(event, startsAtDto, endsAtDto)
+
+	var fieldErrors helpers.FieldErrors
+	validateEventDates(&fieldErrors, startsAt, endsAt, startsAtDto != nil)
+	if err := fieldErrors.Err(); err != nil {
+		return err
 	}
 
-	// Prevent creating events with end date before start date
-	if startsAt.After(endsAt) {
-		return constants.ERR_EVENT_START_AFTER_END.Err
-	}
-	// Prevent creating events with duration less than 1 day
-	oneDayAfterStart := startsAt.Add(24 * time.Hour)
-	if endsAt.Before(oneDayAfterStart) {
-		return constants.ERR_EVENT_DURATION_TOO_SHORT.Err
-	}
-	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
-	if hasStartDate && startsAt.Before(now) { // Prevent updating events start date before today
-		return constants.ERR_EVENT_START_BEFORE_TODAY.Err
-	} else if endsAt.Before(now) { // Prevent updating events end date before today
-		return constants.ERR_EVENT_START_BEFORE_TODAY.Err
-	}
-
-	if validatedSlot := event.GetValidatedSlot(); validatedSlot != nil && (endsAt.Before(validatedSlot.EndsAt) || startsAt.After(validatedSlot.StartsAt)) {
-		// Prevent updating events to end date before already validated slot
-		return constants.ERR_VALIDATED_SLOT_CANNOT_BE_MODIFIED.Err
-	}
-
-	// Set parsed dates back to event
-	event.StartsAt = startsAt
-	event.EndsAt = endsAt
-
-	return nil
+	return applyEventDates(event, startsAt, endsAt)
 }
 
 func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *guard.Claims) error {
@@ -187,10 +200,11 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 	}
 
 	// Data validation
+	var fieldErrors helpers.FieldErrors
 	if data.Name != nil {
 		*data.Name = strings.TrimSpace(*data.Name)
 		if len(*data.Name) < 5 {
-			return errors.New("event name must be at least 5 characters long")
+			fieldErrors.Add(constants.ERR_FIELD_TOO_SHORT, "name")
 		}
 	}
 	if data.Description != nil {
@@ -199,23 +213,17 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 			data.Description = nil
 		}
 	}
-	var isBreakingSlots bool
-	if data.StartsAt != nil || data.EndsAt != nil {
-		if err := SetEventDatesFromDto(&event, data.StartsAt, data.EndsAt); err != nil {
-			return err
-		}
-		isBreakingSlots = true
+
+	datesChanged := data.StartsAt != nil || data.EndsAt != nil
+	startsAt, endsAt := resolveEventDates(&event, data.StartsAt, data.EndsAt)
+	if datesChanged {
+		validateEventDates(&fieldErrors, startsAt, endsAt, data.StartsAt != nil)
 	}
 
-	// Update fields if provided
-	if data.Name != nil {
-		event.Name = *data.Name
-	}
-	if data.Description != nil {
-		event.Description = data.Description
-	}
 	// If any duration field is provided, recompute from current duration to preserve unset fields
-	if data.Days != nil || data.Hours != nil || data.Minutes != nil {
+	durationChanged := data.Days != nil || data.Hours != nil || data.Minutes != nil
+	duration := event.Duration
+	if durationChanged {
 		current := durationToFields(event.Duration)
 		days, hours, minutes := current.Days, current.Hours, current.Minutes
 		if data.Days != nil {
@@ -227,13 +235,28 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 		if data.Minutes != nil {
 			minutes = *data.Minutes
 		}
-		duration := FieldsToDuration(days, hours, minutes)
-		if duration < 15 || duration > 30240 {
-			return constants.ERR_EVENT_DURATION_TOO_SHORT.Err
-		}
-		event.Duration = duration
-		isBreakingSlots = true
+		duration = FieldsToDuration(days, hours, minutes)
+		validateEventDuration(&fieldErrors, duration)
 	}
+
+	if err := fieldErrors.Err(); err != nil {
+		return err
+	}
+
+	// Update fields if provided
+	if datesChanged {
+		if err := applyEventDates(&event, startsAt, endsAt); err != nil {
+			return err
+		}
+	}
+	if data.Name != nil {
+		event.Name = *data.Name
+	}
+	if data.Description != nil {
+		event.Description = data.Description
+	}
+	event.Duration = duration
+	isBreakingSlots := datesChanged || durationChanged
 
 	// Update event in repository
 	if err := s.eventRepository.Updates(&event); err != nil {
@@ -427,7 +450,7 @@ func (s *EventService) UpdateProfile(data *EventProfileDto, eventId uuid.UUID, u
 	}
 
 	if !lib.IsHexa(data.Color) {
-		return constants.ERR_INVALID_COLOR_FORMAT.Err
+		return helpers.NewFieldError(constants.ERR_INVALID_COLOR_FORMAT, "color")
 	}
 
 	// Update color property

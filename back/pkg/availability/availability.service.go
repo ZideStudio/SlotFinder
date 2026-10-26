@@ -3,6 +3,7 @@ package availability
 import (
 	"app/commons/constants"
 	"app/commons/guard"
+	"app/commons/helpers"
 	model "app/db/models"
 	"app/db/repository"
 	"app/pkg/slot"
@@ -34,33 +35,38 @@ func NewAvailabilityService(service *AvailabilityService) *AvailabilityService {
 
 // validateAvailabilityTimes validates the time constraints for an availability
 func (s *AvailabilityService) validateAvailabilityTimes(startsAt, endsAt time.Time, event *model.Event) error {
+	var fieldErrors helpers.FieldErrors
+
 	// Prevent creating/updating availabilities with end date before start date
 	if startsAt.After(endsAt) {
-		return constants.ERR_EVENT_START_AFTER_END.Err
+		fieldErrors.Add(constants.ERR_EVENT_START_AFTER_END, "endsAt")
 	}
 
 	// Prevent creating/updating availabilities with less than minimum duration of 5 minutes
 	minDuration := 5 * time.Minute
 	duration := endsAt.Sub(startsAt)
 	if duration < minDuration {
-		return constants.ERR_AVAILABILITY_DURATION_TOO_SHORT.Err
+		fieldErrors.Add(constants.ERR_AVAILABILITY_DURATION_TOO_SHORT, "endsAt")
 	}
 
 	// Prevent creating/updating availabilities not aligned on 5 minutes interval
 	// Check if times are exactly on 5-minute boundaries (no seconds or sub-seconds)
-	if startsAt.Truncate(5*time.Minute) != startsAt || endsAt.Truncate(5*time.Minute) != endsAt {
-		return constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL.Err
+	if startsAt.Truncate(5*time.Minute) != startsAt {
+		fieldErrors.Add(constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL, "startsAt")
+	}
+	if endsAt.Truncate(5*time.Minute) != endsAt {
+		fieldErrors.Add(constants.ERR_AVAILABILITY_INVALID_TIME_INTERVAL, "endsAt")
 	}
 
 	// Prevent creating/updating availabilities outside of event date range
 	if startsAt.Before(event.StartsAt) {
-		return constants.ERR_AVAILABILITY_START_BEFORE_EVENT.Err
+		fieldErrors.Add(constants.ERR_AVAILABILITY_START_BEFORE_EVENT, "startsAt")
 	}
 	if endsAt.After(event.EndsAt) {
-		return constants.ERR_AVAILABILITY_END_AFTER_EVENT.Err
+		fieldErrors.Add(constants.ERR_AVAILABILITY_END_AFTER_EVENT, "endsAt")
 	}
 
-	return nil
+	return fieldErrors.Err()
 }
 
 // validateEventAccess validates that the event exists, is accessible, and not ended

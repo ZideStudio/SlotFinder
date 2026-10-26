@@ -44,7 +44,7 @@ func NewAccountController(ctl *AccountController) *AccountController {
 // @Produce json
 // @Param data body AccountCreateDto true "Account parameters"
 // @Success 200
-// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_EMAIL_FORMAT, ERR_INVALID_PASSWORD_FORMAT, or ERR_EMAIL_ALREADY_EXISTS"
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_BODY (fields codes: ERR_INVALID_EMAIL_FORMAT, ERR_INVALID_PASSWORD_FORMAT, ERR_EMAIL_ALREADY_EXISTS, ERR_FIELD_INVALID_VALUE)"
 // @Router /api/v1/account [post]
 func (ctl *AccountController) Create(c *gin.Context) {
 	var data AccountCreateDto
@@ -95,7 +95,7 @@ func (ctl *AccountController) GetMe(c *gin.Context) {
 // @Produce json
 // @Param data body AccountUpdateDto true "Account parameters"
 // @Success 200 {object} AccountResponseDto
-// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, or ERR_INVALID_COLOR_FORMAT"
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_BODY (fields codes: ERR_USERNAME_ALREADY_TAKEN, ERR_INVALID_PASSWORD_FORMAT, ERR_INVALID_COLOR_FORMAT, ERR_FIELD_TOO_SHORT, ERR_FIELD_INVALID_VALUE)"
 // @Router /api/v1/account [patch]
 // @security AccessTokenCookie
 func (ctl *AccountController) Update(c *gin.Context) {
@@ -246,7 +246,7 @@ func (ctl *AccountController) ForgotPassword(c *gin.Context) {
 // @Produce json
 // @Param data body ResetPasswordDto true "Reset token and new password"
 // @Success 200
-// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_PASSWORD_FORMAT, ERR_INVALID_RESET_TOKEN, or ERR_RESET_TOKEN_EXPIRED"
+// @Failure 400 {object} helpers.ApiError "Bad Request - Code can be: ERR_INVALID_RESET_TOKEN, ERR_RESET_TOKEN_EXPIRED, or ERR_INVALID_BODY (fields codes: ERR_INVALID_PASSWORD_FORMAT)"
 // @Router /api/v1/account/reset-password [post]
 func (ctl *AccountController) ResetPassword(c *gin.Context) {
 	var data ResetPasswordDto

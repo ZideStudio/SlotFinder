@@ -4,6 +4,7 @@ import (
 	"app/commons/constants"
 	"app/commons/encryption"
 	"app/commons/guard"
+	"app/commons/helpers"
 	"app/commons/lib"
 	"app/config"
 	"app/db"
@@ -67,30 +68,37 @@ func (s *AccountService) CheckUserNameAvailability(userName string, excludeUserI
 func (s *AccountService) Create(data *AccountCreateDto) (AccountTokensDto, error) {
 	var tokens AccountTokensDto
 	// Validate input
+	var fieldErrors helpers.FieldErrors
 	if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(data.TermsVersion)) {
-		return tokens, errors.New("invalid terms version")
+		fieldErrors.Add(constants.ERR_FIELD_INVALID_VALUE, "termsVersion")
 	}
 
 	if !lib.IsValidEmail(data.Email) {
-		return tokens, constants.ERR_INVALID_EMAIL_FORMAT.Err
+		fieldErrors.Add(constants.ERR_INVALID_EMAIL_FORMAT, "email")
 	}
 
 	if !lib.IsValidPassword(data.Password) {
-		return tokens, constants.ERR_INVALID_PASSWORD_FORMAT.Err
+		fieldErrors.Add(constants.ERR_INVALID_PASSWORD_FORMAT, "password")
 	}
 
 	// Check if email already exists
-	var existingAccount model.Account
-	if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return tokens, err
-	}
-	if existingAccount.Id != uuid.Nil {
-		return tokens, constants.ERR_EMAIL_ALREADY_EXISTS.Err
+	if !fieldErrors.Has("email") {
+		var existingAccount model.Account
+		if err := s.accountRepository.FindOneByEmail(data.Email, &existingAccount); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return tokens, err
+		}
+		if existingAccount.Id != uuid.Nil {
+			fieldErrors.Add(constants.ERR_EMAIL_ALREADY_EXISTS, "email")
+		}
 	}
 
 	timeZone, err := time.LoadLocation(data.TimeZone)
 	if err != nil {
-		return tokens, errors.New("invalid time zone")
+		fieldErrors.Add(constants.ERR_FIELD_INVALID_VALUE, "timeZone")
+	}
+
+	if err := fieldErrors.Err(); err != nil {
+		return tokens, err
 	}
 
 	// Create account
@@ -168,21 +176,54 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 
 	var tokens *AccountTokensDto
 
-	if dto.Username != nil && (account.Username == nil || *dto.Username != *account.Username) {
+	// Validate input
+	var fieldErrors helpers.FieldErrors
+
+	usernameChanged := dto.Username != nil && (account.Username == nil || *dto.Username != *account.Username)
+	if usernameChanged {
 		*dto.Username = strings.TrimSpace(*dto.Username)
 		if len(*dto.Username) < 3 {
-			return AccountResponseDto{}, nil, errors.New("username must be at least 3 characters long")
+			fieldErrors.Add(constants.ERR_FIELD_TOO_SHORT, "username")
+		} else if account.Username != nil && *dto.Username == *account.Username {
+			fieldErrors.Add(constants.ERR_USERNAME_ALREADY_TAKEN, "username")
+		} else {
+			isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.Username, &userId)
+			if err != nil {
+				return AccountResponseDto{}, nil, err
+			}
+			if !isUserNameAvailable {
+				fieldErrors.Add(constants.ERR_USERNAME_ALREADY_TAKEN, "username")
+			}
 		}
-		if account.Username != nil && *dto.Username == *account.Username {
-			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
+	}
+
+	var timeZone *time.Location
+	if dto.TimeZone != nil {
+		var err error
+		if timeZone, err = time.LoadLocation(*dto.TimeZone); err != nil {
+			fieldErrors.Add(constants.ERR_FIELD_INVALID_VALUE, "timeZone")
 		}
-		isUserNameAvailable, err := s.CheckUserNameAvailability(*dto.Username, &userId)
-		if err != nil {
-			return AccountResponseDto{}, nil, err
-		}
-		if !isUserNameAvailable {
-			return AccountResponseDto{}, nil, constants.ERR_USERNAME_ALREADY_TAKEN.Err
-		}
+	}
+
+	if dto.Password != nil && !lib.IsValidPassword(*dto.Password) {
+		fieldErrors.Add(constants.ERR_INVALID_PASSWORD_FORMAT, "password")
+	}
+
+	if dto.Color != nil && !lib.IsHexa(*dto.Color) {
+		fieldErrors.Add(constants.ERR_INVALID_COLOR_FORMAT, "color")
+	}
+
+	termsChanged := dto.TermsAccepted != nil && dto.TermsVersion != nil && (account.TermsVersion == nil || *account.TermsVersion != *dto.TermsVersion)
+	if termsChanged && !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(*dto.TermsVersion)) {
+		fieldErrors.Add(constants.ERR_FIELD_INVALID_VALUE, "termsVersion")
+	}
+
+	if err := fieldErrors.Err(); err != nil {
+		return AccountResponseDto{}, nil, err
+	}
+
+	// Apply changes
+	if usernameChanged {
 		account.Username = dto.Username
 		updatedAccount.Username = dto.Username
 	}
@@ -190,20 +231,12 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 		account.Email = dto.Email
 		updatedAccount.Email = dto.Email
 	}
-
-	if dto.TimeZone != nil {
-		timeZone, err := time.LoadLocation(*dto.TimeZone)
-		if err != nil {
-			return AccountResponseDto{}, nil, errors.New("invalid time zone")
-		}
+	if timeZone != nil {
 		account.TimeZone = timeZone.String()
 		updatedAccount.TimeZone = account.TimeZone
 	}
 	passwordChanged := false
 	if dto.Password != nil {
-		if !lib.IsValidPassword(*dto.Password) {
-			return AccountResponseDto{}, nil, constants.ERR_INVALID_PASSWORD_FORMAT.Err
-		}
 		account.Password = dto.Password
 		updatedAccount.Password = dto.Password
 		passwordChanged = true
@@ -213,17 +246,11 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 		updatedAccount.Language = *dto.Language
 	}
 	if dto.Color != nil {
-		if !lib.IsHexa(*dto.Color) {
-			return AccountResponseDto{}, nil, constants.ERR_INVALID_COLOR_FORMAT.Err
-		}
 		account.Color = *dto.Color
 		updatedAccount.Color = *dto.Color
 	}
 	termsUpdated := false
-	if dto.TermsAccepted != nil && dto.TermsVersion != nil && (account.TermsVersion == nil || *account.TermsVersion != *dto.TermsVersion) {
-		if !slices.Contains(constants.TERMS_VERSIONS, constants.TermsVersion(*dto.TermsVersion)) {
-			return AccountResponseDto{}, nil, errors.New("invalid terms version")
-		}
+	if termsChanged {
 		now := time.Now()
 		account.TermsAcceptedAt = &now
 		account.TermsVersion = dto.TermsVersion
@@ -332,7 +359,7 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 func (s *AccountService) ResetPassword(dto *ResetPasswordDto) error {
 	// Validate password format
 	if !lib.IsValidPassword(dto.Password) {
-		return constants.ERR_INVALID_PASSWORD_FORMAT.Err
+		return helpers.NewFieldError(constants.ERR_INVALID_PASSWORD_FORMAT, "password")
 	}
 
 	resetTokenDecrypted, err := encryption.Decrypt(dto.Token)
