@@ -20,8 +20,10 @@ export const ExistingAccount = (_props: ExistingAccountProps = {}) => {
   }
 
   //TODO: Use noAccount and signUpLink translations on i18n login.json
-  const prompt = isSignUpPage ? "existingAccount" : "noAccount";
-  const linkLabel = isSignUpPage ? "login" : "signUpLink";
+  // const prompt = isSignUpPage ? "existingAccount" : "noAccount";
+  // const linkLabel = isSignUpPage ? "login" : "signUpLink";
+  const prompt = "existingAccount";
+  const linkLabel = "login";
   const href = isSignUpPage ? LOGIN_PATH : appRoutes.signUp();
 
   return (
