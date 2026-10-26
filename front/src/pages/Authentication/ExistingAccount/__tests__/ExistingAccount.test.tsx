@@ -5,7 +5,6 @@ import { ExistingAccount } from "../ExistingAccount";
 
 const routes: RouteObject[] = [
   { path: "/sign-up", element: <ExistingAccount /> },
-  { path: "/login", element: <ExistingAccount /> },
   { path: "/other", element: <ExistingAccount /> },
 ];
 
