@@ -6,6 +6,8 @@ The "mocks" folder contains mock HTTP request handlers and fixtures using [Mock 
 
 - [Folder Organization](#folder-organization)
 - [Handlers](#handlers)
+- [Default Handlers](#default-handlers)
+- [MSW Contexts](#msw-contexts)
 - [Fixtures](#fixtures)
 - [Learn More](#learn-more)
 
@@ -13,6 +15,7 @@ The "mocks" folder contains mock HTTP request handlers and fixtures using [Mock 
 
 - **`browser.ts`** : Sets up MSW for the browser environment (development & browser tests)
 - **`server.ts`** : Sets up MSW for Node.js environment (unit tests)
+- **`handlers/defaultHandlers.ts`** : Default handlers shared by `browser.ts`, `server.ts` and Playwright
 - **`handlers/`** : Request handler definitions organized by domain
 - **`fixtures/`** : Reusable mock data used by handlers
 
@@ -47,8 +50,10 @@ import {
 } from "@Mocks/fixtures/authStatusFixtures";
 import { delay, http, HttpResponse } from "msw";
 
+// The leading `*` makes the handler independent of the API prefix
+// (`/api`, `/mocked-api`), so handlers never read environment variables.
 export const getAuthStatus200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  `*${getGetV1AuthStatusUrl()}`,
   async () => {
     await delay();
     return HttpResponse.json(getAuthStatus200Fixture, { status: 200 });
@@ -56,7 +61,7 @@ export const getAuthStatus200 = http.get(
 );
 
 export const getAuthStatus401 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  `*${getGetV1AuthStatusUrl()}`,
   async () => {
     await delay();
     return HttpResponse.json(getAuthStatus401Fixture, { status: 401 });
@@ -64,16 +69,27 @@ export const getAuthStatus401 = http.get(
 );
 ```
 
+MSW ignores query strings when matching. To check a query parameter, read it in the handler with `new URL(request.url).searchParams`.
+
 ### Registering Handlers
 
-Add handlers to `browser.ts` and `server.ts`:
+Handlers used in every context go in `handlers/defaultHandlers.ts`. Everything else is added per test with `server.use(...)`, `worker.use(...)` or `network.use(...)`.
 
-```typescript
-// browser.ts
-import { setupWorker } from "msw/browser";
+## <span id="default-handlers">Default Handlers</span>
 
-export const worker = setupWorker(getAuthStatus200, getAuthStatus401);
-```
+`defaultHandlers` is the signed-in baseline (`getAuthStatus200`, `getAccountMe200`, `getAccountAvatar200`). It is shared by `setupServer`, `setupWorker` and the Playwright network fixture.
+
+`npm run start:mock` therefore starts the application signed in. Override `getAuthStatus401` to see the signed-out experience.
+
+## <span id="msw-contexts">MSW Contexts</span>
+
+| Context        | Setup                                    | Lifecycle                                                     | Unhandled requests                                            |
+| -------------- | ---------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------- |
+| Vitest unit    | `setupServer` (`server.ts`)              | Started in `setup.unit.ts`, handlers reset after each test    | `error`                                                       |
+| Vitest browser | `setupWorker` (`browser.ts`)             | Started in `setup.browser.ts`, handlers reset after each test | `bypass`                                                      |
+| Playwright E2E | `@msw/playwright` (`tests/bdd.steps.ts`) | Auto fixture enabled before and disabled after each scenario  | `error` for API requests, `bypass` for the rest (HMR, assets) |
+
+In Playwright, an unmocked API request is aborted and recorded. The scenario then fails with the list of URLs, even if the application swallows the error.
 
 ## <span id="fixtures">Fixtures</span>
 

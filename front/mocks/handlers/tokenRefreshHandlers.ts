@@ -7,7 +7,7 @@ import {
 import { http, HttpResponse } from "msw/http";
 
 export const postTokenRefresh200 = http.post(
-  getPostV1AuthRefreshUrl(),
+  `*${getPostV1AuthRefreshUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -16,7 +16,7 @@ export const postTokenRefresh200 = http.post(
 );
 
 export const postTokenRefresh500 = http.post(
-  getPostV1AuthRefreshUrl(),
+  `*${getPostV1AuthRefreshUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -25,7 +25,7 @@ export const postTokenRefresh500 = http.post(
 );
 
 export const postTokenRefreshNetworkError = http.post(
-  getPostV1AuthRefreshUrl(),
+  `*${getPostV1AuthRefreshUrl()}`,
   async () => {
     await applyMockDelay();
 

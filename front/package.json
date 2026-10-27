@@ -70,7 +70,6 @@
     "@vitest/coverage-v8": "5.1.1",
     "chromatic": "18.15.0",
     "concurrently": "10.0.7",
-    "dotenv": "18.0.7",
     "i18next-resources-for-ts": "2.1.2",
     "jsdom": "31.0.1",
     "monocart-coverage-reports": "3.2.1",
