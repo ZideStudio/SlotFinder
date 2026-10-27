@@ -17,26 +17,35 @@ import {
 } from "@Mocks/fixtures/accountFixtures";
 import { http, HttpResponse } from "msw/http";
 
-export const postAccount201 = http.post(getPostV1AccountUrl(), async () => {
-  await applyMockDelay();
+export const postAccount201 = http.post(
+  `*${getPostV1AccountUrl()}`,
+  async () => {
+    await applyMockDelay();
 
-  return HttpResponse.json(postAccount201Fixture, { status: 201 });
-});
+    return HttpResponse.json(postAccount201Fixture, { status: 201 });
+  },
+);
 
-export const postAccount400 = http.post(getPostV1AccountUrl(), async () => {
-  await applyMockDelay();
+export const postAccount400 = http.post(
+  `*${getPostV1AccountUrl()}`,
+  async () => {
+    await applyMockDelay();
 
-  return HttpResponse.json(postAccount400Fixture, { status: 400 });
-});
+    return HttpResponse.json(postAccount400Fixture, { status: 400 });
+  },
+);
 
-export const patchAccount200 = http.patch(getPostV1AccountUrl(), async () => {
-  await applyMockDelay();
+export const patchAccount200 = http.patch(
+  `*${getPostV1AccountUrl()}`,
+  async () => {
+    await applyMockDelay();
 
-  return HttpResponse.json(patchAccount200Fixture, { status: 200 });
-});
+    return HttpResponse.json(patchAccount200Fixture, { status: 200 });
+  },
+);
 
 export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
-  http.patch(getPostV1AccountUrl(), async () => {
+  http.patch(`*${getPostV1AccountUrl()}`, async () => {
     await applyMockDelay();
 
     return HttpResponse.json(patchAccount400Fixture(errorCode), {
@@ -45,7 +54,7 @@ export const patchAccount400 = (errorCode: PatchAccountErrorCodeType) =>
   });
 
 export const patchAvatarAccount200 = http.patch(
-  getPatchV1AccountAvatarUrl(),
+  `*${getPatchV1AccountAvatarUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -54,7 +63,7 @@ export const patchAvatarAccount200 = http.patch(
 );
 
 export const patchAvatarAccount400 = http.patch(
-  getPatchV1AccountAvatarUrl(),
+  `*${getPatchV1AccountAvatarUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -65,14 +74,17 @@ export const patchAvatarAccount400 = http.patch(
   },
 );
 
-export const getAccountMe200 = http.get(getGetV1AccountMeUrl(), async () => {
-  await applyMockDelay();
+export const getAccountMe200 = http.get(
+  `*${getGetV1AccountMeUrl()}`,
+  async () => {
+    await applyMockDelay();
 
-  return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
-});
+    return HttpResponse.json(getAccountMe200Fixture, { status: 200 });
+  },
+);
 
 export const getAccountMeWithoutTerms200 = http.get(
-  getGetV1AccountMeUrl(),
+  `*${getGetV1AccountMeUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -83,7 +95,7 @@ export const getAccountMeWithoutTerms200 = http.get(
 );
 
 export const getAccountAvatar200 = http.get(
-  getPatchV1AccountAvatarUrl(),
+  `*${getPatchV1AccountAvatarUrl()}`,
   async () => {
     await applyMockDelay();
 

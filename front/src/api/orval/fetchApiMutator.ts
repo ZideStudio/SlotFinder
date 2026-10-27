@@ -1,4 +1,3 @@
-import { getRuntimeEnv } from "@Front/config/runtimeEnv";
 import { ErrorResponse } from "@Front/types/ErrorResponse";
 import { HEADERS } from "../constant";
 import { tokenRefreshManager } from "../tokenRefreshManager";
@@ -6,8 +5,8 @@ import { tokenRefreshManager } from "../tokenRefreshManager";
 /**
  * Custom fetch mutator used by Orval-generated API clients.
  *
- * Receives the path from the prepared OpenAPI spec (e.g. `/v1/account`),
- * which works as a relative URL in the browser. The body and headers are
+ * Receives a path relative to the API (e.g. `/v1/account`) and prepends
+ * `FRONT_BACKEND_URL` to it. The body and headers are
  * already prepared by the generated code (JSON.stringify, Content-Type, …).
  *
  * Returns the parsed response body (or `undefined` for empty bodies) to match
@@ -28,10 +27,13 @@ export const fetchApiMutator = async <Response>(
   const apiUrlFull =
     typeof window === "undefined"
       ? undefined
-      : `${window.location.origin}${getRuntimeEnv().FRONT_BACKEND_URL}`;
+      : `${window.location.origin}${import.meta.env.FRONT_BACKEND_URL}`;
 
   const makeRequest = async (): Promise<globalThis.Response> =>
-    await fetch(url, { ...options, signal });
+    await fetch(`${import.meta.env.FRONT_BACKEND_URL}${url}`, {
+      ...options,
+      signal,
+    });
 
   try {
     let response = await makeRequest();

@@ -1,8 +1,9 @@
 import { defineConfig } from "@playwright/test";
-import dotenv from "dotenv";
 import { defineBddConfig } from "playwright-bdd";
 
-dotenv.config({ path: ".env.mock" });
+const API_URL = "/mocked-api";
+// Read by the step files; workers re-evaluate this config.
+process.env.FRONT_BACKEND_URL = API_URL;
 
 const testDir = defineBddConfig({
   features: "tests/**/*.feature",
@@ -25,8 +26,7 @@ export default defineConfig({
     command: "npm run start -- --host 0.0.0.0 --port 3004",
     env: {
       FRONT_MOCK_ENABLE: "false",
-      FRONT_BACKEND_URL: "/mocked-api",
-      FRONT_DOMAIN: "https://localhost:3004",
+      FRONT_BACKEND_URL: API_URL,
     },
     url: "http://127.0.0.1:3004",
     reuseExistingServer: !process.env.CI,

@@ -1,41 +1,45 @@
-import { createBdd, test as baseTest } from "playwright-bdd";
 import { defineNetworkFixture, type NetworkFixture } from "@msw/playwright";
-import {
-  getAccountAvatar200,
-  getAccountMe200,
-} from "../mocks/handlers/accountHandlers";
-import { getAuthStatus401 } from "../mocks/handlers/authStatusHandlers";
+import { expect } from "@playwright/test";
+import { HttpNetworkFrame } from "msw/experimental";
+import { createBdd, test as baseTest } from "playwright-bdd";
+import { defaultHandlers } from "../mocks/handlers/defaultHandlers";
 
-const APP_ENV = {
-  FRONT_MOCK_ENABLE: "false",
-  FRONT_BACKEND_URL: "/mocked-api",
-  FRONT_DOMAIN: "http://127.0.0.1:3004",
-  MODE: "development",
-} as const;
+const API_PATH_PREFIX = `${process.env.FRONT_BACKEND_URL}/`;
 
 export const test = baseTest.extend<{ network: NetworkFixture }>({
   network: [
     async ({ context }, use) => {
+      const unmockedApiRequests: string[] = [];
       const network = defineNetworkFixture({
         context,
-        handlers: [getAuthStatus401, getAccountMe200, getAccountAvatar200],
+        handlers: defaultHandlers,
+        // `defaults.error()` only logs, so the frame is rejected explicitly.
+        onUnhandledFrame: ({ frame, defaults }) => {
+          if (!(frame instanceof HttpNetworkFrame)) {
+            return;
+          }
+
+          const { request } = frame.data;
+
+          if (!new URL(request.url).pathname.startsWith(API_PATH_PREFIX)) {
+            return;
+          }
+
+          unmockedApiRequests.push(`${request.method} ${request.url}`);
+          defaults.error();
+          throw new Error(`Unmocked API request: ${request.url}`);
+        },
       });
 
       await network.enable();
       await use(network);
       await network.disable();
+
+      // The app may swallow the aborted request, so fail the test here too.
+      expect(unmockedApiRequests, "Unmocked API requests").toEqual([]);
     },
     { auto: true },
   ],
 });
 
-const { Before, Given, When, Then } = createBdd(test);
-
-Before(async ({ page }) => {
-  await page.addInitScript((env) => {
-    const runtimeKey = "__APP_ENV__" as const;
-    (globalThis as Record<string, unknown>)[runtimeKey] = env;
-  }, APP_ENV);
-});
-
-export { Before, Given, When, Then };
+export const { Given, When, Then } = createBdd(test);
