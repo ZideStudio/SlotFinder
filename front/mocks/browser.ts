@@ -1,12 +1,4 @@
 import { setupWorker } from "msw/browser";
-import {
-  getAccountAvatar200,
-  getAccountMe200,
-} from "./handlers/accountHandlers";
-import { getAuthStatus401 } from "./handlers/authStatusHandlers";
+import { defaultHandlers } from "./handlers/defaultHandlers";
 
-export const worker = setupWorker(
-  getAuthStatus401,
-  getAccountMe200,
-  getAccountAvatar200,
-);
+export const worker = setupWorker(...defaultHandlers);

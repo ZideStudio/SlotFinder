@@ -30,10 +30,6 @@ describe("WhoAreYou Page", () => {
     await page.getByLabelText(/Favorite color/u).fill("#ff0000");
   };
 
-  afterEach(() => {
-    worker.resetHandlers();
-  });
-
   it("should hide terms checkbox when terms are already accepted at current version", async () => {
     worker.use(getAuthStatus403("TERMS_NOT_ACCEPTED"), getAccountMe200);
 
