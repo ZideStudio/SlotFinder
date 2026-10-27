@@ -9,13 +9,6 @@ export default defineConfig({
       mode: "tags-split",
       target: "./src/api/generated",
       client: "fetch",
-      baseUrl: {
-        runtime: "getRuntimeEnv().FRONT_BACKEND_URL",
-        imports: [{
-          name: "getRuntimeEnv",
-          importPath: "@Front/config/runtimeEnv",
-        }],
-      },
       override: {
         fetch: {
           includeHttpResponseReturnType: false,

@@ -1,7 +1,5 @@
-import { getRuntimeEnv } from "@Front/config/runtimeEnv";
-
 const enableMock = async () => {
-  if (getRuntimeEnv().FRONT_MOCK_ENABLE === "true") {
+  if (import.meta.env.FRONT_MOCK_ENABLE === "true") {
     const { worker } = await import("@Mocks/browser");
 
     return worker.start({

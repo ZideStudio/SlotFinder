@@ -48,7 +48,13 @@ You will also see lint errors in the console.
 Launches the application in development mode with mock service workers enabled.
 Open [http://localhost:3003](http://localhost:3003) to view it in your browser.
 
-The application runs on port 3003 with `env-mode` set to `mock`, allowing you to test with mocked API responses.
+The application runs on port 3003 with `env-mode` set to `mock`, allowing you to test with mocked API responses. It starts signed in, because the default mock handlers are authenticated.
+
+### Environment variables
+
+`FRONT_*` variables are read with `import.meta.env` and fixed at build time. They come from the `.env.*` file matching the mode.
+
+For Playwright tests, `playwright.config.js` sets `FRONT_MOCK_ENABLE` and `FRONT_BACKEND_URL` on the dev server process, which takes precedence over `.env.development`.
 
 ### `npm test`
 

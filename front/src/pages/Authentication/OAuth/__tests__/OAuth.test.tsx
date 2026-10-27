@@ -1,3 +1,4 @@
+import { getGetV1AuthProviderUrlUrl } from "@Front/api/generated/authentication/authentication";
 import { AuthenticationContextProvider } from "@Front/contexts/AuthenticationContext/AuthenticationContextProvider";
 // oxlint-disable-next-line import/no-namespace
 import * as useAuthenticationContext from "@Front/hooks/useAuthenticationContext";
@@ -22,8 +23,6 @@ describe("OAuth", () => {
   });
 
   it("should render all OAuth providers as links with correct aria-labels and generated URLs", () => {
-    const RETURN_URL = encodeURIComponent("/");
-
     renderOAuth();
 
     for (const provider of oauthProvidersData) {
@@ -33,15 +32,13 @@ describe("OAuth", () => {
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute(
         "href",
-        `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/${provider.id}/url?returnUrl=${RETURN_URL}`,
+        `${import.meta.env.FRONT_BACKEND_URL}${getGetV1AuthProviderUrlUrl(provider.id, { returnUrl: "/" })}`,
       );
       expect(link).toHaveAttribute("rel", "noopener noreferrer");
     }
   });
 
   it("should render all OAuth providers as links with correct generated URLs from postAuthRedirectPath", () => {
-    const CUSTOM_RETURN_URL = encodeURIComponent("/custom-path");
-
     vi.spyOn(
       useAuthenticationContext,
       "useAuthenticationContext",
@@ -63,7 +60,7 @@ describe("OAuth", () => {
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute(
         "href",
-        `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/${provider.id}/url?returnUrl=${CUSTOM_RETURN_URL}`,
+        `${import.meta.env.FRONT_BACKEND_URL}${getGetV1AuthProviderUrlUrl(provider.id, { returnUrl: "/custom-path" })}`,
       );
     }
   });

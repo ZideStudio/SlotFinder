@@ -1,9 +1,11 @@
 Feature: Home page
-  Scenario: Open the application and find the title
-    Given the application is started with the mocked API
-    When the user opens the home page
-    Then the page contains the title "Slot Finder"
 
-  Scenario: Override the mocked auth status to 200
-    Given the application is started with auth status 200
-    Then the page contains the dashboard heading "My events"
+  Scenario: A visitor discovers the application
+    Given I am not signed in
+    When I open the home page
+    Then I see the main heading "Slot Finder"
+
+  Scenario: A signed-in user sees their events
+    Given I am signed in
+    When I open the home page
+    Then I see the main heading "My events"
