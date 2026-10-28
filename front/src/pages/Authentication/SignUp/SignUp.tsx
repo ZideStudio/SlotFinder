@@ -3,9 +3,12 @@ import type { SignUpFormType } from "@Front/types/Authentication/signUp/signUp.t
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { getSchema } from "./validation";
-import { TextInput } from "@Front/ui/molecules/Inputs/TextInput/TextInput";
 import { Button } from "@Front/ui/molecules/Button/Button";
+import { CheckboxField } from "@Front/components/fields/CheckboxField/CheckboxField";
+import "./SignUp.scss";
+import { TextField } from "@Front/components/fields/TextField/TextField";
+import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
+import { getSchema } from "./validation";
 
 export const SignUp = () => {
   const { signUp, isLoading, errorCode } = useSignUp();
@@ -17,128 +20,32 @@ export const SignUp = () => {
   return (
     <FormProvider {...methods}>
       <form
+        noValidate
         onSubmit={methods.handleSubmit(signUp)}
-        style={{
-          maxWidth: 400,
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1.5rem",
-        }}
-        aria-labelledby="signup-legend"
+        className="sign-up-form"
       >
-        <fieldset style={{ border: "none", padding: 0, margin: 0 }}>
-          <legend
-            id="signup-legend"
-            style={{ fontWeight: "bold", marginBottom: "1rem" }}
-          >
-            {t("title")}
-          </legend>
-
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
-            <TextInput
-              label={t("username")}
-              id="username"
-              type="text"
-              autoComplete="username"
-              aria-describedby={
-                methods.formState.errors.username ? "username-error" : undefined
-              }
-              {...methods.register("username", { required: true })}
-            />
-            {methods.formState.errors.username && (
-              <span
-                id="username-error"
-                role="alert"
-                style={{ color: "red", marginTop: 2 }}
-              >
-                {methods.formState.errors.username.message}
-              </span>
-            )}
-          </div>
-
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
-            <TextInput
-              label={t("email")}
-              id="email"
-              type="email"
-              autoComplete="email"
-              aria-describedby={
-                methods.formState.errors.email ? "email-error" : undefined
-              }
-              {...methods.register("email", { required: true })}
-            />
-            {methods.formState.errors.email && (
-              <span
-                id="email-error"
-                role="alert"
-                style={{ color: "red", marginTop: 2 }}
-              >
-                {methods.formState.errors.email.message}
-              </span>
-            )}
-          </div>
-
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
-            <TextInput
-              label={t("password")}
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              aria-describedby={
-                methods.formState.errors.password ? "password-error" : undefined
-              }
-              {...methods.register("password", { required: true })}
-            />
-            {methods.formState.errors.password && (
-              <span
-                id="password-error"
-                role="alert"
-                style={{ color: "red", marginTop: 2 }}
-              >
-                {methods.formState.errors.password.message}
-              </span>
-            )}
-          </div>
-
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
-            <TextInput
-              label={t("confirmPassword")}
-              id="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              aria-describedby={
-                methods.formState.errors.confirmPassword
-                  ? "confirmPassword-error"
-                  : undefined
-              }
-              {...methods.register("confirmPassword", { required: true })}
-            />
-            {methods.formState.errors.confirmPassword && (
-              <span
-                id="confirmPassword-error"
-                role="alert"
-                style={{ color: "red", marginTop: 2 }}
-              >
-                {methods.formState.errors.confirmPassword.message}
-              </span>
-            )}
-          </div>
-        </fieldset>
+        <TextField name="email" label={t("email")} className="sign-up-input" />
+        <TextField
+          name="password"
+          label={t("password")}
+          className="sign-up-input"
+          type="password"
+        />
+        <TextField
+          name="confirmPassword"
+          label={t("confirmPassword")}
+          className="sign-up-input"
+          type="password"
+        />
+        <CheckboxField
+          label={t("termsAcceptedLabel")}
+          name="termsAccepted"
+          required
+        />
         {errorCode && (
-          <span role="alert" style={{ color: "red" }}>
-            {t(`error.${errorCode}`)}
-          </span>
+          <InputErrorMessage>{t(`error.${errorCode}`)}</InputErrorMessage>
         )}
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" isLoading={isLoading}>
           {t("submit")}
         </Button>
       </form>

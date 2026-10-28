@@ -1,12 +1,14 @@
 import { getClassName } from "@Front/utils/helpers/getClassName";
-import type { ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithoutRef, ElementType } from "react";
 import "./Link.scss";
 
-type LinkProps = ComponentPropsWithRef<"a"> & {
+type LinkProps<Type extends ElementType = "a"> = {
+  as?: Type;
   openInNewTab?: boolean;
-};
+} & ComponentPropsWithoutRef<Type>;
 
 export const Link = ({
+  as,
   className,
   openInNewTab = false,
   children,
@@ -16,15 +18,14 @@ export const Link = ({
     defaultClassName: "ds-link",
     className,
   });
+  const Component = as ?? "a";
+  const openInNewTabProps = openInNewTab
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
 
   return (
-    <a
-      className={parentClassName}
-      target={openInNewTab ? "_blank" : undefined}
-      rel={openInNewTab ? "noopener noreferrer" : undefined}
-      {...props}
-    >
+    <Component className={parentClassName} {...openInNewTabProps} {...props}>
       {children}
-    </a>
+    </Component>
   );
 };

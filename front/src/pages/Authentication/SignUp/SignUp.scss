@@ -1,0 +1,7 @@
+@use "../../../utils/sass/mixins/helpers";
+
+.sign-up-form {
+  display: flex;
+  flex-direction: column;
+  gap: helpers.pxToRem(16);
+}

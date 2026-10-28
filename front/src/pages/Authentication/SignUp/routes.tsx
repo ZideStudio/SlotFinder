@@ -6,5 +6,6 @@ export const signUpRoutes: RouteObject = {
   element: <SignUp />,
   handle: {
     mustBeAuthenticate: false,
+    title: "signUp:title",
   },
 };
