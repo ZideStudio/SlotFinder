@@ -10,6 +10,7 @@ const LOGIN_PATH = "/login";
 
 export const ExistingAccount = (_props: ExistingAccountProps = {}) => {
   const { pathname } = useLocation();
+  // TODO: Select the "signUp" or "signIn" translation namespace based on the current page once sign-in is implemented.
   const { t } = useTranslation("signUp");
   const isSignUpPage = pathname === appRoutes.signUp();
   // TODO: Use appRoutes.login() when login route is added to appRoutes
