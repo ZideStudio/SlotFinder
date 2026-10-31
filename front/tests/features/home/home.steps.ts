@@ -1,4 +1,4 @@
-import { Given } from "../../common/fixtures";
+import { Given } from "@Tests/common/fixtures";
 
 Given("I open the home page", async ({ page }) => {
   await page.goto("/");
