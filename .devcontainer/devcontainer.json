@@ -23,9 +23,17 @@
         "vitest.explorer",
         "github.copilot-chat",
         "oxc.oxc-vscode",
-        "stylelint.vscode-stylelint"
+        "stylelint.vscode-stylelint",
+        "alexkrechik.cucumberautocomplete"
       ],
       "settings": {
+        "cucumberautocomplete.steps": [
+          "front/tests/common/**/*.ts",
+          "front/tests/features/**/*.steps.ts"
+        ],
+        "cucumberautocomplete.strictGherkinCompletion": true,
+        "cucumberautocomplete.syncfeatures": "front/tests/features/**/*.feature",
+        "cucumberautocomplete.onTypeFormat": true,
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
           "source.format.oxc": "always",
@@ -66,6 +74,11 @@
           "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
         },
+        "github.copilot.chat.commitMessageGeneration.instructions": [
+          {
+            "file": ".github/git-commit-instructions.md"
+          }
+        ],
         "go.gopath": "/go",
         "go.toolsGopath": "/go",
         "go.useLanguageServer": true,
@@ -100,6 +113,9 @@
           "**/build": true,
           "**/.git": true,
           "**/pkg/mod": true
+        },
+        "[feature]": {
+          "editor.formatOnType": true
         }
       }
     }
