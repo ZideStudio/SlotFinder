@@ -30,5 +30,5 @@
     }
   },
   "include": ["src", "mocks", "tests", "rsbuild.config.ts", "playwright.config.ts", "config/vitest"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "tests/.artifacts"]
 }
