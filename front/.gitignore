@@ -46,6 +46,4 @@ chromatic-diagnostics.json
 /src/api/orval/swagger.json
 
 # Playwright BDD generated files
-.features-gen/
-playwright-report/
-test-results/
+tests/.artifacts/
