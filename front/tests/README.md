@@ -36,7 +36,7 @@ tests/
 
 ## <span id="network-mocking">Network mocking</span>
 
-- The auto `network` fixture uses `defaultHandlers` (signed in).
+- The auto `network` fixture uses `defaultHandlers` (signed in). Tag a feature or scenario `@unauthenticated` to start signed out.
 - Override handlers in a step with `network.use(...)`.
 - An API request without a handler makes the test fail.
 
