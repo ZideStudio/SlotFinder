@@ -3,6 +3,7 @@
     "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "types": [
+      "node",
       "./src/react-app-env.d.ts",
       "@rsbuild/core/types",
       "vitest/globals",
@@ -28,6 +29,6 @@
       "@Mocks/*": ["./mocks/*"]
     }
   },
-  "include": ["src", "mocks", "tests", "rsbuild.config.ts", "config/vitest"],
+  "include": ["src", "mocks", "tests", "rsbuild.config.ts", "playwright.config.ts", "config/vitest"],
   "exclude": ["node_modules"]
 }
