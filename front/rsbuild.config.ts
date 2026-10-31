@@ -43,6 +43,7 @@ export default defineConfig(({ env }) => {
       alias: {
         "@Front": resolve(__dirname, "src"),
         "@Mocks": resolve(__dirname, "mocks"),
+        "@Tests": resolve(__dirname, "tests"),
       },
     },
     output: {
