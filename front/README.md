@@ -353,7 +353,7 @@ The current `playwright-bdd` CLI does not expose a built-in `--watch` flag. The 
 npm run test:playwright:ui
 ```
 
-This script watches `tests/**/*.feature` and `tests/**/*.steps.*`, reruns `bddgen` when those files change, and opens Playwright's UI runner on `http://127.0.0.1:9323`.
+This script watches `tests/features/**/*.{feature,steps.*}` and `tests/common/**`, reruns `bddgen` when those files change, and opens Playwright's UI runner on `http://127.0.0.1:9323`. See [tests/README.md](./tests/README.md) for the test organization.
 
 `npm run test:playwright:watch` is kept as an alias for the same behavior.
 

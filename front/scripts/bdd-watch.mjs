@@ -10,7 +10,8 @@ const isWindows = process.platform === 'win32';
 const npxCommand = isWindows ? 'npx.cmd' : 'npx';
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
-const RELEVANT_FILE = /(^|\/)(tests\/.*\.(feature|steps\.[jt]sx?)|playwright\.config\.(js|ts|mjs|cjs))$/;
+const RELEVANT_FILE =
+  /^(tests\/(common\/.*\.[jt]sx?|features\/.*\.(feature|steps\.[jt]sx?))|playwright\.config\.(js|ts|mjs|cjs))$/;
 
 const children = new Set();
 let activeBddGen = null;

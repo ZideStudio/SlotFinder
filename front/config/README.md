@@ -75,11 +75,11 @@ Global setup file executed before each browser test suite. It:
 
 ## <span id="playwright">Playwright</span>
 
-End-to-end tests live in `tests/` and are configured by `playwright.config.js` at the project root.
+End-to-end tests live in `tests/` (see [tests/README.md](../tests/README.md)) and are configured by `playwright.config.ts` at the project root. Generated files go to `tests/.artifacts/`.
 
-- **Network fixture**: `tests/bdd.steps.ts` defines an auto `network` fixture based on `@msw/playwright`. It uses `defaultHandlers` (signed in); steps override them with `network.use(...)`.
+- **Network fixture**: `tests/common/fixtures.ts` defines an auto `network` fixture based on `@msw/playwright`. It uses `defaultHandlers` (signed in); steps override them with `network.use(...)`.
 - **Unmocked requests**: API requests without a handler are aborted and make the scenario fail with their URLs. Other requests (HMR, assets) pass through.
-- **Own variables**: `API_URL` is defined only in `playwright.config.js`. It is passed to the dev server as `FRONT_BACKEND_URL` and exposed to the steps through `process.env`. `FRONT_MOCK_ENABLE` is `"false"` because MSW is provided by the fixture, not by the application's service worker.
+- **Own variables**: `API_URL` is defined only in `playwright.config.ts`. It is passed to the dev server as `FRONT_BACKEND_URL` and exposed to the steps through `process.env`. `FRONT_MOCK_ENABLE` is `"false"` because MSW is provided by the fixture, not by the application's service worker.
 
 ## <span id="learn-more">Learn More</span>
 

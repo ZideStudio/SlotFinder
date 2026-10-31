@@ -2,7 +2,7 @@ import { defineNetworkFixture, type NetworkFixture } from "@msw/playwright";
 import { expect } from "@playwright/test";
 import { HttpNetworkFrame } from "msw/experimental";
 import { createBdd, test as baseTest } from "playwright-bdd";
-import { defaultHandlers } from "../mocks/handlers/defaultHandlers";
+import { defaultHandlers } from "../../mocks/handlers/defaultHandlers";
 
 const API_PATH_PREFIX = `${process.env.FRONT_BACKEND_URL}/`;
 

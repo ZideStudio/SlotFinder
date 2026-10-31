@@ -6,14 +6,15 @@ const API_URL = "/mocked-api";
 process.env.FRONT_BACKEND_URL = API_URL;
 
 const testDir = defineBddConfig({
-  features: "tests/**/*.feature",
-  steps: "tests/**/*.steps.ts",
-  outputDir: ".features-gen",
+  features: "tests/features/**/*.feature",
+  steps: ["tests/common/**/*.ts", "tests/features/**/*.steps.ts"],
+  outputDir: "tests/.artifacts/bdd-gen",
 });
 
 export default defineConfig({
   testDir,
-  reporter: [["html", { outputFolder: "playwright-report" }]],
+  outputDir: "tests/.artifacts/results",
+  reporter: [["html", { outputFolder: "tests/.artifacts/report" }]],
   fullyParallel: false,
   use: {
     baseURL: "http://127.0.0.1:3004",
