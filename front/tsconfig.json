@@ -26,9 +26,17 @@
     "jsx": "react-jsx",
     "paths": {
       "@Front/*": ["./src/*"],
-      "@Mocks/*": ["./mocks/*"]
+      "@Mocks/*": ["./mocks/*"],
+      "@Tests/*": ["./tests/*"]
     }
   },
-  "include": ["src", "mocks", "tests", "rsbuild.config.ts", "playwright.config.ts", "config/vitest"],
+  "include": [
+    "src",
+    "mocks",
+    "tests",
+    "rsbuild.config.ts",
+    "playwright.config.ts",
+    "config/vitest"
+  ],
   "exclude": ["node_modules", "tests/.artifacts"]
 }
