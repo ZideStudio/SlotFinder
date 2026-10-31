@@ -16,7 +16,6 @@ End-to-end tests written in Gherkin with `playwright-bdd`, with the API mocked b
 tests/
   common/                  — Reusable steps, not tied to a feature
     fixtures.ts            — `test`, MSW `network` fixture, Given/When/Then
-    navigation.steps.ts    — Open a page
     content.steps.ts       — Check headings and texts
     interactions.steps.ts  — Click buttons, fill fields
   features/
