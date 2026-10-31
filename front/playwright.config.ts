@@ -32,7 +32,4 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
   },
-  ui: true,
-  uiPort: 9323,
-  uiHost: "0.0.0.0",
 });
