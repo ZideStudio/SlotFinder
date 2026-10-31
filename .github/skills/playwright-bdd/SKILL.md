@@ -60,7 +60,7 @@ Run only the relevant subset of tests by passing the paths of generated spec fil
 Example:
 
 ```shell
-npx bddgen && npx playwright test .features-gen/@homepage/homepage.feature.spec.js
+npx bddgen && npx playwright test tests/.artifacts/bdd-gen/@homepage/homepage.feature.spec.js
 ```
 
 ## Scenario Writing Rules
