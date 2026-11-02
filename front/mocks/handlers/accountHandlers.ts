@@ -1,5 +1,6 @@
 import type { PatchAccountErrorCodeType } from "@Front/api/account/patchAccount/types";
 import {
+  getGetV1AccountAccountIdAvatarUrl,
   getGetV1AccountMeUrl,
   getPatchV1AccountAvatarUrl,
   getPostV1AccountUrl,
@@ -95,7 +96,7 @@ export const getAccountMeWithoutTerms200 = http.get(
 );
 
 export const getAccountAvatar200 = http.get(
-  `*${getPatchV1AccountAvatarUrl()}`,
+  `*${getGetV1AccountAccountIdAvatarUrl(":accountId")}`,
   async () => {
     await applyMockDelay();
 
