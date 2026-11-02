@@ -59,6 +59,9 @@ export default defineConfig(({ env }) => {
         {
           from: "public",
           to: ".",
+          globOptions: {
+            ignore: ["**/mockServiceWorker.js"],
+          },
         },
       ],
     },
@@ -66,6 +69,9 @@ export default defineConfig(({ env }) => {
       host: process.env.HOST ?? "0.0.0.0",
       port: Number.parseInt(process.env.PORT ?? "3000", 10),
       open: (process.env.BROWSER ?? "false") === "true",
+      publicDir: {
+        ignore: ["**/mockServiceWorker.js"],
+      },
     },
     html: {
       template: "./index.html",
