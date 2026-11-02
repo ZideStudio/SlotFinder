@@ -59,6 +59,9 @@ export default defineConfig(({ env }) => {
         {
           from: "public",
           to: ".",
+          globOptions: {
+            ignore: ["**/mockServiceWorker.js"],
+          },
         },
       ],
     },
