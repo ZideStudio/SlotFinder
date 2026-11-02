@@ -14,7 +14,7 @@ export const postAccount400Fixture: HelpersApiError = {
 export const patchAccount200Fixture: AccountAccountResponseDto = {
   username: "test",
   email: "test@example.com",
-  avatarUrl: "/api/v1/account/123456789/avatar",
+  avatarUrl: "/mocked-api/v1/account/123456789/avatar",
   color: "#ff0000",
   language: "en",
   providers: [
@@ -34,7 +34,7 @@ export const patchAccount400Fixture = (
 export const getAccountMe200Fixture: AccountAccountResponseDto = {
   username: "test_user",
   email: "test@example.com",
-  avatarUrl: "/api/v1/account/123456789/avatar",
+  avatarUrl: "/mocked-api/v1/account/123456789/avatar",
   color: "#ff0000",
   language: "en",
   providers: [
@@ -50,7 +50,7 @@ export const getAccountMe200Fixture: AccountAccountResponseDto = {
 export const getAccountMeWithoutTerms200Fixture: AccountAccountResponseDto = {
   username: "test_user",
   email: "test@example.com",
-  avatarUrl: "/api/v1/account/123456789/avatar",
+  avatarUrl: "/mocked-api/v1/account/123456789/avatar",
   color: "#ff0000",
   language: "en",
   providers: [
