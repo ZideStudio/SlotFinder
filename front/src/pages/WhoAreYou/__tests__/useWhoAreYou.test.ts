@@ -83,7 +83,7 @@ describe("useWhoAreYou - success scenarios", () => {
 
     await waitFor(() => {
       expect(result.current.defaultAvatarUrl).toBe(
-        "/api/v1/account/123456789/avatar",
+        "/mocked-api/v1/account/123456789/avatar",
       );
       expect(result.current.hasAcceptedCurrentTermsVersion).toBe(true);
       expect(reset).toHaveBeenCalledWith(
