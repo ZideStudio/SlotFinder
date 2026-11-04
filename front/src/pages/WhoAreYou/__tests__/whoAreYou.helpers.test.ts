@@ -1,5 +1,4 @@
 import { TERMS_VERSION } from "@Front/utils/constants/terms";
-import { Temporal } from "@js-temporal/polyfill";
 import type { WhoAreYouFormData } from "../types";
 import { buildAccountUpdateDTO } from "../whoAreYou.helpers";
 
