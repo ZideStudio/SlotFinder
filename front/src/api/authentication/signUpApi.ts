@@ -5,7 +5,6 @@ import {
 } from "@Front/api/generated/slotFinderAPI.schemas";
 import type { SignUpRequestBodyType } from "@Front/types/Authentication/signUp/signUp.types";
 import { TERMS_VERSION } from "@Front/utils/constants/terms";
-import { Temporal } from "@js-temporal/polyfill";
 
 /**
  * Narrows a generic `string` to `AccountAccountCreateDtoLanguage` ('en' | 'fr').
