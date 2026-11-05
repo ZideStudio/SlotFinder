@@ -13,9 +13,10 @@ export const useOAuth = (): TUseOAuth => {
   const oAuthProviders: OAuthProvider[] = oauthProvidersData.map(
     (provider) => ({
       ...provider,
-      href: getGetV1AuthProviderUrlUrl(provider.id, {
-        returnUrl: postAuthRedirectPath || appRoutes.home(),
-      }),
+      href: `${import.meta.env.FRONT_BACKEND_URL}${getGetV1AuthProviderUrlUrl(
+        provider.id,
+        { returnUrl: postAuthRedirectPath || appRoutes.home() },
+      )}`,
     }),
   );
 

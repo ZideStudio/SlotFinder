@@ -48,7 +48,13 @@ You will also see lint errors in the console.
 Launches the application in development mode with mock service workers enabled.
 Open [http://localhost:3003](http://localhost:3003) to view it in your browser.
 
-The application runs on port 3003 with `env-mode` set to `mock`, allowing you to test with mocked API responses.
+The application runs on port 3003 with `env-mode` set to `mock`, allowing you to test with mocked API responses. It starts signed in, because the default mock handlers are authenticated.
+
+### Environment variables
+
+`FRONT_*` variables are read with `import.meta.env` and fixed at build time. They come from the `.env.*` file matching the mode.
+
+For Playwright tests, `playwright.config.js` sets `FRONT_MOCK_ENABLE` and `FRONT_BACKEND_URL` on the dev server process, which takes precedence over `.env.development`.
 
 ### `npm test`
 
@@ -338,6 +344,20 @@ export const ComponentName = () => {
 ### ❗ Naming Conventions
 
 ==> Component names, file names, and folder names should follow the **PascalCase** convention.
+
+## 🧪 Playwright BDD UI + watch mode
+
+The current `playwright-bdd` CLI does not expose a built-in `--watch` flag. The supported workflow is to run a small watch process that regenerates the BDD files while the Playwright UI stays open.
+
+```bash
+npm run test:playwright:ui
+```
+
+This script watches `tests/features/**/*.{feature,steps.*}` and `tests/common/**`, reruns `bddgen` when those files change, and opens Playwright's UI runner on `http://127.0.0.1:9323`. See [tests/README.md](./tests/README.md) for the test organization.
+
+`npm run test:playwright:watch` is kept as an alias for the same behavior.
+
+In CI (`CI=true` / GitHub Actions), the script automatically falls back to a one-shot run: it regenerates the BDD files and executes `playwright test` without launching the interactive UI or staying in watch mode.
 
 ## ⚠️ Caution with Environment Variables
 

@@ -1,3 +1,4 @@
+import { getPostV1AuthRefreshUrl } from "@Front/api/generated/authentication/authentication";
 import {
   postTokenRefresh200,
   postTokenRefresh500,
@@ -48,13 +49,10 @@ describe("TokenRefreshManager", () => {
     it("should handle multiple simultaneous refresh requests without duplicate API calls", async () => {
       let requestCount = 0;
       server.use(
-        http.post(
-          `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
-          () => {
-            requestCount++;
-            return HttpResponse.json({}, { status: 200 });
-          },
-        ),
+        http.post(`*${getPostV1AuthRefreshUrl()}`, () => {
+          requestCount++;
+          return HttpResponse.json({}, { status: 200 });
+        }),
       );
 
       const refreshPromises = [

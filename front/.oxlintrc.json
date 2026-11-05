@@ -6,6 +6,15 @@
     "pedantic": "warn"
   },
   "plugins": ["react", "typescript", "import", "jsx-a11y", "vitest"],
+  "overrides": [
+    {
+      "files": ["tests/**/*.steps.ts"],
+      "rules": {
+        "eslint/new-cap": "off",
+        "vitest/require-hook": "off"
+      }
+    }
+  ],
   "rules": {
     "react/function-component-definition": [
       "warn",
