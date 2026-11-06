@@ -5,7 +5,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import "./ForgotPassword.scss";
-import { CardPage } from "@Front/components/CardPage/CardPage";
 import { getSchema } from "./validation";
 import { TextField } from "@Front/components/fields/TextField/TextField";
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
@@ -20,18 +19,23 @@ export const ForgotPassword = () => {
     useForgotPassword();
   const { t } = useTranslation("forgotPassword");
   const methods = useForm<ForgotPasswordFormType>({
-      resolver: yupResolver(getSchema(t)),
-    });
+    resolver: yupResolver(getSchema(t)),
+  });
 
   return (
-    <FormProvider {...methods}>
-      <CardPage title={t("title")} className="forgot-password">
+    <div className="forgot-password">
+      <FormProvider {...methods}>
         <form
           noValidate
           onSubmit={methods.handleSubmit(forgotPassword)}
           className="sign-up-form"
         >
-          <TextField name="email" label={t("email")} className="sign-up-input" />
+          <TextField
+            name="email"
+            label={t("email")}
+            required
+            className="sign-up-input"
+          />
           <Button
             type="submit"
             isLoading={isLoading}
@@ -47,7 +51,7 @@ export const ForgotPassword = () => {
           {t("noAccount")}{" "}
           <Link to={`/${signUpRoutes.path}`}>{t("createAccount")}</Link>
         </p>
-      </CardPage>
-    </FormProvider>
+      </FormProvider>
+    </div>
   );
 };

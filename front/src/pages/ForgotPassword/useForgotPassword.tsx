@@ -5,14 +5,12 @@ import type { ErrorResponseCodeType } from "@Front/types/api.types";
 import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-type ForgotPasswordErrorCodeType = ErrorResponseCodeType<
-  "PASSWORD_RESET_TOO_FREQUENT"
->;
+type ForgotPasswordErrorCodeType =
+  ErrorResponseCodeType<"PASSWORD_RESET_TOO_FREQUENT">;
 
 type UseForgotPasswordReturn = {
   forgotPassword: (data: AccountForgotPasswordDto) => void;
   isLoading: boolean;
-  isSuccess: boolean;
   errorCode?: ForgotPasswordErrorCodeType;
 };
 
@@ -34,7 +32,6 @@ export const useForgotPassword = (): UseForgotPasswordReturn => {
   return {
     forgotPassword: mutation.mutate,
     isLoading: mutation.isPending,
-    isSuccess: mutation.isSuccess,
     errorCode,
   };
 };

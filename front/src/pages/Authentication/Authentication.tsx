@@ -10,13 +10,19 @@ import "./Authentication.scss";
 export const Authentication = () => {
   const { t } = useTranslation();
   const matches = useMatches() as UIMatch<unknown, AuthenticationRouteHandle>[];
-  const currentTitle = matches.at(-1)?.handle?.title;
+  const currentHandle = matches.at(-1)?.handle;
+  const currentTitle = currentHandle?.title;
+  const shouldDisplayOAuth = !currentHandle?.hideOAuth;
 
   return (
     <CardPage title={currentTitle ? t(currentTitle) : ""}>
       <Outlet />
-      <hr className="authentication-divider" />
-      <OAuth />
+      {shouldDisplayOAuth && (
+        <>
+          <hr className="authentication-divider" />
+          <OAuth />
+        </>
+      )}
       <ExistingAccount />
     </CardPage>
   );
