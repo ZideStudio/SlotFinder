@@ -15,8 +15,7 @@ type ForgotPasswordFormType = {
 };
 
 export const ForgotPassword = () => {
-  const { forgotPassword, isLoading, errorCode } =
-    useForgotPassword();
+  const { forgotPassword, isLoading, errorCode } = useForgotPassword();
   const { t } = useTranslation("forgotPassword");
   const methods = useForm<ForgotPasswordFormType>({
     resolver: yupResolver(getSchema(t)),
