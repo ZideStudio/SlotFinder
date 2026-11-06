@@ -7,5 +7,5 @@ export const getSchema = (translate: TFunction) =>
   object({
     email: string()
       .required(translate("requiredEmail"))
-      .matches(EMAIL_REGEX, translate("invalidEmail"))
-    });
+      .matches(EMAIL_REGEX, translate("invalidEmail")),
+  });

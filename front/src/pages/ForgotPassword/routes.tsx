@@ -6,5 +6,7 @@ export const forgotPasswordRoutes: RouteObject & { path: string } = {
   element: <ForgotPassword />,
   handle: {
     mustBeAuthenticate: false,
+    title: "forgotPassword:title",
+    hideOAuth: true,
   },
 };
