@@ -93,7 +93,7 @@ require (
 	github.com/xrash/smetrics v0.0.0-20261013231157-39c47d93efba // indirect
 	go.mongodb.org/mongo-driver/v2 v2.9.2 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
 	golang.org/x/arch v0.32.0 // indirect
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
