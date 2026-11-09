@@ -185,7 +185,7 @@ func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, event
 	if !ok {
 		return
 	}
-	// Open the stream right away without any snapshot: current slots come from GET /events/{eventId}
+	// Open the stream right away without any snapshot: the client is already registered, so it can now fetch GET /events/{eventId} without missing changes
 	flusher.Flush()
 
 	// Listen for messages and client disconnect

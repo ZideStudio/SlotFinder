@@ -1011,7 +1011,7 @@
         },
         "/v1/events/{eventId}/sse": {
             "get": {
-                "description": "Establishes a Server-Sent Events connection to receive real-time slot changes for a specific event. No snapshot is sent on connection: fetch the current slots with GET /events/{eventId}",
+                "description": "Establishes a Server-Sent Events connection to receive real-time slot changes for a specific event. No snapshot is sent: open the stream first, then fetch the current slots with GET /events/{eventId} and apply the changes received meanwhile by slot id",
                 "tags": [
                     "SSE"
                 ],

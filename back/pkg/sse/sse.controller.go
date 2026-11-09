@@ -26,7 +26,7 @@ func NewSSEController(service *SSEService) *SSEController {
 
 // Connect handles SSE connection for event updates
 // @Summary Connect to SSE for event updates
-// @Description Establishes a Server-Sent Events connection to receive real-time slot changes for a specific event. No snapshot is sent on connection: fetch the current slots with GET /events/{eventId}
+// @Description Establishes a Server-Sent Events connection to receive real-time slot changes for a specific event. No snapshot is sent: open the stream first, then fetch the current slots with GET /events/{eventId} and apply the changes received meanwhile by slot id
 // @Tags SSE
 // @Param eventId path string true "Event ID"
 // @Success 200 {array} SSESlotUpdateMessage "Stream of slot change arrays (DELETED, UPDATED then CREATED)"
