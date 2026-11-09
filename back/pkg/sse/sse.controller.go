@@ -26,10 +26,10 @@ func NewSSEController(service *SSEService) *SSEController {
 
 // Connect handles SSE connection for event updates
 // @Summary Connect to SSE for event updates
-// @Description Establishes a Server-Sent Events connection to receive real-time updates for a specific event
+// @Description Establishes a Server-Sent Events connection to receive real-time slot changes for a specific event. No snapshot is sent on connection: fetch the current slots with GET /events/{eventId}
 // @Tags SSE
 // @Param eventId path string true "Event ID"
-// @Success 200 {array} SSESlotUpdateMessage "Stream of slot update arrays"
+// @Success 200 {array} SSESlotUpdateMessage "Stream of slot change arrays (DELETED, UPDATED then CREATED)"
 // @Failure 400 {object} map[string]string "Invalid event ID"
 // @Failure 401 {object} map[string]string "User not authenticated"
 // @Router /v1/events/{eventId}/sse [get]

@@ -53,7 +53,7 @@ func (suite *ErrorPathsRepoTestSuite) TestSlotRepository_Errors() {
 	assert.Error(suite.T(), repo.FindOneById(uuid.New(), slot))
 	assert.Error(suite.T(), repo.FindByEventId(uuid.New(), &slots))
 	assert.Error(suite.T(), repo.FindValidatedSlotByEventId(uuid.New(), slot))
-	assert.Error(suite.T(), repo.DeleteByEventId(uuid.New()))
+	assert.Error(suite.T(), repo.ApplyChanges([]model.Slot{*slot}, nil, nil))
 	assert.Error(suite.T(), repo.DeleteValidatedSlotByEventId(uuid.New()))
 }
 

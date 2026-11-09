@@ -1,12 +1,14 @@
 package slot
 
 import (
+	model "app/db/models"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFindIntersectingTimeSlots_BasicIntersection(t *testing.T) {
@@ -312,4 +314,120 @@ func TestLoadSlots_ConcurrentCallsDifferentEvents(t *testing.T) {
 			t.Fatal("Test timed out - possible deadlock")
 		}
 	}
+}
+
+func slotHour(hour int) time.Time {
+	return time.Date(2024, 1, 1, hour, 0, 0, 0, time.UTC)
+}
+
+func TestDiffSlots_NoExistingSlots_CreatesAll(t *testing.T) {
+	eventId := uuid.New()
+	service := &SlotService{}
+
+	changes := service.diffSlots(eventId, nil, []TimeSlot{
+		{StartsAt: slotHour(10), EndsAt: slotHour(11)},
+		{StartsAt: slotHour(13), EndsAt: slotHour(14)},
+	})
+
+	assert.Empty(t, changes.Updated)
+	assert.Empty(t, changes.Deleted)
+	require.Len(t, changes.Created, 2)
+	assert.NotEqual(t, uuid.Nil, changes.Created[0].Id)
+	assert.NotEqual(t, changes.Created[0].Id, changes.Created[1].Id)
+	assert.Equal(t, model.Slot{Id: changes.Created[0].Id, EventId: eventId, StartsAt: slotHour(10), EndsAt: slotHour(11)}, changes.Created[0])
+	assert.Equal(t, model.Slot{Id: changes.Created[1].Id, EventId: eventId, StartsAt: slotHour(13), EndsAt: slotHour(14)}, changes.Created[1])
+}
+
+func TestDiffSlots_NoComputedSlots_DeletesAll(t *testing.T) {
+	existing := []model.Slot{
+		{Id: uuid.New(), StartsAt: slotHour(10), EndsAt: slotHour(11)},
+		{Id: uuid.New(), StartsAt: slotHour(13), EndsAt: slotHour(14)},
+	}
+	service := &SlotService{}
+
+	changes := service.diffSlots(uuid.New(), existing, []TimeSlot{})
+
+	assert.Empty(t, changes.Created)
+	assert.Empty(t, changes.Updated)
+	assert.Equal(t, existing, changes.Deleted)
+}
+
+func TestDiffSlots_SameDatesDifferentLocation_NoChanges(t *testing.T) {
+	// Dates read from the database do not have the same location as the computed ones
+	location := time.FixedZone("UTC+1", 60*60)
+	existing := []model.Slot{{Id: uuid.New(), StartsAt: slotHour(10).In(location), EndsAt: slotHour(11).In(location)}}
+	service := &SlotService{}
+
+	changes := service.diffSlots(uuid.New(), existing, []TimeSlot{{StartsAt: slotHour(10), EndsAt: slotHour(11)}})
+
+	assert.Empty(t, changes.Created)
+	assert.Empty(t, changes.Updated)
+	assert.Empty(t, changes.Deleted)
+}
+
+func TestDiffSlots_DatesChanged_UpdatesKeepingId(t *testing.T) {
+	eventId := uuid.New()
+	existing := model.Slot{Id: uuid.New(), EventId: eventId, StartsAt: slotHour(10), EndsAt: slotHour(12)}
+	service := &SlotService{}
+
+	changes := service.diffSlots(eventId, []model.Slot{existing}, []TimeSlot{{StartsAt: slotHour(11), EndsAt: slotHour(13)}})
+
+	assert.Empty(t, changes.Created)
+	assert.Empty(t, changes.Deleted)
+	assert.Equal(t, []model.Slot{{Id: existing.Id, EventId: eventId, StartsAt: slotHour(11), EndsAt: slotHour(13)}}, changes.Updated)
+}
+
+func TestDiffSlots_MergedSlots_UpdatesFirstAndDeletesSecond(t *testing.T) {
+	first := model.Slot{Id: uuid.New(), StartsAt: slotHour(10), EndsAt: slotHour(11)}
+	second := model.Slot{Id: uuid.New(), StartsAt: slotHour(13), EndsAt: slotHour(14)}
+	service := &SlotService{}
+
+	changes := service.diffSlots(uuid.New(), []model.Slot{first, second}, []TimeSlot{{StartsAt: slotHour(10), EndsAt: slotHour(14)}})
+
+	assert.Empty(t, changes.Created)
+	assert.Equal(t, []model.Slot{{Id: first.Id, StartsAt: slotHour(10), EndsAt: slotHour(14)}}, changes.Updated)
+	assert.Equal(t, []model.Slot{second}, changes.Deleted)
+}
+
+func TestDiffSlots_SplitSlot_UpdatesFirstAndCreatesSecond(t *testing.T) {
+	eventId := uuid.New()
+	existing := model.Slot{Id: uuid.New(), EventId: eventId, StartsAt: slotHour(10), EndsAt: slotHour(14)}
+	service := &SlotService{}
+
+	changes := service.diffSlots(eventId, []model.Slot{existing}, []TimeSlot{
+		{StartsAt: slotHour(10), EndsAt: slotHour(11)},
+		{StartsAt: slotHour(13), EndsAt: slotHour(14)},
+	})
+
+	assert.Empty(t, changes.Deleted)
+	assert.Equal(t, []model.Slot{{Id: existing.Id, EventId: eventId, StartsAt: slotHour(10), EndsAt: slotHour(11)}}, changes.Updated)
+	require.Len(t, changes.Created, 1)
+	assert.Equal(t, model.Slot{Id: changes.Created[0].Id, EventId: eventId, StartsAt: slotHour(13), EndsAt: slotHour(14)}, changes.Created[0])
+}
+
+func TestDiffSlots_MovedWithoutOverlap_DeletesAndCreates(t *testing.T) {
+	eventId := uuid.New()
+	existing := model.Slot{Id: uuid.New(), EventId: eventId, StartsAt: slotHour(9), EndsAt: slotHour(10)}
+	service := &SlotService{}
+
+	// A slot only touching the existing one does not overlap it either
+	changes := service.diffSlots(eventId, []model.Slot{existing}, []TimeSlot{{StartsAt: slotHour(10), EndsAt: slotHour(11)}})
+
+	assert.Empty(t, changes.Updated)
+	assert.Equal(t, []model.Slot{existing}, changes.Deleted)
+	require.Len(t, changes.Created, 1)
+	assert.NotEqual(t, existing.Id, changes.Created[0].Id)
+	assert.Equal(t, model.Slot{Id: changes.Created[0].Id, EventId: eventId, StartsAt: slotHour(10), EndsAt: slotHour(11)}, changes.Created[0])
+}
+
+func TestDiffSlots_UnsortedExistingSlots_ReusesEarliest(t *testing.T) {
+	first := model.Slot{Id: uuid.New(), StartsAt: slotHour(10), EndsAt: slotHour(11)}
+	second := model.Slot{Id: uuid.New(), StartsAt: slotHour(13), EndsAt: slotHour(14)}
+	service := &SlotService{}
+
+	changes := service.diffSlots(uuid.New(), []model.Slot{second, first}, []TimeSlot{{StartsAt: slotHour(10), EndsAt: slotHour(14)}})
+
+	assert.Empty(t, changes.Created)
+	assert.Equal(t, []model.Slot{{Id: first.Id, StartsAt: slotHour(10), EndsAt: slotHour(14)}}, changes.Updated)
+	assert.Equal(t, []model.Slot{second}, changes.Deleted)
 }

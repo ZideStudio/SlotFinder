@@ -528,6 +528,34 @@ func TestAvailabilityService_Delete_Success(t *testing.T) {
 	assert.Len(t, availabilities, 0)
 }
 
+func TestAvailabilityService_Delete_RemovesObsoleteSlots(t *testing.T) {
+	s := newTestAvailabilityService(t)
+	owner := createTestUser(t)
+	event := createEventWithAccess(t, s.eventRepository, owner)
+	participant := createTestUser(t)
+	require.NoError(t, repository.NewAccountEventRepository(nil).Create(&model.AccountEvent{AccountId: participant, EventId: event.Id}))
+
+	_, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: owner})
+	require.NoError(t, err)
+	awaitAsyncSlotWork(t, s)
+	participantAvailability, err := s.Create(&AvailabilityCreateDto{StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour)}, event.Id, &guard.Claims{Id: participant})
+	require.NoError(t, err)
+	awaitAsyncSlotWork(t, s)
+
+	slotRepository := repository.NewSlotRepository(nil)
+	var slotsBefore []model.Slot
+	require.NoError(t, slotRepository.FindByEventId(event.Id, &slotsBefore))
+	require.Len(t, slotsBefore, 1)
+
+	// The owner is now the only participant with availabilities, so no slot remains
+	require.NoError(t, s.Delete(participantAvailability.Id, &guard.Claims{Id: participant}))
+
+	var slotsAfter []model.Slot
+	awaitAsyncSlotWork(t, s)
+	require.NoError(t, slotRepository.FindByEventId(event.Id, &slotsAfter))
+	assert.Empty(t, slotsAfter)
+}
+
 // TestAvailabilityService_Delete_EventAccessDenied covers the case where the
 // caller owns the availability but was later removed from the event.
 func TestAvailabilityService_Delete_EventAccessDenied(t *testing.T) {

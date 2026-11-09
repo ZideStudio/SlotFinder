@@ -24,7 +24,6 @@ type EventService struct {
 	eventRepository        *repository.EventRepository
 	accountEventRepository *repository.AccountEventRepository
 	availabilityRepository *repository.AvailabilityRepository
-	slotRepository         *repository.SlotRepository
 	slotService            *slot.SlotService
 	signinService          *signin.SigninService
 	mailService            *mail.MailService
@@ -40,7 +39,6 @@ func NewEventService(service *EventService) *EventService {
 		eventRepository:        repository.NewEventRepository(nil),
 		accountEventRepository: repository.NewAccountEventRepository(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
-		slotRepository:         repository.NewSlotRepository(nil),
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
 		mailService:            mail.NewMailService(nil),
@@ -268,17 +266,12 @@ func (s *EventService) Update(eventId uuid.UUID, data *EventUpdateDto, user *gua
 		return nil
 	}
 
-	// Remove slots
-	if err := s.slotRepository.DeleteByEventId(event.Id); err != nil {
-		return err
-	}
-
 	// Remove availabilities that are out of the new event date range
 	if err := s.availabilityRepository.DeleteOutOfEventRangeAndAdjustOverlaps(event.Id, event.StartsAt, event.EndsAt); err != nil {
 		return err
 	}
 
-	// Load slots
+	// Recalculate slots
 	s.slotService.LoadSlotsAsync(eventId)
 
 	return nil

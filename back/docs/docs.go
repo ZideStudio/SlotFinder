@@ -1019,7 +1019,7 @@ const docTemplate = `{
         },
         "/v1/events/{eventId}/sse": {
             "get": {
-                "description": "Establishes a Server-Sent Events connection to receive real-time updates for a specific event",
+                "description": "Establishes a Server-Sent Events connection to receive real-time slot changes for a specific event. No snapshot is sent on connection: fetch the current slots with GET /events/{eventId}",
                 "tags": [
                     "SSE"
                 ],
@@ -1035,7 +1035,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Stream of slot update arrays",
+                        "description": "Stream of slot change arrays (DELETED, UPDATED then CREATED)",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -1299,6 +1299,19 @@ const docTemplate = `{
                 "PROVIDER_GOOGLE",
                 "PROVIDER_DISCORD",
                 "PROVIDER_GITHUB"
+            ]
+        },
+        "constants.SlotAction": {
+            "type": "string",
+            "enum": [
+                "CREATED",
+                "UPDATED",
+                "DELETED"
+            ],
+            "x-enum-varnames": [
+                "SLOT_ACTION_CREATED",
+                "SLOT_ACTION_UPDATED",
+                "SLOT_ACTION_DELETED"
             ]
         },
         "event.EventBasicResponseDto": {
@@ -1709,6 +1722,9 @@ const docTemplate = `{
         "sse.SSESlotUpdateMessage": {
             "type": "object",
             "properties": {
+                "action": {
+                    "$ref": "#/definitions/constants.SlotAction"
+                },
                 "endsAt": {
                     "type": "string"
                 },

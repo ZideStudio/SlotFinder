@@ -27,7 +27,6 @@ func newTestEventService(t *testing.T) *EventService {
 		eventRepository:        repository.NewEventRepository(nil),
 		accountEventRepository: repository.NewAccountEventRepository(nil),
 		availabilityRepository: repository.NewAvailabilityRepository(nil),
-		slotRepository:         repository.NewSlotRepository(nil),
 		slotService:            slot.NewSlotService(nil),
 		signinService:          signin.NewSigninService(nil),
 		mailService:            mail.NewMailService(nil),
@@ -86,7 +85,6 @@ func TestNewEventService_Nil_BuildsRealDependencies(t *testing.T) {
 	assert.NotNil(t, s.eventRepository)
 	assert.NotNil(t, s.accountEventRepository)
 	assert.NotNil(t, s.availabilityRepository)
-	assert.NotNil(t, s.slotRepository)
 	assert.NotNil(t, s.slotService)
 	assert.NotNil(t, s.signinService)
 	assert.NotNil(t, s.mailService)
@@ -275,16 +273,57 @@ func TestEventService_Update_RepositoryUpdatesError(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestEventService_Update_SlotRepositoryDeleteError(t *testing.T) {
+// loadCommonSlot gives the owner and a new participant the same 25h availability, then loads the resulting slot
+func loadCommonSlot(t *testing.T, s *EventService, event model.Event, ownerId uuid.UUID) model.Slot {
+	t.Helper()
+	participant := createTestAccountWithEmail(t)
+	_, err := s.JoinEvent(event.Id, &guard.Claims{Id: participant})
+	require.NoError(t, err)
+
+	for _, accountId := range []uuid.UUID{ownerId, participant} {
+		require.NoError(t, s.availabilityRepository.Create(&model.Availability{
+			Id: uuid.New(), AccountId: accountId, EventId: event.Id,
+			StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(25 * time.Hour),
+		}))
+	}
+	s.slotService.LoadSlots(event.Id)
+
+	var slots []model.Slot
+	require.NoError(t, repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots))
+	require.Len(t, slots, 1)
+	return slots[0]
+}
+
+func TestEventService_Update_EndsAtExtended_KeepsSlotId(t *testing.T) {
 	s := newTestEventService(t)
 	owner := createTestOwner(t)
 	event := createTestEventForOwner(t, s, owner)
-	s.slotRepository = repository.NewSlotRepository(testutils.ClosedDB(t))
+	slotEntity := loadCommonSlot(t, s, event, owner)
 
-	newStart := event.StartsAt.Add(time.Hour)
-	newEnd := event.EndsAt.Add(time.Hour)
-	err := s.Update(event.Id, &EventUpdateDto{StartsAt: &newStart, EndsAt: &newEnd}, &guard.Claims{Id: owner})
-	assert.Error(t, err)
+	newEnd := event.EndsAt.Add(24 * time.Hour)
+	require.NoError(t, s.Update(event.Id, &EventUpdateDto{EndsAt: &newEnd}, &guard.Claims{Id: owner}))
+
+	var slots []model.Slot
+	s.slotService.WaitAsyncLoads()
+	require.NoError(t, repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots))
+	require.Len(t, slots, 1)
+	assert.Equal(t, slotEntity.Id, slots[0].Id)
+}
+
+func TestEventService_Update_DurationIncreased_DeletesTooShortSlot(t *testing.T) {
+	s := newTestEventService(t)
+	owner := createTestOwner(t)
+	event := createTestEventForOwner(t, s, owner)
+	loadCommonSlot(t, s, event, owner)
+
+	// The 25h common availability is too short for a 2 days event
+	days := 2
+	require.NoError(t, s.Update(event.Id, &EventUpdateDto{Days: &days}, &guard.Claims{Id: owner}))
+
+	var slots []model.Slot
+	s.slotService.WaitAsyncLoads()
+	require.NoError(t, repository.NewSlotRepository(nil).FindByEventId(event.Id, &slots))
+	assert.Empty(t, slots)
 }
 
 func TestEventService_Update_AvailabilityRepositoryDeleteError(t *testing.T) {
@@ -764,7 +803,8 @@ func TestEventService_Cancel_Success_SetsCanceledStatus(t *testing.T) {
 		Id: uuid.New(), AccountId: participant, EventId: event.Id,
 		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(2 * time.Hour),
 	}))
-	require.NoError(t, s.slotRepository.Create(&model.Slot{
+	slotRepository := repository.NewSlotRepository(nil)
+	require.NoError(t, slotRepository.Create(&model.Slot{
 		Id: uuid.New(), EventId: event.Id,
 		StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(time.Hour),
 	}))
@@ -776,7 +816,7 @@ func TestEventService_Cancel_Success_SetsCanceledStatus(t *testing.T) {
 	assert.Equal(t, constants.EVENT_STATUS_CANCELED, found.Status)
 
 	var slots []model.Slot
-	require.NoError(t, s.slotRepository.FindByEventId(event.Id, &slots))
+	require.NoError(t, slotRepository.FindByEventId(event.Id, &slots))
 	assert.Len(t, slots, 1)
 
 	var availabilities []model.Availability

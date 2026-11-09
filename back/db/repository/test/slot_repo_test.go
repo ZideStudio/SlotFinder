@@ -125,18 +125,51 @@ func (suite *SlotRepoTestSuite) TestFindValidatedSlotByEventId() {
 	assert.Equal(suite.T(), validated.Id, slot.Id)
 }
 
-func (suite *SlotRepoTestSuite) TestDeleteByEventId() {
+func (suite *SlotRepoTestSuite) TestApplyChanges() {
 	account := suite.createAccount()
 	event := suite.createEvent(account.Id)
-	slot := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: event.StartsAt, EndsAt: event.StartsAt.Add(30 * time.Minute)}
-	suite.Require().NoError(suite.repo.Create(&slot))
+	start := time.Now().UTC().Truncate(time.Minute).Add(time.Hour)
+	toUpdate := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: start, EndsAt: start.Add(30 * time.Minute)}
+	toDelete := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: start.Add(time.Hour), EndsAt: start.Add(90 * time.Minute)}
+	suite.Require().NoError(suite.repo.Create(&toUpdate))
+	suite.Require().NoError(suite.repo.Create(&toDelete))
 
-	err := suite.repo.DeleteByEventId(event.Id)
+	toUpdate.EndsAt = start.Add(45 * time.Minute)
+	toCreate := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: start.Add(2 * time.Hour), EndsAt: start.Add(3 * time.Hour)}
+
+	err := suite.repo.ApplyChanges([]model.Slot{toCreate}, []model.Slot{toUpdate}, []model.Slot{toDelete})
 	assert.NoError(suite.T(), err)
 
 	var slots []model.Slot
-	suite.db.Where("event_id = ?", event.Id).Find(&slots)
-	assert.Len(suite.T(), slots, 0)
+	suite.Require().NoError(suite.db.Where("event_id = ?", event.Id).Order("starts_at").Find(&slots).Error)
+	suite.Require().Len(slots, 2)
+	assert.Equal(suite.T(), toUpdate.Id, slots[0].Id)
+	assert.True(suite.T(), slots[0].EndsAt.Equal(toUpdate.EndsAt))
+	assert.Equal(suite.T(), toCreate.Id, slots[1].Id)
+}
+
+func (suite *SlotRepoTestSuite) TestApplyChanges_RollsBackOnError() {
+	account := suite.createAccount()
+	event := suite.createEvent(account.Id)
+	start := time.Now().UTC().Truncate(time.Minute).Add(time.Hour)
+	toUpdate := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: start, EndsAt: start.Add(30 * time.Minute)}
+	toDelete := model.Slot{Id: uuid.New(), EventId: event.Id, StartsAt: start.Add(time.Hour), EndsAt: start.Add(90 * time.Minute)}
+	suite.Require().NoError(suite.repo.Create(&toUpdate))
+	suite.Require().NoError(suite.repo.Create(&toDelete))
+
+	updated := toUpdate
+	updated.EndsAt = start.Add(45 * time.Minute)
+	// Creating a slot with an already used id fails after the deletion and the update
+	duplicate := model.Slot{Id: toUpdate.Id, EventId: event.Id, StartsAt: start.Add(2 * time.Hour), EndsAt: start.Add(3 * time.Hour)}
+
+	err := suite.repo.ApplyChanges([]model.Slot{duplicate}, []model.Slot{updated}, []model.Slot{toDelete})
+	assert.Error(suite.T(), err)
+
+	var slots []model.Slot
+	suite.Require().NoError(suite.db.Where("event_id = ?", event.Id).Order("starts_at").Find(&slots).Error)
+	suite.Require().Len(slots, 2)
+	assert.True(suite.T(), slots[0].EndsAt.Equal(toUpdate.EndsAt))
+	assert.Equal(suite.T(), toDelete.Id, slots[1].Id)
 }
 
 func (suite *SlotRepoTestSuite) TestDeleteValidatedSlotByEventId() {
