@@ -7,6 +7,7 @@ import (
 	"app/testutils"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -271,8 +272,10 @@ func TestHandleSSEConnection_BroadcastsMessageToConnectedClient(t *testing.T) {
 	s.BroadcastSlotsUpdate(event.Id, messages)
 
 	// The first frame received is the broadcast itself: no snapshot is sent on connection.
-	buf := make([]byte, 512)
-	n, err := resp.Body.Read(buf)
+	// Read the whole frame, a single Read may return only part of it.
+	want := "data: " + string(expected) + "\n\n"
+	frame := make([]byte, len(want))
+	_, err = io.ReadFull(resp.Body, frame)
 	require.NoError(t, err)
-	assert.Equal(t, "data: "+string(expected)+"\n\n", string(buf[:n]))
+	assert.Equal(t, want, string(frame))
 }
