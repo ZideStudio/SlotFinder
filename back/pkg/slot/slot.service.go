@@ -51,6 +51,13 @@ type TimeSlot struct {
 	EndsAt   time.Time
 }
 
+// Slots touched by a recalculation
+type SlotChanges struct {
+	Created []model.Slot
+	Updated []model.Slot
+	Deleted []model.Slot
+}
+
 func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId uuid.UUID) (SlotResponseDto, error) {
 	var selectedSlot model.Slot
 	if err := s.slotRepository.FindOneById(slotId, &selectedSlot); err != nil {
@@ -104,6 +111,9 @@ func (s *SlotService) ConfirmSlot(dto ConfirmSlotDto, slotId uuid.UUID, userId u
 		return SlotResponseDto{}, err
 	}
 
+	// Send validated slot to all participants via SSE
+	s.sseService.BroadcastSlotsUpdate(slot.EventId, sse.MapToSSESlotUpdateMessages(constants.SLOT_ACTION_CREATED, []model.Slot{slot}))
+
 	// Send event confirmation emails to all participants (including owner)
 	var participants []model.Account
 	if err := s.accountEventRepository.FindAccountsByEventId(event.Id, &participants); err != nil {
@@ -154,6 +164,9 @@ func (s *SlotService) RemoveValidatedSlot(slotId uuid.UUID, userId uuid.UUID) er
 		return err
 	}
 
+	// Send removed validated slot to all participants via SSE
+	s.sseService.BroadcastSlotsUpdate(selectedSlot.EventId, sse.MapToSSESlotUpdateMessages(constants.SLOT_ACTION_DELETED, []model.Slot{selectedSlot}))
+
 	// Send cancellation emails
 	var participants []model.Account
 	if err := s.accountEventRepository.FindAccountsByEventId(event.Id, &participants); err != nil {
@@ -192,7 +205,7 @@ func (s *SlotService) WaitAsyncLoads() {
 	s.asyncLoads.Wait()
 }
 
-// Recalculates and recreates all slots for an event
+// Recalculates the slots of an event, then only persists and broadcasts the ones that changed
 func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 	// Acquire per-event mutex to prevent concurrent slot recalculations for the same event
 	mutexInterface, _ := s.loadSlotsMutexes.LoadOrStore(eventId.String(), &sync.Mutex{})
@@ -220,9 +233,10 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 		return
 	}
 
-	// Delete existing slots for this event
-	if err := s.slotRepository.DeleteByEventId(eventId); err != nil {
-		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to delete existing slots")
+	// Get existing slots for this event
+	var existingSlots []model.Slot
+	if err := s.slotRepository.FindByEventId(eventId, &existingSlots); err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to get existing slots")
 		return
 	}
 
@@ -245,41 +259,85 @@ func (s *SlotService) LoadSlots(eventId uuid.UUID) {
 		)
 	}
 
-	// If less than 2 active users, no slots can be created
-	if len(userAvailabilities) < 2 {
-		log.Debug().Str("eventId", eventId.String()).Msg("Not enough participants to calculate slots")
-		return
-	}
-
-	// Find common available time slots
+	// Find common available time slots (none if less than 2 active users), existing ones that disappear get deleted
 	commonSlots := s.findIntersectingTimeSlots(userAvailabilities, time.Duration(event.Duration)*time.Minute)
-	if len(commonSlots) == 0 {
-		log.Debug().Str("eventId", eventId.String()).Msg("No common available slots found")
+
+	// Only keep the slots that changed
+	changes := s.diffSlots(eventId, existingSlots, commonSlots)
+	if len(changes.Created) == 0 && len(changes.Updated) == 0 && len(changes.Deleted) == 0 {
+		log.Debug().Str("eventId", eventId.String()).Msg("Slots are already up to date")
 		return
 	}
 
-	// Create new slots in database
-	slots := make([]model.Slot, 0, len(commonSlots))
-	for _, slot := range commonSlots {
-		newSlot := model.Slot{
-			Id:          uuid.New(),
-			EventId:     eventId,
-			StartsAt:    slot.StartsAt,
-			EndsAt:      slot.EndsAt,
-			IsValidated: false,
-		}
-
-		if err := s.slotRepository.Create(&newSlot); err != nil {
-			log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to create slot")
-		}
-
-		slots = append(slots, newSlot)
+	if err := s.slotRepository.ApplyChanges(changes.Created, changes.Updated, changes.Deleted); err != nil {
+		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to apply slot changes")
+		return
 	}
 
-	log.Debug().Str("eventId", eventId.String()).Int("slotsCreated", len(commonSlots)).Msg("Slot recalculation completed")
+	log.Debug().
+		Str("eventId", eventId.String()).
+		Int("slotsCreated", len(changes.Created)).
+		Int("slotsUpdated", len(changes.Updated)).
+		Int("slotsDeleted", len(changes.Deleted)).
+		Msg("Slot recalculation completed")
 
-	// Send new slots to all participants via SSE
-	s.sseService.BroadcastSlotsUpdate(eventId, slots)
+	// Send slot changes to all participants via SSE, deletions first so that applying them in order never overlaps two slots
+	messages := sse.MapToSSESlotUpdateMessages(constants.SLOT_ACTION_DELETED, changes.Deleted)
+	messages = append(messages, sse.MapToSSESlotUpdateMessages(constants.SLOT_ACTION_UPDATED, changes.Updated)...)
+	messages = append(messages, sse.MapToSSESlotUpdateMessages(constants.SLOT_ACTION_CREATED, changes.Created)...)
+	s.sseService.BroadcastSlotsUpdate(eventId, messages)
+}
+
+// Compares the computed time slots with the existing slots of an event.
+// Each computed slot reuses the first existing slot it overlaps that is not reused yet (updated if its dates changed),
+// or is created if there is none. Existing slots that are not reused are deleted (e.g. the second slot of a merge).
+func (s *SlotService) diffSlots(eventId uuid.UUID, existingSlots []model.Slot, computedSlots []TimeSlot) SlotChanges {
+	// Sort existing slots by start time (computed slots already are)
+	sort.Slice(existingSlots, func(i, j int) bool {
+		return existingSlots[i].StartsAt.Before(existingSlots[j].StartsAt)
+	})
+
+	var changes SlotChanges
+	reused := make([]bool, len(existingSlots))
+	for _, computed := range computedSlots {
+		match := -1
+		for i, existing := range existingSlots {
+			if !reused[i] && existing.StartsAt.Before(computed.EndsAt) && computed.StartsAt.Before(existing.EndsAt) {
+				match = i
+				break
+			}
+		}
+
+		// No existing slot to reuse, create a new one
+		if match == -1 {
+			changes.Created = append(changes.Created, model.Slot{
+				Id:          uuid.New(),
+				EventId:     eventId,
+				StartsAt:    computed.StartsAt,
+				EndsAt:      computed.EndsAt,
+				IsValidated: false,
+			})
+			continue
+		}
+
+		reused[match] = true
+		slot := existingSlots[match]
+		if slot.StartsAt.Equal(computed.StartsAt) && slot.EndsAt.Equal(computed.EndsAt) {
+			continue
+		}
+
+		slot.StartsAt = computed.StartsAt
+		slot.EndsAt = computed.EndsAt
+		changes.Updated = append(changes.Updated, slot)
+	}
+
+	for i, existing := range existingSlots {
+		if !reused[i] {
+			changes.Deleted = append(changes.Deleted, existing)
+		}
+	}
+
+	return changes
 }
 
 // Finds time slots where all users are available

@@ -71,9 +71,33 @@ func (r *SlotRepository) FindValidatedSlotByEventId(eventId uuid.UUID, slot *mod
 	return nil
 }
 
-func (r *SlotRepository) DeleteByEventId(eventId uuid.UUID) error {
-	if err := r.db.Where("event_id = ?", eventId).Delete(&model.Slot{}).Error; err != nil {
-		log.Error().Err(err).Str("eventId", eventId.String()).Msg("SLOT_REPOSITORY::DELETE_BY_EVENT_ID Failed to delete slots by event id")
+func (r *SlotRepository) ApplyChanges(toCreate []model.Slot, toUpdate []model.Slot, toDelete []model.Slot) error {
+	if err := r.db.Transaction(func(tx *gorm.DB) error {
+		if len(toDelete) > 0 {
+			ids := make([]uuid.UUID, 0, len(toDelete))
+			for _, slot := range toDelete {
+				ids = append(ids, slot.Id)
+			}
+			if err := tx.Where("id IN ?", ids).Delete(&model.Slot{}).Error; err != nil {
+				return err
+			}
+		}
+
+		for i := range toUpdate {
+			if err := tx.Omit(clause.Associations).Updates(&toUpdate[i]).Error; err != nil {
+				return err
+			}
+		}
+
+		if len(toCreate) > 0 {
+			if err := tx.Omit(clause.Associations).Create(&toCreate).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
+		log.Error().Err(err).Msg("SLOT_REPOSITORY::APPLY_CHANGES Failed to apply slot changes")
 		return err
 	}
 

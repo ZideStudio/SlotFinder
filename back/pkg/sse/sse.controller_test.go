@@ -65,7 +65,6 @@ func TestConnect_DelegatesToService(t *testing.T) {
 	db := testutils.TestDB(t)
 	svc := newTestService()
 	svc.eventRepository = repository.NewEventRepository(db)
-	svc.slotRepository = repository.NewSlotRepository(db)
 	ctrl := &SSEController{sseService: svc}
 
 	c, recorder := newSSETestContext(uuid.New().String())

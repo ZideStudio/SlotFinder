@@ -29,10 +29,7 @@ type SSEService struct {
 	clientsByEvent  map[uuid.UUID]map[string]bool // eventId -> set of clientIds
 	mutex           sync.RWMutex
 	eventRepository *repository.EventRepository
-	slotRepository  *repository.SlotRepository
 }
-
-type SlotUpdateMessage []model.Slot
 
 const (
 	defaultChannelBuffer = 10 // Buffer size for SSE client channels
@@ -48,7 +45,6 @@ func GetSSEService() *SSEService {
 			clients:         make(map[string]*SSEClient),
 			clientsByEvent:  make(map[uuid.UUID]map[string]bool),
 			eventRepository: repository.NewEventRepository(nil),
-			slotRepository:  repository.NewSlotRepository(nil),
 		}
 	})
 	return sseServiceInstance
@@ -60,7 +56,6 @@ func NewSSEService() *SSEService {
 		clients:         make(map[string]*SSEClient),
 		clientsByEvent:  make(map[uuid.UUID]map[string]bool),
 		eventRepository: repository.NewEventRepository(nil),
-		slotRepository:  repository.NewSlotRepository(nil),
 	}
 }
 
@@ -117,13 +112,11 @@ func (s *SSEService) RemoveClient(clientId string) {
 	}
 }
 
-// BroadcastSlotsUpdate sends slot updates to all participants of an event
-func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, slots []model.Slot) {
+// BroadcastSlotsUpdate sends slot changes to all participants of an event
+func (s *SSEService) BroadcastSlotsUpdate(eventId uuid.UUID, messages []SSESlotUpdateMessage) {
 	s.mutex.RLock()
 
-	message := SlotUpdateMessage(slots)
-
-	messageBytes, err := json.Marshal(message)
+	messageBytes, err := json.Marshal(messages)
 	if err != nil {
 		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to marshal SSE message")
 		s.mutex.RUnlock()
@@ -188,29 +181,11 @@ func (s *SSEService) HandleSSEConnection(c *gin.Context, userId uuid.UUID, event
 		return
 	}
 
-	// Send current event slots on connection
-	var currentSlots []model.Slot
-	if err := s.slotRepository.FindByEventId(eventId, &currentSlots); err != nil {
-		currentSlots = []model.Slot{} // Fallback to empty array if error
-	}
-
-	initialMessage := SlotUpdateMessage(currentSlots)
-	initialBytes, err := json.Marshal(initialMessage)
-	if err != nil {
-		log.Error().Err(err).Str("eventId", eventId.String()).Msg("Failed to marshal initial SSE message")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
-	}
-
-	// Send initial message with error handling
-	if _, err := fmt.Fprintf(c.Writer, "data: %s\n\n", string(initialBytes)); err != nil {
-		return
-	}
-
 	flusher, ok := c.Writer.(http.Flusher)
 	if !ok {
 		return
 	}
+	// Open the stream right away without any snapshot: the client is already registered, so it can now fetch GET /events/{eventId} without missing changes
 	flusher.Flush()
 
 	// Listen for messages and client disconnect
