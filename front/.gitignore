@@ -25,6 +25,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+/.vscode/settings.json
 /.idea
 /public/mockServiceWorker.js
 
@@ -44,3 +45,6 @@ chromatic-diagnostics.json
 # Orval — generated from swagger at build time, do not commit
 /src/api/generated/
 /src/api/orval/swagger.json
+
+# Playwright BDD generated files
+tests/.artifacts/

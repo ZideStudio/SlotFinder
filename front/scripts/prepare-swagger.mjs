@@ -15,8 +15,8 @@ const swagger = JSON.parse(
 // Client code generation.
 delete swagger.securityDefinitions;
 
-// Strip the /api base prefix from all paths so the mutator can inject
-// FRONT_BACKEND_URL at runtime, enabling /mocked-api, /api, etc.
+// Strip the /api base prefix from all paths so the fetch mutator can prepend
+// FRONT_BACKEND_URL, which is fixed at build time.
 const normalizedPaths = {};
 for (const [path, value] of Object.entries(swagger.paths)) {
   const normalized = path.startsWith("/api/") ? path.slice(4) : path;

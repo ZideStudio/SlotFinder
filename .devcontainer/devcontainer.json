@@ -23,9 +23,17 @@
         "vitest.explorer",
         "github.copilot-chat",
         "oxc.oxc-vscode",
-        "stylelint.vscode-stylelint"
+        "stylelint.vscode-stylelint",
+        "alexkrechik.cucumberautocomplete"
       ],
       "settings": {
+        "cucumberautocomplete.steps": [
+          "front/tests/common/**/*.ts",
+          "front/tests/features/**/*.steps.ts"
+        ],
+        "cucumberautocomplete.strictGherkinCompletion": true,
+        "cucumberautocomplete.syncfeatures": "front/tests/features/**/*.feature",
+        "cucumberautocomplete.onTypeFormat": true,
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
           "source.format.oxc": "always",
@@ -66,6 +74,11 @@
           "editor.defaultFormatter": "oxc.oxc-vscode",
           "editor.formatOnSave": true
         },
+        "github.copilot.chat.commitMessageGeneration.instructions": [
+          {
+            "file": ".github/git-commit-instructions.md"
+          }
+        ],
         "go.gopath": "/go",
         "go.toolsGopath": "/go",
         "go.useLanguageServer": true,
@@ -100,11 +113,14 @@
           "**/build": true,
           "**/.git": true,
           "**/pkg/mod": true
+        },
+        "[feature]": {
+          "editor.formatOnType": true
         }
       }
     }
   },
-  "forwardPorts": [3002, 3003, 51204, 63315],
+  "forwardPorts": [3002, 3003, 3004, 51204, 63315, 9323],
   "portsAttributes": {
     "3000": {
       "label": "Frontend (internal - use Traefik on 443)",
@@ -122,6 +138,10 @@
       "label": "Frontend Mock",
       "onAutoForward": "notify"
     },
+    "3004": {
+      "label": "Playwright BDD app render",
+      "onAutoForward": "notify"
+    },
     "5432": {
       "label": "PostgreSQL",
       "onAutoForward": "ignore"
@@ -136,6 +156,10 @@
     },
     "63315": {
       "label": "Vitest Browser UI",
+      "onAutoForward": "notify"
+    },
+    "9323": {
+      "label": "Playwright BDD UI",
       "onAutoForward": "notify"
     }
   }
