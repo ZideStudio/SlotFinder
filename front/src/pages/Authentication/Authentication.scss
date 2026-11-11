@@ -8,3 +8,8 @@
   border: 0;
   border-top: helpers.pxToRem(1) solid var(--color-grey-300);
 }
+
+.authentication-page .card-page__card {
+  box-sizing: border-box;
+  width: min(100%, 32rem);
+}

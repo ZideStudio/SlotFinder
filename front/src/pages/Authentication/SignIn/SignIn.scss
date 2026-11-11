@@ -1,30 +1,9 @@
-.sign-in {
+@use "../../../utils/sass/mixins/helpers";
+
+.sign-in-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-
-  &__title {
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-
-  &__card {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 32rem;
-    padding: 2rem;
-    border: 1px solid black;
-    border-radius: 20px;
-  }
-
-  &__form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+  gap: helpers.pxToRem(16);
 
   &__actions {
     display: flex;
@@ -35,16 +14,5 @@
 
   &__forgot {
     text-decoration: underline;
-  }
-
-  &__divider {
-    width: 100%;
-    margin: 0;
-    border: 0;
-    border-top: 1px solid #ccc;
-  }
-
-  &__signup {
-    margin: 0;
   }
 }
