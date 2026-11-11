@@ -1,14 +1,6 @@
-import type { ErrorResponseCodeType } from "@Front/types/api.types";
-
 export type SignInRequestBodyType = {
-  username: string;
-  email: string;
+  identifier: string;
   password: string;
-  language: string;
-};
-
-export type SignInFormType = Omit<SignInRequestBodyType, "language"> & {
-  confirmPassword: string;
 };
 
 export type SignInResponseType = {
@@ -25,10 +17,3 @@ export type SignInResponseType = {
     | null;
   userName: string;
 };
-
-export type SignInErrorCodeType = ErrorResponseCodeType<
-  | "USERNAME_ALREADY_TAKEN"
-  | "INVALID_EMAIL_FORMAT"
-  | "EMAIL_ALREADY_EXISTS"
-  | "INVALID_PASSWORD_FORMAT"
->;

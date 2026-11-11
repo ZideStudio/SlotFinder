@@ -8,5 +8,6 @@
   "forgotPassword": "Forgot Password?",
   "signUp": "Sign Up",
   "identifierLabel": "Email",
-  "noAccount": "Don't have an account?"
+  "noAccount": "Don't have an account?",
+  "error": "Sign In failed"
 }

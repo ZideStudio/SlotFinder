@@ -40,11 +40,7 @@ export const CardPage = ({
           <Icon icon={Logo} />
         </NavLink>
       )}
-      <Heading
-        id="card-page-title"
-        level={1}
-        className={`${defaultClassName}__title`}
-      >
+      <Heading level={1} className={`${defaultClassName}__title`}>
         {title}
       </Heading>
       <Card className="card-page__card" borderWeight="bold">
