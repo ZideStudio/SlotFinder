@@ -31,7 +31,7 @@
     "postinstall": "msw init && npm run generate:api"
   },
   "dependencies": {
-    "@hookform/resolvers": "7.0.2",
+    "@hookform/resolvers": "7.0.3",
     "@material-symbols/svg-300": "0.48.3",
     "@material-symbols/svg-400": "0.48.3",
     "@tanstack/react-query": "5.106.0",
