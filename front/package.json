@@ -74,7 +74,7 @@
     "remark-gfm": "4.0.1",
     "storybook": "10.6.6",
     "storybook-react-rsbuild": "3.6.2",
-    "stylelint": "17.16.0",
+    "stylelint": "18.0.0",
     "stylelint-scss": "7.4.0",
     "tsc-files": "1.1.4",
     "typescript": "7.0.2",
