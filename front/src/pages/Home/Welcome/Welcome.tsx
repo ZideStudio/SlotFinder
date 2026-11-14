@@ -5,13 +5,20 @@ import logo from "../../../assets/svg/logo/colored_logo_no_bg.svg";
 import { Icon } from "@Front/ui/atoms/Icon/Icon";
 
 import "./Welcome.scss";
+import { useNavigate } from "react-router";
 
 export const Welcome = () => {
   const { t } = useTranslation("welcome");
+  const navigate = useNavigate();
 
   return (
     <section className="welcome subgrid">
-      <Button className="welcome__sign-in-button">{t("signIn")}</Button>
+      <Button
+        className="welcome__sign-in-button"
+        onClick={() => navigate("/sign-in")}
+      >
+        {t("signIn")}
+      </Button>
 
       <div className="welcome__container">
         <Heading level={1} className="welcome__slot-finder">

@@ -22,7 +22,7 @@ describe("CardPage", () => {
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Authentication" }),
-    ).toBeInTheDocument();
+    ).toHaveAttribute("id", "card-page-title");
 
     expect(screen.getByText("Form content")).toBeInTheDocument();
   });

@@ -1,0 +1,18 @@
+@use "../../../utils/sass/mixins/helpers";
+
+.sign-in-form {
+  display: flex;
+  flex-direction: column;
+  gap: helpers.pxToRem(16);
+  width: helpers.pxToRem(305);
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__forgot {
+    text-decoration: underline;
+  }
+}
