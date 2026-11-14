@@ -4,6 +4,7 @@ import enAuthentication from "./locales/en/authentication.json";
 import enDashboard from "./locales/en/dashboard.json";
 import enDuration from "./locales/en/duration.json";
 import enError from "./locales/en/error.json";
+import enForgotPassword from "./locales/en/forgotPassword.json";
 import enLoader from "./locales/en/loader.json";
 import enSignUp from "./locales/en/signUp.json";
 import enWelcome from "./locales/en/welcome.json";
@@ -16,6 +17,7 @@ use(initReactI18next).init({
       authentication: enAuthentication,
       dashboard: enDashboard,
       error: enError,
+      forgotPassword: enForgotPassword,
       signUp: enSignUp,
       welcome: enWelcome,
       duration: enDuration,
