@@ -590,6 +590,16 @@ func TestForgotPassword_Cooldown(t *testing.T) {
 	assert.ErrorIs(t, err, constants.ERR_PASSWORD_RESET_TOO_FREQUENT.Err)
 }
 
+func TestForgotPassword_Cooldown_UnknownEmail(t *testing.T) {
+	s := newTestAccountService(t)
+	email := uniqueEmail(t)
+
+	require.NoError(t, s.ForgotPassword(&ForgotPasswordDto{Email: email}))
+
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: email})
+	assert.ErrorIs(t, err, constants.ERR_PASSWORD_RESET_TOO_FREQUENT.Err)
+}
+
 func TestForgotPassword_EmailLookupError(t *testing.T) {
 	s := newTestAccountService(t)
 	s.accountRepository = repository.NewAccountRepository(testutils.ClosedDB(t))
