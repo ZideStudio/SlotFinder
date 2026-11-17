@@ -9,6 +9,7 @@ import {
   patchAccount400Fixture,
   postAccount201Fixture,
   postAccount400Fixture,
+  postForgotPassword400Fixture,
 } from "@Mocks/fixtures/accountFixtures";
 import { http, HttpResponse } from "msw/http";
 
@@ -44,10 +45,7 @@ export const postForgotPassword400 = http.post(
   async () => {
     await applyMockDelay();
 
-    return HttpResponse.json(
-      { code: "PASSWORD_RESET_TOO_FREQUENT" },
-      { status: 400 },
-    );
+    return HttpResponse.json(postForgotPassword400Fixture, { status: 400 });
   },
 );
 

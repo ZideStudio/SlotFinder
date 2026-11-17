@@ -88,4 +88,21 @@ describe("ForgotPassword", () => {
       ),
     ).resolves.toBeVisible();
   });
+
+  it("shows a confirmation message when the reset request is successful", async () => {
+    renderRoute(renderRouteOptions);
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /^Email/u }),
+      "person@example.com",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Send reset link" }),
+    );
+
+    await expect(
+      screen.findByText(
+        "If an account exists for this email address, you’ll receive a password reset link shortly.",
+      ),
+    ).resolves.toBeVisible();
+  });
 });

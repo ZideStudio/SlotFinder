@@ -11,6 +11,7 @@ type ForgotPasswordErrorCodeType =
 type UseForgotPasswordReturn = {
   forgotPassword: (data: AccountForgotPasswordDto) => void;
   isLoading: boolean;
+  isSuccess: boolean;
   errorCode?: ForgotPasswordErrorCodeType;
 };
 
@@ -32,6 +33,7 @@ export const useForgotPassword = (): UseForgotPasswordReturn => {
   return {
     forgotPassword: mutation.mutate,
     isLoading: mutation.isPending,
+    isSuccess: mutation.isSuccess,
     errorCode,
   };
 };

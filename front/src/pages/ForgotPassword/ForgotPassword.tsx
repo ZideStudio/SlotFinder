@@ -2,6 +2,7 @@ import { signUpRoutes } from "@Front/pages/Authentication/SignUp";
 import { Button } from "@Front/ui/molecules/Button/Button";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import "./ForgotPassword.scss";
@@ -9,37 +10,37 @@ import { getSchema } from "./validation";
 import { TextField } from "@Front/components/fields/TextField/TextField";
 import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 import { useForgotPassword } from "./useForgotPassword";
+import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
 
 type ForgotPasswordFormType = {
   email: string;
 };
 
 export const ForgotPassword = () => {
-  const { forgotPassword, isLoading, errorCode } = useForgotPassword();
+  const { forgotPassword, isLoading, isSuccess, errorCode } =
+    useForgotPassword();
   const { t } = useTranslation("forgotPassword");
+  const toastService = useToastService();
   const methods = useForm<ForgotPasswordFormType>({
     resolver: yupResolver(getSchema(t)),
   });
 
+  useEffect(() => {
+    if (isSuccess) {
+      toastService.addToast(t("confirmation"), 5000);
+    }
+  }, [isSuccess, t, toastService]);
+
   return (
-    <div className="forgot-password">
+    <section className="forgot-password">
       <FormProvider {...methods}>
         <form
           noValidate
           onSubmit={methods.handleSubmit(forgotPassword)}
-          className="sign-up-form"
+          className="forgot-password__form"
         >
-          <TextField
-            name="email"
-            label={t("email")}
-            required
-            className="sign-up-input"
-          />
-          <Button
-            type="submit"
-            isLoading={isLoading}
-            className="sign-up-button"
-          >
+          <TextField name="email" label={t("email")} required />
+          <Button type="submit" isLoading={isLoading}>
             {t("submit")}
           </Button>
         </form>
@@ -51,6 +52,6 @@ export const ForgotPassword = () => {
           <Link to={`/${signUpRoutes.path}`}>{t("createAccount")}</Link>
         </p>
       </FormProvider>
-    </div>
+    </section>
   );
 };
