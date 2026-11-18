@@ -568,6 +568,22 @@ func TestForgotPassword_SendMailFails(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestForgotPassword_SendMailFails_ReleasesCooldown(t *testing.T) {
+	s := newTestAccountService(t)
+	s.mailService.SendMailFunc = func(addr string, a smtp.Auth, from string, to []string, msg []byte) error {
+		return errors.New("smtp unavailable")
+	}
+
+	email := uniqueEmail(t)
+	require.NoError(t, s.accountRepository.Create(repository.AccountCreateDto{Id: uuid.New(), Email: &email}, &model.Account{}))
+
+	require.Error(t, s.ForgotPassword(&ForgotPasswordDto{Email: email}))
+
+	stubSMTP(t, s.mailService)
+	err := s.ForgotPassword(&ForgotPasswordDto{Email: email})
+	assert.NoError(t, err)
+}
+
 func TestForgotPassword_Success_FrenchLanguage(t *testing.T) {
 	s := newTestAccountService(t)
 	stubSMTP(t, s.mailService)
