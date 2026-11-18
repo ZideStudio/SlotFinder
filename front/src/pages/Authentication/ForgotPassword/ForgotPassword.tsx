@@ -8,13 +8,15 @@ import { getSchema } from "./validation";
 import { TextField } from "@Front/components/fields/TextField/TextField";
 import { useForgotPassword } from "./useForgotPassword";
 import { useToastService } from "@Front/ui/utils/toast/hooks/useToastService";
+import { InputErrorMessage } from "@Front/ui/atoms/Inputs/InputErrorMessage/InputErrorMessage";
 
 type ForgotPasswordFormType = {
   email: string;
 };
 
 export const ForgotPassword = () => {
-  const { forgotPassword, isLoading, isSuccess } = useForgotPassword();
+  const { forgotPassword, isLoading, isSuccess, errorCode } =
+    useForgotPassword();
   const { t } = useTranslation("forgotPassword");
   const toastService = useToastService();
   const methods = useForm<ForgotPasswordFormType>({
@@ -41,6 +43,10 @@ export const ForgotPassword = () => {
           </Button>
         </form>
       </FormProvider>
+
+      {errorCode && (
+        <InputErrorMessage>{t(`error.${errorCode}`)}</InputErrorMessage>
+      )}
     </section>
   );
 };

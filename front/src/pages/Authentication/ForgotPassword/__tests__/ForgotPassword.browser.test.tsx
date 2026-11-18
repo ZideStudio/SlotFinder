@@ -3,12 +3,14 @@ import {
   renderRoute,
   type RenderRouteOptions,
 } from "@Front/utils/testsUtils/customRender/customRender";
-import { postForgotPassword200 } from "@Mocks/handlers/accountHandlers";
+import {
+  postForgotPassword200,
+  postForgotPassword400,
+} from "@Mocks/handlers/accountHandlers";
 import { worker } from "@Mocks/browser";
 import { screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { authenticationRoutes } from "../../../Authentication/routes";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 const renderRouteOptions: RenderRouteOptions = {
   routes: [authenticationRoutes],
@@ -76,5 +78,24 @@ describe("ForgotPassword", () => {
         "If an account exists for this email address, you’ll receive a password reset link shortly.",
       ),
     ).resolves.toBeVisible();
+  });
+
+  it("shows an error message when the reset request fails", async () => {
+    worker.use(postForgotPassword400);
+    renderRoute(renderRouteOptions);
+
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /^Email/u }),
+      "person@example.com",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Send reset link" }),
+    );
+
+    const errorMessage = await screen.findByRole("alert");
+    expect(errorMessage).toBeVisible();
+    expect(errorMessage).toHaveTextContent(
+      "A reset request was sent recently. Please wait before trying again.",
+    );
   });
 });
