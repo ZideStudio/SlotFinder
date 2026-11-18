@@ -1,3 +1,5 @@
+import { getPostV1AuthRefreshUrl } from "./generated/authentication/authentication";
+
 // Singleton for managing token refresh to prevent multiple simultaneous refresh calls
 class TokenRefreshManager {
   private refreshPromise: Promise<void> | null = null;
@@ -21,10 +23,8 @@ class TokenRefreshManager {
 
   private async performRefresh(): Promise<void> {
     const response = await fetch(
-      `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
-      {
-        method: "POST",
-      },
+      `${import.meta.env.FRONT_BACKEND_URL}${getPostV1AuthRefreshUrl()}`,
+      { method: "POST" },
     );
 
     if (!response.ok) {

@@ -114,7 +114,7 @@ jobs:
 
       - name: Run Playwright install
         working-directory: ${{ env.FRONT_FOLDER }}
-        run: npx playwright install
+        run: npx playwright install --with-deps
 
       - name: Init MSW worker
         working-directory: ${{ env.FRONT_FOLDER }}
