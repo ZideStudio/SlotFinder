@@ -32,7 +32,8 @@ yarn-error.log*
 storybook-static
 
 # Vitest
-.vitest*/
+.vitest-attachments/
+.vitest
 /**/__screenshots__/
 
 # Chromatic
