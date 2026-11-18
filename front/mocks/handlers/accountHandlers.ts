@@ -110,7 +110,7 @@ export const getAccountAvatar200 = http.get(
 );
 
 export const postForgotPassword200 = http.post(
-  getPostV1AccountForgotPasswordUrl(),
+  `*${getPostV1AccountForgotPasswordUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -119,7 +119,7 @@ export const postForgotPassword200 = http.post(
 );
 
 export const postForgotPassword400 = http.post(
-  getPostV1AccountForgotPasswordUrl(),
+  `*${getPostV1AccountForgotPasswordUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -128,7 +128,7 @@ export const postForgotPassword400 = http.post(
 );
 
 export const postForgotPassword500 = http.post(
-  getPostV1AccountForgotPasswordUrl(),
+  `*${getPostV1AccountForgotPasswordUrl()}`,
   async () => {
     await applyMockDelay();
 
