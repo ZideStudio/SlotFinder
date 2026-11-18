@@ -70,7 +70,7 @@ export default defineConfig(({ env }) => {
       port: Number.parseInt(process.env.PORT ?? "3000", 10),
       open: (process.env.BROWSER ?? "false") === "true",
       publicDir: {
-        ignore: ["**/mockServiceWorker.js"],
+        ignore: isProduction ? ["**/mockServiceWorker.js"] : [],
       },
     },
     html: {
