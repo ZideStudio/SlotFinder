@@ -1,5 +1,5 @@
+import { forgotPasswordRoutes } from "@Front/pages/Authentication/ForgotPassword/routes";
 import { signUpRoutes } from "@Front/pages/Authentication/SignUp";
-import { forgotPasswordRoutes } from "@Front/pages/ForgotPassword/routes";
 import { errorRoutes } from "@Front/pages/Error";
 import { oauthCallbackRoutes } from "@Front/pages/OAuthCallback";
 import { whoAreYouRoutes } from "@Front/pages/WhoAreYou/routes";
