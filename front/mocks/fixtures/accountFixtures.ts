@@ -62,3 +62,7 @@ export const getAccountMeWithoutTerms200Fixture: AccountAccountResponseDto = {
   termsAccepted: false,
   termsVersion: undefined,
 };
+
+export const postForgotPassword400Fixture: HelpersApiError = {
+  code: "PASSWORD_RESET_TOO_FREQUENT",
+};

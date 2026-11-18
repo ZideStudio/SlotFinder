@@ -9,6 +9,7 @@ import {
   patchAccount400Fixture,
   postAccount201Fixture,
   postAccount400Fixture,
+  postForgotPassword400Fixture,
 } from "@Mocks/fixtures/accountFixtures";
 import { http, HttpResponse } from "msw/http";
 
@@ -27,6 +28,36 @@ export const postAccount400 = http.post(
     await applyMockDelay();
 
     return HttpResponse.json(postAccount400Fixture, { status: 400 });
+  },
+);
+
+export const postForgotPassword200 = http.post(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
+  async () => {
+    await applyMockDelay();
+
+    return new HttpResponse(null, { status: 200 });
+  },
+);
+
+export const postForgotPassword400 = http.post(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
+  async () => {
+    await applyMockDelay();
+
+    return HttpResponse.json(postForgotPassword400Fixture, { status: 400 });
+  },
+);
+
+export const postForgotPassword500 = http.post(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
+  async () => {
+    await applyMockDelay();
+
+    return HttpResponse.json<HelpersApiError>(
+      { code: SERVER_ERROR },
+      { status: 500 },
+    );
   },
 );
 
