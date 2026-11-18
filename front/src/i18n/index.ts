@@ -8,6 +8,7 @@ import enLoader from "./locales/en/loader.json";
 import enSignUp from "./locales/en/signUp.json";
 import enWelcome from "./locales/en/welcome.json";
 import enWhoAreYou from "./locales/en/whoAreYou.json";
+import enResetPassword from "./locales/en/resetPassword.json";
 
 // oxlint-disable-next-line vitest/require-hook, react-hooks/rules-of-hooks
 use(initReactI18next).init({
@@ -20,6 +21,7 @@ use(initReactI18next).init({
       welcome: enWelcome,
       duration: enDuration,
       whoAreYou: enWhoAreYou,
+      resetPassword: enResetPassword,
       loader: enLoader,
     },
   },

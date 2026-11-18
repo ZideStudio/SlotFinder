@@ -2,10 +2,12 @@ import { signUpRoutes } from "@Front/pages/Authentication/SignUp";
 import { errorRoutes } from "@Front/pages/Error";
 import { oauthCallbackRoutes } from "@Front/pages/OAuthCallback";
 import { whoAreYouRoutes } from "@Front/pages/WhoAreYou/routes";
+import { resetPasswordRoutes } from "@Front/pages/Authentication/ResetPassword/routes";
 
 export const appRoutes = {
   home: () => "/",
   signUp: () => `/${signUpRoutes.path}`,
+  resetPassword: () => `/${resetPasswordRoutes.path}`,
   oAuthCallback: ({
     error,
     returnUrl,
