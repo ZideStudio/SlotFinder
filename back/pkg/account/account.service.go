@@ -297,11 +297,17 @@ func (s *AccountService) Update(dto *AccountUpdateDto, userId uuid.UUID) (Accoun
 }
 
 // ForgotPassword generates a reset token and sends reset email
-func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
+func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) (err error) {
 	// Atomic check-and-set to prevent race conditions
-	if _, found := s.passwordResetCooldown.Get(dto.Email); found {
+	if err := s.passwordResetCooldown.Add(dto.Email, time.Now(), cache.DefaultExpiration); err != nil {
 		return constants.ERR_PASSWORD_RESET_TOO_FREQUENT.Err
 	}
+	// Release the cooldown on internal failures
+	defer func() {
+		if err != nil {
+			s.passwordResetCooldown.Delete(dto.Email)
+		}
+	}()
 
 	var account model.Account
 	if err := s.accountRepository.FindOneByEmail(dto.Email, &account); err != nil {
@@ -348,9 +354,6 @@ func (s *AccountService) ForgotPassword(dto *ForgotPasswordDto) error {
 		log.Error().Err(err).Str("email", *account.Email).Msg("ACCOUNT_SERVICE::SEND_PASSWORD_RESET_EMAIL Failed to send password reset email")
 		return err
 	}
-
-	// Record this attempt
-	s.passwordResetCooldown.Set(dto.Email, time.Now(), cache.DefaultExpiration)
 
 	return nil
 }
