@@ -1,0 +1,13 @@
+{
+  "title": "Sign In",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "submitButton": "Sign In",
+  "requiredIdentifier": "Email is required",
+  "requiredPassword": "Password is required",
+  "forgotPassword": "Forgot Password?",
+  "signUp": "Sign Up",
+  "identifierLabel": "Email",
+  "noAccount": "Don't have an account?",
+  "error": "Sign In failed"
+}

@@ -13,7 +13,10 @@ export const Authentication = () => {
   const currentTitle = matches.at(-1)?.handle?.title;
 
   return (
-    <CardPage title={currentTitle ? t(currentTitle) : ""}>
+    <CardPage
+      className="authentication-page"
+      title={currentTitle ? t(currentTitle) : ""}
+    >
       <Outlet />
       <hr className="authentication-divider" />
       <OAuth />
