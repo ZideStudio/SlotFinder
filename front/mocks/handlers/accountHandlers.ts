@@ -49,6 +49,18 @@ export const postForgotPassword400 = http.post(
   },
 );
 
+export const postForgotPassword500 = http.post(
+  `${import.meta.env.FRONT_BACKEND_URL}/v1/account/forgot-password`,
+  async () => {
+    await applyMockDelay();
+
+    return HttpResponse.json<HelpersApiError>(
+      { code: SERVER_ERROR },
+      { status: 500 },
+    );
+  },
+);
+
 export const patchAccount200 = http.patch(
   `${import.meta.env.FRONT_BACKEND_URL}/v1/account`,
   async () => {

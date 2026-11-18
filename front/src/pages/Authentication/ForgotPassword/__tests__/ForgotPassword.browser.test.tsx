@@ -6,6 +6,7 @@ import {
 import {
   postForgotPassword200,
   postForgotPassword400,
+  postForgotPassword500,
 } from "@Mocks/handlers/accountHandlers";
 import { worker } from "@Mocks/browser";
 import { screen } from "@testing-library/react";
@@ -96,6 +97,25 @@ describe("ForgotPassword", () => {
     expect(errorMessage).toBeVisible();
     expect(errorMessage).toHaveTextContent(
       "A reset request was sent recently. Please wait before trying again.",
+    );
+  });
+
+  it("shows SERVER_ERROR when the reset request fails with an unknown error", async () => {
+    worker.use(postForgotPassword500);
+    renderRoute(renderRouteOptions);
+
+    await userEvent.type(
+      screen.getByRole("textbox", { name: /^Email/u }),
+      "person@example.com",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Send reset link" }),
+    );
+
+    const errorMessage = await screen.findByRole("alert");
+    expect(errorMessage).toBeVisible();
+    expect(errorMessage).toHaveTextContent(
+      "We couldn’t send the reset link. Please try again later.",
     );
   });
 });

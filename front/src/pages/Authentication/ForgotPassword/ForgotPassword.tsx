@@ -15,7 +15,7 @@ type ForgotPasswordFormType = {
 };
 
 export const ForgotPassword = () => {
-  const { forgotPassword, isLoading, isSuccess, errorCode } =
+  const { forgotPassword, isLoading, isSuccess, isError, errorCode } =
     useForgotPassword();
   const { t } = useTranslation("forgotPassword");
   const toastService = useToastService();
@@ -44,8 +44,10 @@ export const ForgotPassword = () => {
         </form>
       </FormProvider>
 
-      {errorCode && (
-        <InputErrorMessage>{t(`error.${errorCode}`)}</InputErrorMessage>
+      {isError && (
+        <InputErrorMessage>
+          {t(`error.${errorCode ?? "SERVER_ERROR"}`)}
+        </InputErrorMessage>
       )}
     </section>
   );
