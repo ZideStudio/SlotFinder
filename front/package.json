@@ -24,22 +24,23 @@
     "lint:stylelint:fix": "stylelint \"src/**/*.{scss,css}\" --fix",
     "lint:oxfmt": "oxfmt --check src/ mocks/ public/",
     "lint:oxfmt:fix": "oxfmt src/ mocks/ public/",
+    "prelint:tsc": "npm run generate:i18next",
     "lint:tsc": "tsc --noEmit",
     "package:check": "npm exec --yes package-lock-utd@1.1.3",
-    "generate:i18next": "i18next-resources-for-ts toc -i ./src/i18n/locales/en -o ./src/i18n/@types/resources.ts",
+    "generate:i18next": "i18next-resources-for-ts interface -i ./src/i18n/locales/en -o ./src/i18n/@types/resources.d.ts",
     "generate:api": "node scripts/prepare-swagger.mjs && orval",
-    "postinstall": "msw init && npm run generate:api"
+    "postinstall": "msw init & npm run generate:api & npm run generate:i18next"
   },
   "dependencies": {
     "@hookform/resolvers": "7.0.6",
     "@material-symbols/svg-300": "0.49.0",
     "@material-symbols/svg-400": "0.49.0",
     "@tanstack/react-query": "5.107.1",
-    "i18next": "27.1.1",
+    "i18next": "27.2.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-hook-form": "7.92.0",
-    "react-i18next": "17.1.13",
+    "react-i18next": "18.0.3",
     "react-router": "8.5.1",
     "yup": "1.7.1"
   },

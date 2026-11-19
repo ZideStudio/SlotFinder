@@ -2,7 +2,7 @@ import type { TFunction } from "i18next";
 import { boolean, object, ref, string } from "yup";
 import { EMAIL_REGEX, PASSWORD_MIN_LENGTH, PASSWORD_REGEX } from "./constants";
 
-export const getSchema = (translate: TFunction) =>
+export const getSchema = (translate: TFunction<"signUp">) =>
   object({
     email: string()
       .required(translate("requiredEmail"))

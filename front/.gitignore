@@ -45,3 +45,6 @@ chromatic-diagnostics.json
 # Orval — generated from swagger at build time, do not commit
 /src/api/generated/
 /src/api/orval/swagger.json
+
+# Generated from the English translation files
+/src/i18n/@types/resources.d.ts
