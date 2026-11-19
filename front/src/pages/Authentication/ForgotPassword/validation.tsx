@@ -1,12 +1,16 @@
+import { getCommonSchema } from "@Front/utils/helpers/schemas";
 import type { TFunction } from "i18next";
-import { object, string } from "yup";
+import { StringSchema } from "yup";
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u;
+export const getSchema = (translate: TFunction) => {
+  const commonSchema = getCommonSchema(translate);
 
-export const getSchema = (translate: TFunction<"forgotPassword">) =>
-  object({
-    email: string()
-      .required(translate("requiredEmail"))
-      .max(320, translate("invalidEmail"))
-      .matches(EMAIL_REGEX, translate("invalidEmail")),
-  });
+  return commonSchema
+    .shape({
+      email: (commonSchema.fields.email as StringSchema).required(
+        translate("requiredEmail"),
+      ),
+    })
+    .pick(["email"])
+    .required();
+};
