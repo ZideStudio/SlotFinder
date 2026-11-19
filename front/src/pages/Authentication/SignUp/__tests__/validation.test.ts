@@ -2,7 +2,7 @@ import type { TFunction } from "i18next";
 import { describe, expect, it } from "vitest";
 import { getSchema } from "../validation";
 
-const translate = ((key) => String(key)) as TFunction;
+const translate = ((key) => String(key)) as TFunction<"signUp">;
 const schema = getSchema(translate);
 const validSignUp = {
   email: "user@example.com",

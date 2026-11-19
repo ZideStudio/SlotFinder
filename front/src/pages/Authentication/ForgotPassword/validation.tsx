@@ -3,7 +3,7 @@ import { object, string } from "yup";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u;
 
-export const getSchema = (translate: TFunction) =>
+export const getSchema = (translate: TFunction<"forgotPassword">) =>
   object({
     email: string()
       .required(translate("requiredEmail"))

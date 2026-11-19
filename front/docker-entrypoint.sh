@@ -7,7 +7,7 @@ npm install
 
 # Generate i18next resources for TypeScript
 echo "Generating i18next resources for TypeScript..."
-npm run i18next-resources-for-ts
+npm run generate:i18next
 
 # Execute the command passed to the container
 exec "$@"

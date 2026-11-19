@@ -11,7 +11,7 @@ import {
 import type { WhoAreYouFormData } from "./types";
 
 export const getSchema = (
-  translate: TFunction,
+  translate: TFunction<"whoAreYou">,
 ): ObjectSchema<WhoAreYouFormData> =>
   object({
     avatar: mixed<FileList>()
