@@ -6,6 +6,9 @@ import { getUserSchema } from "@Front/utils/validation/userSchema";
 export const getSchema = (
   translate: TFunction<"whoAreYou">,
 ): ObjectSchema<WhoAreYouFormData> =>
-  getUserSchema(translate)
-    .pick(["avatar", "username", "color", "termsAccepted"])
-    .required();
+  getUserSchema(translate).pick([
+    "avatar",
+    "username",
+    "color",
+    "termsAccepted",
+  ]);

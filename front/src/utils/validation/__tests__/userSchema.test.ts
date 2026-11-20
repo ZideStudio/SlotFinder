@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import { describe, expect, it } from "vitest";
 import { AVATAR_MAX_SIZE_MB } from "@Front/pages/WhoAreYou/constants";
-import { getUserSchema } from "../../validation/userSchema";
+import { getUserSchema } from "../userSchema";
 
 const translate = ((key) => String(key)) as TFunction;
 const schema = getUserSchema(translate);
