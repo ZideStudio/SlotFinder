@@ -12,11 +12,12 @@ import {
 } from "@Front/pages/WhoAreYou/constants";
 import { type TFunction } from "i18next";
 import { boolean, mixed, object, ref, string } from "yup";
-import { mbToBytes } from "./fileSizeConversions";
+import { mbToBytes } from "../helpers/fileSizeConversions";
 
-export const getCommonSchema = (translate: TFunction) =>
+export const getUserSchema = (translate: TFunction) =>
   object({
     email: string()
+      .required(translate("requiredEmail"))
       .max(320, translate("invalidEmail"))
       .matches(EMAIL_REGEX, {
         message: translate("invalidEmail"),
