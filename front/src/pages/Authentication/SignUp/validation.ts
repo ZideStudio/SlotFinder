@@ -4,7 +4,10 @@ import { getUserSchema } from "@Front/utils/validation/userSchema";
 export const getSchema = (translate: TFunction) => {
   const commonSchema = getUserSchema(translate);
 
-  return commonSchema
-    .pick(["email", "password", "confirmPassword", "termsAccepted"])
-    .required();
+  return commonSchema.pick([
+    "email",
+    "password",
+    "confirmPassword",
+    "termsAccepted",
+  ]);
 };
