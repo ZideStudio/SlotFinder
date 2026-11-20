@@ -1,10 +1,10 @@
 import type { TFunction } from "i18next";
 import { describe, expect, it } from "vitest";
 import { AVATAR_MAX_SIZE_MB } from "@Front/pages/WhoAreYou/constants";
-import { getCommonSchema } from "../../validation/userSchema";
+import { getUserSchema } from "../../validation/userSchema";
 
 const translate = ((key) => String(key)) as TFunction;
-const schema = getCommonSchema(translate);
+const schema = getUserSchema(translate);
 
 const createFileList = (...files: File[]): FileList => {
   const fileList = Object.create(FileList.prototype) as FileList;
