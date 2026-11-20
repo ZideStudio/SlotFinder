@@ -1,16 +1,9 @@
-import { getCommonSchema } from "@Front/utils/helpers/schemas";
+import { getUserSchema } from "@Front/utils/validation/userSchema";
 import type { TFunction } from "i18next";
-import { StringSchema } from "yup";
 
 export const getSchema = (translate: TFunction) => {
-  const commonSchema = getCommonSchema(translate);
+  const commonSchema = getUserSchema(translate);
 
   return commonSchema
-    .shape({
-      email: (commonSchema.fields.email as StringSchema).required(
-        translate("requiredEmail"),
-      ),
-    })
-    .pick(["email"])
-    .required();
+    .pick(["email"]);
 };
