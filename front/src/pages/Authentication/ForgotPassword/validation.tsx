@@ -4,6 +4,5 @@ import type { TFunction } from "i18next";
 export const getSchema = (translate: TFunction) => {
   const commonSchema = getUserSchema(translate);
 
-  return commonSchema
-    .pick(["email"]);
+  return commonSchema.pick(["email"]);
 };
