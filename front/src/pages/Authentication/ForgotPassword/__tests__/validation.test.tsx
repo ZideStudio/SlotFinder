@@ -1,7 +1,7 @@
-import { getSchema } from "../validation";
 import { type TFunction } from "i18next";
+import { getSchema } from "../validation";
 
-const translate = ((key) => String(key)) as TFunction;
+const translate = ((key) => String(key)) as TFunction<"forgotPassword">;
 const schema = getSchema(translate);
 const validForgotPassword = {
   email: "",

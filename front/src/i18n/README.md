@@ -16,7 +16,7 @@ src/i18n/
   index.ts                # i18n initialization and configuration
   @types/
     i18next.d.ts          # i18next type augmentation
-    resources.ts          # TypeScript types for translation keys (auto-generated)
+    resources.d.ts        # Literal TypeScript resource types (auto-generated)
   locales/
     en/
       home.json           # English translations for Home page
@@ -27,9 +27,10 @@ src/i18n/
 ## How it works
 
 - Translation files are written in JSON, organized by namespace (one file per page/feature).
-- The `generate:i18next` script scans all translation files and generates TypeScript types in `@types/resources.ts`.
+- The `generate:i18next` script generates literal types from the English JSON files in `@types/resources.d.ts`. These types let i18next check translation keys and required interpolation variables.
 - The i18n config (`index.ts`) loads all namespaces and provides them to i18next.
 - You get autocompletion and type safety for translation keys in your components.
+- The runtime default namespace is `translation`, which has no resource bundle. Pass an existing namespace to `useTranslation` or use a namespace-qualified key.
 
 ## Usage in the App
 
@@ -59,7 +60,7 @@ t("welcome");
 
 ## Notes
 
-- The types in `@types/resources.ts` is auto-generated. Do not edit it manually.
+- `@types/resources.d.ts` is auto-generated. Do not edit it manually.
 - You can add more languages by creating new folders in `locales/` and updating the i18n config.
 
 ---
