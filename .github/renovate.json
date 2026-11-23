@@ -5,7 +5,9 @@
     ":timezone(Europe/Paris)",
     ":enableVulnerabilityAlertsWithLabel(security)"
   ],
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "labels": ["dependencies"],
   "minimumReleaseAge": "5 days",
   "statusCheckNames": {
