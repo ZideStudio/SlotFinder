@@ -15,9 +15,7 @@ import { boolean, mixed, object, ref, string } from "yup";
 import { mbToBytes } from "../helpers/fileSizeConversions";
 
 export const getUserSchema = (
-  translate: TFunction<
-    "signUp" | "forgotPassword" | "whoAreYou"
-  >,
+  translate: TFunction<"signUp" | "forgotPassword" | "whoAreYou">,
 ) =>
   object({
     email: string()

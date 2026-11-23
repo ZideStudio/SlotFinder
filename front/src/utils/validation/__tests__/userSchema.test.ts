@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { AVATAR_MAX_SIZE_MB } from "@Front/pages/WhoAreYou/constants";
 import { getUserSchema } from "../userSchema";
 
-const translate = ((key) => String(key)) as TFunction<"signUp" | "forgotPassword" | "whoAreYou">;
+const translate = ((key) => String(key)) as TFunction<
+  "signUp" | "forgotPassword" | "whoAreYou"
+>;
 const schema = getUserSchema(translate);
 
 const createFileList = (...files: File[]): FileList => {
