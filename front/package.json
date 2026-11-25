@@ -68,7 +68,7 @@
     "i18next-resources-for-ts": "2.1.2",
     "jsdom": "31.0.1",
     "monocart-coverage-reports": "3.2.1",
-    "msw": "3.0.6",
+    "msw": "3.0.7",
     "orval": "8.48.0",
     "oxfmt": "0.79.0",
     "oxlint": "1.94.0",
