@@ -1,5 +1,5 @@
 import { Button } from "@Front/ui/molecules/Button/Button";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,7 +20,7 @@ export const ForgotPassword = () => {
   const { t } = useTranslation("forgotPassword");
   const toastService = useToastService();
   const methods = useForm<ForgotPasswordFormType>({
-    resolver: yupResolver(getSchema(t)),
+    resolver: zodResolver(getSchema(t)),
   });
 
   useEffect(() => {

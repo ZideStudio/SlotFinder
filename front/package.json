@@ -42,7 +42,7 @@
     "react-hook-form": "7.92.0",
     "react-i18next": "18.0.3",
     "react-router": "8.5.2",
-    "yup": "1.7.1"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@pplancq/stylelint-config": "6.1.8",

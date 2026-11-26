@@ -1,6 +1,6 @@
 import { mbToBytes } from "@Front/utils/helpers/fileSizeConversions";
 import type { TFunction } from "i18next";
-import { boolean, mixed, object, string, type ObjectSchema } from "yup";
+import { z } from "zod";
 import {
   AVATAR_FILE_TYPES,
   AVATAR_MAX_SIZE_MB,
@@ -10,36 +10,37 @@ import {
 } from "./constants";
 import type { WhoAreYouFormData } from "./types";
 
-export const getSchema = (
-  translate: TFunction<"whoAreYou">,
-): ObjectSchema<WhoAreYouFormData> =>
-  object({
-    avatar: mixed<FileList>()
-      .required(translate("avatarRequired"))
-      .test("fileList", translate("avatarRequired"), (value) => {
-        if (!value || !(value instanceof FileList) || value.length === 0) {
-          return false;
-        }
-        return true;
-      })
-      .test(
-        "fileSize",
-        translate("avatarFileSizeError", { maxSize: AVATAR_MAX_SIZE_MB }),
-        (value) => {
-          if (!value || !(value instanceof FileList) || value.length === 0) {
-            return false;
-          }
-          return value[0].size <= mbToBytes(AVATAR_MAX_SIZE_MB);
+export const getSchema = (translate: TFunction<"whoAreYou">) =>
+  z.object({
+    avatar: z
+      .custom<FileList>(
+        (value) =>
+          typeof FileList !== "undefined" &&
+          value instanceof FileList &&
+          value.length > 0,
+        { message: translate("avatarRequired") },
+      )
+      .refine(
+        (value) =>
+          !(typeof FileList !== "undefined" && value instanceof FileList) ||
+          value.length === 0 ||
+          value[0].size <= mbToBytes(AVATAR_MAX_SIZE_MB),
+        {
+          message: translate("avatarFileSizeError", {
+            maxSize: AVATAR_MAX_SIZE_MB,
+          }),
         },
       )
-      .test("fileType", translate("avatarFileTypeError"), (value) => {
-        if (!value || !(value instanceof FileList) || value.length === 0) {
-          return false;
-        }
-        return AVATAR_FILE_TYPES.includes(value[0].type);
-      }),
-    username: string()
-      .required(translate("requiredUsername"))
+      .refine(
+        (value) =>
+          !(typeof FileList !== "undefined" && value instanceof FileList) ||
+          value.length === 0 ||
+          AVATAR_FILE_TYPES.includes(value[0].type),
+        { message: translate("avatarFileTypeError") },
+      ),
+    username: z
+      .string()
+      .min(1, translate("requiredUsername"))
       .min(
         USERNAME_MIN_LENGTH,
         translate("minLengthUsername", { min: USERNAME_MIN_LENGTH }),
@@ -48,10 +49,11 @@ export const getSchema = (
         USERNAME_MAX_LENGTH,
         translate("maxLengthUsername", { max: USERNAME_MAX_LENGTH }),
       ),
-    color: string()
-      .required(translate("colorRequired"))
-      .matches(COLOR_REGEX, translate("colorInvalid")),
-    termsAccepted: boolean()
-      .oneOf([true], translate("termsAcceptedError"))
-      .required(translate("termsAcceptedError")),
-  }).required();
+    color: z
+      .string()
+      .min(1, translate("colorRequired"))
+      .regex(COLOR_REGEX, translate("colorInvalid")),
+    termsAccepted: z.custom<boolean>((value) => value === true, {
+      message: translate("termsAcceptedError"),
+    }),
+  }) satisfies z.ZodType<WhoAreYouFormData>;
