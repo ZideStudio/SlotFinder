@@ -1,3 +1,4 @@
+import { getPostV1AuthRefreshUrl } from "@Front/api/generated/authentication/authentication";
 import { applyMockDelay } from "@Mocks/delay";
 import {
   postTokenRefresh200Fixture,
@@ -6,7 +7,7 @@ import {
 import { http, HttpResponse } from "msw/http";
 
 export const postTokenRefresh200 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
+  `*${getPostV1AuthRefreshUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -15,7 +16,7 @@ export const postTokenRefresh200 = http.post(
 );
 
 export const postTokenRefresh500 = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
+  `*${getPostV1AuthRefreshUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -24,7 +25,7 @@ export const postTokenRefresh500 = http.post(
 );
 
 export const postTokenRefreshNetworkError = http.post(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/refresh`,
+  `*${getPostV1AuthRefreshUrl()}`,
   async () => {
     await applyMockDelay();
 

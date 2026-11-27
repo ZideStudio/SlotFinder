@@ -9,9 +9,6 @@ export default defineConfig({
       mode: "tags-split",
       target: "./src/api/generated",
       client: "fetch",
-      baseUrl: {
-        runtime: "import.meta.env.FRONT_BACKEND_URL",
-      },
       override: {
         fetch: {
           includeHttpResponseReturnType: false,

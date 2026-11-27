@@ -1,3 +1,4 @@
+import { getGetV1AuthStatusUrl } from "@Front/api/generated/authentication/authentication";
 import type { AuthStatusErrorCodeType } from "@Front/types/Authentication/authStatus/authStatus.types";
 import { applyMockDelay } from "@Mocks/delay";
 import {
@@ -9,7 +10,7 @@ import {
 import { http, HttpResponse } from "msw/http";
 
 export const getAuthStatus200 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  `*${getGetV1AuthStatusUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -18,7 +19,7 @@ export const getAuthStatus200 = http.get(
 );
 
 export const getAuthStatus401 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  `*${getGetV1AuthStatusUrl()}`,
   async () => {
     await applyMockDelay();
 
@@ -27,7 +28,7 @@ export const getAuthStatus401 = http.get(
 );
 
 export const getAuthStatus403 = (errorCode: AuthStatusErrorCodeType) =>
-  http.get(`${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`, async () => {
+  http.get(`*${getGetV1AuthStatusUrl()}`, async () => {
     await applyMockDelay();
 
     return HttpResponse.json(getAuthStatus403Fixture(errorCode), {
@@ -36,7 +37,7 @@ export const getAuthStatus403 = (errorCode: AuthStatusErrorCodeType) =>
   });
 
 export const getAuthStatus498 = http.get(
-  `${import.meta.env.FRONT_BACKEND_URL}/v1/auth/status`,
+  `*${getGetV1AuthStatusUrl()}`,
   async () => {
     await applyMockDelay();
 
