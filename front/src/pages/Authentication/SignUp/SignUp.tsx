@@ -1,6 +1,6 @@
 import { useSignUp } from "@Front/pages/Authentication/SignUp/useSignUp";
 import type { SignUpFormType } from "@Front/types/Authentication/signUp/signUp.types";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button } from "@Front/ui/molecules/Button/Button";
@@ -14,7 +14,7 @@ export const SignUp = () => {
   const { signUp, isLoading, errorCode } = useSignUp();
   const { t } = useTranslation("signUp");
   const methods = useForm<SignUpFormType>({
-    resolver: yupResolver(getSchema(t)),
+    resolver: zodResolver(getSchema(t)),
   });
 
   return (

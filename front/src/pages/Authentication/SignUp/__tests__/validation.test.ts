@@ -12,82 +12,82 @@ const validSignUp = {
 };
 
 describe("SignUp validation schema", () => {
-  it("should accept valid sign-up data", async () => {
-    await expect(schema.validate(validSignUp)).resolves.toEqual(validSignUp);
+  it("should accept valid sign-up data", () => {
+    expect(schema.parse(validSignUp)).toStrictEqual(validSignUp);
   });
 
   describe("email", () => {
-    it("should require an email", async () => {
-      await expect(
-        schema.validateAt("email", { ...validSignUp, email: "" }),
-      ).rejects.toThrow("requiredEmail");
+    it("should require an email", () => {
+      expect(() => schema.parse({ ...validSignUp, email: "" })).toThrow(
+        "requiredEmail",
+      );
     });
 
     it.each(["not-an-email", "user@domain", "user @example.com"])(
       "should reject an invalid email: %s",
-      async (email) => {
-        await expect(
-          schema.validateAt("email", { ...validSignUp, email }),
-        ).rejects.toThrow("invalidEmail");
+      (email) => {
+        expect(() => schema.parse({ ...validSignUp, email })).toThrow(
+          "invalidEmail",
+        );
       },
     );
   });
 
   describe("password", () => {
-    it("should require a password", async () => {
-      await expect(
-        schema.validateAt("password", { ...validSignUp, password: "" }),
-      ).rejects.toThrow("requiredPassword");
+    it("should require a password", () => {
+      expect(() => schema.parse({ ...validSignUp, password: "" })).toThrow(
+        "requiredPassword",
+      );
     });
 
-    it("should enforce the minimum length", async () => {
-      await expect(
-        schema.validateAt("password", {
+    it("should enforce the minimum length", () => {
+      expect(() =>
+        schema.parse({
           ...validSignUp,
           password: "Short1!",
         }),
-      ).rejects.toThrow("minLengthPassword");
+      ).toThrow("minLengthPassword");
     });
 
-    it("should enforce password complexity", async () => {
-      await expect(
-        schema.validateAt("password", {
+    it("should enforce password complexity", () => {
+      expect(() =>
+        schema.parse({
           ...validSignUp,
           password: "password1!",
         }),
-      ).rejects.toThrow("passwordComplexity");
+      ).toThrow("passwordComplexity");
     });
   });
 
   describe("password confirmation", () => {
-    it("should require a confirmation", async () => {
-      await expect(
-        schema.validateAt("confirmPassword", {
+    it("should require a confirmation", () => {
+      expect(() =>
+        schema.parse({
           ...validSignUp,
           password: "",
           confirmPassword: "",
         }),
-      ).rejects.toThrow("requiredConfirmPassword");
+      ).toThrow("requiredConfirmPassword");
     });
 
-    it("should match the password", async () => {
-      await expect(
-        schema.validateAt("confirmPassword", {
+    it("should match the password", () => {
+      expect(() =>
+        schema.parse({
           ...validSignUp,
           confirmPassword: "Different1!",
         }),
-      ).rejects.toThrow("passwordsDoNotMatch");
+      ).toThrow("passwordsDoNotMatch");
     });
   });
 
   describe("terms acceptance", () => {
-    it("should require the terms to be accepted", async () => {
-      await expect(
-        schema.validateAt("termsAccepted", {
+    it("should require the terms to be accepted", () => {
+      expect(() =>
+        schema.parse({
           ...validSignUp,
           termsAccepted: false,
         }),
-      ).rejects.toThrow("termsAcceptedError");
+      ).toThrow("termsAcceptedError");
     });
   });
 });

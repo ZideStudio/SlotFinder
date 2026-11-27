@@ -4,7 +4,7 @@ import { ColorField } from "@Front/components/fields/ColorField/ColorField";
 import { PictureUploadField } from "@Front/components/fields/PictureUploadField/PictureUploadField";
 import { TextField } from "@Front/components/fields/TextField/TextField";
 import { Button } from "@Front/ui/molecules/Button/Button";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AVATAR_FILE_TYPES } from "./constants";
@@ -18,7 +18,7 @@ import "./WhoAreYou.scss";
 export const WhoAreYou = () => {
   const { t } = useTranslation("whoAreYou");
   const methods = useForm<WhoAreYouFormData>({
-    resolver: yupResolver(getSchema(t)),
+    resolver: zodResolver(getSchema(t)),
   });
   const {
     handleSubmit,

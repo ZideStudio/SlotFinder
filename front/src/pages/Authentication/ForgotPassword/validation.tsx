@@ -1,12 +1,13 @@
 import type { TFunction } from "i18next";
-import { object, string } from "yup";
+import { z } from "zod";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u;
 
 export const getSchema = (translate: TFunction<"forgotPassword">) =>
-  object({
-    email: string()
-      .required(translate("requiredEmail"))
+  z.object({
+    email: z
+      .string()
+      .min(1, translate("requiredEmail"))
       .max(320, translate("invalidEmail"))
-      .matches(EMAIL_REGEX, translate("invalidEmail")),
+      .regex(EMAIL_REGEX, translate("invalidEmail")),
   });
