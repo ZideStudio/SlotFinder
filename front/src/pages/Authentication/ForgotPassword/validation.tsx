@@ -1,12 +1,8 @@
+import { getUserSchema } from "@Front/utils/validation/userSchema";
 import type { TFunction } from "i18next";
-import { object, string } from "yup";
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/u;
+export const getSchema = (translate: TFunction<"forgotPassword">) => {
+  const commonSchema = getUserSchema(translate);
 
-export const getSchema = (translate: TFunction<"forgotPassword">) =>
-  object({
-    email: string()
-      .required(translate("requiredEmail"))
-      .max(320, translate("invalidEmail"))
-      .matches(EMAIL_REGEX, translate("invalidEmail")),
-  });
+  return commonSchema.pick(["email"]);
+};
